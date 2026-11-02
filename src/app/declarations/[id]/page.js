@@ -1102,6 +1102,29 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 </h1>
               </Editable>
 
+              {/* Phrase du carrousel d'accueil : absente de la fiche publique,
+                  affichée seulement en mode édition (brouillon sur /test)
+                  pour pouvoir la relire et la corriger avant publication. */}
+              {edition ? (
+                <div className="mt-3 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2">
+                  <span className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+                    {"Phrase d'accueil (carrousel)"}
+                  </span>
+                  <Editable
+                    edition={edition}
+                    champ="teaser_accueil"
+                    valeurBrute={typeof contenu.teaser_accueil === "string" ? contenu.teaser_accueil : ""}
+                    multiligne
+                  >
+                    <p className="min-h-8 pr-11 pt-1 text-sm leading-snug text-zinc-600">
+                      {typeof contenu.teaser_accueil === "string" && contenu.teaser_accueil.trim()
+                        ? contenu.teaser_accueil
+                        : "Aucune phrase d'accueil sur cette fiche."}
+                    </p>
+                  </Editable>
+                </div>
+              ) : null}
+
               <div className="mt-6 flex items-center gap-3">
                 <img
                   src={vignettePhoto(declaration.candidat.photoUrl) || "/avatar-placeholder.svg"}
