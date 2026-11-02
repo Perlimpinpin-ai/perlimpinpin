@@ -237,7 +237,7 @@
     "avertissement": "Ce graphique décrit des annonces, pas leur qualité : dix mesures ne font pas une réponse plus solide que deux. La qualité de chaque proposition est évaluée dans nos fiches notées, publiées une à une après relecture.",
     "statutAnalyses": {
       "texte": "État des analyses : {publiees} fiche(s) publiée(s), {enRelecture} en relecture.",
-      "enRelecture": 3,
+      "enRelecture": 0,
       "noteEnRelecture": "Le nombre de fiches publiées est calculé à partir de la liste des propositions ; le nombre de fiches en relecture est mis à jour à la main."
     },
     "num": "2"
@@ -1363,7 +1363,8 @@
       "source": {
         "label": "ICI Azur (franceinfo)",
         "url": "https://www.franceinfo.fr/societe/mobilisation-du-17-octobre/l-extreme-gauche-a-une-grave-responsabilite-puisqu-elle-attise-l-incendie-estime-david-lisnard-candidat-a-la-presidentielle-et-maire-de-cannes_8248552.html"
-      }
+      },
+      "ficheId": 76
     },
     {
       "id": "melenchon-interdire-lbd-grenades",
@@ -1379,7 +1380,8 @@
       "source": {
         "label": "Commission des lois, via Imaz Press",
         "url": "https://imazpress.com/france-monde/-reformer-la-police-de-la-cave-au-grenier-les-relations-tumultueuses-entre-lfi-et-les-policiers"
-      }
+      },
+      "ficheId": 75
     },
     {
       "id": "philippe-peines-planchers",
@@ -1412,7 +1414,8 @@
       "source": {
         "label": "Conférence de presse, via Le Matin",
         "url": "https://www.lematin.ch/story/france-retailleau-met-en-cause-les-binationaux-violents-qui-pillent-103652286"
-      }
+      },
+      "ficheId": 71
     },
     {
       "id": "roussel-revoir-doctrine-maintien-ordre",
@@ -1428,7 +1431,8 @@
       "source": {
         "label": "BFMTV, via Yahoo Actualités",
         "url": "https://fr.news.yahoo.com/col%C3%A8re-lyc%C3%A9ens-fabien-roussel-soutient-104416713.html"
-      }
+      },
+      "ficheId": 70
     },
     {
       "id": "tondelier-doctrine-desescalade",
@@ -1444,7 +1448,8 @@
       "source": {
         "label": "Déclarations, via L'Humanité",
         "url": "https://www.titrespresse.com/25533562603/tondelier-maintien-ordre"
-      }
+      },
+      "ficheId": 72
     },
     {
       "id": "villepin-contrats-polices-municipales",
@@ -1460,7 +1465,8 @@
       "source": {
         "label": "Chronique, La France humaniste",
         "url": "https://lafrancehumaniste.fr/articles/appel-paix-civile-sociale.html"
-      }
+      },
+      "ficheId": 73
     },
     {
       "id": "zemmour-loi-anticasseurs-1970",
