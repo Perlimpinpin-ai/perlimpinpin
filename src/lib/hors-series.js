@@ -37,8 +37,9 @@ export function getHorsSeries() {
 // Dossier à fiches (`fiches`, plan budgétaire RN) : statuts écrits dans le
 // JSON. Dossier à propositions (`propositions[].ficheId`, mouvement social) :
 // une fiche compte comme publiée dès que son analyse l'est en base (lecture
-// seule, getFichesPubliees), sans toucher au JSON. Tant qu'aucune ne l'est,
-// la phrase est `accueil.messageSansFiche`.
+// seule, getFichesPubliees), sans toucher au JSON ; si `accueil.fichesPrevues`
+// dépasse le nombre de fiches déjà rattachées, le reste compte « à venir ».
+// Tant qu'aucune n'est publiée, la phrase est `accueil.messageSansFiche`.
 export async function avancementHorsSerie(hs) {
   let statuts;
   if (hs.fiches) {
@@ -52,6 +53,10 @@ export async function avancementHorsSerie(hs) {
       console.error(`[dossier ${hs.slug}] lecture des fiches impossible :`, erreur.message);
     }
     statuts = ids.map((id) => (fiches[id] ? "publiee" : "a_venir"));
+    const prevues = hs.accueil?.fichesPrevues;
+    if (Number.isInteger(prevues) && prevues > statuts.length) {
+      statuts = statuts.concat(Array(prevues - statuts.length).fill("a_venir"));
+    }
   }
   const avancement = {
     statuts,

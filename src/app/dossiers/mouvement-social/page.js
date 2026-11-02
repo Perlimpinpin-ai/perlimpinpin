@@ -47,13 +47,14 @@ const ORDRE_PAR_DEFAUT = [
   "essentiel",
   "chiffres",
   "triangle",
-  "comprendre",
-  "reponses",
   "propositions",
   "toutesLesAnalyses",
+  "comprendre",
+  "reponses",
   "pourAllerPlusLoin",
-  "releve",
+  "annexes",
   "methode",
+  "releve",
   "sources",
 ];
 
@@ -222,6 +223,7 @@ export default async function DossierMouvementSocialPage() {
     textesEnCours,
     toutesLesAnalyses,
     pourAllerPlusLoin,
+    annexes,
     releve,
     methode,
     sources = [],
@@ -357,34 +359,40 @@ export default async function DossierMouvementSocialPage() {
       </section>
     ),
 
-    // Plan de lecture : chaque entrée mène à sa section (mêmes numéros que
-    // les titres), puis les annexes.
+    // Plan de lecture : chaque entrée mène à sa partie (mêmes numéros que les
+    // titres) ; sous certaines entrées, les sous-liens (`sousItems`), avec
+    // leur numéro s'il y en a un.
     plan: plan?.items?.length ? (
       <section id="plan" className={`${SECTION} scroll-mt-20`}>
         <div className={`${CONTENEUR} flex flex-col gap-5 rounded-3xl bg-(--ms-grisPlan) p-6 sm:p-10`}>
           <p className="font-mono text-sm font-bold uppercase tracking-[0.1em] text-(--ms-noir)">{plan.titre}</p>
-          <ol className="grid grid-cols-1 gap-x-10 md:grid-cols-2">
+          <ol className="flex flex-col">
             {plan.items.map((item) => (
-              <li key={item.ancre} className="border-b border-(--ms-gris400)/40">
-                <a href={item.ancre} className="group flex items-center gap-3.5 py-3.5">
+              <li key={item.ancre} className="border-b border-(--ms-gris400)/40 pb-2">
+                <a href={item.ancre} className="group flex items-center gap-3.5 pb-1 pt-3">
                   <span className="inline-flex h-8 min-w-8 flex-none items-center justify-center rounded-md bg-(--ms-jaune) px-1 font-mono text-sm font-bold text-(--ms-noir) transition-colors group-hover:bg-(--ms-noir) group-hover:text-(--ms-jaune)">
                     {item.num}
                   </span>
-                  <span className="text-base font-bold leading-snug text-(--ms-noir) group-hover:underline">{item.titre}</span>
+                  <span className="text-base font-bold leading-snug text-(--ms-noir) group-hover:underline sm:text-lg">{item.titre}</span>
                 </a>
+                {item.sousItems?.length ? (
+                  <ul className="mb-1.5 mt-1 flex flex-col gap-2 sm:ml-[46px] sm:flex-row sm:flex-wrap sm:gap-x-6">
+                    {item.sousItems.map((sous) => (
+                      <li key={sous.ancre}>
+                        <a
+                          href={sous.ancre}
+                          className="text-[14.5px] font-medium text-(--ms-gris900) underline decoration-(--ms-gris400) underline-offset-4 hover:text-(--ms-noir) hover:decoration-(--ms-noir)"
+                        >
+                          {sous.num ? <span className="mr-1.5 font-mono text-xs font-bold text-(--ms-gris600)">{sous.num}</span> : null}
+                          {sous.titre}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </li>
             ))}
           </ol>
-          {plan.annexes?.length ? (
-            <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-(--ms-gris600)">
-              <span>En annexe :</span>
-              {plan.annexes.map((annexe) => (
-                <a key={annexe.ancre} href={annexe.ancre} className={LIEN_INTERNE}>
-                  {annexe.titre}
-                </a>
-              ))}
-            </p>
-          ) : null}
         </div>
       </section>
     ) : null,
@@ -467,7 +475,7 @@ export default async function DossierMouvementSocialPage() {
     comprendre: comprendre ? (
       <section id={comprendre.id ?? "comprendre"} className={`${SECTION} scroll-mt-20`}>
         <div className={`${CONTENEUR} flex flex-col gap-14`}>
-          <EnTetePartie surtitre={comprendre.surtitre} titre={comprendre.titre} intro={comprendre.intro} />
+          <EnTetePartie surtitre={comprendre.surtitre} num={comprendre.num} titre={comprendre.titre} intro={comprendre.intro} />
           <SyntheseNiveaux synthese={comprendre.synthese} />
           {comprendre.sections?.map((section) => (
             <SectionComprendre key={section.id} section={section} />
@@ -478,11 +486,19 @@ export default async function DossierMouvementSocialPage() {
 
     // Réponses : ce qu'a fait le gouvernement, les blocs de `reponses.blocs`
     // (moteur de blocs ; un bloc avec `id` sert d'ancre, ex. #casseurs-payeurs),
-    // les textes en discussion, le périmètre du dossier.
+    // les textes en discussion. Avec `affichage: "sousSection"`, présentée
+    // comme une sous-partie de « Comprendre » (titre numéroté, sans en-tête de
+    // partie).
     reponses: reponses ? (
-      <section id={reponses.id ?? "reponses"} className={`${SECTION} scroll-mt-20`}>
-        <div className={`${CONTENEUR} flex flex-col gap-10`}>
-          <EnTetePartie surtitre={reponses.surtitre} num={reponses.num} titre={reponses.titre} />
+      <section id={reponses.id ?? "reponses"} className={`${SECTION} scroll-mt-24`}>
+        <div className={`${CONTENEUR} flex flex-col ${reponses.affichage === "sousSection" ? "gap-6" : "gap-10"}`}>
+          {reponses.affichage === "sousSection" ? (
+            <TitreNumerote num={reponses.num} as="h3">
+              {reponses.titre}
+            </TitreNumerote>
+          ) : (
+            <EnTetePartie surtitre={reponses.surtitre} num={reponses.num} titre={reponses.titre} />
+          )}
           {reponses.gouvernement?.items?.length ? (
             <div className="flex flex-col gap-4">
               <h3 className="text-xl font-extrabold tracking-[-0.02em] text-(--ms-noir) sm:text-2xl">{reponses.gouvernement.titre}</h3>
@@ -513,19 +529,17 @@ export default async function DossierMouvementSocialPage() {
               {textesEnCours.note ? <p className="text-[13px] text-(--ms-gris600)">{textesEnCours.note}</p> : null}
             </div>
           ) : null}
-          {perimetre ? (
-            <div className="flex max-w-4xl flex-col gap-2.5 rounded-r-2xl border-l-4 border-(--ms-jaune) bg-(--ms-jaunePale) px-6 py-5 sm:px-7 sm:py-6">
-              <h3 className="text-lg font-extrabold tracking-[-0.02em] text-(--ms-noir)">{perimetre.titre}</h3>
-              <p className="text-base leading-relaxed text-(--ms-gris900)">{perimetre.texte}</p>
-            </div>
-          ) : null}
         </div>
       </section>
     ) : null,
+    // Affichés dans « Les propositions » (périmètre, juste avant les onglets) et
+    // dans « Réponses » (textes en discussion) : leurs entrées séparées de
+    // `ordreSections` n'affichent rien, pour ne pas les répéter.
     perimetre: null,
     textesEnCours: null,
 
-    // Les propositions, une par une : un onglet par levier.
+    // Les propositions analysées : introduction, périmètre du dossier, puis un
+    // onglet par levier.
     propositions: (
       <section id="propositions" className={`${SECTION} scroll-mt-20`}>
         <div className={`${CONTENEUR} flex flex-col gap-5`}>
@@ -533,6 +547,12 @@ export default async function DossierMouvementSocialPage() {
             <TitreNumerote num={reponses.numPropositions}>{reponses.titrePropositions}</TitreNumerote>
           ) : null}
           <Prose paragraphes={[reponses?.intro, statuts?.texte].filter(Boolean)} className="text-(--ms-gris900)" />
+          {perimetre ? (
+            <div className="flex max-w-4xl flex-col gap-2.5 rounded-r-2xl border-l-4 border-(--ms-jaune) bg-(--ms-jaunePale) px-6 py-5 sm:px-7 sm:py-6">
+              <h3 className="text-lg font-extrabold tracking-[-0.02em] text-(--ms-noir)">{perimetre.titre}</h3>
+              <p className="text-base leading-relaxed text-(--ms-gris900)">{perimetre.texte}</p>
+            </div>
+          ) : null}
           <OngletsPropositions onglets={onglets} groupesParOnglet={groupesParOnglet} messageOngletVide={messageOngletVide} />
         </div>
       </section>
@@ -600,6 +620,16 @@ export default async function DossierMouvementSocialPage() {
               </details>
             ))}
           </div>
+        </div>
+      </section>
+    ) : null,
+
+    // Partie « Méthode, sources et relevé complet » : son titre numéroté ; la
+    // méthode, le relevé et les sources suivent, chacun avec son ancre.
+    annexes: annexes ? (
+      <section id={annexes.id ?? "annexes"} className="w-full scroll-mt-20 px-6 pb-8 sm:px-8">
+        <div className={`${CONTENEUR} border-t-2 border-(--ms-noir) pt-7`}>
+          <TitreNumerote num={annexes.num}>{annexes.titre}</TitreNumerote>
         </div>
       </section>
     ) : null,
@@ -674,7 +704,7 @@ export default async function DossierMouvementSocialPage() {
 
     // Sources ; une source avec `ancre` (le relevé) est un lien interne.
     sources: sources.length ? (
-      <section className={SECTION}>
+      <section id="sources" className={`${SECTION} scroll-mt-20`}>
         <div className={`${CONTENEUR} flex flex-col gap-2`}>
           <Etiquette>Sources</Etiquette>
           <ul className="flex flex-col gap-1.5 text-[13px] leading-snug">

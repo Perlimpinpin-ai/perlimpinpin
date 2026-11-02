@@ -1,0 +1,138 @@
+{
+  "auditArbitrage": [],
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Zemmour veut rétablir la loi de 1970, qui punissait collectivement les participants à des violences de groupe.",
+      "texte": "Éric Zemmour propose de « rétablir la loi anti-casseurs », celle du 8 juin 1970 abrogée en 1981. Il l'a dit vers le 8 octobre 2026, pendant le mouvement lycéen (« qui donne une peine collective et des peines de prison »), puis en a fait le premier point de son « plan en quatre mesures » contre les émeutiers, le 18 octobre. **Cette loi punissait de un à cinq ans de prison les instigateurs, les organisateurs et les participants volontaires à une action de groupe ayant causé des violences ou des dégradations, et les rendait civilement responsables des dommages.** Le candidat n'a pas dit s'il reprendrait le texte tel quel ou en l'adaptant ; l'analyse retient sa formulation : un rétablissement de la loi de 1970 et de sa logique de responsabilité collective."
+    },
+    "mesure_vers_objectif": {
+      "objectif_court": "Punir tous les participants aux violences de groupe",
+      "categorie_objectif": "Sécurité et justice",
+      "objectif_vise": "Sanctionner plus largement les personnes présentes lors de violences et de pillages collectifs, pour dissuader la participation à ces actions et faire payer les dégâts.",
+      "mecanisme_propose": "Un délit qui rend punissables et civilement responsables les instigateurs, organisateurs et participants à une action de groupe violente, même sans preuve qu'ils ont eux-mêmes commis les violences.",
+      "lien_causal": "indirect"
+    },
+    "nature_et_existant": "Mesure pénale de niveau législatif. C'est un retour : l'article 314 de l'ancien Code pénal, issu de la loi du 8 juin 1970, a été abrogé en 1981. Depuis, plusieurs textes couvrent une grande partie du même terrain : le délit de participation volontaire à un attroupement après sommations (article 431-4 du Code pénal), le délit de participation sciemment à un groupement formé en vue de commettre des violences ou des dégradations (article 222-14-2, créé en 2010), la loi du 10 avril 2019 dite anticasseurs (dissimulation du visage, interdiction judiciaire de manifester, action de l'État contre les auteurs de dégradations pour se faire rembourser), et le projet de loi « casseurs-payeurs » examiné au Sénat à partir du 27 octobre 2026, qui prévoit une co-responsabilité des participants restés après les sommations. Ce que la loi de 1970 ajoutait, et que le droit actuel ne permet pas, c'est la sanction de personnes dont la participation personnelle aux violences n'est pas établie.",
+    "contexte_programme": {
+      "synthese": "La mesure ouvre le plan en quatre points de Zemmour, centré sur la sévérité pénale et l'immigration.",
+      "texte": "**La proposition est cohérente avec le reste du plan du candidat.** Le 18 octobre, Éric Zemmour a présenté quatre mesures : rétablir la loi anti-casseurs, rétablir les peines planchers, faire payer les dégâts aux coupables et à leurs familles, expulser les étrangers interpellés et déchoir de leur nationalité les binationaux condamnés. Il avait déjà défendu la loi de 1970 pendant le mouvement lycéen, avec la suppression de l'excuse de minorité et du juge de l'application des peines. **Le candidat n'a jamais exercé de mandat parlementaire** : il n'existe donc pas de vote passé à confronter, ce qui ne le pénalise pas."
+    },
+    "contexte_national": {
+      "synthese": "Le droit actuel punit déjà la participation volontaire aux violences de groupe, et a servi après le 17 octobre.",
+      "texte": "**Les outils existent et servent déjà.** À Paris, parmi les personnes déférées après le 17 octobre, **108 étaient poursuivies pour « groupement en vue de commettre des dégradations ou des violences »**, le délit créé en 2010, à côté de 244 poursuites pour atteintes aux biens. Environ 2 500 gardes à vue et 917 comparutions immédiates ont eu lieu au niveau national. **La limite constatée n'est pas l'absence de qualification pénale, mais l'identification des auteurs** : seule une petite partie des personnes présentes a été interpellée. Le contexte est aussi celui d'une mobilisation très majoritairement pacifique : 550 000 manifestants selon le ministère de l'Intérieur, 800 000 selon les organisateurs."
+    },
+    "contexte_international": {
+      "synthese": "Aucune démocratie comparable n'applique aujourd'hui une responsabilité pénale collective de ce type.",
+      "texte": "**La responsabilité pénale collective n'a pas d'équivalent récent identifié dans les démocraties européennes** ; sources insuffisantes pour trancher ici un éventuel précédent étranger réellement en vigueur. Le droit européen des droits de l'homme protège la liberté de réunion pacifique (article 11 de la Convention) et suppose qu'une sanction vise une faute personnelle. Le précédent britannique de 2011, souvent cité après des émeutes, montre **une sévérité accrue des juges envers les auteurs identifiés, pas une punition des simples présents**."
+    },
+    "impact_environnement": null,
+    "analyse_longevites": {
+      "synthese": "Aucun effet à court terme, et une exposition durable des manifestants pacifiques à des poursuites.",
+      "texte": "**Court terme (0 à 2 ans) : pas d'effet sur le calme.** Une loi nouvelle ne s'applique pas aux faits passés, et une censure constitutionnelle est probable. Moyen terme (2 à 7 ans) : si une version conforme était adoptée, elle doublerait les délits existants. **Long terme : l'expérience de 1970 à 1981 montre une application tournée vers les mouvements sociaux** plutôt que vers les seuls casseurs, avec un effet durable sur l'exercice du droit de manifester."
+    },
+    "impact_temporel_et_sectoriel": null,
+    "ce_qui_est_etabli": {
+      "synthese": "La loi de 1970 instaurait une responsabilité collective ; le Conseil constitutionnel exige aujourd'hui une faute personnelle.",
+      "texte": "**Établi : le contenu de la loi de 1970** (instigateurs, organisateurs et participants volontaires punissables, présomption de responsabilité civile) et son abrogation en 1981 au motif qu'elle créait une responsabilité collective contraire au principe de responsabilité personnelle. **Établi : le Conseil constitutionnel exige qu'une personne ne soit punie que pour son propre fait**, et n'a validé le délit de groupement de 2010 qu'en raison de l'exigence d'une participation consciente. Établi : le droit actuel punit déjà la participation volontaire à un groupement violent et le maintien dans un attroupement après sommations."
+    },
+    "ce_qui_est_probable": {
+      "synthese": "Un rétablissement à l'identique serait censuré ; une version conforme doublonnerait le droit actuel.",
+      "texte": "**Probable : une censure** de toute disposition punissant des personnes sans preuve de leur participation personnelle. Probable aussi : **une version remaniée pour passer le contrôle constitutionnel reprendrait pour l'essentiel les délits existants** (articles 222-14-2 et 431-4 du Code pénal), sans changement notable pour le maintien de l'ordre."
+    },
+    "ce_qui_est_discutable": {
+      "synthese": "L'effet de dispersion des pacifiques est plausible, mais déjà produit par le délit d'attroupement après sommations.",
+      "texte": "**Discutable : l'argument de la dissuasion par la peur d'être assimilé aux casseurs.** Il est plausible qu'une menace de sanction collective pousse les manifestants à quitter un cortège dès les premiers débordements. Mais **ce mécanisme existe déjà après les sommations**, et rien n'indique qu'il fonctionne mieux avec une responsabilité collective qu'avec la sanction individuelle actuelle."
+    },
+    "ce_qui_est_inconnu": {
+      "synthese": "On ne sait pas si le candidat reprendrait la loi à l'identique ni comment il l'articulerait avec les textes actuels.",
+      "texte": "**Inconnu : la version exacte voulue** (reprise intégrale, ou adaptation avec exigence de participation consciente) et son articulation avec la loi de 2019 et le projet de loi casseurs-payeurs. Le rapport du Sénat de 1981 ne donne aucun chiffre de poursuites ou de condamnations sous la loi de 1970 : sources insuffisantes pour trancher ici son effet réel sur les violences de l'époque."
+    },
+    "angles_morts": {
+      "synthese": "La mesure ne traite pas l'identification des auteurs, vrai goulot du maintien de l'ordre le 17 octobre.",
+      "texte": "**Premier angle mort : l'interpellation.** Une qualification pénale plus large ne sert à rien si les auteurs ne sont pas identifiés ; c'est ce qui a manqué le 17 octobre. **Deuxième angle mort : les manifestants pacifiques**, très majoritaires, que la mesure exposerait. Troisième : le recoupement avec le projet de loi casseurs-payeurs, déjà en discussion, qui organise une co-responsabilité civile limitée aux participants restés après les sommations. Le caractère collectif de la sanction est compté dans la faisabilité juridique, rappelé dans l'efficacité au regard de l'objectif de référence et, sous l'angle de ses conséquences, dans les effets rebonds : ce triple usage est signalé et assumé, car il porte sur trois aspects distincts."
+    },
+    "notation_detaillee": {
+      "operationnalite_juridique": 2,
+      "qualification_juridique": "FRAGILE",
+      "operationnalite_budgetaire": 8,
+      "qualification_budgetaire": "SOLIDE",
+      "operationnalite_moyens_humains": 5,
+      "qualification_moyens_humains": "INCERTAIN",
+      "operationnalite_moyens_total": 10,
+      "plafond_applique": true,
+      "plafond_declencheur": "juridique",
+      "efficacite": 6,
+      "qualification_efficacite": "FRAGILE",
+      "effets_rebonds_externalites": 4,
+      "qualification_effets_rebonds": "FRAGILE",
+      "degre_preparation": 4,
+      "qualification_preparation": "INCERTAIN",
+      "alignement_logique": 8,
+      "qualification_alignement": "SOLIDE",
+      "score_total": 32,
+      "appreciation": "fragile"
+    },
+    "verdict_final": "Ce qui tient : la mesure est cohérente avec le plan du candidat, peu coûteuse, et elle repose sur un texte précis, déjà appliqué de 1970 à 1981.\n\nCe qui ne tient pas : la responsabilité collective qui en fait l'originalité se heurte au principe constitutionnel selon lequel nul n'est puni que pour son propre fait. Une version conforme reprendrait des délits qui existent déjà et ont servi plus de cent fois à Paris après le 17 octobre. Pour ramener le calme, elle ne règle pas le vrai problème, l'interpellation des auteurs, et elle exposerait les manifestants pacifiques, comme l'a montré son usage passé contre des syndicalistes et des agriculteurs.\n\nCe qui reste incertain : la version exacte voulue par le candidat. La note retient un rétablissement de la loi de 1970 et de sa logique collective.",
+    "sources_utilisees": [
+      "Sénat, rapport n° 112 (1981-1982) sur la proposition de loi abrogeant la loi du 8 juin 1970 : https://www.senat.fr/rap/1981-1982/i1981_1982_0112.pdf",
+      "Conseil constitutionnel, décision n° 2010-604 DC du 25 février 2010 (violences de groupes), texte reproduit par Dalloz : https://actu.dalloz-etudiant.fr/fileadmin/actualites/pdfs/DecisionCCViolencesGroupes.pdf",
+      "Landot avocats, « Décryptage de la loi manifestations 2019-290 du 10 avril 2019 » (et décision n° 2019-780 DC) : https://blog.landot-avocats.net/2019/05/01/decryptage-de-la-loi-manifestations-2019-290-du-10-avril-2019-video-4/amp/",
+      "Public Sénat, « Les sénateurs LR veulent ressusciter la loi anti-casseurs », 03/05/2018 : https://www.publicsenat.fr/actualites/politique/les-senateurs-lr-veulent-ressusciter-la-loi-anti-casseurs-85639",
+      "20 Minutes, « Manifs lycéennes : Zemmour veut faire payer les parents jusqu'à la nuit des temps », octobre 2026 : https://www.20min.ch/fr/story/manifs-lyceennes-zemmour-veut-faire-payer-les-parents-jusqu-a-la-nuit-des-temps-103645876",
+      "JDD, « Violences urbaines : il n'y aura pas de retour à la paix sociale sans la remigration, martèle Éric Zemmour », octobre 2026 : https://www.lejdd.fr/politique/violences-urbaines-il-ny-aura-pas-de-retour-a-la-paix-sociale-sans-la-remigration-martele-eric-zemmour-186411",
+      "Presse Agence, « Éric Zemmour : c'est leur haine de la France qui unit ces émeutiers » (plan en quatre mesures), octobre 2026 : https://presseagence.fr/paris-eric-zemmour-cest-leur-haine-de-la-france-qui-unit-ces-emeutiers/",
+      "LCP, « Lycées bloqués : le projet de loi casseurs-payeurs examiné fin octobre au Sénat », 05/10/2026 : https://lcp.fr/actualites/lycees-bloques-le-projet-de-loi-casseurs-payeurs-examine-fin-octobre-au-senat-442963",
+      "Yahoo Actualités, « Après le 17 octobre, les premières comparutions immédiates éclairent sur les auteurs des violences », 22/10/2026 : https://fr.news.yahoo.com/sport/apr%C3%A8s-17-octobre-premi%C3%A8res-comparutions-171513877.html",
+      "Politis, dossier « 17 octobre » (chiffres de mobilisation) : https://www.politis.fr/dossiers/17-octobre-macron-recolte-la-colere/"
+    ],
+    "niveau_de_confiance": "Élevé sur l'obstacle constitutionnel et le recoupement avec le droit actuel ; moyen sur l'effet réel de la loi de 1970 à son époque, faute de statistiques.",
+    "limites": {
+      "synthese": "La note retient un rétablissement de la loi de 1970 avec sa logique collective, faute de précision du candidat.",
+      "texte": "**Le candidat n'a pas précisé s'il reprendrait la loi de 1970 à l'identique** ; l'analyse retient sa formulation (« peine collective »). L'objectif de référence est celui du domaine Sécurité et justice : prévenir les atteintes à l'ordre public, dont la sécurité des personnes et des biens, en conciliant cet objectif avec les libertés garanties par la Constitution. Aucune statistique d'application de la loi de 1970 n'a été trouvée : le rapport du Sénat de 1981 décrit les personnes visées sans chiffrer les condamnations."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 10,
+        "note_max": 30,
+        "plafond_applique": true,
+        "plafond_declencheur": "juridique",
+        "texte": "**Le plafond s'applique ici à cause de la faisabilité juridique**, notée 2/10 : rétablie telle quelle, la loi serait très probablement censurée. Le Conseil constitutionnel exige qu'une personne ne soit punie que de son propre fait, et n'a validé en 2010 le délit de groupement qu'à condition d'une participation « sciemment » établie, alors que la loi de 1970 présumait la responsabilité des participants sans cette preuve. Le coût budgétaire reste faible (8/10), mais les moyens humains restent incertains (5/10) : la mesure bute sur le même obstacle que le droit actuel, l'identification des personnes dans une foule, alors que les tribunaux ont déjà traité plus de 900 comparutions immédiates en quelques jours."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 6,
+        "note_max": 30,
+        "texte": "**Une version conforme à la Constitution n'ajouterait presque rien au droit en vigueur.** Les participants volontaires aux violences et ceux qui restent après les sommations sont déjà punissables, et le délit de groupement créé en 2010 a déjà servi plus de cent fois à Paris après le 17 octobre. Ce que la loi de 1970 ajoute réellement, punir des personnes dont la participation n'est pas prouvée, est à la fois inconstitutionnel et sans effet sur le vrai problème : l'identification et l'interpellation des auteurs."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 4,
+        "note_max": 20,
+        "texte": "**Le précédent de 1970 à 1981 documente un usage tourné contre les mouvements sociaux plutôt que contre les seuls casseurs.** Selon le rapport du Sénat de 1981, la loi a surtout été appliquée à des responsables syndicaux, des enseignants, des étudiants et des agriculteurs, parfois condamnés à de la prison ferme sans preuve de leur participation aux violences. Dans un mouvement rassemblant jusqu'à 800 000 manifestants très majoritairement pacifiques, une telle loi exposerait chacun à une sanction pour des faits commis par d'autres."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 4,
+        "note_max": 10,
+        "texte": "**Le mécanisme renvoie à un texte précis, mais son articulation avec le droit actuel reste floue.** Rien n'indique comment la mesure s'emboîterait avec les délits déjà existants, la loi anticasseurs de 2019 ou le projet de loi casseurs-payeurs examiné au Sénat à partir du 27 octobre 2026. Aucun chiffrage n'est fourni par le candidat."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 8,
+        "note_max": 10,
+        "texte": "**La mesure est cohérente avec le reste du plan en quatre points du candidat**, présenté le 18 octobre, et avec ses positions répétées depuis le mouvement lycéen d'octobre 2026. Aucune contradiction n'a été identifiée avec le reste de son programme sécuritaire."
+      }
+    ]
+  },
+  "titre_fiche": "Rétablir la loi anti-casseurs de 1970",
+  "resume_court": "Éric Zemmour veut rétablir la loi anti-casseurs de 1970, qui punissait collectivement les participants à des violences de groupe et les rendait responsables des dégâts. L'idée : si tous ceux qui restent risquent la prison, les foules violentes se disperseront plus vite.\n\nMais cette responsabilité collective se heurte à un principe constitutionnel : on n'est puni que pour ce qu'on a soi-même fait. Une version conforme reprendrait des délits qui existent déjà et ont servi plus de cent fois à Paris après le 17 octobre. Pour ramener le calme, le vrai manque reste l'interpellation des auteurs, et la loi a surtout visé par le passé des syndicalistes et des agriculteurs. Résultat : 32/100, fragile.",
+  "teaser_accueil": "Abrogée en 1981, elle a surtout servi contre des syndicalistes et des agriculteurs. Et l'essentiel de ce qu'elle punissait l'est déjà aujourd'hui…",
+  "verdict_final": "Ce qui tient : la mesure est cohérente avec le plan du candidat, peu coûteuse, et elle repose sur un texte précis, déjà appliqué de 1970 à 1981.\n\nCe qui ne tient pas : la responsabilité collective qui en fait l'originalité se heurte au principe constitutionnel selon lequel nul n'est puni que pour son propre fait. Une version conforme reprendrait des délits qui existent déjà et ont servi plus de cent fois à Paris après le 17 octobre. Pour ramener le calme, elle ne règle pas le vrai problème, l'interpellation des auteurs, et elle exposerait les manifestants pacifiques, comme l'a montré son usage passé contre des syndicalistes et des agriculteurs.\n\nCe qui reste incertain : la version exacte voulue par le candidat. La note retient un rétablissement de la loi de 1970 et de sa logique collective.",
+  "verdict_conclusion": "Une mesure cohérente avec le programme du candidat, mais juridiquement fragile et peu différente du droit déjà en vigueur."
+}

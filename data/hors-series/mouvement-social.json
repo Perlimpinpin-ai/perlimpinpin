@@ -21,7 +21,8 @@
     "enTete": false,
     "titre": "Violences urbaines : quelles réponses politiques ?",
     "accroche": "Après les violences du 17 octobre, les candidats multiplient les propositions sur la sécurité. Nous les analysons une à une, au regard de leur efficacité pour ramener le calme.",
-    "messageSansFiche": "Premières analyses en relecture"
+    "messageSansFiche": "Premières analyses en relecture",
+    "fichesPrevues": 11
   },
   "accent": "#f8b444",
   "miseAJour": {
@@ -46,15 +47,16 @@
     "essentiel",
     "chiffres",
     "triangle",
+    "propositions",
+    "perimetre",
+    "toutesLesAnalyses",
     "comprendre",
     "reponses",
-    "perimetre",
-    "propositions",
     "textesEnCours",
-    "toutesLesAnalyses",
     "pourAllerPlusLoin",
-    "releve",
+    "annexes",
     "methode",
+    "releve",
     "sources"
   ],
   "charte": {
@@ -79,63 +81,75 @@
     "titre": "Plan de lecture",
     "items": [
       {
-        "num": "01",
+        "num": "1",
         "titre": "L'essentiel en deux minutes",
         "ancre": "#essentiel"
       },
       {
-        "num": "02",
+        "num": "2",
         "titre": "Qui propose quoi ? La carte des candidats",
         "ancre": "#triangle"
       },
       {
-        "num": "03",
-        "titre": "Une colère d'abord scolaire",
-        "ancre": "#debut"
-      },
-      {
-        "num": "04",
-        "titre": "17 octobre : la bascule",
-        "ancre": "#17-octobre"
-      },
-      {
-        "num": "05",
-        "titre": "24 octobre : l'épreuve du maintien de l'ordre",
-        "ancre": "#24-octobre"
-      },
-      {
-        "num": "06",
-        "titre": "Casseurs et pilleurs : ce que l'on sait vraiment",
-        "ancre": "#auteurs"
-      },
-      {
-        "num": "07",
-        "titre": "Réseaux, IA, ingérences : les accélérateurs",
-        "ancre": "#amplification"
-      },
-      {
-        "num": "08",
-        "titre": "Apporter des réponses politiques aux violences",
-        "ancre": "#reponses"
-      },
-      {
-        "num": "09",
+        "num": "3",
         "titre": "Les propositions des candidats analysées",
         "ancre": "#propositions"
-      }
-    ],
-    "annexes": [
-      {
-        "titre": "Pour aller plus loin",
-        "ancre": "#plus-loin"
       },
       {
-        "titre": "Le relevé complet",
-        "ancre": "#releve"
+        "num": "4",
+        "titre": "Comprendre la crise",
+        "ancre": "#comprendre",
+        "sousItems": [
+          {
+            "num": "4.1",
+            "titre": "Une colère d'abord scolaire",
+            "ancre": "#debut"
+          },
+          {
+            "num": "4.2",
+            "titre": "17 octobre : la bascule",
+            "ancre": "#17-octobre"
+          },
+          {
+            "num": "4.3",
+            "titre": "24 octobre : l'épreuve du maintien de l'ordre",
+            "ancre": "#24-octobre"
+          },
+          {
+            "num": "4.4",
+            "titre": "Casseurs et pilleurs : ce que l'on sait vraiment",
+            "ancre": "#auteurs"
+          },
+          {
+            "num": "4.5",
+            "titre": "Réseaux, IA, ingérences : les accélérateurs",
+            "ancre": "#amplification"
+          },
+          {
+            "num": "4.6",
+            "titre": "Apporter des réponses politiques aux violences",
+            "ancre": "#reponses"
+          }
+        ]
       },
       {
-        "titre": "Méthode et sources",
-        "ancre": "#methode"
+        "num": "5",
+        "titre": "Méthode, sources et relevé complet",
+        "ancre": "#annexes",
+        "sousItems": [
+          {
+            "titre": "Méthode et limites",
+            "ancre": "#methode"
+          },
+          {
+            "titre": "Le relevé complet des prises de parole",
+            "ancre": "#releve"
+          },
+          {
+            "titre": "Sources",
+            "ancre": "#sources"
+          }
+        ]
       }
     ]
   },
@@ -148,7 +162,7 @@
       "Notre question : les propositions des candidats peuvent-elles ramener le calme et la sécurité ? Nous les classons, puis évaluons chacune : efficacité, faisabilité juridique, coût, effets indésirables. Nous ne disons pas pour qui voter."
     ],
     "id": "essentiel",
-    "num": "01"
+    "num": "1"
   },
   "chiffres": {
     "titre": "// En quatre chiffres",
@@ -223,15 +237,15 @@
     "avertissement": "Ce graphique décrit des annonces, pas leur qualité : dix mesures ne font pas une réponse plus solide que deux. La qualité de chaque proposition est évaluée dans nos fiches notées, publiées une à une après relecture.",
     "statutAnalyses": {
       "texte": "État des analyses : {publiees} fiche(s) publiée(s), {enRelecture} en relecture.",
-      "enRelecture": 3,
+      "enRelecture": 0,
       "noteEnRelecture": "Le nombre de fiches publiées est calculé à partir de la liste des propositions ; le nombre de fiches en relecture est mis à jour à la main."
     },
-    "num": "02"
+    "num": "2"
   },
   "comprendre": {
     "id": "comprendre",
-    "surtitre": "// Comprendre la crise",
-    "titre": "Avant de juger les réponses, comprendre la crise",
+    "surtitre": "// Contexte et constats",
+    "titre": "Comprendre la crise",
     "intro": "Pour savoir si une mesure de sécurité peut ramener le calme, il faut savoir d'où vient la colère, ce qui s'est passé et à qui la mesure s'adresse.",
     "synthese": {
       "titre": "Le tri des certitudes",
@@ -468,7 +482,7 @@
             ]
           }
         ],
-        "num": "03"
+        "num": "4.1"
       },
       {
         "id": "17-octobre",
@@ -550,11 +564,11 @@
             ]
           }
         ],
-        "num": "04"
+        "num": "4.2"
       },
       {
         "id": "24-octobre",
-        "num": "05",
+        "num": "4.3",
         "titre": "24 octobre : l'épreuve du maintien de l'ordre",
         "blocs": [
           {
@@ -914,7 +928,7 @@
             "texte": "Elles décrivent des personnes interpellées, poursuivies ou écrouées, pas l'ensemble des participants aux violences. Elles dépendent de l'endroit où se trouvaient les forces de l'ordre et des preuves réunies. Nationalité, immigration et origine sont trois notions distinctes (voir les définitions dans « Pour aller plus loin »). Aucune origine ne peut être déduite d'un nom, d'une photo ou d'une vidéo."
           }
         ],
-        "num": "06"
+        "num": "4.4"
       },
       {
         "id": "amplification",
@@ -1037,13 +1051,13 @@
             ]
           }
         ],
-        "num": "07"
+        "num": "4.5"
       }
-    ]
+    ],
+    "num": "4"
   },
   "reponses": {
     "id": "reponses",
-    "surtitre": "// Les réponses",
     "titre": "Apporter des réponses politiques aux violences",
     "gouvernement": {
       "titre": "Ce qu'a fait le gouvernement",
@@ -1086,9 +1100,9 @@
       ]
     },
     "intro": "Les propositions des candidats sont classées en trois leviers. Chacune est vérifiée (source, date, auteur) avant d'être ajoutée, puis analysée dans une fiche notée. Tant que la fiche n'est pas publiée, la proposition est signalée « Analyse à venir », sans note provisoire.",
-    "num": "08",
+    "num": "4.6",
     "titrePropositions": "Les propositions des candidats analysées",
-    "numPropositions": "09",
+    "numPropositions": "3",
     "blocs": [
       {
         "type": "encadre",
@@ -1181,7 +1195,8 @@
           }
         ]
       }
-    ]
+    ],
+    "affichage": "sousSection"
   },
   "perimetre": {
     "titre": "Ce que couvre ce dossier",
@@ -1282,7 +1297,195 @@
     }
   ],
   "messageOngletVide": "Les propositions de cet onglet sont en cours de vérification. Elles seront ajoutées une à une, avec leur source et leur date.",
-  "propositions": [],
+  "propositions": [
+    {
+      "id": "attal-blocage-reseaux-sociaux-emeutes",
+      "fiche": "attal-blocage-reseaux-sociaux-emeutes",
+      "candidat": "Gabriel Attal",
+      "nomTri": "Attal",
+      "parti": "Renaissance",
+      "onglet": 1,
+      "intitule": "Couper les réseaux sociaux pendant les émeutes",
+      "description": "Bloquer temporairement et de façon ciblée l'accès à certains réseaux sociaux pendant les émeutes, sur les territoires concernés.",
+      "statut": "nouvelle",
+      "date": "2026-10-19",
+      "source": {
+        "label": "RTL et message sur X, via L'Express",
+        "url": "https://actu.orange.fr/politique/apres-les-violences-du-17-octobre-gabriel-attal-propose-de-couper-les-reseaux-sociaux-l-express-via-6medias-CNT000002tb6RV.html"
+      },
+      "ficheId": 66
+    },
+    {
+      "id": "glucksmann-fin-armes-mutilantes",
+      "fiche": "glucksmann-fin-armes-mutilantes",
+      "candidat": "Raphaël Glucksmann",
+      "nomTri": "Glucksmann",
+      "parti": "Place publique",
+      "onglet": 3,
+      "intitule": "Mettre fin aux armes mutilantes en manifestation",
+      "description": "Mettre fin à l'usage des armes mutilantes, adapter le maintien de l'ordre et le renseignement aux petits groupes violents et mobiles, et mieux encadrer les flux pour protéger les manifestants pacifiques.",
+      "statut": "nouvelle",
+      "date": "2026-10-22",
+      "source": {
+        "label": "Plan de sortie de crise, proposition 8 (X)",
+        "url": "https://x.com/rglucks1/status/2113249890209845542"
+      },
+      "ficheId": 67
+    },
+    {
+      "id": "lepen-casseur-payeur-a-vie",
+      "fiche": "lepen-casseur-payeur-a-vie",
+      "candidat": "Marine Le Pen",
+      "nomTri": "Le Pen",
+      "parti": "Rassemblement national",
+      "onglet": 2,
+      "intitule": "Faire payer les casseurs à vie",
+      "description": "Faire payer les casseurs « à vie s'il le faut », par prélèvement sur leurs allocations ou leur salaire, faire payer les parents des mineurs et rendre solidairement responsables ceux qui restent sur un pillage après les sommations.",
+      "statut": "nouvelle",
+      "date": "2026-10-21",
+      "source": {
+        "label": "franceinfo, via Capital",
+        "url": "https://fr.finance.yahoo.com/actualites/marine-pen-veut-faire-payer-205934483.html"
+      },
+      "ficheId": 68
+    },
+    {
+      "id": "lisnard-retention-casseurs-connus",
+      "fiche": "lisnard-retention-casseurs-connus",
+      "candidat": "David Lisnard",
+      "nomTri": "Lisnard",
+      "parti": "Nouvelle Énergie",
+      "onglet": 2,
+      "intitule": "Enfermer les casseurs connus pendant les manifestations",
+      "description": "Placer des multirécidivistes connus en détention provisoire pendant les manifestations, dans des centres fermés, comme pour les hooligans.",
+      "statut": "nouvelle",
+      "date": "2026-10-22",
+      "source": {
+        "label": "ICI Azur (franceinfo)",
+        "url": "https://www.franceinfo.fr/societe/mobilisation-du-17-octobre/l-extreme-gauche-a-une-grave-responsabilite-puisqu-elle-attise-l-incendie-estime-david-lisnard-candidat-a-la-presidentielle-et-maire-de-cannes_8248552.html"
+      },
+      "ficheId": 76
+    },
+    {
+      "id": "melenchon-interdire-lbd-grenades",
+      "fiche": "melenchon-interdire-lbd-grenades",
+      "candidat": "Jean-Luc Mélenchon",
+      "nomTri": "Mélenchon",
+      "parti": "La France insoumise",
+      "onglet": 3,
+      "intitule": "Interdire les LBD et les grenades mutilantes",
+      "description": "Interdire les lanceurs de balles de défense et les grenades mutilantes, avec une doctrine de retenue, la dissolution de la Brav-M et une inspection indépendante à la place de l'IGPN.",
+      "statut": "anterieure",
+      "date": "2026-10-01",
+      "source": {
+        "label": "Commission des lois, via Imaz Press",
+        "url": "https://imazpress.com/france-monde/-reformer-la-police-de-la-cave-au-grenier-les-relations-tumultueuses-entre-lfi-et-les-policiers"
+      },
+      "ficheId": 75
+    },
+    {
+      "id": "philippe-peines-planchers",
+      "fiche": "philippe-peines-planchers",
+      "candidat": "Édouard Philippe",
+      "nomTri": "Philippe",
+      "parti": "Horizons",
+      "onglet": 2,
+      "intitule": "Instaurer des peines planchers",
+      "description": "Instaurer des peines planchers pour sanctionner les auteurs de violences et de pillages.",
+      "statut": "nouvelle",
+      "date": "2026-10-18",
+      "source": {
+        "label": "BFMTV, via LCP",
+        "url": "https://lcp.fr/actualites/violences-du-17-octobre-marine-le-pen-et-edouard-philippe-accusent-lfi-jean-luc"
+      },
+      "ficheId": 74
+    },
+    {
+      "id": "retailleau-decheance-binationaux",
+      "fiche": "retailleau-decheance-binationaux",
+      "candidat": "Bruno Retailleau",
+      "nomTri": "Retailleau",
+      "parti": "Les Républicains",
+      "onglet": 2,
+      "intitule": "Déchoir de la nationalité les binationaux auteurs de violences",
+      "description": "Permettre la déchéance de nationalité des binationaux auteurs de pillages ou de violences contre les forces de l'ordre.",
+      "statut": "nouvelle",
+      "date": "2026-10-19",
+      "source": {
+        "label": "Conférence de presse, via Le Matin",
+        "url": "https://www.lematin.ch/story/france-retailleau-met-en-cause-les-binationaux-violents-qui-pillent-103652286"
+      },
+      "ficheId": 71
+    },
+    {
+      "id": "roussel-revoir-doctrine-maintien-ordre",
+      "fiche": "roussel-revoir-doctrine-maintien-ordre",
+      "candidat": "Fabien Roussel",
+      "nomTri": "Roussel",
+      "parti": "PCF",
+      "onglet": 3,
+      "intitule": "Revoir la doctrine du maintien de l'ordre",
+      "description": "Revoir la doctrine du maintien de l'ordre pour protéger les jeunes manifestants et ne pas exposer les policiers en première ligne.",
+      "statut": "mouvement-lyceen",
+      "date": "2026-10-04",
+      "source": {
+        "label": "BFMTV, via Yahoo Actualités",
+        "url": "https://fr.news.yahoo.com/col%C3%A8re-lyc%C3%A9ens-fabien-roussel-soutient-104416713.html"
+      },
+      "ficheId": 70
+    },
+    {
+      "id": "tondelier-doctrine-desescalade",
+      "fiche": "tondelier-doctrine-desescalade",
+      "candidat": "Marine Tondelier",
+      "nomTri": "Tondelier",
+      "parti": "Les Écologistes",
+      "onglet": 3,
+      "intitule": "Une doctrine de désescalade",
+      "description": "Revoir la doctrine du maintien de l'ordre en privilégiant la désescalade : unités de dialogue, mise à distance, fin des nasses, interdiction des LBD, formation allongée.",
+      "statut": "reaffirmee",
+      "date": "2026-10-17",
+      "source": {
+        "label": "Déclarations, via L'Humanité",
+        "url": "https://www.titrespresse.com/25533562603/tondelier-maintien-ordre"
+      },
+      "ficheId": 72
+    },
+    {
+      "id": "villepin-contrats-polices-municipales",
+      "fiche": "villepin-contrats-polices-municipales",
+      "candidat": "Dominique de Villepin",
+      "nomTri": "Villepin",
+      "parti": "La France humaniste",
+      "onglet": 1,
+      "intitule": "Renforcer les polices municipales par contrat avec l'État",
+      "description": "Augmenter les effectifs opérationnels en passant des contrats avec les communes de plus de 3 500 habitants pour développer leurs polices municipales.",
+      "statut": "nouvelle",
+      "date": "2026-10-21",
+      "source": {
+        "label": "Chronique, La France humaniste",
+        "url": "https://lafrancehumaniste.fr/articles/appel-paix-civile-sociale.html"
+      },
+      "ficheId": 73
+    },
+    {
+      "id": "zemmour-loi-anticasseurs-1970",
+      "fiche": "zemmour-loi-anticasseurs-1970",
+      "candidat": "Éric Zemmour",
+      "nomTri": "Zemmour",
+      "parti": "Reconquête",
+      "onglet": 2,
+      "intitule": "Rétablir la loi anti-casseurs de 1970",
+      "description": "Rétablir la loi « anti-casseurs » de 1970, abrogée en 1981, pour sanctionner plus largement les personnes présentes lors de violences et de pillages collectifs.",
+      "statut": "reaffirmee",
+      "date": "2026-10-08",
+      "source": {
+        "label": "Déclaration à la presse, via 20 Minutes",
+        "url": "https://www.20min.ch/fr/story/manifs-lyceennes-zemmour-veut-faire-payer-les-parents-jusqu-a-la-nuit-des-temps-103645876"
+      },
+      "ficheId": 69
+    }
+  ],
   "textesEnCours": {
     "titre": "À noter : des textes déjà en discussion",
     "items": [
@@ -1423,6 +1626,11 @@
         ]
       }
     ]
+  },
+  "annexes": {
+    "id": "annexes",
+    "num": "5",
+    "titre": "Méthode, sources et relevé complet"
   },
   "releve": {
     "titre": "Le relevé complet des prises de parole",

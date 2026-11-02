@@ -382,6 +382,20 @@ test("reviser : analyze.js lancé avec les bons paramètres, sorties écrites, a
   rmSync(root, { recursive: true });
 });
 
+test("reviser : relie la fiche au dossier qui la cite et ajoute le JSON du dossier à la PR", async () => {
+  const root = depot("ma-fiche");
+  mkdirSync(path.join(root, "data/hors-series"), { recursive: true });
+  const dossier = { slug: "mouvement-social", propositions: [{ id: "p1", fiche: "ma-fiche" }, { id: "p2", fiche: "autre" }] };
+  writeFileSync(path.join(root, "data/hors-series/mouvement-social.json"), `${JSON.stringify(dossier, null, 2)}\n`);
+  const { lancerAnalyze } = fauxAnalyze({ propositionId: 72 });
+  const { fichiers } = await reviser("ma-fiche", { root, sortie: path.join(root, "tmp"), lire: lireFaux(), lancerAnalyze, build: () => {}, log: () => {} });
+  const ecrit = JSON.parse(readFileSync(path.join(root, "data/hors-series/mouvement-social.json"), "utf8"));
+  assert.equal(ecrit.propositions[0].ficheId, 72);
+  assert.equal(ecrit.propositions[1].ficheId, undefined);
+  assert.equal(fichiers.at(-1), "data/hors-series/mouvement-social.json");
+  rmSync(root, { recursive: true });
+});
+
 test("reviser : sans commentaire, pas d'option --commentaires et reponses vide", async () => {
   const root = depot("ma-fiche");
   const { appels, lancerAnalyze } = fauxAnalyze({ revisionRelecture: null });

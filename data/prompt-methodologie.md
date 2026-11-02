@@ -1,3 +1,5 @@
+(Mise à jour du 27 octobre 2026 : `resume_court` ne contient plus aucune note chiffrée.)
+
 (Mise à jour du 9 octobre 2026 : commentaires du Club dans les étapes 2 et 3.)
 
 Implémente un pipeline dans `analyze.js` :
@@ -783,7 +785,7 @@ Aller à l'essentiel, avec des phrases naturelles et plutôt courtes. Style clai
 
 **Structure de chaque critère.** Dans `analyse_par_criteres` (qui reste un texte unique de synthèse) et dans la justification de chaque note : d'abord une conclusion compréhensible, puis les preuves utiles (seulement celles qui portent la conclusion), puis la limite principale, puis le lien explicite avec la note attribuée (pourquoi ce chiffre-là dans la fourchette).
 
-**Limiter les répétitions.** Chaque partie a un rôle distinct : `resume_court` porte l'entrée en matière et la note ; `analyse_par_criteres` porte le raisonnement critère par critère ; `verdict_final` fait la synthèse (ce qui tient, ce qui ne tient pas, ce qui reste incertain) sans redérouler les preuves. Ne pas recopier les mêmes phrases d'une partie à l'autre, mais ne jamais couper un fait, une source ou une réserve nécessaire pour comprendre la conclusion.
+**Limiter les répétitions.** Chaque partie a un rôle distinct : `resume_court` porte l'entrée en matière, sans aucune note chiffrée (le score est déjà affiché à côté) ; `analyse_par_criteres` porte le raisonnement critère par critère ; `verdict_final` fait la synthèse (ce qui tient, ce qui ne tient pas, ce qui reste incertain) sans redérouler les preuves. Ne pas recopier les mêmes phrases d'une partie à l'autre, mais ne jamais couper un fait, une source ou une réserve nécessaire pour comprendre la conclusion.
 
 **Note dépendant d'une interprétation non explicitée.** Si la note repose sur une interprétation que le candidat n'a pas explicitée (périmètre, montant, calendrier, modalité), le dire dans `resume_court` et dans `verdict_final`, en précisant l'interprétation retenue et pourquoi. Ne jamais inventer de note alternative.
 
@@ -997,6 +999,8 @@ En plus de `verdict_final`, produire `verdict_conclusion` : une phrase unique et
 
 ### Résumé court
 En **3 à 7 phrases**, dire clairement où la mesure tient et où elle ne tient pas. Ton humain, fluide, légèrement engageant lorsque le sujet s'y prête, sans devenir partisan ni administratif. Structure le résumé en courts paragraphes (séparés par un saut de ligne vide) lorsqu'il existe une rupture logique entre deux idées — par exemple entre ce que propose la mesure et ce qui en limite la portée. Ne crée pas un nouveau paragraphe à chaque phrase : 2 paragraphes suffisent en général, exceptionnellement 3 si une troisième idée s'en détache réellement.
+
+Ne jamais écrire de note chiffrée dans le résumé : ni le score sur 100 (pas de « Score final : 61/100 », « Note : 49/100 »...), ni la note d'un critère, ni l'appréciation accolée à un score. Le score et l'appréciation sont déjà affichés à côté du résumé.
 
 ### Teaser accueil
 `teaser_accueil` est la description affichée sous le titre sur la carte
