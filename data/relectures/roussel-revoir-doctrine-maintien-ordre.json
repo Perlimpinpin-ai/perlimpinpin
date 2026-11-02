@@ -122,6 +122,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Revoir le maintien de l'ordre » (29 caractères). Teasing proposé : « Protéger les lycéens sans exposer les policiers : l'objectif fait l'unanimité. Reste à savoir comment. » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Roussel/roussel_revoir_doctrine_maintien_ordre_etape3.json",
+      "reponses": []
+    }
   }
 }

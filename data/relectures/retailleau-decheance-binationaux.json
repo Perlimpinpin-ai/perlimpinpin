@@ -129,6 +129,11 @@
         "titre": "Titre et accroche",
         "texte": "Titre court proposé : « Déchoir les binationaux casseurs ». Accroche : « L'idée a déjà fait échouer une révision de la Constitution en 2016. Et la plupart des pilleurs n'ont qu'une seule nationalité… » Ces formulations vous semblent-elles fidèles et neutres ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Retailleau/retailleau_decheance_binationaux_etape3.json",
+      "reponses": []
+    }
   }
 }

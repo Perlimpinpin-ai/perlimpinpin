@@ -127,6 +127,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Faire payer les casseurs à vie » (30 caractères). Teasing proposé : « Un projet de loi presque identique est déjà au Sénat, avec un plafond de 10 000 euros. Que change vraiment la version de la candidate ? » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-27",
+      "version_suivante": "data/analyses finales/LePen/lepen_casseur_payeur_a_vie_etape3.json",
+      "reponses": []
+    }
   }
 }
