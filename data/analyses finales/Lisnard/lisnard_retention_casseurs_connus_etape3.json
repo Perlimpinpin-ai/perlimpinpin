@@ -1,0 +1,160 @@
+{
+  "auditArbitrage": [
+    {
+      "remarque": "Le coût des indemnisations potentielles n'est pas explicitement discuté dans la justification de la note budgétaire.",
+      "statut": "rejetee",
+      "raison": "Le texte de contexte_national et de notation_detaillee mentionne déjà explicitement le risque d'indemnisations en cas de détention jugée illégale ('le risque financier tient surtout aux indemnisations en cas de détention jugée illégale'). Ce risque reste d'ordre contentieux individuel, non budgétaire structurel : il ne change pas la note de 8/10, qui reste justifiée par le faible coût direct du dispositif."
+    },
+    {
+      "remarque": "L'analyse ne discute pas si un raisonnement structuré sur l'effet dissuasif du noyau dur pourrait relever la note d'efficacité.",
+      "statut": "rejetee",
+      "raison": "Ce point est déjà traité dans ce_qui_est_discutable et dans la justification de la note d'efficacité ('les inspections notent qu'un noyau dur de délinquants habituels a pu jouer un rôle moteur'). L'absence de mesure de ce rôle empêche de monter la note sans preuve supplémentaire ; la remarque n'apporte pas d'élément factuel nouveau justifiant une modification."
+    },
+    {
+      "remarque": "Application correcte du plafond juridique, aucune erreur détectée.",
+      "statut": "acceptee",
+      "raison": "Confirmation sans impact sur le contenu, aucune modification nécessaire."
+    },
+    {
+      "remarque": "L'analyse omettrait l'impact sur la confiance dans les institutions et le risque de radicalisation, pouvant aggraver les effets rebonds.",
+      "statut": "rejetee",
+      "raison": "Spéculatif : aucune source fournie n'établit un lien entre cette mesure précise et un risque de radicalisation ou de perte de confiance distinct de ce qui est déjà couvert ('peut nourrir un sentiment d'arbitraire dans les quartiers concernés', 'contentieux et indemnisations probables'). La note de 8/20 reflète déjà un effet rebond significatif documenté ; ajouter une hypothèse non sourcée irait au-delà des preuves disponibles."
+    }
+  ],
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Enfermer préventivement, le temps des manifestations, des casseurs multirécidivistes déjà connus, sur le modèle des hooligans.",
+      "texte": "Sur ICI Azur le 22 octobre 2026, le candidat a proposé, « comme avec les hooligans », d'isoler les casseurs en les plaçant dans des centres fermés pendant les manifestations. Le relevé des propositions résume la mesure ainsi : placer des multirécidivistes connus en détention provisoire pendant les manifestations.\n\nIl n'a précisé **ni les critères pour être visé, ni la durée, ni l'autorité qui déciderait, ni le lieu exact de rétention**.\n\nInterprétation retenue par l'analyse (hypothèse, non précisée par le candidat) : une privation de liberté de quelques heures, le temps d'une manifestation, visant des personnes déjà condamnées plusieurs fois pour des violences, sans qu'elles soient poursuivies pour une infraction en cours. **Il ne peut s'agir de la « détention provisoire » au sens du Code de procédure pénale**, qui suppose une mise en examen pour une infraction déjà commise."
+    },
+    "mesure_vers_objectif": {
+      "objectif_court": "Empêcher les casseurs connus d'agir",
+      "categorie_objectif": "Sécurité et justice",
+      "objectif_vise": "Empêcher les auteurs de violences déjà connus de participer aux débordements, afin de protéger les manifestants pacifiques, les commerces et la tranquillité publique.",
+      "mecanisme_propose": "Retenir dans des lieux fermés, pendant la durée d'une manifestation, des personnes déjà condamnées à plusieurs reprises pour des violences, avant qu'elles puissent passer à l'acte.",
+      "lien_causal": "direct"
+    },
+    "nature_et_existant": "Nature : mesure de police préventive privative de liberté. Elle relèverait de la loi, et toucherait directement à la liberté individuelle, que la Constitution place sous la garde de l'autorité judiciaire. Horizon : immédiat une fois votée.\n\nCe qui existe déjà. Un juge peut interdire à une personne de manifester, comme peine complémentaire ou dans le cadre d'un contrôle judiciaire ; le Conseil constitutionnel a validé ce second cas en 2019. Pour les supporters violents, le Code du sport permet une interdiction de stade assortie d'une obligation de se présenter au commissariat pendant les matchs, sans enfermement. Aucune règle ne permet aujourd'hui d'enfermer quelqu'un par précaution, le temps d'une manifestation, sans infraction en cours.\n\nLe précédent européen. La Cour européenne des droits de l'homme a admis en 2018 (S., V. et A. c. Danemark) qu'un État retienne quelques heures des supporters pour empêcher des affrontements précis, à des conditions strictes.\n\nIl s'agit donc d'une véritable innovation en droit français, qui va au-delà du régime appliqué aux hooligans, puisque celui-ci n'enferme pas.",
+    "contexte_programme": {
+      "synthese": "La mesure prolonge son appel à intervenir tôt et à cibler les casseurs plutôt qu'interdire les manifestations.",
+      "texte": "Le candidat a aussi proposé de faire payer les dégâts aux auteurs et, s'ils sont mineurs, à leurs parents (début octobre), et de revoir la doctrine pour intervenir dès les premiers troubles (10 octobre). Le 22 octobre, il a répété que le problème n'est pas d'interdire mais de faire respecter les interdictions, et que plus on intervient tôt, moins le problème se répand.\n\nSa justification de fond, exprimée le 19 octobre sur TF1 : **moins l'État est capable de punir ceux qui cassent, plus il restreint les libertés de tous**, y compris celle de manifester. Il juge l'interdiction générale des manifestations comme « un échec ».\n\nBilan passé. Maire de Cannes, il n'a pas exercé de mandat parlementaire ; aucun vote ni position antérieure contraire n'a été trouvé sur ce sujet précis. La mesure est cohérente avec sa ligne : viser des individus plutôt que restreindre les manifestations pour tous."
+    },
+    "contexte_national": {
+      "synthese": "La plupart des casseurs condamnés n'étaient pas des délinquants connus, ce qui limite la portée du ciblage.",
+      "texte": "Qui casse ? Le rapport conjoint des inspections de la justice et de l'administration sur les émeutes de 2023 montre que **57 % des majeurs condamnés de son échantillon n'avaient aucun antécédent judiciaire** ; il conclut qu'ils n'étaient pas majoritairement des délinquants d'habitude, tout en signalant un noyau dur de délinquants habituels au rôle plus déterminé. Pour le 17 octobre 2026, environ 2 500 gardes à vue ont été recensées ; la procureure de Paris indique que les personnes mises en cause dans les premiers dossiers clos sont en grande majorité peu connues, et une source policière à Mulhouse évoque **près de 90 % de « casseurs d'opportunité »**. Des groupes très mobiles de type black bloc étaient aussi présents.\n\nLe droit. En 2019, le Conseil constitutionnel a censuré l'interdiction administrative de manifester, parce qu'elle laissait au préfet une latitude excessive et pouvait viser une personne sans lien suffisant avec des violences à venir. Une mesure d'enfermement est plus grave qu'une interdiction : l'exigence de garanties serait au moins aussi forte.\n\nLes moyens. Les forces de l'ordre sont déjà très sollicitées : le Sénat note que **le dispositif a été débordé le 17 octobre**."
+    },
+    "contexte_international": {
+      "synthese": "La Cour européenne admet une rétention préventive de quelques heures, mais seulement face à une menace précise et individualisée.",
+      "texte": "Danemark. Dans l'arrêt S., V. et A. c. Danemark (Grande chambre, 22 octobre 2018), trois supporters retenus un peu plus de sept heures lors d'un match à risque n'ont pas obtenu gain de cause. La Cour pose toutefois des conditions strictes : **l'infraction à prévenir doit être concrète (lieu, moment, victimes potentielles)**, les autorités doivent montrer que la personne y aurait très probablement participé, des mesures moins restrictives doivent s'être révélées insuffisantes, la libération doit intervenir dès que le risque disparaît, et **la durée se compte en heures, pas en jours**.\n\nLe modèle des hooligans. Le régime français et britannique des supporters violents repose surtout sur des interdictions de stade et des obligations de pointage, pas sur l'enfermement.\n\nTransposabilité. Le précédent danois porte sur un match précis, avec des groupes identifiés et une menace d'affrontement datée. **Une mesure visant une catégorie de « multirécidivistes connus » pour toute manifestation s'en écarte nettement**."
+    },
+    "impact_environnement": null,
+    "analyse_longevites": {
+      "synthese": "Effet immédiat limité à quelques individus, puis contentieux probable et risque d'extension de l'outil.",
+      "texte": "Court terme (0 à 2 ans) : vote d'une loi puis saisine quasi certaine du Conseil constitutionnel ; si la mesure survit, elle retirerait quelques individus connus des cortèges, sans toucher la masse des casseurs d'opportunité.\n\nMoyen terme (2 à 7 ans) : **contentieux individuels devant le juge judiciaire et la Cour européenne, avec des indemnisations possibles** ; adaptation des groupes organisés, qui recruteraient des profils inconnus.\n\nLong terme (plus de 7 ans) : **un outil de rétention préventive, une fois créé, peut être étendu à d'autres catégories ou d'autres événements**."
+    },
+    "impact_temporel_et_sectoriel": null,
+    "ce_qui_est_etabli": {
+      "synthese": "Aucune règle ne permet aujourd'hui cet enfermement, et la plupart des casseurs condamnés en 2023 n'avaient pas d'antécédents.",
+      "texte": "**Le droit français ne permet pas d'enfermer une personne par précaution le temps d'une manifestation**. Le Conseil constitutionnel a censuré en 2019 l'interdiction administrative de manifester. La Cour européenne admet une rétention de quelques heures face à une menace concrète et individualisée. **En 2023, 57 % des majeurs condamnés de l'échantillon des inspections n'avaient aucun antécédent**. Le candidat n'a précisé ni critères, ni durée, ni autorité de décision."
+    },
+    "ce_qui_est_probable": {
+      "synthese": "La mesure serait censurée sous sa forme large, et toucherait au mieux une minorité des auteurs.",
+      "texte": "Au vu de la décision de 2019 et des conditions européennes, **une rétention visant une catégorie de personnes pour toute manifestation serait très probablement censurée**. Même appliquée, elle ne viserait qu'une minorité des auteurs, la majorité n'étant pas connue des services."
+    },
+    "ce_qui_est_discutable": {
+      "synthese": "Le poids réel du noyau dur de délinquants habituels dans le déclenchement des violences est débattu.",
+      "texte": "Les inspections signalent qu'un noyau dur a pu jouer un rôle plus déterminé en 2023, sans le mesurer. **Si ce noyau entraîne réellement les autres, le retirer pourrait avoir un effet plus large que sa taille** ; si les violences relèvent surtout de l'opportunisme, l'effet serait marginal."
+    },
+    "ce_qui_est_inconnu": {
+      "synthese": "On ignore les critères, la durée, l'autorité de décision et le nombre de personnes concernées.",
+      "texte": "**Le candidat n'a pas défini ce qu'est un « multirécidiviste connu »**, ni qui déciderait, ni combien de temps durerait la rétention, ni dans quels lieux. Aucune estimation du nombre de personnes visées n'est disponible."
+    },
+    "angles_morts": {
+      "synthese": "Une alternative moins lourde et déjà validée existe : l'interdiction judiciaire de manifester assortie d'un pointage.",
+      "texte": "Alternative. Le juge peut déjà interdire de manifester ; **ajouter une obligation de pointage pendant les manifestations, comme pour les hooligans, atteindrait une partie de l'objectif sans enfermer**. Ce point pèse sur la faisabilité juridique (condition de la Cour européenne) et n'est rappelé en efficacité que comme élément de contexte, sans double pénalisation.\n\nModèle invoqué. **Le régime des hooligans ne prévoit pas d'enfermement mais des interdictions et des pointages** : l'analogie annoncée ne correspond pas à la mesure.\n\nAdaptation. Les groupes organisés peuvent recruter des personnes inconnues des services, ce qui réduirait encore l'effet."
+    },
+    "notation_detaillee": {
+      "operationnalite_juridique": 2,
+      "qualification_juridique": "FRAGILE",
+      "operationnalite_budgetaire": 8,
+      "qualification_budgetaire": "SOLIDE",
+      "operationnalite_moyens_humains": 4,
+      "qualification_moyens_humains": "INCERTAIN",
+      "operationnalite_moyens_total": 10,
+      "plafond_applique": true,
+      "plafond_declencheur": "juridique",
+      "efficacite": 12,
+      "qualification_efficacite": "INCERTAIN",
+      "effets_rebonds_externalites": 8,
+      "qualification_effets_rebonds": "INCERTAIN",
+      "degre_preparation": 3,
+      "qualification_preparation": "INCERTAIN",
+      "alignement_logique": 8,
+      "qualification_alignement": "SOLIDE",
+      "score_total": 41,
+      "appreciation": "partiellement fondé"
+    },
+    "verdict_final": "Ce qui tient : la mesure est cohérente avec la ligne du candidat, viser les casseurs plutôt qu'interdire les manifestations, coûte peu, et une personne retenue ne peut pas casser.\n\nCe qui ne tient pas : le droit et la cible. Enfermer par précaution des personnes qui n'ont commis aucune infraction ce jour-là n'a pas de base constitutionnelle crédible, et le juge européen n'admet qu'une rétention de quelques heures face à une menace précise. Surtout, la plupart des casseurs condamnés en 2023 n'avaient pas d'antécédents, et ceux du 17 octobre sont en majorité peu connus : la mesure laisserait l'essentiel des auteurs dans la rue. La note repose sur une lecture retenue par l'analyse, faute de précision du candidat : une rétention de quelques heures, sans infraction en cours.",
+    "sources_utilisees": [
+      "ICI Azur, « Comme avec les hooligans, David Lisnard propose d'isoler les casseurs en les mettant dans des centres fermés », 22 octobre 2026 : https://www.ici.fr/emissions/l-invite-d-ici-matin-ici-azur/david-lisnard-comme-avec-les-hooligans-isoler-les-voyous-des-manifestations-en-les-mettant-dans-des-centres-fermes-7571835",
+      "Titres Presse, reprise du titre et du chapô d'ICI Azur, 22 octobre 2026 : https://www.titrespresse.com/26098022603/david-lisnard-cannes",
+      "Nouvelle Énergie, « David Lisnard sur ICI Azur : je veux faire gagner une droite indépendante », 23 octobre 2026 : https://www.unenouvelleenergie.fr/david-lisnard-sur-ici-azur-je-veux-faire-gagner-une-droite-independante/",
+      "Capital via Yahoo Finance, « Moins l'État est capable de punir ceux qui cassent, plus il entrave nos libertés », 19 octobre 2026 : https://fr.finance.yahoo.com/actualites/moins-l%C3%A9tat-capable-punir-cassent-220339491.html",
+      "IGJ et IGA, « Analyse des profils et motivations des délinquants interpellés lors des violences urbaines du 27 juin au 7 juillet 2023 », août 2023 : https://www.vie-publique.fr/files/rapport/pdf/291024.pdf",
+      "Sud Radio, « Violences du 17 octobre : qui sont ces casseurs-pilleurs aux profils multiples », 20 octobre 2026 : https://www.sudradio.fr/sud-radio/violences-du-17-octobre-qui-sont-ces-casseurs-pilleurs-aux-profils-multiples",
+      "CEDH, Grande chambre, S., V. et A. c. Danemark, 22 octobre 2018 (résumé) : https://www.echrcaselaw.com/en/?p=8860",
+      "Landot avocats, « Le Conseil constitutionnel censure, faute de garanties suffisantes, l'interdiction administrative de manifester (décision n° 2019-780 DC du 4 avril 2019) » : https://blog.landot-avocats.net/2019/04/04/le-conseil-constitutionnel-censure-faute-de-garanties-suffisantes-linterdiction-administrative-de-manifester-decision-n-2019-780-dc-du-4-avril-2019/",
+      "Assemblée nationale, rapport n° 3688 sur la proposition de loi renforçant la lutte contre le hooliganisme, 2016 : https://www.assemblee-nationale.fr/14/pdf/rapports/r3688.pdf",
+      "Sénat, « L'avenir du maintien de l'ordre : 30 propositions pour reprendre le contrôle », synthèse, octobre 2026 : https://www.senat.fr/rap/r26-078/r26-078-syn.pdf"
+    ],
+    "niveau_de_confiance": "Moyen. Le cadre juridique est bien établi par la jurisprudence constitutionnelle et européenne, et les données sur le profil des casseurs de 2023 sont solides. Mais la proposition n'est connue que par le titre d'une interview, et son contenu exact a dû être interprété.",
+    "limites": {
+      "synthese": "Proposition connue par le titre d'une interview, sans critères ni garanties, et données 2026 encore provisoires.",
+      "texte": "La mesure n'est connue que par le titre et le chapô de l'interview d'ICI Azur et par le relevé des propositions ; l'enregistrement complet n'a pas pu être consulté. La note repose sur une interprétation (rétention de quelques heures, sans infraction en cours). **Les données sur le profil des casseurs du 17 octobre sont provisoires** ; celles de 2023 portent sur un échantillon de condamnés."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 10,
+        "note_max": 30,
+        "plafond_applique": true,
+        "plafond_declencheur": "juridique",
+        "texte": "Le volet juridique fait plafonner la note globale : **enfermer quelqu'un par précaution, sans infraction en cours, n'a pas de voie crédible de mise en conformité constitutionnelle**. Le Conseil constitutionnel a déjà censuré en 2019 une simple interdiction administrative de manifester, moins intrusive qu'un enfermement, et la Cour européenne n'admet une rétention préventive que pour quelques heures face à une menace concrète et individualisée, alors qu'une alternative moins lourde existe déjà (interdiction judiciaire assortie de pointage). Le coût budgétaire resterait pourtant faible, quelques centaines de personnes retenues quelques heures dans des locaux existants. Les moyens humains sont en revanche incertains : identifier et conduire ces personnes avant chaque manifestation mobiliserait des forces déjà débordées selon le Sénat."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 12,
+        "note_max": 30,
+        "texte": "Le mécanisme ne toucherait qu'une minorité des casseurs. Une personne retenue ne peut certes pas casser, et les inspections signalent un noyau dur de délinquants habituels au rôle plus déterminé en 2023. Mais **57 % des majeurs condamnés cette année-là n'avaient aucun antécédent judiciaire**, et à Paris les premiers mis en cause du 17 octobre sont en grande majorité peu connus des services. L'essentiel des pillards d'opportunité et des jeunes sans casier resterait donc dans la rue."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 8,
+        "note_max": 20,
+        "texte": "Le coût pour les libertés publiques est réel et touche au cœur de l'équilibre entre ordre et liberté de manifester. **Enfermer des personnes qui n'ont commis aucune infraction ce jour-là crée un outil de rétention préventive réutilisable**, potentiellement extensible à d'autres catégories ou événements dans le temps. Les contentieux et indemnisations sont probables en cas de détention jugée illégale, et la mesure peut nourrir un sentiment d'arbitraire dans les quartiers concernés."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 3,
+        "note_max": 10,
+        "texte": "Une image forte, mais presque aucun mécanisme défini. Le candidat donne une cible, un moment et un modèle de référence, mais **ni critères précis, ni durée, ni autorité de décision, ni garanties procédurales** n'ont été annoncés. Le modèle invoqué, celui des hooligans, ne comporte d'ailleurs pas d'enfermement, ce qui affaiblit encore la cohérence de l'analogie."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 8,
+        "note_max": 10,
+        "texte": "La mesure découle directement de la ligne affichée par le candidat : **viser les casseurs plutôt que restreindre les manifestations pour tous**, et intervenir tôt. Aucune contradiction n'a été trouvée avec un vote ou une position antérieure. Une tension demeure toutefois entre la défense des libertés publiques revendiquée et une restriction aussi forte de la liberté individuelle, proposée sans garanties précises."
+      }
+    ],
+    "verdict_conclusion": "Une mesure cohérente avec la ligne du candidat, mais juridiquement très fragile et ciblant une minorité des casseurs réels."
+  },
+  "titre_fiche": "Enfermer les casseurs connus",
+  "resume_court": "David Lisnard propose, « comme avec les hooligans », d'enfermer les casseurs multirécidivistes connus le temps des manifestations. Le raisonnement est simple : une personne retenue ne peut pas casser, et cibler des individus plutôt qu'interdire les cortèges reste cohérent avec sa ligne politique.\n\nMais la mesure bute sur deux obstacles sérieux. Juridiquement, enfermer quelqu'un par précaution, sans infraction en cours, n'a pas de base constitutionnelle solide, et la Cour européenne n'admet qu'une rétention de quelques heures face à une menace précise. Et la cible choisie est étroite : en 2023, 57 % des casseurs condamnés n'avaient aucun antécédent judiciaire, ce qui laisserait l'essentiel des auteurs dans la rue.",
+  "teaser_accueil": "Enfermer les casseurs connus, le temps d'une manif ? Problème : la plupart d'entre eux n'ont justement aucun casier.",
+  "verdict_final": "Ce qui tient : la mesure est cohérente avec la ligne du candidat, viser les casseurs plutôt qu'interdire les manifestations, coûte peu, et une personne retenue ne peut pas casser.\n\nCe qui ne tient pas : le droit et la cible. Enfermer par précaution des personnes qui n'ont commis aucune infraction ce jour-là n'a pas de base constitutionnelle crédible, et le juge européen n'admet qu'une rétention de quelques heures face à une menace précise. Surtout, la plupart des casseurs condamnés en 2023 n'avaient pas d'antécédents, et ceux du 17 octobre sont en majorité peu connus : la mesure laisserait l'essentiel des auteurs dans la rue. La note repose sur une lecture retenue par l'analyse, faute de précision du candidat : une rétention de quelques heures, sans infraction en cours.",
+  "verdict_conclusion": "Une mesure cohérente avec la ligne du candidat, mais juridiquement très fragile et ciblant une minorité des casseurs réels."
+}
