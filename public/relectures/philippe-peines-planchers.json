@@ -1,0 +1,142 @@
+{
+  "mesure_reformulee": {
+    "synthese": "Philippe veut des peines de prison minimales pour les auteurs de violences et de pillages, sans en préciser le champ.",
+    "texte": "Le 18 octobre 2026 sur BFMTV, au lendemain des violences en marge de la mobilisation contre la vie chère, Édouard Philippe s'est dit « favorable à l'instauration de peines planchers, de peines minimales, pour que les actes commis soient sanctionnés avec la fermeté nécessaire ». Une peine plancher fixe une durée de prison en dessous de laquelle le juge ne peut descendre, sauf décision spécialement motivée. **Le candidat n'a précisé ni les infractions visées, ni la durée minimale, ni si la règle vaudrait seulement pour les récidivistes.** Faute de précision, l'analyse retient comme hypothèse le modèle défendu par son propre parti : la proposition de loi Horizons de 2023, reprise en 2025, qui prévoit un an de prison minimum pour les violences commises en récidive, notamment contre les forces de l'ordre. Cette lecture est celle de l'analyste, pas un engagement du candidat."
+  },
+  "mesure_vers_objectif": {
+    "objectif_court": "Dissuader les violences et pillages",
+    "categorie_objectif": "Sécurité et justice",
+    "objectif_vise": "Rendre les sanctions plus sévères et plus prévisibles pour dissuader les violences et les pillages, et ainsi ramener le calme dans l'espace public.",
+    "mecanisme_propose": "Une durée minimale de prison fixée par la loi pour certaines violences et dégradations, que le juge ne peut écarter que par une décision motivée.",
+    "lien_causal": "indirect"
+  },
+  "nature_et_existant": "Mesure pénale, de niveau législatif : elle relève du Parlement (modification du Code pénal), sans révision constitutionnelle si le juge garde la possibilité de descendre sous le minimum. Ce n'est pas une innovation mais un retour : des peines planchers ont existé en France de 2007 (loi du 10 août 2007, pour les récidivistes) à 2014, année de leur suppression. En 2011, la loi dite Loppsi 2 les avait étendues à certaines violences aggravées commises par des personnes jamais condamnées. Aujourd'hui, le juge fixe librement la peine sous un plafond légal : il n'existe pas de minimum. Le principe d'individualisation des peines (adapter la sanction à la personne et aux faits) a valeur constitutionnelle.",
+  "contexte_programme": {
+    "synthese": "La mesure prolonge une ligne de fermeté pénale défendue par Philippe et son parti depuis 2023.",
+    "texte": "**La proposition s'inscrit dans une continuité réelle.** En meeting à Marseille en mai 2025, Édouard Philippe proposait déjà des peines planchers « pour les infractions les plus graves », l'exécution immédiate des courtes peines et s'interrogeait sur la suppression du juge de l'application des peines. Son groupe à l'Assemblée a déposé en 2023, puis remis à l'ordre du jour en avril 2025, une proposition de loi instaurant un an de prison minimum pour les violences commises en récidive contre les policiers, pompiers, enseignants ou soignants ; elle a été rejetée en commission à égalité de voix (12 contre 12). Après le 17 octobre, il a aussi demandé de renforcer le renseignement et d'étendre les pouvoirs des polices municipales : **ces autres mesures jouent sur la probabilité d'être arrêté, alors que les peines planchers jouent sur la sévérité une fois condamné.** Tension à noter : Premier ministre de 2017 à 2020, il a conduit la loi de programmation pour la justice du 23 mars 2019, qui poussait à aménager les courtes peines plutôt qu'à les exécuter en prison ; son groupe propose désormais de revenir sur ce point."
+  },
+  "contexte_national": {
+    "synthese": "Avec plus de 90 000 détenus pour environ 63 000 places, toute hausse des peines bute sur la prison.",
+    "texte": "**Le contexte carcéral est le premier verrou.** Au 1er septembre 2026, la France comptait 90 020 détenus, un record, pour environ 63 000 places opérationnelles, soit une occupation d'environ 140 % en moyenne et bien davantage dans les maisons d'arrêt où sont placées les courtes peines. Côté violences du 17 octobre : environ 2 500 gardes à vue, 917 personnes envoyées en comparution immédiate (jugement rapide), et 174 personnes incarcérées selon le garde des Sceaux. **Le procureur de Paris indique que la plupart des personnes déférées n'avaient jamais été condamnées**, et les premières audiences ont surtout produit des peines avec sursis. C'est cohérent avec les émeutes de 2023 : selon le Sénat, près de 60 % des personnes interpellées n'avaient aucun antécédent, et environ un tiers étaient mineures. Enfin, le juge peut déjà prononcer de la prison ferme : le Code pénal fixe des plafonds élevés (jusqu'à 7 à 10 ans pour un vol aggravé ou des violences contre un policier), aucun minimum."
+  },
+  "contexte_international": {
+    "synthese": "Londres 2011 montre qu'une sévérité accrue après des émeutes dissuade un peu, mais l'effet mesuré reste modeste.",
+    "texte": "**Le précédent le plus proche du sujet est britannique.** Après les émeutes d'août 2011 à Londres, les tribunaux ont durci leurs décisions sans changement de loi : les émeutiers avaient près de trois fois plus de chances d'être incarcérés immédiatement et leurs peines étaient plus longues d'environ deux mois. Une étude publiée dans l'Economic Journal (Bell, Jaitman et Machin, 2014) mesure ensuite une baisse de la délinquance d'environ 3 % dans les six mois, y compris loin des quartiers touchés, qu'elle attribue à la dissuasion. **Deux limites pour la transposer :** l'effet est faible, et il venait d'un durcissement très médiatisé et perçu comme durable, pas d'un minimum légal. Aux États-Unis, où les peines minimales obligatoires ont été très utilisées, la synthèse de référence de Daniel Nagin (2013), reprise par l'institut de recherche du ministère américain de la Justice, conclut que la certitude d'être pris dissuade bien plus que la sévérité de la peine."
+  },
+  "impact_environnement": null,
+  "analyse_par_criteres": "Opérationnalité et moyens (10/30, plafond appliqué à cause des moyens humains). Le droit est le point fort, mais la saturation des prisons plafonne ce critère. Faisabilité juridique, 9/10, SOLIDE : le Conseil constitutionnel a validé les peines planchers en 2007 pour les récidivistes, puis en 2011 pour certaines violences aggravées commises par des majeurs jamais condamnés, à une condition : que le juge puisse descendre sous le minimum par une décision motivée. Une loi ordinaire suffit donc. Le point qui retient un point : la même décision de 2011 a censuré l'extension aux mineurs, alors qu'une part importante des émeutiers sont mineurs. Faisabilité budgétaire, 7/10, INCERTAIN documenté : le sens est clair, la mesure coûte. Selon l'évaluation du ministère de la Justice (2012), la loi de 2007 a ajouté environ 4 000 années de prison ferme prononcées par an ; avec environ 100 euros par jour de détention, l'Institut des politiques publiques (2024) en déduit un coût d'environ 146 millions d'euros par an, hors construction de places. C'est modeste à l'échelle du budget de la justice. La note reste sous SOLIDE parce que l'ampleur dépend du champ, non précisé : une extension aux personnes jamais condamnées coûterait davantage. Moyens humains et administratifs, 2/10, FRAGILE : c'est l'obstacle qui déclenche le plafond. Avec 90 020 détenus pour environ 63 000 places, soit près de 27 000 détenus de plus que de places, il n'existe aucune capacité pour absorber les milliers de détenus supplémentaires qu'a produits la loi de 2007 (environ 4 000 années de prison par an). Les juges pourraient appliquer la mesure, mais seulement en aggravant une surpopulation déjà record ; aucune création de places n'est annoncée en regard. Ce pilier défaillant limite l'opérationnalité à 10/30 malgré un droit solide. Efficacité (9/30), FRAGILE : pour ramener le calme, le levier choisi est le moins puissant, et la meilleure preuve disponible contredit son effet à court terme. La meilleure évaluation française (Ouss et Philippe, Institut des politiques publiques, 2024) ne trouve aucun effet dissuasif à court terme de la loi de 2007, et une baisse d'environ 10 à 13 % des nouveaux délits du même type chez les récidivistes à moyen terme, sur une population qui ne représentait qu'environ 1,75 % des condamnations. Le précédent de Londres 2011 confirme un effet réel mais faible, d'environ 3 %. Surtout, la population du 17 octobre est majoritairement sans antécédent : un plancher réservé aux récidivistes ne la toucherait presque pas. Et la recherche montre que la probabilité d'être arrêté pèse plus que la sévérité : or seule une petite partie des auteurs a été interpellée. D'où 9, en zone fragile : l'objectif du dossier est le calme dans la rue, donc à court terme, et c'est précisément à cet horizon que l'évaluation française ne trouve aucun effet ; l'effet à moyen terme existe, mais il est petit et vise à côté de la cible principale. Effets rebonds et externalités (9/20), INCERTAIN documenté : le risque est réel et pourrait annuler une partie du bénéfice. Plus de détenus dans des prisons saturées dégrade les conditions de détention, et les revues de recherche concluent que la prison, comparée aux sanctions hors prison, a un effet nul ou légèrement aggravant sur la récidive. En 2007, les juges ont écarté le minimum dans environ six cas sur dix et ont davantage recouru au sursis total : la règle est en partie contournée par ceux qui l'appliquent, ce qui brouille le message dissuasif. La note n'est pas plus basse car aucune source ne montre que ces effets dépassent clairement le bénéfice. Degré de préparation (3/10), INCERTAIN documenté : le candidat a lancé une orientation, pas un dispositif. Une phrase à la télévision, sans infractions, sans durée minimale, sans chiffrage ; le texte de son groupe parlementaire fournit un mécanisme (un an minimum en récidive), ce qui évite la note la plus basse. Alignement et logique globale (7/10), INCERTAIN documenté : la mesure est cohérente avec ses positions depuis 2023 et avec sa loi anticasseurs de 2019, mais elle va à rebours de la réforme pénale de 2019 conduite par son gouvernement, sans que ce revirement soit expliqué, et elle n'est pas articulée avec la question des places de prison.",
+  "analyse_longevites": {
+    "synthese": "L'effet dissuasif, s'il existe, n'apparaît qu'à moyen terme ; le coût carcéral, lui, est immédiat et durable.",
+    "texte": "**Court terme (0 à 2 ans) : aucun effet attendu sur le calme dans la rue.** Une loi nouvelle ne s'applique pas aux faits du 17 octobre, et l'évaluation de 2007 ne trouve pas d'effet dissuasif immédiat. Moyen terme (2 à 7 ans) : un effet modeste sur la récidive des personnes visées est possible, comme après 2007. **Long terme : l'IPP montre que les peines prononcées sont restées plus longues même après la suppression des planchers en 2014**, ce qui suggère une habitude prise par les juridictions, et donc un coût carcéral qui dure au-delà de la mesure elle-même."
+  },
+  "impact_temporel_et_sectoriel": {
+    "synthese": "Le principal effet sectoriel est la pression sur les prisons et les services pénitentiaires.",
+    "texte": "Mesure sans effet macroéconomique notable (inflation, consommation, banques). **Son effet sectoriel est concentré sur l'administration pénitentiaire** : davantage de détenus dans les maisons d'arrêt déjà saturées, donc plus de surveillants mobilisés par détenu et moins de moyens pour la préparation à la sortie. Les tribunaux sont peu affectés, la procédure restant la même."
+  },
+  "ce_qui_est_etabli": {
+    "synthese": "Les peines planchers sont constitutionnelles si le juge peut y déroger, et leur effet dissuasif mesuré en France est faible.",
+    "texte": "**Établi : la voie juridique existe** (décisions du Conseil constitutionnel de 2007 et 2011, avec possibilité de dérogation motivée ; censure pour les mineurs jamais condamnés). **Établi : la loi de 2007 a allongé les peines des récidivistes** (de 9 à 15,6 mois en moyenne selon le ministère, environ un doublement de la peine totale selon l'IPP) et ajouté environ 4 000 années de prison ferme par an. Établi : son effet dissuasif a été nul à court terme et de l'ordre de 10 % à moyen terme sur une petite population. Établi : la prison compte plus de 90 000 détenus pour environ 63 000 places."
+  },
+  "ce_qui_est_probable": {
+    "synthese": "La plupart des auteurs du 17 octobre échapperaient à un plancher réservé aux récidivistes.",
+    "texte": "**Probable : une majorité des personnes jugées après le 17 octobre n'a pas d'antécédent**, selon le procureur de Paris, comme en 2023 où près de 60 % des interpellés n'en avaient aucun. Un plancher limité à la récidive ne les concernerait donc pas. Probable aussi : les juges continueraient d'écarter le minimum dans une large part des cas, comme ils l'ont fait en 2007 (environ six fois sur dix)."
+  },
+  "ce_qui_est_discutable": {
+    "synthese": "Une sévérité très médiatisée après des émeutes peut dissuader un peu, mais un minimum légal n'est pas indispensable pour l'obtenir.",
+    "texte": "**Discutable : la portée du précédent de Londres.** Il montre qu'un durcissement visible des peines après des émeutes peut faire baisser la délinquance d'environ 3 %. Mais ce durcissement est venu des juges, sans loi nouvelle ; la France dispose déjà de plafonds élevés et le parquet requiert de la prison ferme. Le débat porte donc sur la valeur ajoutée d'un minimum légal par rapport à la pratique actuelle, qui reste à démontrer."
+  },
+  "ce_qui_est_inconnu": {
+    "synthese": "Le champ exact voulu par le candidat est inconnu, et avec lui le coût et la portée réels.",
+    "texte": "**Inconnu : les infractions, la durée minimale et le public visés** (récidivistes seulement, ou toute personne condamnée pour violences et pillages). Inconnu aussi : un éventuel programme de places de prison associé. Sources insuffisantes pour trancher ici l'effet d'un plancher étendu aux personnes jamais condamnées : la loi de 2011 qui le prévoyait n'a pas fait l'objet d'une évaluation comparable à celle de 2007."
+  },
+  "angles_morts": {
+    "synthese": "La mesure agit sur la sévérité, alors que le facteur décisif pour le calme est la probabilité d'être arrêté.",
+    "texte": "**Angle mort principal : la certitude de la sanction.** Les violences du 17 octobre ont donné lieu à environ 2 500 gardes à vue pour des milliers d'auteurs dans des dizaines de villes ; pour qui casse ou pille, le risque premier est de ne pas être arrêté du tout. La recherche (Nagin, 2013) et l'évaluation française convergent : augmenter la sévérité pèse peu tant que cette probabilité reste faible. Les autres propositions du candidat (renseignement, polices municipales) visent justement ce point, ce qui montre qu'une alternative plus directe existe dans son propre programme. **Deuxième angle mort : les mineurs**, nombreux parmi les émeutiers, que le Conseil constitutionnel exclut des peines minimales lorsqu'ils n'ont jamais été condamnés. Troisième : la surpopulation carcérale. Elle est comptée deux fois, à des titres distincts : dans les moyens (absence de places pour appliquer la mesure) et dans les effets rebonds (conséquences de la détention sur la récidive). Ce choix est signalé pour éviter une double pénalisation non assumée."
+  },
+  "notation_detaillee": {
+    "operationnalite_juridique": 9,
+    "qualification_juridique": "SOLIDE",
+    "operationnalite_budgetaire": 7,
+    "qualification_budgetaire": "INCERTAIN",
+    "operationnalite_moyens_humains": 2,
+    "qualification_moyens_humains": "FRAGILE",
+    "operationnalite_moyens_total": 10,
+    "plafond_applique": true,
+    "plafond_declencheur": "moyens_humains",
+    "efficacite": 9,
+    "qualification_efficacite": "FRAGILE",
+    "effets_rebonds_externalites": 9,
+    "qualification_effets_rebonds": "INCERTAIN",
+    "degre_preparation": 3,
+    "qualification_preparation": "INCERTAIN",
+    "alignement_logique": 7,
+    "qualification_alignement": "INCERTAIN",
+    "score_total": 38,
+    "appreciation": "partiellement fondé"
+  },
+  "verdict_final": "Ce qui tient : les peines planchers sont juridiquement possibles, déjà testées en France de 2007 à 2014, et leur coût de fonctionnement reste modeste.\n\nCe qui ne tient pas, au regard du calme dans la rue : leur effet dissuasif mesuré est faible et tardif, et la plupart des auteurs du 17 octobre, sans antécédent, échapperaient à un plancher réservé aux récidivistes. La mesure joue sur la sévérité quand le facteur décisif est la probabilité d'être arrêté, et elle ajouterait des milliers de détenus à des prisons qui comptent déjà près de 27 000 personnes de plus que de places.\n\nCe qui reste incertain : le champ exact voulu par le candidat. La note retient le modèle de son parti (un an minimum pour les violences en récidive) ; une extension à toute personne condamnée toucherait davantage d'émeutiers, mais au prix d'un coût carcéral bien plus lourd.",
+  "sources_utilisees": [
+    "LCP, « Violences du 17 octobre : Marine Le Pen et Édouard Philippe accusent LFI », 18/10/2026 : https://lcp.fr/actualites/violences-du-17-octobre-marine-le-pen-et-edouard-philippe-accusent-lfi-jean-luc",
+    "Ministère de la Justice, Infostat Justice n° 118, « Peines planchers : application et impact de la loi du 10 août 2007 », octobre 2012 : https://www.justice.gouv.fr/sites/default/files/migrations/portail/art_pix/stat_infostat_118_20121017.pdf",
+    "A. Ouss et A. Philippe, Note IPP n° 105, « Les peines planchers sont-elles un outil efficace pour lutter contre la récidive ? », mars 2024 : https://www.ipp.eu/wp-content/uploads/2024/03/Note_IPP_105_peines_planchers.pdf",
+    "B. Bell, L. Jaitman et S. Machin, « Crime Deterrence: Evidence from the London 2011 Riots », Economic Journal, 2014, résumé LSE : https://blogs.lse.ac.uk/politicsandpolicy/crime-deterrence-london-2011-riots",
+    "National Institute of Justice (États-Unis), « Five Things About Deterrence », d'après D. Nagin (2013) : https://nij.ojp.gov/topics/articles/five-things-about-deterrence",
+    "Dalloz actualité, « Loppsi II : des censures, des réserves et des validations » (décision n° 2011-625 DC), 15/03/2011 : https://actu.dalloz-etudiant.fr/fileadmin/actualites/pdfs/MARS_2011/dalloz_actualite_-_loppsi_ii__des_censures_des_reserves_et_des_validations_-_2011-03-15.pdf",
+    "Sénat, synthèse du rapport d'information n° 521 (2023-2024) sur les émeutes de 2023 : https://conferenceconsensuslogement.senat.fr/rap/r23-521/r23-521-syn.pdf",
+    "Europe 1, « Justice : peines planchers, suppression du JAP... Édouard Philippe formule des propositions en meeting à Marseille », 17/05/2025 : https://www.europe1.fr/politique/justice-peines-planchers-suppression-du-juge-dapplication-des-peines-edouard-philippe-formule-des-propositions-en-meeting-a-marseille-752761",
+    "LCP, « Prison ferme, peines plancher, gens du voyage... Les textes à l'ordre du jour de la niche parlementaire Horizons », avril 2025 : https://lcp.fr/actualites/prison-ferme-peines-plancher-gens-du-voyage-les-textes-a-l-ordre-du-jour-de-la-niche",
+    "franceinfo, « La surpopulation carcérale atteint un nouveau record en France, avec 90 020 détenus au 1er septembre », 2026 : https://www.franceinfo.fr/societe/prisons/la-surpopulation-carcerale-atteint-un-nouveau-record-en-france-avec-90-020-detenus-au-1er-septembre_8220991.html",
+    "Yahoo Actualités, « Après le 17 octobre, les premières comparutions immédiates éclairent sur les auteurs des violences », 22/10/2026 : https://fr.news.yahoo.com/sport/apr%C3%A8s-17-octobre-premi%C3%A8res-comparutions-171513877.html",
+    "Europe 1, « Émeutes du 17 octobre : quel est le profil des casseurs interpellés », 19/10/2026 : https://www.europe1.fr/police-justice/emeutes-du-17-octobre-quel-est-le-profil-des-casseurs-interpelles-par-les-forces-de-lordre-1161093"
+  ],
+  "niveau_de_confiance": "Élevé sur le droit, le coût et l'effet mesuré des peines planchers en France ; moyen sur le champ exact visé par le candidat, qui n'a pas été précisé.",
+  "limites": {
+    "synthese": "La note repose sur une interprétation du champ de la mesure, faute de précision du candidat.",
+    "texte": "**Le candidat n'a pas précisé le champ de sa proposition** : l'analyse retient le modèle de la proposition de loi de son groupe (violences en récidive), en le signalant comme une hypothèse. Le document de référence des objectifs par domaine n'étant pas disponible dans le corpus consulté, l'objectif de référence a été ancré directement sur l'article L111-1 du Code de la sécurité intérieure (maintien de la paix et de l'ordre publics, protection des personnes et des biens) et sur le principe constitutionnel d'individualisation des peines. Le profil des auteurs du 17 octobre repose sur les premières audiences et les déclarations du parquet de Paris, pas encore sur des statistiques nationales consolidées. Le coût de construction de places de prison n'a pas été chiffré."
+  },
+  "resume_court": "Édouard Philippe veut des peines de prison minimales pour les auteurs de violences et de pillages, afin de dissuader de nouveaux débordements. L'idée : si chacun sait qu'il ira forcément en prison, il hésitera davantage. La France a déjà testé ce mécanisme de 2007 à 2014 : juridiquement, il tient.\n\nMais pour ramener le calme, il pèse peu. L'effet dissuasif mesuré a été nul à court terme et faible ensuite, la plupart des auteurs du 17 octobre n'avaient jamais été condamnés, et c'est surtout la probabilité d'être arrêté qui dissuade. Le candidat n'a pas précisé le champ : la note retient le modèle de son parti, réservé aux récidivistes. Les prisons, déjà saturées, ne peuvent pas absorber les détenus supplémentaires. Résultat : 38/100, partiellement fondé.",
+  "phrase_teasing": "La France a déjà essayé, de 2007 à 2014, et l'a mesuré de près. Mais la plupart des personnes jugées après le 17 octobre n'avaient jamais été condamnées…",
+  "relecture": {
+    "titre": "Peines planchers : un outil connu, une cible manquée",
+    "candidat": "Édouard Philippe",
+    "parti": "Horizons",
+    "theme": "Sécurité et justice",
+    "date": "2026-10-25",
+    "version": 1,
+    "mesure_initiale": "Instaurer des peines planchers pour sanctionner les auteurs de violences et de pillages, après les violences du 17 octobre 2026.",
+    "extrait": {
+      "citation": "« Je suis favorable à l'instauration de peines planchers, de peines minimales, pour que les actes commis soient sanctionnés avec la fermeté nécessaire. »",
+      "source": "Édouard Philippe, BFMTV, 18 octobre 2026, rapporté par LCP · Non vérifié sur l'enregistrement"
+    },
+    "verdict_tient": "la mesure est juridiquement possible, déjà testée en France et d'un coût de fonctionnement modeste.",
+    "verdict_flou": "son effet sur le calme dans la rue est faible, elle manque une grande partie des auteurs sans antécédent et elle pèse sur des prisons saturées.",
+    "niveau_confiance": "Élevé sur le droit et l'effet mesuré, moyen sur le champ visé",
+    "questions": [
+      {
+        "titre": "Citation et champ retenu",
+        "texte": "Le candidat n'a pas précisé le champ des peines planchers. La fiche retient le modèle de la proposition de loi Horizons (un an minimum pour les violences en récidive). Connaissez-vous une déclaration plus précise du candidat, notamment sur une extension aux personnes jamais condamnées ? Elle changerait l'efficacité et le coût."
+      },
+      {
+        "titre": "Efficacité notée 9/30 (fragile)",
+        "texte": "La note s'appuie sur l'évaluation de l'IPP : aucun effet dissuasif à court terme, horizon qui correspond à l'objectif du dossier (le calme dans la rue), et environ 10 % de baisse de la récidive à moyen terme sur une petite population. Londres 2011 montre un effet d'environ 3 %. Faut-il donner plus de poids à ce précédent, qui porte justement sur des émeutes, et remonter en zone incertaine ?"
+      },
+      {
+        "titre": "Moyens humains notés FRAGILE (2/10)",
+        "texte": "La surpopulation carcérale (90 020 détenus pour environ 63 000 places) est jugée comme un obstacle qui rend la mesure intenable sans création de places, ce qui plafonne l'opérationnalité à 10/30 et porte la note à 38/100. Le candidat a-t-il annoncé ailleurs un programme de places de prison qui lèverait cet obstacle ?"
+      },
+      {
+        "titre": "Cohérence avec la réforme de 2019",
+        "texte": "La fiche relève une tension avec la loi de programmation pour la justice de 2019, conduite par le gouvernement Philippe, qui favorisait l'aménagement des courtes peines. Le candidat a-t-il expliqué publiquement ce changement ? Cela pourrait remonter la note d'alignement."
+      },
+      {
+        "titre": "Titre et accroche",
+        "texte": "Titre court proposé : « Peines planchers pour les casseurs ». Accroche : « La France a déjà essayé, de 2007 à 2014, et l'a mesuré de près. Mais la plupart des personnes jugées après le 17 octobre n'avaient jamais été condamnées… » Ces formulations vous semblent-elles fidèles et assez neutres ?"
+      }
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Philippe/philippe_peines_planchers_etape3.json",
+      "reponses": []
+    }
+  }
+}

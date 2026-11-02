@@ -1,0 +1,137 @@
+{
+  "mesure_reformulee": {
+    "synthese": "Faire payer intégralement les dégâts aux casseurs, sans limite de durée, et rendre solidaires ceux qui restent après les sommations.",
+    "texte": "Sur franceinfo le 21 octobre 2026, la candidate a proposé trois choses. Les auteurs de dégradations paieraient les dégâts « à vie s'il le faut », par prélèvement sur leurs allocations « s'il y en a » ou sur leur salaire. Les parents paieraient pour leurs enfants mineurs. Enfin, ceux qui pillent ou participent à un pillage, et ceux « qui ne partent pas après les sommations » de la police, seraient « solidairement responsables » des dégradations.\n\nÊtre solidairement responsable signifie que chacun peut être tenu de payer la totalité du dommage, à charge pour lui de se retourner contre les autres.\n\nInterprétation retenue par l'analyse (hypothèse, non précisée par la candidate) : réparation intégrale pour les auteurs identifiés, recouvrée sans limite de durée ; responsabilité solidaire des participants restés après sommation, sans plafond annoncé, contrairement au projet de loi du gouvernement qui la limite à 10 000 euros par personne."
+  },
+  "mesure_vers_objectif": {
+    "objectif_court": "Dissuader les casseurs, indemniser les victimes",
+    "categorie_objectif": "Sécurité et justice",
+    "objectif_vise": "Dissuader de casser et de piller en rendant la sanction financière certaine et durable, inciter les manifestants à partir après les sommations, et faire supporter les dégâts par leurs auteurs plutôt que par les victimes et les contribuables.",
+    "mecanisme_propose": "Condamner les auteurs à réparer l'intégralité des dégâts, recouvrer ces sommes sans limite de durée sur salaires et allocations, faire payer les parents des mineurs, et rendre les participants restés après sommation solidairement responsables des dommages.",
+    "lien_causal": "indirect"
+  },
+  "nature_et_existant": "Nature : mesure de droit civil et de procédure d'exécution, avec un volet social (saisie de prestations). Elle relève de la loi. Horizon : applicable dès le vote, pour les faits commis ensuite.\n\nCe qui existe déjà. Tout auteur d'un dommage doit le réparer intégralement (article 1240 du Code civil), et les parents répondent déjà des dommages causés par leurs enfants mineurs. L'État indemnise les victimes des dégâts commis lors d'attroupements (article L211-10 du Code de la sécurité intérieure) et peut se retourner contre les auteurs ; depuis la loi du 10 avril 2019, il le peut même sans condamnation pénale. Selon le Conseil d'État, cette action récursoire n'a pourtant jamais été utilisée. Les salaires sont déjà saisissables dans des limites légales.\n\nSurtout, un projet de loi dit « casseurs-payeurs », présenté en Conseil des ministres le 16 septembre 2026 et adopté en commission au Sénat le 21 octobre, prévoit déjà une responsabilité civile solidaire des participants restés dans un attroupement après un ordre de dispersion, plafonnée à 10 000 euros par personne, et la saisie des allocations familiales et des aides au logement, auxquelles le Sénat a ajouté le RSA.\n\nLa proposition reprend donc l'essentiel de ce projet. Ses deux apports propres sont l'absence de plafond annoncé et l'insistance sur un recouvrement sans limite de durée.",
+  "contexte_programme": {
+    "synthese": "Ligne sécuritaire du RN, mais son parti avait combattu en 2019 la loi qui créait le casseur-payeur.",
+    "texte": "La candidate a défendu dès le 18 octobre le principe du « casseur-payeur », puis l'a précisé le 21 octobre. Son parti porte en parallèle d'autres mesures : majorité pénale à 16 ans, suspension d'allocations, places de prison supplémentaires, peines minimales pour les violences contre les forces de l'ordre. Elle a soutenu la circulaire gouvernementale permettant de retrancher des prestations les gains tirés de la revente d'objets volés.\n\nBilan passé. En février 2019, le Rassemblement national avait annoncé voter contre la loi dite anti-casseurs, jugée « attentatoire aux libertés publiques » et qualifiée de « liberticide » par Jordan Bardella. Cette loi a pourtant introduit le principe permettant à l'État de se faire rembourser par les casseurs. L'opposition du RN visait surtout l'interdiction administrative de manifester confiée aux préfets, mais le parti avait aussi jugé que le droit existant suffisait. La candidate n'a pas expliqué ce changement de ligne."
+  },
+  "contexte_national": {
+    "synthese": "Plus de 3 000 enseignes pillées, mais l'État n'a jamais utilisé son droit de se faire rembourser.",
+    "texte": "Les dégâts. Plus de 3 000 enseignes ont été pillées lors des violences des 17 et 18 octobre 2026. Le ministre de l'Intérieur comptait 6 629 interpellations au 7 octobre depuis le début du mouvement lycéen.\n\nLe recouvrement. Le principal obstacle est connu : les auteurs sont souvent difficiles à identifier et peu solvables. Selon le Conseil d'État, l'action de l'État contre les responsables n'a, à sa connaissance, jamais été utilisée. Il relève aussi que l'étude d'impact du projet de loi était presque dépourvue de données financières, et demande des chiffres sur l'exécution des condamnations à des dommages et intérêts.\n\nLe projet de loi. Dans son avis du 3 septembre 2026, le Conseil d'État a jugé la responsabilité solidaire conforme à la Constitution à plusieurs conditions : un ordre de dispersion clairement lié aux violences, un maintien volontaire et durable dans l'attroupement après cet ordre, et un plafond de 10 000 euros qui, selon lui, réduit fortement le risque de disproportion. Il a qualifié la saisie des allocations familiales et des aides au logement de « novation importante » aux effets potentiellement durables. Le Sénat examine le texte en séance à partir du 27 octobre.\n\nLe précédent de 2019. Le Conseil constitutionnel avait alors censuré l'interdiction individuelle de manifester décidée par les préfets."
+  },
+  "contexte_international": {
+    "synthese": "La recherche montre qu'une réponse rapide et sévère après des émeutes peut dissuader, mais surtout par la sanction pénale.",
+    "texte": "Londres, 2011. Après les émeutes, les tribunaux ont prononcé des peines nettement plus lourdes que d'habitude : près de trois fois plus de détention immédiate et environ deux mois de prison supplémentaires en moyenne. Une étude de la London School of Economics (Bell, Jaitman et Machin) trouve une baisse d'environ 3 % de la délinquance dans les six mois suivants, y compris loin des zones d'émeutes, qu'elle attribue à la dissuasion. D'autres explications, comme la rapidité de la réponse judiciaire, restent possibles, et l'effet n'est mesuré que sur six mois.\n\nTransposabilité. Cette preuve porte sur des peines de prison rapides et très médiatisées, pas sur des dettes civiles recouvrées sur des années. Elle soutient l'idée qu'une réponse visible dissuade, sans démontrer qu'une dette, même à vie, produit le même effet chez des auteurs souvent jeunes et peu solvables.\n\nAucun pays comparable n'a été identifié appliquant une responsabilité civile solidaire sans plafond des participants à un attroupement ; sources insuffisantes pour trancher ici sur ce point précis."
+  },
+  "impact_environnement": null,
+  "analyse_par_criteres": "Opérationnalité et moyens (19/30). Le principe est faisable, puisque le gouvernement le porte déjà ; la version « sans limite » de la candidate fragilise le droit, et le recouvrement bute sur l'insolvabilité.\n\nFaisabilité juridique (6/10, incertain). Le cœur de la mesure est juridiquement praticable : le Conseil d'État a validé en septembre 2026 la responsabilité solidaire des personnes restées après sommation et la saisie de certaines prestations. Mais il l'a validée à des conditions précises, dont un plafond de 10 000 euros qui, selon lui, réduit fortement le risque de disproportion. La candidate n'annonce aucun plafond et parle de payer « à vie ». Si l'on retient cette lecture, le dispositif s'expose à une censure pour atteinte disproportionnée. La saisie sur salaire existe déjà dans des limites légales. D'où 6 : voie claire si le dispositif est borné, risque réel s'il ne l'est pas.\n\nFaisabilité budgétaire (8/10, solide). Bon point : la mesure ne crée pas de dépense et peut faire rentrer un peu d'argent. Le sens de l'effet est positif pour l'État, qui pourrait récupérer une partie de ce qu'il verse aux victimes au titre de sa responsabilité pour les attroupements. L'ampleur sera faible, car les auteurs sont souvent insolvables, et les frais de recouvrement viennent en déduction. Estimation de l'analyste, faute de chiffrage de la candidate et de données publiques. D'où 8.\n\nMoyens humains (5/10, incertain). Le goulot est l'identification et la preuve. Il faut prouver, personne par personne, la présence après la sommation et pendant une durée suffisante, puis faire juger et recouvrer des milliers de créances. L'État n'a jamais utilisé son action actuelle contre les responsables, ce qui montre la faiblesse des moyens d'exécution. D'où 5.\n\nEfficacité (14/30, incertain). La logique est plausible, mais l'effet dissuasif d'une dette lointaine sur de jeunes casseurs est faible. Point qui tient : rendre la sommation coûteuse donne une raison claire de partir, ce qui aide à isoler le noyau violent, et l'étude sur Londres 2011 montre qu'une réponse sévère et visible après des émeutes peut faire baisser la délinquance. Point qui ne tient pas : la recherche sur la dissuasion insiste sur la certitude d'être sanctionné plus que sur la sévérité, or l'identification reste rare ; et une dette « à vie » pèse peu dans la décision d'un adolescent insolvable qui raisonne à court terme. L'indemnisation des victimes, autre objectif, restera limitée par cette insolvabilité. D'où 14 : lien indirect, effet probable mais modeste et non démontré pour une sanction civile.\n\nEffets rebonds et externalités (9/20, incertain). Plusieurs effets documentés, d'ampleur incertaine. Le Conseil d'État note que les prélèvements sur prestations pourraient durer longtemps et peser sur des familles modestes ; une dette sans fin peut aussi décourager la reprise d'un emploi déclaré, puisque chaque hausse de salaire serait en partie saisie, ce qui va à l'encontre de la réinsertion (raisonnement de l'analyste). Une responsabilité solidaire sans plafond peut enfin dissuader des manifestants pacifiques ou des riverains pris dans un attroupement, au détriment de la liberté de manifester. D'où 9 : effets significatifs, touchant des dimensions du domaine, sans être établis comme plus graves que les pillages.\n\nDegré de préparation (4/10, incertain). Un mécanisme esquissé, aucun chiffre. La candidate désigne le déclencheur (les sommations), les débiteurs (auteurs, parents, participants) et les sources de recouvrement (salaires, allocations), mais ne donne ni plafond, ni montant, ni texte. Une grande partie du travail technique existe déjà dans le projet du gouvernement. D'où 4.\n\nAlignement et logique globale (5/10, incertain). Cohérente avec le programme actuel, en tension avec le passé. La mesure s'accorde avec la ligne sécuritaire de son parti et avec son soutien à la circulaire sur les prestations. Mais en 2019, le RN a voté contre la loi qui a créé le principe du casseur-payeur, en la jugeant attentatoire aux libertés, sans que ce revirement soit expliqué. D'où 5.",
+  "analyse_longevites": {
+    "synthese": "Effet dissuasif surtout immédiat et médiatique, puis des recouvrements longs et maigres sur des débiteurs peu solvables.",
+    "texte": "Court terme (0 à 2 ans) : l'annonce peut avoir un effet de signal, surtout sur les participants occasionnels qui hésitent à rester après les sommations. Les premières condamnations ne tomberont qu'après des procédures longues.\n\nMoyen terme (2 à 7 ans) : les recouvrements s'étalent sur des années, sur des montants faibles par débiteur ; le Conseil d'État demande une évaluation de leur efficacité réelle dans le temps.\n\nLong terme (plus de 7 ans) : des dettes qui suivent des jeunes adultes pendant des années, avec un risque pour leur insertion professionnelle et une efficacité financière qui reste à démontrer."
+  },
+  "impact_temporel_et_sectoriel": null,
+  "ce_qui_est_etabli": {
+    "synthese": "Un projet de loi quasi identique, plafonné à 10 000 euros, a été validé par le Conseil d'État sous conditions.",
+    "texte": "La réparation intégrale par les auteurs, la responsabilité des parents et la saisie sur salaire existent déjà. Le projet de loi du gouvernement prévoit la responsabilité solidaire des participants restés après un ordre de dispersion, plafonnée à 10 000 euros, et la saisie des allocations familiales et des aides au logement. Le Conseil d'État l'a jugé conforme à la Constitution sous conditions, en soulignant le rôle du plafond. L'action de l'État contre les responsables n'a jamais été utilisée. Le RN a voté contre la loi anti-casseurs de 2019."
+  },
+  "ce_qui_est_probable": {
+    "synthese": "Les sommes réellement recouvrées resteraient faibles, faute d'identification et de solvabilité des auteurs.",
+    "texte": "Au vu de l'absence d'usage de l'action actuelle de l'État et du profil des auteurs, il est probable que les montants effectivement recouvrés restent très inférieurs aux dégâts. Il est probable aussi que la menace financière pèse davantage sur les participants occasionnels et leurs familles que sur le noyau des casseurs organisés."
+  },
+  "ce_qui_est_discutable": {
+    "synthese": "L'effet dissuasif d'une dette civile, même à vie, sur de jeunes casseurs fait débat.",
+    "texte": "L'étude sur Londres 2011 soutient l'effet dissuasif d'une réponse sévère, mais porte sur des peines de prison rapides, pas sur des dettes. La responsabilité solidaire pour simple maintien après sommation est jugée par certains comme une inversion des garanties de l'État de droit ; le Conseil d'État l'admet à condition qu'elle reste bornée."
+  },
+  "ce_qui_est_inconnu": {
+    "synthese": "On ignore si la candidate retient un plafond, et combien les dispositifs actuels permettent de recouvrer.",
+    "texte": "La candidate n'a pas dit si la responsabilité solidaire serait plafonnée, ni comment serait prouvé le maintien après sommation. Aucune donnée publique ne chiffre les sommes recouvrées sur les condamnations actuelles ; le Conseil d'État lui-même les a réclamées au gouvernement."
+  },
+  "angles_morts": {
+    "synthese": "La proposition double un projet de loi en discussion, et la preuve individuelle de présence reste le goulot.",
+    "texte": "Doublon. La mesure reprend l'essentiel d'un texte que le Sénat examine à partir du 27 octobre ; son apport propre tient à l'absence de plafond, qui en est aussi le principal risque juridique.\n\nPreuve. Identifier qui était présent, à quel moment et après quelle sommation exige des images et des procédures individualisées ; le Sénat a déjà ajouté des drones judiciaires pour cela. Ce point est traité en moyens humains, sans double pénalisation en efficacité où il n'est rappelé que comme condition.\n\nParents. La responsabilité des parents existe déjà ; l'étendre à la saisie de prestations peut toucher les frères et sœurs du mineur, ce que l'intérêt de l'enfant oblige à encadrer.\n\nAssurance. Une grande partie des dégâts commerciaux est indemnisée par les assureurs, qui pourraient être les premiers bénéficiaires des recouvrements."
+  },
+  "notation_detaillee": {
+    "operationnalite_juridique": 6,
+    "qualification_juridique": "INCERTAIN",
+    "operationnalite_budgetaire": 8,
+    "qualification_budgetaire": "SOLIDE",
+    "operationnalite_moyens_humains": 5,
+    "qualification_moyens_humains": "INCERTAIN",
+    "operationnalite_moyens_total": 19,
+    "plafond_applique": false,
+    "plafond_declencheur": null,
+    "efficacite": 14,
+    "qualification_efficacite": "INCERTAIN",
+    "effets_rebonds_externalites": 9,
+    "qualification_effets_rebonds": "INCERTAIN",
+    "degre_preparation": 4,
+    "qualification_preparation": "INCERTAIN",
+    "alignement_logique": 5,
+    "qualification_alignement": "INCERTAIN",
+    "score_total": 51,
+    "appreciation": "partiellement fondé"
+  },
+  "verdict_final": "Ce qui tient : le principe est juridiquement praticable, puisque le gouvernement porte déjà un projet presque identique validé par le Conseil d'État, et il ne coûte rien à l'État. Rendre coûteux le fait de rester après les sommations peut aider à isoler le noyau violent.\n\nCe qui ne tient pas : l'efficacité attendue d'une dette « à vie ». Les auteurs sont rarement identifiés et souvent insolvables, et la menace d'une dette lointaine pèse peu sur de jeunes casseurs. L'absence de plafond, seul apport propre de la proposition, est aussi ce qui l'expose le plus à une censure. La note repose sur une lecture retenue par l'analyse, faute de précision de la candidate : une responsabilité solidaire sans plafond annoncé.",
+  "sources_utilisees": [
+    "Capital, repris par Yahoo Finance, « Marine Le Pen veut faire payer à vie les casseurs, et solidairement ceux qui ne partent pas après les sommations », 21 octobre 2026 : https://fr.finance.yahoo.com/actualites/marine-pen-veut-faire-payer-205934483.html",
+    "Conseil d'État, avis sur le projet de loi relatif à la réparation des dommages résultant de violences ou de dégradations commises dans l'espace public, 3 septembre 2026 : https://www.conseil-etat.fr/avis-consultatifs/derniers-avis-rendus/au-gouvernement/avis-sur-un-projet-de-loi-relatif-a-la-reparation-des-dommages-resultant-de-violences-ou-de-degradations-commises-dans-l-espace-public-et-au-recouv",
+    "Maire-info, « Le projet de loi casseurs-payeurs déjà durci par les sénateurs », octobre 2026 : https://www.maire-info.com/violences-urbaines/le-projet-de-loi-a-casseurs-payeurs-a-da-ja-durci-par-les-sa-nateurs-art26-31206",
+    "Landot avocats, « Survol du projet de loi réparation des dommages résultant de violences ou de dégradations commises dans l'espace public », 18 septembre 2026 : https://blog.landot-avocats.net/2026/09/18/survol-du-projet-de-loi-reparation-des-dommages-resultant-de-violences-ou-de-degradations-commises-dans-lespace-public/",
+    "Parlons Politique, « Dégradations en manifestation : jusqu'où l'État peut-il faire payer les participants ? », octobre 2026 : https://www.parlons-politique.fr/actualite-nationale/degradations-en-manifestation-jusquou-letat-peut-il-faire-payer-les-participants-aux-rassemblements-violents_29563/",
+    "Public Sénat, « Manifestations lycéennes : Laurent Nuñez pressé de trouver la voie de l'apaisement », 7 octobre 2026 (chiffre des interpellations) : https://www.publicsenat.fr/actualites/politique/manifestations-lyceennes-mis-en-cause-sur-sa-gestion-du-maintien-de-lordre-laurent-nunez-presse-de-trouver-la-voie-de-lapaisement",
+    "Public Sénat, « Loi anticasseurs : c'est attentatoire aux libertés publiques, dénonce Nicolas Bay », 4 février 2019 : https://www.publicsenat.fr/actualites/politique/loi-anticasseurs-c-est-attentatoire-aux-libertes-publiques-denonce-nicolas-bay",
+    "Slate, « Jordan Bardella (RN) estime que la loi anticasseurs est liberticide », 2019 : https://www.slate.fr/story/173235/jordan-bardella-rassemblement-national-loi-anticasseur-liberticide",
+    "Bell B., Jaitman L. et Machin S., « Crime deterrence: evidence from the London 2011 riots », Economic Journal, 2014 (présentation LSE) : https://blogs.lse.ac.uk/politicsandpolicy/crime-deterrence-london-2011-riots",
+    "LCP, « Violences du 17 octobre : qui propose quoi sur le maintien de l'ordre ? », 19 octobre 2026 : https://lcp.fr/actualites/violences-du-17-octobre-qui-propose-quoi-sur-le-maintien-de-l-ordre-444073"
+  ],
+  "niveau_de_confiance": "Moyen à élevé sur le droit, grâce à l'avis détaillé du Conseil d'État sur un projet presque identique. Moyen sur l'efficacité, faute de données publiques sur le recouvrement et de preuve directe sur l'effet dissuasif d'une sanction civile.",
+  "limites": {
+    "synthese": "Propos d'interview sans texte, et aucune donnée publique sur les sommes réellement recouvrées aujourd'hui.",
+    "texte": "La mesure n'est connue que par une interview, rapportée par la presse : la note repose sur une interprétation (pas de plafond annoncé pour la responsabilité solidaire). Les citations sont celles reproduites par l'article de presse, non vérifiées sur l'enregistrement. Aucune donnée publique ne chiffre les montants recouvrés sur les condamnations actuelles. La preuve étrangère sur la dissuasion porte sur des peines de prison, pas sur des dettes civiles."
+  },
+  "resume_court": "Marine Le Pen veut que les casseurs paient les dégâts « à vie s'il le faut », par prélèvement sur leurs allocations ou leur salaire, que les parents paient pour leurs enfants mineurs, et que ceux qui restent après les sommations soient solidairement responsables. Le problème est réel : plus de 3 000 enseignes pillées les 17 et 18 octobre. Le mécanisme suppose qu'une dette certaine et durable dissuade, et pousse les manifestants à partir quand la police l'ordonne.\n\nL'idée est juridiquement praticable : le gouvernement porte déjà un projet presque identique, mais plafonné à 10 000 euros. Son point faible est l'efficacité : les auteurs sont rarement identifiés et souvent insolvables, et une dette lointaine dissuade peu de jeunes casseurs. Note : 51/100, en retenant une responsabilité solidaire sans plafond, faute de précision de la candidate.",
+  "phrase_teasing": "Un projet de loi presque identique est déjà au Sénat, avec un plafond de 10 000 euros. Que change vraiment la version de la candidate ?",
+  "relecture": {
+    "titre": "Faire payer les casseurs à vie : le principe tient, la dette dissuade peu",
+    "candidat": "Marine Le Pen",
+    "parti": "Rassemblement national",
+    "theme": "Sécurité et justice",
+    "date": "2026-10-25",
+    "version": 1,
+    "mesure_initiale": "Faire payer les casseurs « à vie s'il le faut », par prélèvement sur leurs allocations ou leur salaire, faire payer les parents des mineurs, et rendre solidairement responsables des dégradations ceux qui participent à un pillage ou ne partent pas après les sommations.",
+    "extrait": {
+      "citation": "« Ils paieront, et s'il le faut, à vie. Il faut qu'ils le sachent. »",
+      "source": "Marine Le Pen, franceinfo, 21 octobre 2026, rapporté par Capital (repris par Yahoo Finance) · Non vérifié sur l'enregistrement"
+    },
+    "verdict_tient": "le principe est juridiquement praticable, puisqu'un projet presque identique a été validé par le Conseil d'État, et il ne coûte rien à l'État.",
+    "verdict_flou": "l'effet dissuasif d'une dette lointaine sur des auteurs jeunes et souvent insolvables est faible, et l'absence de plafond expose le dispositif à une censure.",
+    "niveau_confiance": "Moyen",
+    "questions": [
+      {
+        "titre": "Citation et interprétation retenue",
+        "texte": "L'analyse retient que la candidate ne prévoit pas de plafond pour la responsabilité solidaire, contrairement au projet du gouvernement (10 000 euros). Quelqu'un a-t-il l'enregistrement de franceinfo du 21 octobre ? Si elle accepte un plafond, la faisabilité juridique remonterait nettement."
+      },
+      {
+        "titre": "Faisabilité juridique à 6/10",
+        "texte": "La note tient compte de l'avis favorable du Conseil d'État sur le projet plafonné, et du risque de disproportion sans plafond. Faut-il être plus sévère, au vu du principe selon lequel nul n'est responsable que de son propre fait, ou plus clément, puisque les auteurs doivent déjà réparer intégralement ?"
+      },
+      {
+        "titre": "Efficacité à 14/30",
+        "texte": "La note retient un effet dissuasif probable mais modeste, faute d'identification des auteurs et du fait de leur insolvabilité. L'étude sur Londres 2011 porte sur des peines de prison. Connaissez-vous des données sur l'effet dissuasif de sanctions financières, ou sur les sommes recouvrées aujourd'hui ?"
+      },
+      {
+        "titre": "Alignement à 5/10",
+        "texte": "Le RN a voté contre la loi anti-casseurs de 2019, qui a créé le principe du casseur-payeur ; son opposition visait surtout l'interdiction de manifester. Cette tension est-elle bien pesée, ou faut-il la relativiser ?"
+      },
+      {
+        "titre": "Titre court et phrase de teasing",
+        "texte": "Titre proposé : « Faire payer les casseurs à vie » (30 caractères). Teasing proposé : « Un projet de loi presque identique est déjà au Sénat, avec un plafond de 10 000 euros. Que change vraiment la version de la candidate ? » Vous conviennent-ils ?"
+      }
+    ],
+    "archive": {
+      "date": "2026-10-27",
+      "version_suivante": "data/analyses finales/LePen/lepen_casseur_payeur_a_vie_etape3.json",
+      "reponses": []
+    }
+  }
+}

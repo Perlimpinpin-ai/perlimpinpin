@@ -1,0 +1,137 @@
+{
+  "mesure_reformulee": {
+    "synthese": "Passer des contrats entre l'État et les communes de plus de 3 500 habitants pour renforcer leurs polices municipales.",
+    "texte": "Dans sa chronique « Appel à la paix civile et sociale » du 21 octobre 2026, le candidat propose un « plan de renforcement de la police républicaine ». Il veut « augmenter les effectifs opérationnels en contractant avec les communes de plus de 3 500 habitants », pour soutenir « le développement de leurs effectifs de police municipale ». Le même plan prévoit de mobiliser une réserve citoyenne en coopération avec les forces de l'ordre, avec pour objectif affiché de « réduire le fossé entre police et nation ».\n\nIl ne précise ni le financement, ni le nombre d'agents visés, ni la durée des contrats, ni les compétences concernées.\n\nInterprétation retenue par l'analyse (hypothèse, non précisée par le candidat) : des contrats volontaires par lesquels l'État cofinance des recrutements de policiers municipaux, en échange d'engagements des communes sur les effectifs et la coordination avec la police et la gendarmerie nationales."
+  },
+  "mesure_vers_objectif": {
+    "objectif_court": "Plus d'agents sur le terrain au quotidien",
+    "categorie_objectif": "Sécurité et justice",
+    "objectif_vise": "Augmenter les effectifs de sécurité présents sur le terrain pour améliorer la tranquillité publique, et rapprocher police et population.",
+    "mecanisme_propose": "Des contrats entre l'État et les communes de plus de 3 500 habitants pour financer ou soutenir le recrutement de policiers municipaux.",
+    "lien_causal": "indirect"
+  },
+  "nature_et_existant": "Nature : mesure budgétaire et de coopération entre l'État et les collectivités locales. Les contrats relèvent du pouvoir réglementaire et de la loi de finances ; les recrutements restent décidés par les maires. Horizon : plusieurs années, le temps de recruter et de former.\n\nCe qui existe déjà. Les polices municipales relèvent des maires et sont financées par les communes. Elles comptaient 28 161 agents en 2023, au service de 3 812 communes ou intercommunalités, pour un coût d'environ 2,5 milliards d'euros par an selon le Sénat. Leurs missions portent sur la prévention et la surveillance du bon ordre et de la tranquillité publique, pas sur le maintien de l'ordre en manifestation. Des conventions de coordination avec la police ou la gendarmerie existent déjà. Un projet de loi étendant les prérogatives des polices municipales a été adopté par le Sénat le 10 février 2026 ; il exclut explicitement toute mission de maintien de l'ordre.\n\nLa mesure n'invente donc pas un outil : elle propose que l'État soutienne, par contrat, un mouvement de recrutement déjà engagé par les communes.",
+  "contexte_programme": {
+    "synthese": "La mesure s'inscrit dans un plan qui rejette l'armée et les régimes d'exception au profit d'une police de proximité renforcée.",
+    "texte": "Le plan. Dans la même chronique, le candidat critique le recours à l'armée pour le maintien de l'ordre, la surveillance généralisée et les états d'exception. Il défend à la place un renforcement de la « police républicaine », une réserve citoyenne et, ailleurs, des « plans d'urgence » pour la police ainsi que des consultations locales autour des maires. Le 18 octobre, il appelait à ce que « force reste à la loi » tout en refusant la surenchère.\n\nBilan passé. Ministre de l'Intérieur en 2004-2005, puis Premier ministre de 2005 à 2007, il a déclaré l'état d'urgence en novembre 2005 face aux émeutes dans les banlieues. Son rejet actuel des régimes d'exception tranche avec ce choix, mais porte sur une autre mesure que celle évaluée ici.\n\nCohérence. Le renforcement des polices municipales est cohérent avec sa ligne actuelle (ordre républicain, proximité, rôle des maires). Aucune contradiction n'a été trouvée sur ce point précis."
+  },
+  "contexte_national": {
+    "synthese": "Les polices municipales progressent déjà fortement, mais n'ont pas le droit d'intervenir en maintien de l'ordre.",
+    "texte": "Les chiffres. Selon le Sénat, les policiers municipaux sont passés d'environ 5 500 en 1984 à 28 161 en 2023 (+45 % depuis 2012). La moitié des services comptent deux agents ou moins ; le Sud-Est est beaucoup mieux doté que le reste du pays. Plus de 83 % des services sont armés. Le CNFPT estimait à 11 000 le nombre de recrutements possibles entre 2020 et 2026. On comptait 3 256 communes de 3 500 habitants ou plus en 2023, selon la direction générale des collectivités locales.\n\nLe cadre. Le projet de loi adopté au Sénat en février 2026 renforce les pouvoirs des policiers municipaux (amendes forfaitaires, contrôles, drones pour les gardes champêtres), mais sans leur confier de mission de maintien de l'ordre. Le rapport du Sénat d'octobre 2026 sur le maintien de l'ordre ne les mentionne pas comme renfort en manifestation.\n\nLe 17 octobre. Le dispositif national a été débordé par des groupes mobiles. Le 20 octobre, un autre candidat a demandé d'associer polices municipales et nationales pour protéger les bâtiments publics, ce qui illustre le rôle que pourraient jouer ces agents en période de troubles."
+  },
+  "contexte_international": {
+    "synthese": "La recherche montre que plus d'agents réduisent la délinquance, surtout violente, mais les données viennent surtout des États-Unis.",
+    "texte": "États-Unis. Chalfin et McCrary (Review of Economics and Statistics, 2018), sur des villes américaines de 1960 à 2010, montrent que des effectifs policiers plus nombreux réduisent la délinquance, davantage la délinquance violente que celle contre les biens. Ils estiment que chaque dollar consacré à la police évite environ 1,60 dollar de coûts pour les victimes, et concluent que ces villes manquent de policiers.\n\nTransposabilité. Ces études portent sur des polices aux pouvoirs complets d'enquête et d'interpellation. Les policiers municipaux français ont des compétences plus limitées : leur effet sur la délinquance passe surtout par la présence et la prévention. Aucune évaluation française comparable n'a été trouvée ; sources insuffisantes pour trancher ici sur l'ampleur de l'effet en France."
+  },
+  "impact_environnement": null,
+  "analyse_par_criteres": "Opérationnalité et moyens (20/30). Juridiquement simple, budgétairement non chiffré, humainement dépendant des capacités de recrutement.\n\nFaisabilité juridique (9/10, solide). Point fort : des contrats volontaires entre l'État et les communes ne posent pas de difficulté. Ils respectent la libre administration des collectivités, et des conventions de coordination existent déjà. D'où 9.\n\nFaisabilité budgétaire (6/10, incertain). Le sens de l'effet est un coût pour l'État, d'ampleur inconnue. Un policier municipal coûte en moyenne environ 89 000 euros par an, investissements compris (2,5 milliards pour 28 161 agents, calcul de l'analyste à partir des chiffres du Sénat). À titre d'illustration, si l'État finançait la moitié de 5 000 recrutements supplémentaires, le coût serait d'environ 220 millions d'euros par an : modeste au regard du budget de la sécurité, mais non compensé dans un contexte de déficit. Si l'État ne finance pas, la charge retombe sur les communes. D'où 6 : effet établi, ampleur dépendante de choix non faits.\n\nMoyens humains (5/10, incertain). Il faut recruter et former des agents en plus d'un mouvement déjà soutenu (11 000 recrutements estimés par le CNFPT entre 2020 et 2026). Aucune source consultée ne mesure la capacité de formation disponible pour aller au-delà. D'où 5.\n\nEfficacité (14/30, incertain). Bon outil pour la tranquillité du quotidien, outil indirect pour les émeutes. Point qui tient : la recherche montre que davantage d'agents sur le terrain réduit la délinquance, surtout violente, et les polices municipales sont justement chargées de la tranquillité publique. Point qui ne tient pas, au regard du problème posé par le dossier : la loi interdit aux polices municipales le maintien de l'ordre, et le projet de loi de 2026 le confirme. Face à des pillages comme ceux du 17 octobre, elles peuvent protéger des bâtiments, dissuader et libérer des policiers nationaux, pas contenir des groupes mobiles. Les études disponibles portent en outre sur des polices aux pouvoirs complets, aux États-Unis. D'où 14 : lien indirect, effet probable sur la délinquance quotidienne, faible sur les violences urbaines.\n\nEffets rebonds et externalités (15/20, incertain). Effets documentés, mais limités à la répartition de l'argent public. Les contrats risquent de profiter d'abord aux communes qui recrutent déjà (effet d'aubaine) et aux territoires déjà mieux dotés, comme le Sud-Est, ce qui accentuerait les inégalités. Si l'État finance peu, la charge retombe sur les budgets communaux. Plus d'agents municipaux, majoritairement armés, sans hausse équivalente de la formation, pose aussi une question d'encadrement. Le seuil de 3 500 habitants a l'avantage de cibler des communes où un service est viable. Ces effets ne dégradent ni la sécurité ni les libertés, dimensions centrales de l'objectif du domaine. D'où 15 : haut de la zone incertaine, faute de garde-fou annoncé contre l'effet d'aubaine.\n\nDegré de préparation (3/10, incertain). Un seuil, pas de chiffre. Le candidat fixe le périmètre (plus de 3 500 habitants) et l'outil (le contrat), mais ni le nombre d'agents, ni le montant, ni les engagements demandés aux communes. D'où 3.\n\nAlignement et logique globale (8/10, solide). Point solide : la mesure découle directement de sa ligne, une police républicaine de proximité plutôt que l'armée ou des régimes d'exception, et s'accorde avec la réserve citoyenne et le rôle donné aux maires. Son rejet des états d'exception contraste avec l'état d'urgence qu'il a déclaré en 2005, mais cela ne concerne pas cette mesure. D'où 8.",
+  "analyse_longevites": {
+    "synthese": "Effet lent, le temps de recruter et former, puis présence durable sur le terrain si le financement suit.",
+    "texte": "Court terme (0 à 2 ans) : négociation des contrats, recrutement et formation ; peu d'effet visible.\n\nMoyen terme (2 à 7 ans) : hausse des effectifs municipaux sur le terrain, avec un effet probable sur la délinquance du quotidien et la tranquillité publique, et un rôle d'appui (protection des bâtiments) en période de troubles.\n\nLong terme (plus de 7 ans) : un engagement budgétaire durable pour l'État ou les communes ; un risque de dépendance des communes à des financements contractuels susceptibles d'être remis en cause."
+  },
+  "impact_temporel_et_sectoriel": null,
+  "ce_qui_est_etabli": {
+    "synthese": "Les polices municipales comptent 28 000 agents, coûtent 2,5 milliards par an et n'ont pas le droit de maintenir l'ordre.",
+    "texte": "Le candidat propose des contrats avec les communes de plus de 3 500 habitants pour développer leurs polices municipales, sans en préciser le financement ni l'ampleur. Les polices municipales comptaient 28 161 agents en 2023 pour un coût d'environ 2,5 milliards d'euros. Elles sont chargées de la tranquillité publique, pas du maintien de l'ordre. On comptait 3 256 communes de 3 500 habitants ou plus en 2023. La recherche américaine montre un effet des effectifs policiers sur la délinquance."
+  },
+  "ce_qui_est_probable": {
+    "synthese": "Plus d'agents municipaux amélioreraient la tranquillité quotidienne, mais peseraient peu sur les émeutes.",
+    "texte": "Il est probable que des effectifs municipaux plus nombreux réduisent la petite délinquance et améliorent le sentiment de sécurité, et qu'ils aident à protéger des bâtiments en période de troubles. Il est probable aussi que les communes déjà engagées dans des recrutements en profitent en premier."
+  },
+  "ce_qui_est_discutable": {
+    "synthese": "L'ampleur de l'effet en France, avec des agents aux pouvoirs limités, reste débattue.",
+    "texte": "Les études qui chiffrent l'effet des effectifs portent sur des polices américaines aux pouvoirs complets. L'effet de policiers municipaux, dont l'action passe surtout par la présence, pourrait être plus faible. Le rôle qu'ils peuvent jouer en marge de manifestations violentes dépend aussi de l'issue du projet de loi en discussion."
+  },
+  "ce_qui_est_inconnu": {
+    "synthese": "On ignore le nombre d'agents visés, le montant, la durée des contrats et ce qui serait demandé aux communes.",
+    "texte": "Le candidat n'a dit ni combien d'agents seraient financés, ni quelle part l'État prendrait en charge, ni pour combien de temps, ni quels engagements seraient demandés aux communes. Aucune évaluation française de l'effet des polices municipales sur la délinquance n'a été trouvée."
+  },
+  "angles_morts": {
+    "synthese": "La mesure répond mal au problème du dossier, puisque les polices municipales sont exclues du maintien de l'ordre.",
+    "texte": "Décalage avec le problème. Proposée en réponse aux violences du 17 octobre, la mesure agit surtout sur la tranquillité du quotidien. Ce point est traité en efficacité et n'est pas repris ailleurs, pour éviter une double pénalisation.\n\nEffet d'aubaine et inégalités. Sans critères de besoin, les contrats pourraient financer des recrutements que les communes auraient faits de toute façon, et renforcer les territoires déjà bien dotés.\n\nDette publique. Si l'État cofinance, la dépense n'est pas compensée dans la proposition."
+  },
+  "notation_detaillee": {
+    "operationnalite_juridique": 9,
+    "qualification_juridique": "SOLIDE",
+    "operationnalite_budgetaire": 6,
+    "qualification_budgetaire": "INCERTAIN",
+    "operationnalite_moyens_humains": 5,
+    "qualification_moyens_humains": "INCERTAIN",
+    "operationnalite_moyens_total": 20,
+    "plafond_applique": false,
+    "plafond_declencheur": null,
+    "efficacite": 14,
+    "qualification_efficacite": "INCERTAIN",
+    "effets_rebonds_externalites": 15,
+    "qualification_effets_rebonds": "INCERTAIN",
+    "degre_preparation": 3,
+    "qualification_preparation": "INCERTAIN",
+    "alignement_logique": 8,
+    "qualification_alignement": "SOLIDE",
+    "score_total": 60,
+    "appreciation": "plausible sous condition"
+  },
+  "verdict_final": "Ce qui tient : des contrats entre l'État et les communes sont simples à mettre en place, la recherche montre que davantage d'agents sur le terrain réduit la délinquance, et la mesure est cohérente avec la ligne du candidat, qui préfère une police de proximité à l'armée ou aux régimes d'exception.\n\nCe qui ne tient pas : la réponse aux violences du 17 octobre. Les polices municipales n'ont pas le droit de faire du maintien de l'ordre, et leur renfort agirait surtout sur la tranquillité du quotidien. Ce qui reste incertain : le coût, le nombre d'agents et le risque d'effet d'aubaine. La note repose sur une lecture retenue par l'analyse : des contrats volontaires cofinancés par l'État.",
+  "sources_utilisees": [
+    "Dominique de Villepin, « Appel à la paix civile et sociale », La France humaniste, 21 octobre 2026 : https://lafrancehumaniste.fr/articles/appel-paix-civile-sociale",
+    "Parlons Politique, « Face aux violences, une plateforme anticrise peut-elle protéger le débat ? », octobre 2026 : https://www.parlons-politique.fr/elections/face-aux-violences-une-plateforme-anticrise-peut-elle-proteger-le-debat-sans-masquer-les-choix-difficiles-pour-les-citoyens_29916/",
+    "Sénat, rapport n° 671 (2024-2025), « 25 propositions pour donner aux polices municipales les moyens de lutter contre l'insécurité du quotidien » : https://www.senat.fr/rap/r24-671/r24-67111.html",
+    "APVF, « Polices municipales : un texte structurant franchit l'étape du Sénat », 12 février 2026 : https://www.apvf.asso.fr/actualite_evenement/polices-municipales-un-texte-structurant-franchit-letape-du-senat/",
+    "DGCL, Guide statistique de la fiscalité directe locale 2023, annexe 1 (communes par strate de population) : https://www.collectivites-locales.gouv.fr/files/Accueil/DESL/Guide%20fiscalit%C3%A9%202023/Guide%20statistique%202023%20-%20Annexe1%20Communes.pdf",
+    "Sénat, commission des lois, « L'avenir du maintien de l'ordre : 30 propositions pour reprendre le contrôle », synthèse, octobre 2026 : https://www.senat.fr/rap/r26-078/r26-078-syn.pdf",
+    "Chalfin A. et McCrary J., « Are U.S. Cities Underpoliced? Theory and Evidence », Review of Economics and Statistics, 2018 (résumé) : https://academicnewsletter.sufe.edu.cn/info/265162",
+    "Chalfin A. et McCrary J., « The Effect of Police on Crime: New Evidence from U.S. Cities », document de travail, 2012 : https://eml.berkeley.edu/~jmccrary/chalfin_mccrary2012.pdf",
+    "Universalis, « 1er-29 novembre 2005 : poursuite des violences dans les banlieues » : https://www.universalis.fr/evenement/1er-29-novembre-2005-poursuite-des-violences-dans-les-banlieues/",
+    "Journal du Net, « Édouard Philippe réclame plus de pouvoirs pour les maires et les polices municipales », 20 octobre 2026 : https://www.journaldunet.com/business/action-publique/1556951-edouard-philippe-reclame-plus-de-pouvoirs-pour-les-maires-et-les-polices-municipales/"
+  ],
+  "niveau_de_confiance": "Moyen. Les données sur les polices municipales et leur cadre juridique sont solides. L'effet attendu repose sur des études américaines, et la mesure n'est décrite qu'en une phrase, sans chiffrage.",
+  "limites": {
+    "synthese": "Mesure décrite en une phrase, sans chiffrage, et études d'efficacité surtout américaines.",
+    "texte": "La proposition tient en une phrase d'une chronique : la note repose sur une interprétation (contrats volontaires cofinancés par l'État). Le coût est une illustration de l'analyste, fondée sur le coût moyen d'un agent selon le Sénat. Les études sur l'effet des effectifs policiers portent sur des polices américaines aux pouvoirs complets ; aucune évaluation française n'a été trouvée."
+  },
+  "resume_court": "Dominique de Villepin propose que l'État passe des contrats avec les communes de plus de 3 500 habitants pour renforcer leurs polices municipales. Le problème visé : plus d'agents sur le terrain et une police plus proche de la population, après les violences du 17 octobre. Le mécanisme : plus d'effectifs, donc plus de présence et de dissuasion.\n\nLa mesure est simple à mettre en œuvre, cohérente avec la ligne du candidat, et la recherche montre que davantage d'agents réduit la délinquance. Mais les polices municipales n'ont pas le droit de faire du maintien de l'ordre : l'effet porterait surtout sur la tranquillité du quotidien, pas sur les émeutes. Note : 60/100, en retenant des contrats cofinancés par l'État, faute de précision du candidat.",
+  "phrase_teasing": "Plus de 3 000 communes concernées, mais la police municipale n'a pas le droit de faire du maintien de l'ordre.",
+  "relecture": {
+    "titre": "Renforcer les polices municipales : utile au quotidien, hors sujet face aux émeutes",
+    "candidat": "Dominique de Villepin",
+    "parti": "La France humaniste",
+    "theme": "Sécurité et justice",
+    "date": "2026-10-25",
+    "version": 1,
+    "mesure_initiale": "Augmenter les effectifs opérationnels en contractant avec les communes de plus de 3 500 habitants pour développer leurs polices municipales, dans un plan de renforcement de la police républicaine.",
+    "extrait": {
+      "citation": "« augmenter les effectifs opérationnels en contractant avec les communes de plus de 3 500 habitants »",
+      "source": "Dominique de Villepin, chronique « Appel à la paix civile et sociale », La France humaniste, 21 octobre 2026"
+    },
+    "verdict_tient": "la mesure est simple à mettre en œuvre, cohérente avec la ligne du candidat, et la recherche montre que davantage d'agents réduit la délinquance.",
+    "verdict_flou": "les polices municipales sont exclues du maintien de l'ordre, et ni le coût, ni le nombre d'agents, ni les garde-fous contre l'effet d'aubaine ne sont précisés.",
+    "niveau_confiance": "Moyen",
+    "questions": [
+      {
+        "titre": "Interprétation retenue",
+        "texte": "L'analyse retient des contrats volontaires cofinancés par l'État. Si le candidat entend seulement des conventions sans financement, la faisabilité budgétaire monterait mais les effets rebonds (charge reportée sur les communes) baisseraient. Avez-vous d'autres précisions de sa part ?"
+      },
+      {
+        "titre": "Efficacité à 14/30",
+        "texte": "La note reconnaît un effet probable sur la délinquance quotidienne, mais faible sur les émeutes, les polices municipales étant exclues du maintien de l'ordre. Faut-il juger la mesure davantage sur la tranquillité publique au sens large, ce qui la ferait monter ?"
+      },
+      {
+        "titre": "Coût illustratif",
+        "texte": "L'analyse estime environ 89 000 euros par agent et par an, et illustre un coût de 220 millions par an pour 5 000 recrutements cofinancés à moitié. Ces hypothèses vous paraissent-elles raisonnables ?"
+      },
+      {
+        "titre": "Mention de 2005",
+        "texte": "Le contexte rappelle que le candidat a déclaré l'état d'urgence en 2005, alors qu'il rejette aujourd'hui les régimes d'exception, sans pénaliser la mesure, qui n'est pas concernée. Faut-il garder cette mention ?"
+      },
+      {
+        "titre": "Titre court et phrase de teasing",
+        "texte": "Titre proposé : « Renforcer les polices municipales » (33 caractères). Teasing proposé : « Plus de 3 000 communes concernées, mais la police municipale n'a pas le droit de faire du maintien de l'ordre. » Vous conviennent-ils ?"
+      }
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/DeVillepin/villepin_contrats_polices_municipales_etape3.json",
+      "reponses": []
+    }
+  }
+}
