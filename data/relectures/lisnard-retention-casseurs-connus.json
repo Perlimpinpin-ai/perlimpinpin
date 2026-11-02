@@ -127,6 +127,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Isoler les casseurs connus en manif » (35 caractères). Teasing proposé : « En 2023, 57 % des émeutiers condamnés n'avaient aucun antécédent judiciaire. Qui resterait alors dans la rue ? » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Lisnard/lisnard_retention_casseurs_connus_etape3.json",
+      "reponses": []
+    }
   }
 }
