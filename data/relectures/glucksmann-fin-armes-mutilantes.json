@@ -134,6 +134,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « En finir avec les armes mutilantes » (34 caractères). Teasing proposé : « Le Sénat veut garder tout l'arsenal, plusieurs voisins européens s'en passent. Reste à savoir ce qui arrête vraiment les casseurs. » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-27",
+      "version_suivante": "data/analyses finales/Glucksmann/glucksmann_fin_armes_mutilantes_etape3.json",
+      "reponses": []
+    }
   }
 }

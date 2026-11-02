@@ -1,0 +1,156 @@
+{
+  "auditArbitrage": [
+    {
+      "remarque": "La note 'operationnalite_budgetaire' (8/10, SOLIDE) est cohérente, mais l'analyse ne discute pas explicitement l'ordre de grandeur des coûts de formation et de substitution des armes retirées.",
+      "statut": "rejetee",
+      "raison": "Remarque de confiance moyenne, de nature mineure, qui ne pointe aucune erreur factuelle ni incohérence de notation. L'analyse initiale mentionne déjà explicitement que ces coûts sont une estimation de l'analyste faute de chiffrage du candidat, et les qualifie de négligeables au regard du budget de la sécurité intérieure. Aucun changement de note justifié."
+    },
+    {
+      "remarque": "La note 'efficacite' (15/30, INCERTAIN) pourrait être légèrement rehaussée si le volet renseignement était mieux documenté.",
+      "statut": "rejetee",
+      "raison": "Remarque spéculative et contradictoire avec son propre constat : le volet renseignement n'est précisément PAS documenté par le candidat (absence de chiffrage, de calendrier). Rehausser la note reviendrait à récompenser une hypothèse favorable non étayée par le dossier. La qualification INCERTAIN et la note sont déjà cohérentes avec les éléments établis."
+    },
+    {
+      "remarque": "L'analyse ne mentionne pas explicitement si le candidat prévoit des mesures pour compenser le risque accru de blessures des forces de l'ordre lors de la transition.",
+      "statut": "rejetee",
+      "raison": "Ce point est déjà traité dans le dossier initial : la section 'ce_qui_est_probable' et le critère 'effets_rebonds_externalites' (12/20) mentionnent explicitement le risque accru d'exposition au contact et de blessures côté forces de l'ordre pendant la transition, ainsi que l'absence de précision du candidat sur ce point (section 'ce_qui_est_inconnu' et 'angles_morts'). La remarque ne révèle pas d'omission réelle, elle demande une confirmation d'un constat déjà présent. Aucune note ne doit changer puisque l'incertitude est déjà documentée et intégrée au score."
+    }
+  ],
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Retirer des manifestations les armes qui mutilent et réorienter le maintien de l'ordre vers les petits groupes violents.",
+      "texte": "Dans la proposition 8 de son plan de sortie de crise (22 octobre 2026), le candidat propose trois choses liées : mettre fin à l'usage des armes mutilantes dans les manifestations ; adapter le maintien de l'ordre et le renseignement au traitement des petits groupes violents et mobiles ; mieux encadrer les flux pour faciliter le parcours des manifestants pacifiques.\n\nIl ne dresse pas la liste des armes visées. Interprétation retenue par l'analyse (hypothèse, non précisée par le candidat) : sont visés **les lanceurs de balles de défense (LBD) et les grenades à effet explosif** (grenades de désencerclement, grenades assourdissantes, GM2L), ainsi que le tir tendu de grenades lacrymogènes, c'est-à-dire les armes et usages à l'origine des mutilations documentées. Le gaz lacrymogène en lui-même, les canons à eau et les moyens de protection restent disponibles. Cette lecture rejoint le programme du Parti socialiste, qui le soutient, et ses déclarations du début octobre sur les armes utilisées contre des lycéens."
+    },
+    "mesure_vers_objectif": {
+      "objectif_court": "Calmer la rue sans mutiler",
+      "categorie_objectif": "Sécurité et justice",
+      "objectif_vise": "Ramener le calme en ciblant les petits groupes violents et en évitant que la force indiscriminée ne solidarise la foule avec eux, tout en faisant cesser les blessures graves en manifestation.",
+      "mecanisme_propose": "Retirer des dotations de maintien de l'ordre les armes à l'origine des mutilations, et compenser par une doctrine de désescalade, un renseignement et des unités mobiles tournés vers les groupes violents, et une meilleure gestion des cortèges pacifiques.",
+      "lien_causal": "direct"
+    },
+    "nature_et_existant": "Nature : mesure d'organisation de la police et de la gendarmerie. Elle relève pour l'essentiel du ministre de l'Intérieur (dotations, instructions, schéma national du maintien de l'ordre) et ne demande pas forcément de loi. Horizon : immédiat pour le retrait des armes, plusieurs années pour la formation et la nouvelle doctrine.\n\nCe qui existe déjà. Le schéma national du maintien de l'ordre de 2020 a introduit des équipes de liaison et d'information et une logique de judiciarisation. La grenade GLI-F4 a été retirée en 2020, mais remplacée par la GM2L, jugée quasi identique par ses critiques. Le 6 octobre 2026, le ministre de l'Intérieur a suspendu la grenade assourdissante pour le seul mouvement lycéen. Le LBD reste en dotation ; le Conseil d'État a refusé de le suspendre en février 2019. Le Défenseur des droits recommande son retrait du maintien de l'ordre depuis fin 2017, et l'a redit en 2022 en insistant sur le risque pour les enfants.\n\nIl s'agit donc d'une extension et d'une généralisation de retraits déjà engagés ponctuellement, combinées à une réorientation de doctrine, pas d'une innovation.",
+    "contexte_programme": {
+      "synthese": "Mesure fidèle aux positions anciennes du candidat, dans un plan qui combine fermeté contre les casseurs et désescalade.",
+      "texte": "Le plan du 22 octobre compte dix propositions. Outre la proposition 8, il prévoit d'obliger les plateformes à retirer en temps réel les appels à la destruction (proposition 9) et d'engager la responsabilité de l'État pour les dégâts, avec recours contre les auteurs (proposition 10). Le 19 octobre, le candidat avait réclamé une réponse « extrêmement ferme » aux violences.\n\nBilan passé. En janvier 2020, après la mort de Cédric Chouviat, il avait écrit au ministre de l'Intérieur pour demander l'interdiction du plaquage ventral et des techniques d'immobilisation dangereuses, en rappelant **deux condamnations de la France par la Cour européenne des droits de l'homme**. Début octobre 2026, il avait demandé l'arrêt de l'usage de ces armes face aux lycéens et une doctrine dissociant lycéens pacifiques et casseurs. Le Parti socialiste, qui le soutient, veut une doctrine qui renonce aux « équipements mutilants », et son président de groupe à l'Assemblée a annoncé une proposition de loi en ce sens pour les manifestations impliquant des mineurs.\n\nCohérence. **La ligne est constante depuis 2020**. Aucune contradiction n'a été trouvée avec un vote ou une position antérieure ; aucun vote du candidat sur ce sujet au Parlement européen n'a été identifié."
+    },
+    "contexte_national": {
+      "synthese": "Des lycéens mutilés relancent le débat, mais le 17 octobre a montré la difficulté de contenir des groupes mobiles.",
+      "texte": "Les blessés. Depuis la fin septembre 2026, le gouvernement a recensé plusieurs centaines de lycéens blessés (**215 au 7 octobre** selon le ministre, **248 au 14 octobre** selon le Premier ministre) et plusieurs cas de mutilation : une main arrachée à Lens par une grenade, un œil perdu à Tours, une mâchoire fracturée à Saint-Ouen-l'Aumône par une grenade lacrymogène tirée au lance-grenades, une lycéenne privée de la vue d'un œil à Mulhouse. Le policier de Saint-Ouen-l'Aumône a été mis en examen. Côté forces de l'ordre, le ministre comptait **761 blessés au 7 octobre**, sans précision sur leur gravité.\n\nLe débat. Une pétition demandant l'interdiction des armes mutilantes dans les manifestations lycéennes a dépassé 100 000 signatures en six jours. Le ministre de l'Intérieur juge les armes intermédiaires « absolument indispensables ». En octobre 2026, un rapport du Sénat recommande au contraire de maintenir l'ensemble des moyens de force intermédiaire, en les modernisant.\n\nLe 17 octobre. Selon ce même rapport, **environ 550 000 personnes ont manifesté, contre 150 000 attendues hors Paris**, et le dispositif a été débordé par des groupes très mobiles recherchant l'affrontement. Le rapport juge la désescalade souhaitable mais parfois « illusoire » face à des groupes organisés, et recommande de renforcer le renseignement, y compris en temps réel. Il relève aussi que **90 % des opérations de maintien de l'ordre sont menées par des unités non spécialisées**, moins formées.\n\nBudget. À titre d'ordre de grandeur, une commande de grenades de plus de 78 millions d'euros a été révélée en 2023."
+    },
+    "contexte_international": {
+      "synthese": "Plusieurs voisins européens maintiennent l'ordre sans LBD, avec des doctrines de désescalade dont les effets sont documentés mais imparfaitement.",
+      "texte": "Europe du Nord. Les sociologues Olivier Fillieule et Fabien Jobard décrivent depuis 2016 un « splendide isolement » français : l'Allemagne, la Suède, le Danemark, les Pays-Bas ou l'Angleterre ont développé des doctrines de dialogue et de désescalade, avec des unités de liaison, et **leurs forces de maintien de l'ordre ne sont pas équipées de lanceurs de balles**. Un rapport de chercheurs commandé par le Défenseur des droits (2021) constate une « distance persistante » entre la France et ces pratiques.\n\nCe que dit la recherche. Le modèle de psychologie des foules développé notamment par Clifford Stott montre que l'usage indiscriminé de la force soude la foule contre la police et favorise sa radicalisation, alors qu'une présence moins hostile isole les violents. L'exemple souvent cité est l'Euro 2004 au Portugal : une police discrète, **un seul supporter anglais arrêté pour violence, contre près de 1 000 arrestations à l'Euro 2000**. La comparaison entre deux tournois reste imparfaite, car bien d'autres facteurs diffèrent.\n\nLes armes. Une revue systématique publiée dans BMJ Open (2017) sur les balles en caoutchouc et en plastique recense **53 décès et 300 invalidités permanentes sur 1 984 personnes blessées**, les tirs à la tête et au cou causant 83 % de ces invalidités. Elle conclut que ces projectiles ne sont pas adaptés au contrôle des foules.\n\nTransposabilité. Ces pays ne font pas face exactement aux mêmes formes de violence ; la désescalade y repose sur des effectifs formés et sur des moyens de substitution (canons à eau, unités d'interpellation). Leur expérience montre que l'objectif est atteignable, pas qu'il le serait sans transition en France."
+    },
+    "impact_environnement": null,
+    "analyse_longevites": {
+      "synthese": "Baisse immédiate des mutilations, mais flottement possible tant que doctrine et formations ne sont pas prêtes.",
+      "texte": "Court terme (0 à 2 ans) : **les mutilations liées aux armes retirées cessent dès le retrait**. Risque principal : un vide capacitaire face aux groupes violents si la formation, le renseignement et les moyens de substitution ne suivent pas.\n\nMoyen terme (2 à 7 ans) : la doctrine de désescalade et le ciblage des petits groupes peuvent porter leurs fruits si des unités sont formées et si les équipes de liaison sont généralisées ; c'est l'horizon des réformes comparables observées à l'étranger.\n\nLong terme (plus de 7 ans) : un rapprochement avec les pratiques d'Europe du Nord et une amélioration possible de la confiance entre police et population, qui reste à mesurer."
+    },
+    "impact_temporel_et_sectoriel": null,
+    "ce_qui_est_etabli": {
+      "synthese": "Ces armes ont causé des mutilations documentées, y compris en 2026, et leur retrait relève d'une décision ministérielle.",
+      "texte": "**Les LBD et les grenades à effet explosif ont causé des mutilations documentées**, dont plusieurs chez des lycéens en septembre et octobre 2026. Une revue systématique internationale conclut que les projectiles de type balles en caoutchouc ne sont pas adaptés au contrôle des foules. **Le retrait d'une arme relève du seul ministre**, comme l'ont montré la GLI-F4 en 2020 et la grenade assourdissante en 2026. Le Défenseur des droits recommande le retrait du LBD depuis 2017. Le candidat ne précise ni la liste des armes, ni le calendrier, ni le coût."
+    },
+    "ce_qui_est_probable": {
+      "synthese": "La transition demanderait des années de formation et exposerait davantage les forces au contact.",
+      "texte": "Il est probable qu'une doctrine fondée sur la désescalade et le ciblage des groupes violents exige **des effectifs mieux formés et plus nombreux sur le terrain**, et que les forces soient plus souvent au contact, avec un risque accru de blessures de leur côté pendant la phase de transition."
+    },
+    "ce_qui_est_discutable": {
+      "synthese": "L'effet sur les pillages et les violences de groupes mobiles comme le 17 octobre reste débattu.",
+      "texte": "Les partisans de la mesure s'appuient sur la psychologie des foules et sur l'expérience européenne ; **le Sénat et le ministre de l'Intérieur jugent au contraire ces armes indispensables** face à des groupes organisés. Les preuves étrangères portent surtout sur des foules de manifestants ou de supporters, moins sur des pillages menés par de petits groupes mobiles."
+    },
+    "ce_qui_est_inconnu": {
+      "synthese": "On ignore la liste exacte des armes visées, le calendrier, les moyens de substitution et leur coût.",
+      "texte": "Le candidat n'a pas dit si les grenades lacrymogènes tirées au lance-grenades sont concernées, ni par quoi les armes retirées seraient remplacées, ni combien d'agents seraient formés et en combien de temps. **Aucune évaluation française ne mesure l'effet d'un maintien de l'ordre sans LBD sur des émeutes urbaines**."
+    },
+    "angles_morts": {
+      "synthese": "Le succès dépend entièrement du volet renseignement et unités mobiles, ni chiffré ni calendé dans le plan.",
+      "texte": "Dépendance au second volet. **Sans moyens renforcés contre les petits groupes violents, le retrait des armes pourrait être vécu comme un affaiblissement** face aux pillages ; c'est l'hypothèse centrale de la mesure. Cet élément est traité en moyens humains et rappelé en efficacité comme condition, sans double pénalisation.\n\nUnités non spécialisées. La plupart des opérations sont menées par des policiers de sécurité publique, moins formés au maintien de l'ordre ; la doctrine devra les toucher aussi.\n\nDéfinition. Selon que le tir tendu de grenades lacrymogènes est inclus ou non, la portée de la mesure change beaucoup ; la lycéenne de Mulhouse et le lycéen de Saint-Ouen-l'Aumône ont été blessés par ce type de tir.\n\nEffet sur les forces. **Le moral et la sécurité des policiers et gendarmes, déjà très exposés, conditionnent l'acceptation de la réforme**."
+    },
+    "notation_detaillee": {
+      "operationnalite_juridique": 9,
+      "qualification_juridique": "SOLIDE",
+      "operationnalite_budgetaire": 8,
+      "qualification_budgetaire": "SOLIDE",
+      "operationnalite_moyens_humains": 5,
+      "qualification_moyens_humains": "INCERTAIN",
+      "operationnalite_moyens_total": 22,
+      "plafond_applique": false,
+      "plafond_declencheur": null,
+      "efficacite": 15,
+      "qualification_efficacite": "INCERTAIN",
+      "effets_rebonds_externalites": 12,
+      "qualification_effets_rebonds": "INCERTAIN",
+      "degre_preparation": 4,
+      "qualification_preparation": "INCERTAIN",
+      "alignement_logique": 8,
+      "qualification_alignement": "SOLIDE",
+      "score_total": 61,
+      "appreciation": "plausible sous condition"
+    },
+    "verdict_final": "Retirer les armes qui mutilent est une décision simple à prendre : elle relève du seul ministre de l'Intérieur, coûte peu et supprimerait à coup sûr les blessures graves qu'elles provoquent. C'est aussi la mesure du dossier la plus cohérente avec le parcours du candidat, qui défend cette ligne depuis 2020.\n\nMais retirer une arme ne réduit pas en soi le nombre de casseurs. Tout repose sur un second volet, le renseignement et le ciblage des petits groupes violents, qui n'est ni chiffré ni calendé, alors que 90 % des opérations de maintien de l'ordre sont aujourd'hui menées par des unités non spécialisées et que le dispositif a déjà été débordé le 17 octobre.\n\nLa mesure tient sur le droit, le budget et la cohérence politique. Elle reste fragile sur l'essentiel : la capacité réelle à calmer la rue sans les armes retirées.",
+    "sources_utilisees": [
+      "Public Sénat, « Manifestations lycéennes : mis en cause sur sa gestion du maintien de l'ordre, Laurent Nuñez pressé de trouver la voie de l'apaisement », 7 octobre 2026 : https://www.publicsenat.fr/actualites/politique/manifestations-lyceennes-mis-en-cause-sur-sa-gestion-du-maintien-de-lordre-laurent-nunez-presse-de-trouver-la-voie-de-lapaisement",
+      "Parlons Politique, « Face aux violences dans les lycées, le débat sur les armes de maintien de l'ordre met le gouvernement sous pression », 14 octobre 2026 : https://www.parlons-politique.fr/actualite-nationale/face-aux-violences-dans-les-lycees-le-debat-sur-les-armes-de-maintien-de-lordre-met-le-gouvernement-sous-pression_29334/",
+      "Le Courrier de l'Atlas, « Mobilisation lycéenne : 215 élèves blessés », 7 octobre 2026 : https://lecourrierdelatlas.com/mobilisation-lyceenne-215-eleves-blesses",
+      "Politis, « Maintien de l'ordre : 100 000 signatures et des années d'alertes contre les armes mutilantes », octobre 2026 : https://www.politis.fr/articles/2026/10/maintien-de-lordre-100-000-signatures-et-des-annees-dalertes-contre-les-armes-mutilantes/",
+      "Sénat, commission des lois, « L'avenir du maintien de l'ordre : 30 propositions pour reprendre le contrôle », synthèse du rapport, octobre 2026 : https://www.senat.fr/rap/r26-078/r26-078-syn.pdf",
+      "LCP, « Violences du 17 octobre : qui propose quoi sur le maintien de l'ordre ? », 19 octobre 2026 : https://lcp.fr/actualites/violences-du-17-octobre-qui-propose-quoi-sur-le-maintien-de-l-ordre-444073",
+      "Gilbert Roger, « Sortie de crise : Raphaël Glucksmann fait 10 propositions concrètes », 22 octobre 2026 : https://gilbert-roger.fr/2026/10/sortie-de-crise-raphael-glucksmann-fait-10-propositions-concretes",
+      "Public Sénat, « Glucksmann et Bayou demandent l'interdiction du plaquage ventral par la police », 9 janvier 2020 : https://www.publicsenat.fr/actualites/politique/glucksmann-et-bayou-demandent-l-interdiction-du-plaquage-ventral-par-la-police",
+      "Europe 1, « Voici les recommandations du Défenseur des droits pour faire évoluer le maintien de l'ordre », 2020 : https://www.europe1.fr/societe/voici-les-recommandations-du-defenseur-des-droits-pour-faire-evoluer-le-maintien-de-lordre-3980366",
+      "Fillieule O. et Jobard F., « Un splendide isolement. Les politiques françaises du maintien de l'ordre », La Vie des idées, 24 mai 2016 : https://laviedesidees.fr/Un-splendide-isolement",
+      "Wuilleumier A., Fillieule O., Jobard F. et al., « Désescalade de la violence et gestion des foules protestataires », rapport pour le Défenseur des droits, 2021 (présentation) : https://blog.landot-avocats.net/2021/12/02/desescalade-de-la-violence-et-gestion-des-foules-protestataires-quelles-articulations-en-france-et-en-europe-aujourdhui/amp/",
+      "Haar R. et al., « Death, injury and disability from kinetic impact projectiles in crowd-control settings: a systematic review », BMJ Open, 2017 : https://bmjopen.bmj.com/content/7/12/e018154.abstract",
+      "Scientific American, « Taming the Madness of Crowds » (travaux de Clifford Stott, Euro 2004) : https://www.scientificamerican.com/article/taming-the-madness-of-crowds/"
+    ],
+    "niveau_de_confiance": "Moyen. Les faits sur les blessures, le cadre juridique et les positions du candidat sont bien établis. L'effet sur l'ordre public face à des groupes violents mobiles repose sur un raisonnement et des expériences étrangères dont la transposition aux émeutes françaises reste à démontrer, et le texte exact de la proposition n'a pu être consulté qu'à travers ses reprises.",
+    "limites": {
+      "synthese": "Liste des armes non précisée par le candidat, et preuves d'efficacité surtout étrangères et portant sur des foules de manifestants.",
+      "texte": "La proposition ne liste pas les armes visées : la note repose sur une interprétation (LBD, grenades à effet explosif, tir tendu de grenades lacrymogènes). Le document original du plan n'a pas pu être consulté directement ; son contenu est connu par ses reprises. **Les études sur la désescalade portent surtout sur des manifestations et des rassemblements sportifs à l'étranger, pas sur des pillages menés par de petits groupes mobiles**. Aucun chiffrage public des besoins de formation n'a été trouvé. Pour ce dossier, l'efficacité est jugée d'abord sur la tranquillité publique : la mesure réduit-elle les violences et les pillages ? La baisse des blessures graves est un bénéfice réel, mentionné dans la fiche, mais elle ne porte pas à elle seule la note d'efficacité."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 22,
+        "note_max": 30,
+        "plafond_applique": false,
+        "plafond_declencheur": null,
+        "texte": "**Un ministre peut décider ce retrait seul**, sans loi : les dotations et la doctrine relèvent d'instructions et du schéma national du maintien de l'ordre, comme l'ont montré le retrait de la GLI-F4 en 2020 ou la suspension de la grenade assourdissante en octobre 2026. L'effet budgétaire est faible et plutôt neutre, le retrait d'armes économisant des achats de munitions. Le vrai point faible est humain : **90 % des opérations sont menées par des unités non spécialisées**, et une doctrine de désescalade et de ciblage des groupes violents demande des années de formation que rien ne garantit à ce stade."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 15,
+        "note_max": 30,
+        "texte": "**Retirer les armes qui mutilent ne réduit pas en soi le nombre de casseurs** : aucune étude ne le montre, et un effet inverse, une moindre capacité à tenir à distance les groupes violents, reste plausible sans être démontré. Le point positif est que la mesure cible explicitement le renseignement et les petits groupes mobiles, le levier que la recherche juge le plus dissuasif, une priorité que partage le rapport du Sénat. La psychologie des foules confirme par ailleurs que **la force indiscriminée solidarise les manifestants pacifiques avec les plus violents**. Mais ce second volet, dont tout dépend, n'est ni chiffré ni détaillé par le candidat."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 12,
+        "note_max": 20,
+        "texte": "**Sans armes à distance, les forces devront davantage aller au contact**, ce qui peut augmenter leurs propres blessures, déjà à 761 cas recensés au 7 octobre, et celles liées à d'autres moyens comme les matraques. Un vide capacitaire est possible pendant la phase de transition, le temps que la formation et le renseignement montent en puissance. À l'inverse, un gain de confiance entre police et population est plausible à plus long terme, sans être garanti."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 4,
+        "note_max": 10,
+        "texte": "**Le candidat ne liste pas les armes visées, ne donne ni calendrier, ni plan de formation, ni moyens de substitution, ni coût**. Le programme du Parti socialiste et la proposition de loi annoncée par ses députés donnent un cadre plus précis, mais ce ne sont pas des engagements chiffrés du candidat lui-même."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 8,
+        "note_max": 10,
+        "texte": "**La ligne est constante depuis 2020**, date à laquelle le candidat demandait déjà l'interdiction de techniques d'immobilisation dangereuses après la mort de Cédric Chouviat. La proposition s'articule logiquement avec les deux autres mesures de fermeté du même plan, contre les appels à la destruction et pour la responsabilité des auteurs de dégâts. Aucune contradiction n'a été trouvée avec un vote ou une position passée, mais la tension entre fermeté affichée et retrait des armes ne sera résolue que si le volet renseignement est réellement financé."
+      }
+    ],
+    "verdict_conclusion": "Une mesure juridiquement et budgétairement solide, mais dont l'efficacité réelle dépend d'un volet renseignement resté sans chiffrage ni calendrier."
+  },
+  "titre_fiche": "Fin des armes mutilantes en manifestation",
+  "resume_court": "Raphaël Glucksmann propose de retirer des manifestations les armes qui mutilent, LBD et grenades explosives selon l'interprétation retenue ici, et de réorienter le maintien de l'ordre vers le renseignement et les petits groupes violents. Le problème est double : des lycéens mutilés depuis septembre, et des pillages menés par des groupes mobiles le 17 octobre.\n\nLa mesure tient sur le droit, le coût et la cohérence avec le parcours du candidat, et supprimerait à coup sûr les mutilations causées par ces armes. Mais retirer une arme ne réduit pas en soi le nombre de casseurs : tout repose sur le volet renseignement, jugé le plus efficace par la recherche, mais que le candidat ne chiffre ni ne détaille.",
+  "teaser_accueil": "Des lycéens mutilés, un dispositif débordé le 17 octobre... Retirer les armes réglera-t-il vraiment le problème des casseurs ?"
+}
