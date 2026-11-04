@@ -163,6 +163,7 @@ test("analyze.js avec commentaires : blocs 6 et 9, bloc COMMENTAIRES DU CLUB à 
   assert.match(gabarit.text, /9\. \*\*Commentaires des relecteurs/);
   assert.ok(!gabarit.text.includes("COMMENTAIRES DU CLUB ("));
   assert.equal(bloc.text, blocCommentaires(commentaires));
+  assert.match(body.messages[0].content[2].text, /recherches web d'abord/);
   // Sans les blocs, le gabarit redevient celui d'une fiche sans commentaires.
   assert.equal(
     retirerBloc(gabarit.text, "\n\n9. **Commentaires des relecteurs", "\n\n## MISE EN TEXTE FINALE"),
@@ -211,6 +212,26 @@ test("reunirTexteFinal : texte écrit après la dernière recherche, réuni en u
   const sortie = reunirTexteFinal(content);
   assert.deepEqual(sortie.at(-1), { type: "text", text: '{"a": 1}' });
   assert.equal(sortie.filter((b) => b.type === "text").length, 1);
+});
+
+// Échec du robot de révision (4 novembre 2026, Mélenchon carburant, 3e essai) :
+// JSON écrit avant la dernière recherche, suivi d'une simple phrase.
+test("reunirTexteFinal : JSON écrit avant la dernière recherche, repris", () => {
+  const content = [
+    { type: "server_tool_use", name: "web_search", input: { query: "q1" } },
+    { type: "web_search_tool_result", content: [] },
+    { type: "text", text: '{"fiche": ' },
+    { type: "text", text: '{"a": 1}}' },
+    { type: "server_tool_use", name: "web_search", input: { query: "q2" } },
+    { type: "web_search_tool_result", content: [] },
+    { type: "text", text: "Le JSON final ci-dessus reste valable." },
+  ];
+  const sortie = reunirTexteFinal(content);
+  assert.deepEqual(sortie.at(-1), { type: "text", text: '{"fiche": {"a": 1}}' });
+});
+
+test("reunirTexteFinal : sans aucune recherche, tout le texte", () => {
+  assert.deepEqual(reunirTexteFinal([{ type: "text", text: '{"a": 1}' }]).at(-1), { type: "text", text: '{"a": 1}' });
 });
 
 test("buildCoutPipeline : recherches web comptées seulement avec des commentaires", () => {
