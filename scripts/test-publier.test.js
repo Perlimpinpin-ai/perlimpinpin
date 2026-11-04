@@ -225,7 +225,7 @@ test("publierBrouillon (actions.js) branche isEditor et TEST_DRY_RUN sur la logi
 
 const REVISION = { slug: "lepen-budget-immigration", reponses: [], synthese: "s" };
 const AVEC_REVISION = { ...BROUILLON, contenuComplet: { titre_fiche: "x", revision: REVISION } };
-const PR = { numero: 12, lien: "https://github.com/Perlimpinpin2027/perlimpinpin/pull/12" };
+const PR = { numero: 12, lien: "https://github.com/Perlimpinpin-ai/perlimpinpin/pull/12" };
 
 // Faux GitHub : `appels` liste les appels ; fusionner lève une erreur si interdit.
 function fauxGitHub({ verification = { ok: true, pr: PR }, fusion = { ok: true }, fusionAutorisee = true } = {}) {
