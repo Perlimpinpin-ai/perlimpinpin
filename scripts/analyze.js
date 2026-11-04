@@ -805,7 +805,8 @@ async function corrigerRevision(etape1, mistralResult, commentaires, reponsePrec
       content:
         "Ta réponse a été refusée : le champ revision_relecture ne respecte pas le format demandé.\n" +
         `${errors.map((error) => `- ${error}`).join("\n")}\n` +
-        "Renvoie le JSON complet de l'étape 3, corrigé, au même format : une réponse par commentaire, avec le même commentaire_id, et retenu à true ou false.",
+        "Renvoie le JSON complet de l'étape 3, corrigé, au même format : une réponse par commentaire, avec le même commentaire_id, et retenu à true ou false. " +
+        "Recopie fiche_complete en entier, avec ses 5 objets analyse_par_criteres, et fais toutes tes recherches web AVANT d'écrire le JSON.",
     },
   ];
   return appelerEtape3AvecRecherche(body);
@@ -1250,6 +1251,58 @@ export function ficheCompleteAvecVerdictRacine(arbitrage3) {
   return { ...fiche, verdict_final: arbitrage3.verdict_final };
 }
 
+// Réponse d'étape 3 renvoyée après un refus de revision_relecture : le modèle
+// la réécrit en entier et peut en perdre une partie (ex. 4 novembre 2026,
+// fiche Mélenchon carburant : fiche_complete sans analyse_par_criteres →
+// « structure toujours invalide après tentative de réparation », la
+// réparation ne pouvant pas réinventer les 5 critères). La correction ne
+// portait que sur revision_relecture : si la nouvelle fiche_complete est
+// invalide alors que la première était valide, on garde la première, et les
+// champs de la racine absents de la nouvelle réponse sont repris.
+export function fusionnerReponseCorrigee(premiere, corrigee) {
+  const fusion = { ...(premiere ?? {}), ...(corrigee ?? {}) };
+  const ficheCorrigee = validateFicheCompleteStructure(ficheCompleteAvecVerdictRacine(corrigee));
+  const fichePremiere = validateFicheCompleteStructure(ficheCompleteAvecVerdictRacine(premiere));
+  if (!ficheCorrigee.valid && fichePremiere.valid) {
+    console.error("  ↺  Étape 3 : fiche_complete de la réponse corrigée invalide, celle de la première réponse est conservée.");
+    fusion.fiche_complete = premiere.fiche_complete;
+    if (fusion.verdict_final === undefined) fusion.verdict_final = premiere.verdict_final;
+  }
+  return fusion;
+}
+
+// Révision (commentaires du Club) : la fiche relue est réécrite en entier,
+// avec recherches web, et le modèle en omet parfois un bloc qu'il n'a pas
+// modifié (ex. 4 novembre 2026, Mélenchon carburant : mesure_vers_objectif
+// absent → « structure toujours invalide après tentative de réparation »).
+// Un bloc de texte manquant est repris, dans l'ordre : à la racine de la
+// réponse s'il y a été placé, sinon tel qu'il était dans la fiche relue.
+// Jamais pour la notation (analyse_par_criteres, notation_detaillee,
+// verdict_final) : elle doit venir de la nouvelle réponse.
+export const BLOCS_TEXTE_RECONDUCTIBLES = [
+  "mesure_reformulee", "mesure_vers_objectif", "nature_et_existant", "contexte_programme",
+  "contexte_national", "contexte_international", "impact_environnement", "analyse_longevites",
+  "impact_temporel_et_sectoriel", "ce_qui_est_etabli", "ce_qui_est_probable", "ce_qui_est_discutable",
+  "ce_qui_est_inconnu", "angles_morts", "sources_utilisees", "niveau_de_confiance", "limites",
+];
+
+export function completerAvecFicheRelue(fiche, arbitrage3, ficheRelue) {
+  const complete = { ...(fiche ?? {}) };
+  const repris = [];
+  for (const cle of BLOCS_TEXTE_RECONDUCTIBLES) {
+    if (complete[cle] !== undefined) continue;
+    if (arbitrage3?.[cle] !== undefined) {
+      complete[cle] = arbitrage3[cle];
+      repris.push(`${cle} (racine de la réponse)`);
+    } else if (ficheRelue?.[cle] !== undefined) {
+      complete[cle] = ficheRelue[cle];
+      repris.push(`${cle} (fiche relue, inchangé)`);
+    }
+  }
+  if (repris.length) console.error(`  ↺  Étape 3 : bloc(s) absent(s) de fiche_complete, repris : ${repris.join(", ")}.`);
+  return complete;
+}
+
 // --- Orchestration du pipeline (étapes 2 et 3) ------------------------------
 // L'étape 1 (recherche + analyse) est produite manuellement, en dehors de ce
 // script — voir loadEtape1() ci-dessus. Le pipeline automatisé enchaîne
@@ -1295,7 +1348,7 @@ async function runPipeline(etape1Input, { commentaires = null, candidatNom = nul
       const data3bis = await corrigerRevision(etape1, mistralResult, commentaires, arbitrage3, revision.errors, recherchesWeb);
       data3 = { ...data3bis, usage: addUsage(data3.usage, data3bis.usage) };
       recherchesWeb += data3bis.recherchesWeb;
-      arbitrage3 = extractJson(data3bis);
+      arbitrage3 = fusionnerReponseCorrigee(arbitrage3, extractJson(data3bis));
       revision = validateRevisionRelecture(arbitrage3.revision_relecture, ids);
       if (!revision.valid) {
         throw new Error(`Étape 3 : revision_relecture toujours invalide après une nouvelle tentative.\n${revision.errors.join("\n")}`);
@@ -1306,7 +1359,8 @@ async function runPipeline(etape1Input, { commentaires = null, candidatNom = nul
   }
 
   const auditArbitrage = Array.isArray(arbitrage3.auditArbitrage) ? [...arbitrage3.auditArbitrage] : [];
-  const rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
+  let rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
+  if (commentaires) rawFicheComplete = completerAvecFicheRelue(rawFicheComplete, arbitrage3, etape1);
   const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3");
 
   // titre_fiche/resume_court/teaser_accueil/verdict_final sont produits à la
