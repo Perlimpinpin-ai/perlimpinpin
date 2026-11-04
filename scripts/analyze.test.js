@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { callMistralQualityControl, ficheCompleteAvecVerdictRacine, fusionnerReponseCorrigee } from "./analyze.js";
+import { callMistralQualityControl, ficheCompleteAvecVerdictRacine, fusionnerReponseCorrigee, completerAvecFicheRelue } from "./analyze.js";
 import { validateFicheCompleteStructure } from "./lib/scoring.js";
 
 // Échec du robot de révision sur le-pen-contribution-ue-5-milliards (10 octobre
@@ -91,5 +91,39 @@ describe("Étape 3 — réponse corrigée qui perd analyse_par_criteres", () => 
     const corrigee = sortieReelle();
     corrigee.fiche_complete.marqueur = 1;
     assert.equal(fusionnerReponseCorrigee(premiere, corrigee).fiche_complete, corrigee.fiche_complete);
+  });
+});
+
+// Échec du robot de révision (4 novembre 2026, Mélenchon carburant, 2e essai) :
+// fiche_complete sans mesure_vers_objectif. Le bloc est repris de la fiche relue.
+describe("Étape 3 (révision) — bloc de texte omis par le modèle", () => {
+  const sortieReelle = () =>
+    JSON.parse(readFileSync(new URL("../data/analyses finales/Zemmour/zemmour_rsa_trois_ans_etape3.json", import.meta.url), "utf8"));
+
+  test("mesure_vers_objectif absent : repris de la fiche relue, la fiche redevient valide", () => {
+    const ficheRelue = sortieReelle().fiche_complete;
+    const arbitrage3 = sortieReelle();
+    delete arbitrage3.fiche_complete.mesure_vers_objectif;
+    assert.equal(validateFicheCompleteStructure(arbitrage3.fiche_complete).valid, false);
+    const fiche = completerAvecFicheRelue(arbitrage3.fiche_complete, arbitrage3, ficheRelue);
+    assert.deepEqual(fiche.mesure_vers_objectif, ficheRelue.mesure_vers_objectif);
+    assert.ok(validateFicheCompleteStructure(fiche).valid);
+  });
+
+  test("placé à la racine de la réponse : c'est celui-là qui est pris", () => {
+    const arbitrage3 = sortieReelle();
+    const nouveau = { ...arbitrage3.fiche_complete.mesure_vers_objectif, objectif_court: "Nouveau" };
+    delete arbitrage3.fiche_complete.mesure_vers_objectif;
+    arbitrage3.mesure_vers_objectif = nouveau;
+    assert.equal(completerAvecFicheRelue(arbitrage3.fiche_complete, arbitrage3, sortieReelle().fiche_complete).mesure_vers_objectif, nouveau);
+  });
+
+  test("la notation n'est jamais reprise de la fiche relue", () => {
+    const arbitrage3 = sortieReelle();
+    delete arbitrage3.fiche_complete.analyse_par_criteres;
+    delete arbitrage3.fiche_complete.notation_detaillee;
+    const fiche = completerAvecFicheRelue(arbitrage3.fiche_complete, arbitrage3, sortieReelle().fiche_complete);
+    assert.equal(fiche.analyse_par_criteres, undefined);
+    assert.equal(fiche.notation_detaillee, undefined);
   });
 });
