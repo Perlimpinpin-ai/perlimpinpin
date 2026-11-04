@@ -117,7 +117,18 @@ jobs:
           while IFS= read -r f; do [ -n "$f" ] && git add -- "$f"; done < "$RUNNER_TEMP/revision/fichiers.txt"
           git commit -q -m "Révision $SLUG : réponses aux commentaires et fiche finale"
           git push -q origin "$BRANCHE"
-          lien=$(gh pr create --base main --head "$BRANCHE" --title "Révision $SLUG" --body-file "$RUNNER_TEMP/revision/rapport.md")
+          if ! lien=$(gh pr create --base main --head "$BRANCHE" --title "Révision $SLUG" --body-file "$RUNNER_TEMP/revision/rapport.md" 2>&1); then
+            manuel="https://github.com/$GITHUB_REPOSITORY/pull/new/$BRANCHE"
+            echo "✗ Branche $BRANCHE poussée, mais pull request NON créée : $lien"
+            {
+              echo "### ⚠ Pull request à créer à la main"
+              echo "La révision est faite et la branche est poussée. Crée la PR ici : $manuel"
+              echo
+              echo "Pour que le robot la crée lui-même : Settings de l'organisation, puis Actions > General > Workflow permissions,"
+              echo "cocher « Allow GitHub Actions to create and approve pull requests » (puis la même case dans les Settings du dépôt)."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
           echo "lien=$lien" >> "$GITHUB_OUTPUT"
           echo "Pull request : $lien"
 

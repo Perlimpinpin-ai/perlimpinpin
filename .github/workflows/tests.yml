@@ -1,0 +1,27 @@
+# Tests automatiques (npm test) sur chaque pull request et chaque envoi sur
+# main : une régression du pipeline (étape 3, révision, boutons GitHub…) est
+# vue avant la fusion, pas au prochain run payant. Aucun secret : les tests
+# n'appellent ni l'API Claude, ni Mistral, ni la base.
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Le postinstall lance « prisma generate » (aucune base nécessaire).
+      - run: npm ci
+      - run: npm test

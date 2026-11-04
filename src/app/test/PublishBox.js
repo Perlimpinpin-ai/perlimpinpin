@@ -17,7 +17,11 @@ import { publierBrouillon, reessayerFusion } from "./actions";
 // Pen « agences et intercos » publiée sans elle) : avertissement permanent et
 // rappel dans la confirmation, avec le lien vers le workflow de rattrapage.
 // La publication reste possible : c'est un avertissement, pas un blocage.
-const LIEN_RATTRAPAGE = "https://github.com/Perlimpinpin-ai/perlimpinpin/actions/workflows/version-basique.yml";
+const DEPOT_PUBLIC =
+  process.env.NEXT_PUBLIC_VERCEL_GIT_REPO_OWNER && process.env.NEXT_PUBLIC_VERCEL_GIT_REPO_SLUG
+    ? `${process.env.NEXT_PUBLIC_VERCEL_GIT_REPO_OWNER}/${process.env.NEXT_PUBLIC_VERCEL_GIT_REPO_SLUG}`
+    : "Perlimpinpin-ai/perlimpinpin";
+const LIEN_RATTRAPAGE = `https://github.com/${DEPOT_PUBLIC}/actions/workflows/version-basique.yml`;
 
 export default function PublishBox({ analyseId, candidatNom, simulation, revision = false, sansVersionBasique = false }) {
   const [confirmation, setConfirmation] = useState(false);

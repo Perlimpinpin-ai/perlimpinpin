@@ -9,7 +9,7 @@ const CONFIG = {
   clientId: "id",
   clientSecret: "secret",
   organisation: "perlimpinpin",
-  formulaire: "adhesion-club",
+  formulaires: ["adhesion-club"],
   apiBase: "https://api.helloasso-sandbox.com",
   sandbox: true,
 };

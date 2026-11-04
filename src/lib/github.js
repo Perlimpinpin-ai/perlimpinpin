@@ -12,7 +12,16 @@
 // Logique sans Next.js : fetch est injectable (tests : scripts/github.test.js,
 // scripts/relecture-revision.test.js).
 
-export const DEPOT = "Perlimpinpin-ai/perlimpinpin";
+// Dépôt : celui auquel le projet Vercel est relié (variables système
+// VERCEL_GIT_REPO_OWNER / VERCEL_GIT_REPO_SLUG), pour qu'un déplacement du
+// dépôt (Perlimpinpin2027 → Perlimpinpin-ai, novembre 2026) ne casse plus les
+// boutons. GITHUB_DEPOT (« propriétaire/nom ») force une autre valeur.
+export function depotGitHub(env = process.env) {
+  if (env.GITHUB_DEPOT) return env.GITHUB_DEPOT;
+  if (env.VERCEL_GIT_REPO_OWNER && env.VERCEL_GIT_REPO_SLUG) return `${env.VERCEL_GIT_REPO_OWNER}/${env.VERCEL_GIT_REPO_SLUG}`;
+  return "Perlimpinpin-ai/perlimpinpin";
+}
+export const DEPOT = depotGitHub();
 export const WORKFLOW = "revision-relecture.yml";
 export const SLUG_PATTERN = /^[a-z0-9-]{1,120}$/;
 const PROPRIETAIRE = DEPOT.split("/")[0];
@@ -36,7 +45,7 @@ function entetes(token) {
 function erreurGitHub(action, status) {
   if (status === 401) return `GitHub a refusé le jeton (${action}, 401) : GITHUB_DISPATCH_TOKEN invalide ou expiré.`;
   if (status === 403 || status === 404) {
-    return `GitHub a refusé ${action} (${status}) : vérifie les permissions du jeton GITHUB_DISPATCH_TOKEN (Actions, Contents et Pull requests en « Read and write »).`;
+    return `GitHub a refusé ${action} (${status}) sur ${DEPOT} : le jeton GITHUB_DISPATCH_TOKEN doit avoir pour propriétaire ${PROPRIETAIRE}, donner accès à ce dépôt et les permissions Actions, Contents et Pull requests en « Read and write » (dépôt déplacé ? recréer le jeton, puis redéployer).`;
   }
   return `GitHub a répondu ${status} (${action}).`;
 }
@@ -68,7 +77,7 @@ export async function declencherRevision({ slug, token, fetchImpl = fetch }) {
     headers: { ...entetes(token), "Content-Type": "application/json" },
     body: JSON.stringify({ ref: "main", inputs: { slug }, return_run_details: true }),
   });
-  if (!r.ok) throw new Error(`GitHub a refusé le déclenchement (${r.status}).`);
+  if (!r.ok) throw new Error(erreurGitHub("le déclenchement", r.status));
   const res = r.status === 200 ? await r.json().catch(() => ({})) : {};
   return { lien: res.html_url || LIEN_WORKFLOW, dejaLance: false };
 }
