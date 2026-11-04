@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import SectionHeading from "@/components/SectionHeading";
+import EncartDon from "@/components/EncartDon";
+import { MESSAGE_DON_DOSSIER } from "@/lib/message-don-dossier";
 import { getHorsSerie, getHorsSerieSlugs } from "@/lib/hors-series";
 import { getScoresPublies } from "@/lib/queries";
 import { getScoreBadge, getScoreBands, VERDICT_BG_CLASSES } from "@/lib/score";
@@ -669,6 +671,19 @@ export default async function HorsSeriePage({ params }) {
                 </ul>
               </div>
             ) : null}
+          </div>
+        </section>
+
+        {/* Encart de don en bas du dossier. */}
+        <section className={SECTION}>
+          <div className={CONTENEUR}>
+            <EncartDon
+              titre={MESSAGE_DON_DOSSIER.titre}
+              texte={MESSAGE_DON_DOSSIER.texte}
+              emplacement={`dossier-${slug}`}
+              format="bandeau"
+              apparition
+            />
           </div>
         </section>
       </main>

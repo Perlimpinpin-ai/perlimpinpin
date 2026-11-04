@@ -68,7 +68,7 @@ export default async function CandidatsPage() {
               </p>
             </div>
 
-            <EncartDon />
+            <EncartDon emplacement="candidats" />
           </div>
 
           <CandidatsGrille cartes={cartes} />

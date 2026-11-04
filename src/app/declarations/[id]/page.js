@@ -11,6 +11,7 @@ import MesureObjectifBanner from "@/components/MesureObjectifBanner";
 import MonoTag from "@/components/MonoTag";
 import EtapeRaisonnement from "@/components/EtapeRaisonnement";
 import SupportBanner from "@/components/SupportBanner";
+import EncartDon from "@/components/EncartDon";
 import Editable from "@/app/test/Editable";
 import { CRITERES_ANALYSE } from "@/lib/test-edition";
 import { getDeclarationDetail } from "@/lib/queries";
@@ -1421,22 +1422,53 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               Masquée en dessous de lg : sur mobile, la même carte est
               affichée plus haut, juste au-dessus du résumé (voir
               l'en-tête de colonne principale). */}
-          <aside className="hidden lg:sticky lg:top-24 lg:block">
-            <StickyScoreCard
-              score={analyse.scoreFaisabilite}
-              badge={badge}
-              sections={tocSections}
-              sectionsBasique={sectionsBasique}
-              versionMethodologie={analyse.versionMethodologie}
-              generationDateLabel={declaration.generationDateLabel}
-              enBrefNotation={isNouveauBaremeV5 ? notation : null}
-            />
+          {/* L'aside occupe toute la hauteur de la colonne (self-stretch) :
+              la carte reste collée en haut de l'écran pendant la lecture
+              (sticky dans le bloc flex-1), puis, arrivé en bas de l'analyse,
+              elle remonte et laisse apparaître en fondu l'encart de don. */}
+          <aside className="hidden lg:flex lg:flex-col lg:self-stretch">
+            <div className="flex-1">
+              <div className="lg:sticky lg:top-24">
+                <StickyScoreCard
+                  score={analyse.scoreFaisabilite}
+                  badge={badge}
+                  sections={tocSections}
+                  sectionsBasique={sectionsBasique}
+                  versionMethodologie={analyse.versionMethodologie}
+                  generationDateLabel={declaration.generationDateLabel}
+                  enBrefNotation={isNouveauBaremeV5 ? notation : null}
+                />
+              </div>
+            </div>
+            {!preview ? (
+              <EncartDon
+                titre="Vous venez de vérifier une promesse."
+                texte="Aidez-nous à vérifier toutes les autres."
+                emplacement="fiche"
+                pleineLargeur
+                apparition
+                className="mt-6"
+              />
+            ) : null}
           </aside>
         </div>
         </EnveloppeVue>
 
         {/* Bandeau "Rejoignez-nous" en bas de chaque analyse (même bandeau
             que la page d'accueil, avec un texte propre aux analyses). */}
+        {/* Sur mobile (pas de colonne latérale), l'encart de don est posé
+            juste avant le bandeau du bas. */}
+        {!preview ? (
+          <div className="mx-auto mt-10 w-full max-w-6xl lg:hidden">
+            <EncartDon
+              titre="Vous venez de vérifier une promesse."
+              texte="Aidez-nous à vérifier toutes les autres."
+              emplacement="fiche-mobile"
+              pleineLargeur
+              apparition
+            />
+          </div>
+        ) : null}
         {!preview ? (
           <div className="mx-auto mt-10 w-full max-w-6xl">
             <SupportBanner
