@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { callMistralQualityControl, ficheCompleteAvecVerdictRacine } from "./analyze.js";
+import { callMistralQualityControl, ficheCompleteAvecVerdictRacine, fusionnerReponseCorrigee } from "./analyze.js";
 import { validateFicheCompleteStructure } from "./lib/scoring.js";
 
 // Échec du robot de révision sur le-pen-contribution-ue-5-milliards (10 octobre
@@ -65,5 +65,31 @@ describe("CAS 10 — résilience Mistral", () => {
     } finally {
       if (original !== undefined) process.env.MISTRAL_API_KEY = original;
     }
+  });
+});
+
+// Échec du robot de révision (4 novembre 2026, Mélenchon carburant) : après un
+// refus de revision_relecture, la réponse corrigée avait perdu
+// analyse_par_criteres → étape 3 bloquée. La correction ne visait que
+// revision_relecture : la fiche_complete valide de la 1re réponse est gardée.
+describe("Étape 3 — réponse corrigée qui perd analyse_par_criteres", () => {
+  const sortieReelle = () =>
+    JSON.parse(readFileSync(new URL("../data/analyses finales/Zemmour/zemmour_rsa_trois_ans_etape3.json", import.meta.url), "utf8"));
+
+  test("garde la fiche_complete valide de la première réponse et la revision corrigée", () => {
+    const premiere = { ...sortieReelle(), revision_relecture: { synthese: "x" } };
+    const corrigee = structuredClone(sortieReelle());
+    delete corrigee.fiche_complete.analyse_par_criteres;
+    corrigee.revision_relecture = { synthese: "ok", reponses: [], notes_pour_arno: "" };
+    const fusion = fusionnerReponseCorrigee(premiere, corrigee);
+    assert.equal(fusion.revision_relecture, corrigee.revision_relecture);
+    assert.ok(validateFicheCompleteStructure(ficheCompleteAvecVerdictRacine(fusion)).valid);
+  });
+
+  test("garde la nouvelle fiche_complete quand elle est valide", () => {
+    const premiere = sortieReelle();
+    const corrigee = sortieReelle();
+    corrigee.fiche_complete.marqueur = 1;
+    assert.equal(fusionnerReponseCorrigee(premiere, corrigee).fiche_complete, corrigee.fiche_complete);
   });
 });
