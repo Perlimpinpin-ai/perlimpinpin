@@ -1,151 +1,182 @@
 {
- "mesure_reformulee": {
-  "synthese": "Bloquer par décret le prix de l'essence et du gazole à 1,70 € le litre, au nom d'une urgence sociale.",
-  "texte": "Jean-Luc Mélenchon propose qu'**un décret bloque le prix à la pompe à 1,70 € le litre**, pris dans le cadre d'un « état d'urgence sociale » (contre-budget LFI 2027, p. 9). Le document ne précise ni la durée, ni le sort des stations, ni le coût. Un livret du groupe LFI de mars 2026 ajoute la base juridique (article L410-2 du code de commerce) et une durée « jusqu'à six mois ». Le 23 septembre 2026, le candidat a aussi évoqué un plafonnement légal des marges des raffineurs.\n\nHypothèse de l'analyste : le même plafond de 1,70 € s'applique à l'essence et au gazole, à taxes inchangées, puisque le texte parle du « prix à la pompe » sans distinguer les carburants et ne prévoit aucune baisse de taxe."
- },
- "mesure_vers_objectif": {
-  "objectif_court": "Faire baisser le prix du plein",
-  "categorie_objectif": "Énergie et climat",
-  "objectif_vise": "Protéger le pouvoir d'achat des ménages face à la flambée des carburants provoquée par la guerre au Moyen-Orient en 2026.",
-  "mecanisme_propose": "Un décret fixe un prix maximal de vente au détail de 1,70 € le litre, éventuellement complété par un plafonnement des marges des raffineurs.",
-  "lien_causal": "direct"
- },
- "nature_et_existant": "Mesure réglementaire et économique. Le blocage temporaire des prix existe déjà en droit : l'article L410-2 du code de commerce permet au gouvernement, par décret en Conseil d'État, de prendre des mesures temporaires contre des hausses excessives de prix en cas de crise ou de situation manifestement anormale du marché dans un secteur déterminé, pour six mois au plus. Ce levier a servi pour les carburants en 1990 (crise du Golfe) et pour le gel hydroalcoolique en 2020. L'« état d'urgence sociale » invoqué, en revanche, n'existe pas en droit : le candidat le reconnaît lui-même et propose de le créer. Il s'agit donc d'un retour à un outil existant, appliqué avec un niveau de prix très inférieur au marché actuel.",
- "contexte_programme": {
-  "synthese": "Mesure d'un plan d'urgence sociale, avec le Smic à 1 700 € et une taxe sur les superprofits.",
-  "texte": "Le blocage du carburant ouvre le volet « urgence sociale » du contre-budget, aux côtés du **Smic à 1 700 € net avec indexation générale des salaires** et de la garantie d'autonomie des jeunes, analysés dans deux fiches séparées. Le même document prévoit une **taxe sur les superprofits de 5 milliards d'euros par an** (p. 14), sans la rattacher au carburant.\n\nInteractions entre les trois mesures : le blocage vise le pouvoir d'achat immédiat, la hausse du Smic et l'indexation visent les revenus du travail. Les deux pèsent en partie sur les mêmes acteurs (petites entreprises de distribution, transporteurs). Par ailleurs, si le blocage provoque des pénuries puis un rattrapage des prix à sa levée, l'indexation générale des salaires transmettrait ce rattrapage aux salaires.\n\nCette version remplace celle de la fiche publiée le 31 août 2026, qui regroupait un gel plus large (carburant, électricité, produits de première nécessité), le Smic à 1 600 € et les minima sociaux : le contre-budget d'octobre 2026 ne retient plus que le carburant."
- },
- "contexte_national": {
-  "synthese": "Au prix d'août 2026, 1,70 € taxes comprises laisse moins que le prix de gros du gazole.",
-  "texte": "**Les prix sont très au-dessus de la cible.** Le gazole valait environ 2,38 € le litre fin octobre 2026 et le SP95-E10 environ 2,14 € début octobre (moyennes nationales issues des données officielles, relayées par Selectra et Kelwatt). L'écart avec 1,70 € est d'environ 0,69 € sur le gazole (moins 29 %) et 0,44 € sur l'essence (moins 21 %). La cause est la guerre contre l'Iran et la crise du détroit d'Ormuz : le Brent a dépassé 120 dollars au printemps, et la marge de raffinage est passée de 40 à 235 euros la tonne entre février et septembre (DGEC).\n\n**Le calcul qui décide de tout.** Selon la note de la DGEC du 28 août 2026, un litre de gazole se décomposait ainsi : 0,90 € de prix de gros à Rotterdam, 0,33 € de marge brute de transport et distribution, environ 0,98 € de taxes. Si le litre est vendu 1,70 € taxes comprises, il reste 1,42 € hors TVA, puis environ **0,81 € une fois l'accise (ex-TICPE, 0,61 € par litre) retirée : moins que le seul prix de gros (0,90 €)**, avant le transport et la rémunération de la station. Pour l'essence, il reste environ 0,75 € pour un prix de gros de 0,78 €. Ce calcul est celui de l'analyste, à taxes inchangées.\n\nMême en ramenant la marge de raffinage à son niveau d'avant-guerre, comme le suggère le candidat, le gain serait d'environ 0,16 € par litre de gazole (estimation de l'analyste) : insuffisant pour combler l'écart. Et **la France importe environ la moitié de son gazole**, à un prix international qu'un décret français ne fixe pas.\n\nLe réseau compte 10 764 stations fin 2025, dont 5 249 en grandes surfaces qui vendent 65 % des volumes (UFIP Énergies et Mobilités). Environ 1 000 stations indépendantes sont fédérées dans la FF3C. Le plafond volontaire de TotalEnergies (1,99 € l'essence, 2,25 € le gazole) a déjà provoqué des ruptures : « près de neuf stations en rupture de carburant sur dix » appartenaient à son réseau en septembre 2026 (AFP)."
- },
- "contexte_international": {
-  "synthese": "La Hongrie a bloqué ses prix treize mois : pénuries, puis prix restés 12 % plus hauts après la levée.",
-  "texte": "**Le précédent hongrois est le plus proche et il est défavorable.** La Hongrie a plafonné le litre à 480 forints du 15 novembre 2021 au 6 décembre 2022. À la fin, environ un quart des stations étaient à sec (Telex), et le plafond a dû être levé en urgence. Une étude publiée dans *Energy Strategy Reviews* (2024) estime qu'**après la levée, les prix sont restés environ 12 % au-dessus du scénario sans plafond**, jusqu'à 16 % en janvier 2023.\n\nEn 2026, la Croatie (gazole à 1,55 €), la Hongrie et la Pologne plafonnent de nouveau les prix, et la Tchéquie plafonne les marges à 10 centimes par litre (DG Trésor, avril 2026). Ces pays fixent leur plafond en fonction du coût d'approvisionnement, ce que ne fait pas une cible fixe de 1,70 €.\n\nLes remises fiscales donnent un autre repère : la réduction de taxe allemande de l'été 2022 a été répercutée à 97-99 % sur l'essence et 75-86 % sur le diesel (Bernhardt, Breiderhoff et Dewenter, 2023 ; résultat proche chez Dovern et al., 2023). **Une baisse de prix financée fonctionne, une baisse imposée sous le coût d'achat provoque des ruptures** : c'est la leçon commune de ces expériences, dont la transposition à la France reste un raisonnement."
- },
- "impact_environnement": {
-  "synthese": "Un litre moins cher fait rouler davantage : 6 à 12 % de consommation en plus à court terme.",
-  "texte": "Les transports représentent **34 % des émissions françaises** en 2024, dont 53 % pour les voitures particulières (SDES). L'Insee estime l'élasticité-prix de court terme de la consommation de carburant entre moins 0,21 et moins 0,40. Une baisse de prix d'environ 29 % augmenterait donc la consommation de **6 à 12 % à court terme** (estimation de l'analyste, en supposant le carburant disponible). Pour la remise de 2022, l'Insee et le CAE ont estimé 16 à 31 litres et 48 à 93 kg de CO2 de plus par ménage automobiliste.\n\nCourt terme (0 à 2 ans) : hausse limitée et temporaire si le blocage dure six mois, voire nulle si les pénuries rationnent la consommation. Moyen et long terme : effet faible si le blocage reste temporaire, mais un prix maintenu artificiellement bas retarderait les choix de véhicules moins consommateurs, ce qui irait contre les cibles de l'article L100-4 du code de l'énergie (moins 40 % d'émissions entre 1990 et 2030).\n\nLe programme de LFI mise sur la planification écologique plutôt que sur le prix du carbone : cette critique porte donc sur l'efficacité climatique, pas sur une contradiction avec un outil que le candidat revendiquerait. À l'inverse, la hausse des prix frappe d'abord les ménages sans alternative à la voiture, ce que le blocage cherche à corriger."
- },
- "analyse_par_criteres": "Opérationnalité & Moyens (16/30). Juridique 5/10 : **la base légale existe (L410-2, crise documentée, précédent de 1990), mais un prix fixé sous le coût d'achat expose le décret à une annulation pour disproportion et au droit européen** ; l'« état d'urgence sociale » n'existe pas en droit. Budgétaire 3/10 : le sens est établi (l'État perd au moins de la TVA) et l'ordre de grandeur est borné par l'analyste, de 2,4 milliards sur six mois sans compensation à environ 12 milliards si l'État compense les distributeurs ; le candidat ne choisit pas entre les deux. Moyens humains 8/10 : les prix des stations sont déjà déclarés en temps réel sur le site officiel, le contrôle est simple.\n\nEfficacité (7/30) : **mauvais signe, le prix visé est inférieur au prix de gros du gazole, donc les stations ne peuvent pas vendre sans perte**. Le lien entre décret et prix affiché est direct, mais la réaction prévisible (stations qui ferment ou se vident, importateurs qui n'importent plus) est documentée en Hongrie et déjà observée en France avec le plafond volontaire de TotalEnergies. L'objectif de référence du domaine (accès de tous à l'énergie à un prix supportable, article L100-1 du code de l'énergie) est donc manqué : un carburant bon marché mais introuvable ne protège pas le pouvoir d'achat. D'où une note FRAGILE, sans aller au plancher car un blocage plus court ou complété par une compensation atténuerait l'effet.\n\nEffets rebonds & Externalités (4/20) : **les pénuries et la faillite de stations indépendantes, souvent rurales, créent un problème aussi grave que celui visé**, sans mécanisme de compensation prévu. S'y ajoutent un rattrapage des prix probable à la levée (+12 % en Hongrie), une aide non ciblée qui profite d'abord aux gros rouleurs, une hausse des émissions, et un coût budgétaire non intégré à la trajectoire de la dette.\n\nDegré de préparation (3/10) : le candidat donne un prix cible et, dans d'autres documents, une base juridique et une durée ; mais **aucun chiffrage, aucune distinction essence et gazole, aucun mécanisme pour les stations**, et le livret de mars 2026 présente la mesure comme « neutre pour les finances publiques », ce que la perte de TVA dément.\n\nAlignement & Logique globale (8/10) : bon signe, **la mesure prolonge une position constante de LFI** (blocage à 1,40 € proposé en mars 2022, proposition de loi n° 419 d'octobre 2024 sur le blocage des prix de l'énergie, livret de mars 2026). La tension avec les objectifs climatiques relève des effets rebonds, pas d'une contradiction avec un instrument revendiqué.",
- "analyse_longevites": {
-  "synthese": "Effet limité à six mois par la loi, avec un risque documenté de rattrapage des prix à la levée.",
-  "texte": "**Court terme (0 à 2 ans)** : baisse immédiate des prix affichés, mais ruptures d'approvisionnement probables dès les premières semaines dans les stations qui vendraient à perte. **À la levée du blocage**, rattrapage probable : en Hongrie, les prix sont restés environ 12 % au-dessus du scénario sans plafond. **Moyen et long terme** : aucun effet durable sur le prix, qui dépend du marché mondial ; risque de disparition de stations indépendantes, qui ne rouvriraient pas forcément. L'article L410-2 limite la mesure à six mois : la reconduire supposerait une nouvelle situation de crise ou une loi."
- },
- "impact_temporel_et_sectoriel": {
-  "synthese": "Gain immédiat pour les automobilistes servis, pertes pour la distribution et l'État, inflation reportée à la levée.",
-  "texte": "**Inflation et pouvoir d'achat** : l'énergie tire l'inflation (plus 24,1 % sur un an en octobre 2026, Insee) ; un blocage effectif ferait baisser l'indice des prix pendant six mois, puis le ferait remonter à la levée. **Consommation des ménages** : gain pour ceux qui trouvent du carburant, perte de temps et de mobilité pour les autres. **Secteurs** : la distribution supporte une perte qu'elle ne peut pas absorber (marge brute de 0,33 € par litre pour un écart d'environ 0,57 € hors TVA sur le gazole) ; les transporteurs et artisans sont exposés aux ruptures. **Stabilité bancaire** : pas d'effet identifiable, hormis l'exposition des banques aux réseaux indépendants fragilisés."
- },
- "ce_qui_est_etabli": {
-  "synthese": "La loi permet six mois de blocage en crise, et 1,70 € est sous le prix de gros du gazole.",
-  "texte": "L'article L410-2 du code de commerce autorise un décret temporaire, de **six mois au plus**, en cas de crise ou de situation anormale du marché dans un secteur déterminé ; il a servi pour les carburants en 1990. L'« état d'urgence sociale » n'existe pas en droit. Au 28 août 2026, **le prix de gros du gazole (0,90 €) dépassait ce qui resterait d'un litre vendu 1,70 €** une fois TVA et accise retirées (0,81 €). La France importe environ la moitié de son gazole. Le blocage hongrois de 2021-2022 s'est terminé par des pénuries."
- },
- "ce_qui_est_probable": {
-  "synthese": "Des ruptures d'approvisionnement, une perte de TVA de plusieurs milliards et un rattrapage des prix à la levée.",
-  "texte": "Sans compensation, **des stations cesseraient de vendre** plutôt que de vendre à perte, comme l'annoncent la Hongrie et les ruptures déjà observées sous le plafond volontaire de TotalEnergies. L'État perdrait au moins **2,4 milliards d'euros de TVA sur six mois** (estimation de l'analyste). Si l'État compense les distributeurs pour éviter les pénuries, la facture monterait vers **12 milliards sur six mois** hors TVA (estimation de l'analyste, à prix et volumes de 2025-2026)."
- },
- "ce_qui_est_discutable": {
-  "synthese": "La validité d'un prix sous le coût au regard du droit européen et l'effet d'un plafond des marges de raffinage.",
-  "texte": "Un juge pourrait estimer qu'un prix inférieur au coût d'importation entrave les importations : dans l'arrêt Cullet de 1985, la Cour de justice a jugé contraire au droit européen un régime français de prix des carburants qui neutralisait l'avantage des produits importés. Cet arrêt portait sur un prix minimum ; sa transposition à un prix maximum reste à discuter. Le plafonnement des marges de raffinage annoncé oralement rapprocherait le prix de gros de la cible, sans la rejoindre selon le calcul de l'analyste, et ne s'appliquerait pas aux importations."
- },
- "ce_qui_est_inconnu": {
-  "synthese": "La durée, la compensation des stations, le traitement du gazole et le prix du pétrole au moment de l'application.",
-  "texte": "Le contre-budget ne dit pas si l'État compenserait les distributeurs, ni si l'essence et le gazole seraient traités de la même façon, ni combien de temps durerait le blocage. Le prix du pétrole au moment d'une éventuelle application, au printemps 2027, est inconnu : **si les cours redescendaient, l'écart avec 1,70 € pourrait se réduire fortement**, et la mesure deviendrait beaucoup plus facile à tenir."
- },
- "angles_morts": {
-  "synthese": "Le blocage protège mal ceux qu'il vise : stations rurales fragilisées, gros rouleurs avantagés, coût caché pour l'État.",
-  "texte": "**Effet territorial** : les stations indépendantes, plus présentes en zone rurale, ont le moins de marge pour absorber une vente à perte, alors que leurs clients dépendent le plus de la voiture. **Ciblage** : une aide par litre profite davantage aux ménages qui consomment le plus, souvent plus aisés ; la Cour des comptes a relevé ce défaut pour la remise de 2022 et ses effets d'aubaine. **Alternatives au même objectif** : une baisse temporaire de l'accise, un chèque ciblé sur les ménages modestes et les gros rouleurs contraints, ou un plafond des marges indexé sur le coût d'approvisionnement, comme en Tchéquie, atteindraient l'objectif sans vendre sous le coût, mais coûteraient davantage à l'État. **Double comptage évité** : le risque de pénurie est noté en Efficacité, ses conséquences sur les stations et les territoires en Effets rebonds ; l'absence de base pour l'« état d'urgence sociale » n'est comptée qu'en juridique."
- },
- "notation_detaillee": {
-  "operationnalite_juridique": 5,
-  "qualification_juridique": "INCERTAIN",
-  "operationnalite_budgetaire": 3,
-  "qualification_budgetaire": "INCERTAIN",
-  "operationnalite_moyens_humains": 8,
-  "qualification_moyens_humains": "SOLIDE",
-  "operationnalite_moyens_total": 16,
-  "plafond_applique": false,
-  "plafond_declencheur": null,
-  "efficacite": 7,
-  "qualification_efficacite": "FRAGILE",
-  "effets_rebonds_externalites": 4,
-  "qualification_effets_rebonds": "FRAGILE",
-  "degre_preparation": 3,
-  "qualification_preparation": "INCERTAIN",
-  "alignement_logique": 8,
-  "qualification_alignement": "SOLIDE",
-  "score_total": 38,
-  "appreciation": "partiellement fondé"
- },
- "verdict_final": "Ce qui tient : la loi permet déjà de bloquer les prix des carburants pendant six mois en période de crise, et la France l'a fait en 1990. La position est constante chez LFI depuis 2022.\n\nCe qui ne tient pas : à 1,70 € le litre, il reste moins que le prix de gros du gazole une fois les taxes payées. Sans compensation, les stations ne peuvent pas vendre sans perte, et l'expérience hongroise comme les ruptures déjà observées en France annoncent des pénuries, puis un rattrapage des prix. La mesure n'est pas « neutre » pour l'État : elle coûte au moins 2,4 milliards de TVA sur six mois, et environ 12 milliards si l'État paie la différence. Reste incertain : le prix du pétrole au moment de l'application, qui pourrait rendre la cible plus réaliste. Note retenue avec l'hypothèse d'un plafond identique pour l'essence et le gazole, à taxes inchangées.",
- "sources_utilisees": [
-  "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », melenchon2027.fr, octobre 2026, p. 9 et p. 14",
-  "Groupe LFI à l'Assemblée nationale, livret « Plan d'urgence énergie », mars 2026 (lafranceinsoumise.fr)",
-  "Ministère de la Transition écologique, DGEC, note sur les prix des produits pétroliers du 28 août 2026 (ecologie.gouv.fr)",
-  "Code de commerce, article L410-2 (texte lu sur une reproduction, Légifrance indisponible lors de la consultation)",
-  "A. Cartier-Bresson, Club des juristes, « Flambée des prix du carburant : jusqu'où l'État peut-il intervenir ? », 22 mai 2026",
-  "Cour de justice des Communautés européennes, arrêt Cullet c/ Leclerc, C-231/83, 29 janvier 1985",
-  "UFIP Énergies et Mobilités, étude du réseau de stations-service 2025 ; ministère de la Transition écologique, la distribution pétrolière en France continentale en 2024",
-  "CPDP et UFIP, consommation française de carburants routiers en 2025 (dépêche AFP du 15 janvier 2026)",
-  "Insee, document de travail 2023-17, élasticités-prix de la consommation de carburant",
-  "Insee et Conseil d'analyse économique, Focus n° 98, juillet 2023, effets de la remise carburant",
-  "SDES, Chiffres clés des transports, émissions de gaz à effet de serre 2024",
-  "Sénat, rapport n° 771 (2022-2023) ; Cour des comptes, rapport de mars 2024 sur les aides énergie",
-  "Telex, « The end of the fuel price cap », 7 décembre 2022 ; étude sur la levée du plafond hongrois, Energy Strategy Reviews, 2024",
-  "Bernhardt, Breiderhoff et Dewenter, Review of Economics, 2023 ; Dovern et al., Energy Economics vol. 126, 2023 (Tankrabatt allemand)",
-  "DG Trésor, mesures prises en Europe face à la hausse des carburants, avril 2026",
-  "Dépêches AFP (Connaissance des énergies) des 6 mai et 15 septembre 2026 sur les marges et le plafond TotalEnergies",
-  "Prix moyens à la pompe octobre 2026 : Selectra et Kelwatt, à partir des données officielles (sources secondaires)",
-  "Insee, indice des prix à la consommation, octobre 2026 (estimation provisoire)",
-  "Assemblée nationale, proposition de loi n° 419 (17e législature), 15 octobre 2024 ; Sud Radio, 14 mars 2022 (blocage à 1,40 €) ; Public Sénat, 23 septembre 2026"
- ],
- "niveau_de_confiance": "Moyen à élevé. Élevé sur la structure du prix, la base juridique et le précédent hongrois, tous documentés par des sources primaires ou académiques. Moyen sur le niveau des prix au moment d'une application en 2027, qui peut changer fortement le diagnostic, et sur l'interprétation retenue (même plafond pour l'essence et le gazole, taxes inchangées), que le candidat n'a pas précisée.",
- "limites": {
-  "synthese": "Le diagnostic dépend du prix du pétrole en 2027 et d'une interprétation de la mesure non précisée par le candidat.",
-  "texte": "Les prix moyens d'octobre 2026 viennent de sites qui retraitent les données officielles (sources secondaires). Le texte de l'article L410-2 a été lu sur une reproduction, Légifrance n'ayant pas répondu, et le décret de 1990 n'a pas été retrouvé au Journal officiel. Aucune analyse juridique des Surligneurs sur cette version de la mesure n'a été trouvée. Les marges nettes de la distribution ne sont pas publiques. Les coûts présentés sont des estimations de l'analyste. Le document de référence des objectifs ancre le domaine Énergie et climat sur les articles L100-1 et L100-4 du code de l'énergie, retenus ici plutôt que le domaine Fiscalité et pouvoir d'achat, dont l'ancrage reste à vérifier. Cette fiche corrige la fiche du 31 août 2026 : les blocages de prix passés n'ont pas tous fini en rattrapage (le plan de 1963 a ralenti la hausse des prix, selon le Sénat), et l'argument retenu ici repose sur le niveau du prix visé, pas sur l'histoire."
- },
- "resume_court": "Jean-Luc Mélenchon veut bloquer par décret le prix du carburant à 1,70 € le litre, pour protéger les ménages de la flambée due à la guerre au Moyen-Orient. La loi le permet pour six mois en période de crise, et la France l'a déjà fait en 1990.\n\nLe problème est le niveau choisi : une fois les taxes payées, 1,70 € laisse moins que le prix de gros du gazole. Sans argent public pour compenser, les stations ne peuvent pas vendre sans perte, et la Hongrie a fini avec des pompes vides. Tout dépend donc du prix du pétrole au moment d'appliquer la mesure, et de qui paierait la différence. Note : 38/100, avec l'hypothèse d'un même plafond pour l'essence et le gazole, à taxes inchangées.",
- "phrase_teasing": "À 1,70 € le litre, il reste moins que le prix payé pour le gazole sur le marché de gros de Rotterdam. Qui paiera la différence ?",
- "relecture": {
-  "titre": "Carburant à 1,70 € : la loi le permet, le prix de gros non",
-  "candidat": "Jean-Luc Mélenchon",
-  "parti": "La France insoumise",
-  "theme": "Énergie et climat",
-  "date": "2026-11-02",
-  "version": 1,
-  "mesure_initiale": "Bloquer par décret le prix du carburant à la pompe à 1,70 € le litre, dans le cadre d'un état d'urgence sociale.",
-  "extrait": {
-   "citation": "« Dans le cadre de l'état d'urgence sociale, un décret de blocage des prix du carburant sera pris pour ramener le prix à la pompe à 1,70 euro par litre. »",
-   "source": "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », p. 9, melenchon2027.fr, octobre 2026"
+  "mesure_reformulee": {
+    "synthese": "Bloquer par décret le prix de l'essence et du gazole à 1,70 € le litre, au nom d'une urgence sociale.",
+    "texte": "Jean-Luc Mélenchon propose qu'**un décret bloque le prix à la pompe à 1,70 € le litre**, pris dans le cadre d'un « état d'urgence sociale » (contre-budget LFI 2027, p. 9). Le document ne précise ni la durée, ni le sort des stations, ni le coût. Un livret du groupe LFI de mars 2026 ajoute la base juridique (article L410-2 du code de commerce) et une durée « jusqu'à six mois ». Le 23 septembre 2026, le candidat a aussi évoqué un plafonnement légal des marges des raffineurs.\n\nHypothèse de l'analyste : le même plafond de 1,70 € s'applique à l'essence et au gazole, à taxes inchangées, puisque le texte parle du « prix à la pompe » sans distinguer les carburants et ne prévoit aucune baisse de taxe."
   },
-  "verdict_tient": "la loi permet un blocage de six mois en période de crise, déjà utilisé pour les carburants en 1990, et la position de LFI est constante depuis 2022.",
-  "verdict_flou": "le prix visé est inférieur au prix de gros du gazole une fois les taxes payées, sans compensation prévue : pénuries probables et coût pour l'État non reconnu.",
-  "niveau_confiance": "Moyen à élevé",
-  "questions": [
-   {
-    "titre": "Version de la mesure et interprétation",
-    "texte": "La fiche analyse la version du contre-budget d'octobre 2026 (carburant seul) et suppose un même plafond pour l'essence et le gazole, à taxes inchangées. Faut-il plutôt garder le gel plus large de la fiche du 31 août, ou chercher une précision du candidat sur le gazole ?"
-   },
-   {
-    "titre": "Efficacité à 7/30",
-    "texte": "La note FRAGILE repose sur un calcul de l'analyste (prix de gros supérieur à ce qui reste après taxes) et sur le précédent hongrois. Ce raisonnement est-il assez solide pour trancher, sachant que le prix du pétrole en 2027 est inconnu ?"
-   },
-   {
-    "titre": "Budget à 3/10",
-    "texte": "Le coût va de 2,4 milliards (TVA perdue sur six mois) à environ 12 milliards (compensation des distributeurs). Faut-il rester en INCERTAIN faute de choix du candidat, ou noter FRAGILE parce que le livret LFI affirme une neutralité budgétaire démentie par le calcul ?"
-   },
-   {
-    "titre": "Juridique à 5/10",
-    "texte": "La base légale existe, mais un prix sous le coût d'importation pourrait être jugé disproportionné ou contraire au droit européen (arrêt Cullet, qui portait sur un prix minimum). La note est-elle bien placée ?"
-   },
-   {
-    "titre": "Domaine de référence",
-    "texte": "La fiche juge la mesure à l'aune du code de l'énergie (prix supportable, accès de tous, climat) plutôt que de la fiscalité et du pouvoir d'achat. Ce choix vous paraît-il juste ?"
-   },
-   {
-    "titre": "Titre et teasing provisoires",
-    "texte": "Titre court proposé : « Le carburant bloqué à 1,70 € ». Teasing : « À 1,70 € le litre, il reste moins que le prix payé pour le gazole sur le marché de gros de Rotterdam. Qui paiera la différence ? » À ajuster ?"
-   }
-  ]
- }
+  "mesure_vers_objectif": {
+    "objectif_court": "Faire baisser le prix du plein",
+    "categorie_objectif": "Énergie et climat",
+    "objectif_vise": "Protéger le pouvoir d'achat des ménages face à la flambée des carburants provoquée par la guerre au Moyen-Orient en 2026.",
+    "mecanisme_propose": "Un décret fixe un prix maximal de vente au détail de 1,70 € le litre, éventuellement complété par un plafonnement des marges des raffineurs.",
+    "lien_causal": "direct"
+  },
+  "nature_et_existant": "Mesure réglementaire et économique. Le blocage temporaire des prix existe déjà en droit : l'article L410-2 du code de commerce permet au gouvernement, par décret en Conseil d'État, de prendre des mesures temporaires contre des hausses excessives de prix en cas de crise ou de situation manifestement anormale du marché dans un secteur déterminé, pour six mois au plus. Ce levier a servi pour les carburants en 1990 (crise du Golfe) et pour le gel hydroalcoolique en 2020. L'« état d'urgence sociale » invoqué, en revanche, n'existe pas en droit : le candidat le reconnaît lui-même et propose de le créer. Il s'agit donc d'un retour à un outil existant, appliqué avec un niveau de prix très inférieur au marché actuel.",
+  "contexte_programme": {
+    "synthese": "Mesure d'un plan d'urgence sociale, avec le Smic à 1 700 € et une taxe sur les superprofits.",
+    "texte": "Le blocage du carburant ouvre le volet « urgence sociale » du contre-budget, aux côtés du **Smic à 1 700 € net avec indexation générale des salaires** et de la garantie d'autonomie des jeunes, analysés dans deux fiches séparées. Le même document prévoit une **taxe sur les superprofits de 5 milliards d'euros par an** (p. 14), sans la rattacher au carburant.\n\nInteractions entre les trois mesures : le blocage vise le pouvoir d'achat immédiat, la hausse du Smic et l'indexation visent les revenus du travail. Les deux pèsent en partie sur les mêmes acteurs (petites entreprises de distribution, transporteurs). Par ailleurs, si le blocage provoque des pénuries puis un rattrapage des prix à sa levée, l'indexation générale des salaires transmettrait ce rattrapage aux salaires.\n\nCette version remplace celle de la fiche publiée le 31 août 2026, qui regroupait un gel plus large (carburant, électricité, produits de première nécessité), le Smic à 1 600 € et les minima sociaux : le contre-budget d'octobre 2026 ne retient plus que le carburant."
+  },
+  "contexte_national": {
+    "synthese": "Au prix d'août 2026, 1,70 € taxes comprises laisse moins que le prix de gros du gazole.",
+    "texte": "**Les prix sont très au-dessus de la cible.** Le gazole valait environ 2,38 € le litre fin octobre 2026 et le SP95-E10 environ 2,14 € début octobre (moyennes nationales issues des données officielles, relayées par Selectra et Kelwatt). L'écart avec 1,70 € est d'environ 0,69 € sur le gazole (moins 29 %) et 0,44 € sur l'essence (moins 21 %). La cause est la guerre contre l'Iran et la crise du détroit d'Ormuz : le Brent a dépassé 120 dollars au printemps, et la marge de raffinage est passée de 40 à 235 euros la tonne entre février et septembre (DGEC).\n\n**Le calcul qui décide de tout.** Selon la note de la DGEC du 28 août 2026, un litre de gazole se décomposait ainsi : 0,90 € de prix de gros à Rotterdam, 0,33 € de marge brute de transport et distribution, environ 0,98 € de taxes. Si le litre est vendu 1,70 € taxes comprises, il reste 1,42 € hors TVA, puis environ **0,81 € une fois l'accise (ex-TICPE, 0,61 € par litre) retirée : moins que le seul prix de gros (0,90 €)**, avant le transport et la rémunération de la station. Pour l'essence, il reste environ 0,75 € pour un prix de gros de 0,78 €. Ce calcul est celui de l'analyste, à taxes inchangées.\n\nMême en ramenant la marge de raffinage à son niveau d'avant-guerre, comme le suggère le candidat, le gain serait d'environ 0,16 € par litre de gazole (estimation de l'analyste) : insuffisant pour combler l'écart. Et **la France importe environ la moitié de son gazole**, à un prix international qu'un décret français ne fixe pas.\n\nLe réseau compte 10 764 stations fin 2025, dont 5 249 en grandes surfaces qui vendent 65 % des volumes (UFIP Énergies et Mobilités). Environ 1 000 stations indépendantes sont fédérées dans la FF3C. Le plafond volontaire de TotalEnergies (1,99 € l'essence, 2,25 € le gazole) a déjà provoqué des ruptures : « près de neuf stations en rupture de carburant sur dix » appartenaient à son réseau en septembre 2026 (AFP)."
+  },
+  "contexte_international": {
+    "synthese": "La Hongrie a bloqué ses prix treize mois : pénuries, puis prix restés 12 % plus hauts après la levée.",
+    "texte": "**Le précédent hongrois est le plus proche et il est défavorable.** La Hongrie a plafonné le litre à 480 forints du 15 novembre 2021 au 6 décembre 2022. À la fin, environ un quart des stations étaient à sec (Telex), et le plafond a dû être levé en urgence. Une étude publiée dans *Energy Strategy Reviews* (2024) estime qu'**après la levée, les prix sont restés environ 12 % au-dessus du scénario sans plafond**, jusqu'à 16 % en janvier 2023.\n\nEn 2026, la Croatie (gazole à 1,55 €), la Hongrie et la Pologne plafonnent de nouveau les prix, et la Tchéquie plafonne les marges à 10 centimes par litre (DG Trésor, avril 2026). Ces pays fixent leur plafond en fonction du coût d'approvisionnement, ce que ne fait pas une cible fixe de 1,70 €.\n\nLes remises fiscales donnent un autre repère : la réduction de taxe allemande de l'été 2022 a été répercutée à 97-99 % sur l'essence et 75-86 % sur le diesel (Bernhardt, Breiderhoff et Dewenter, 2023 ; résultat proche chez Dovern et al., 2023). **Une baisse de prix financée fonctionne, une baisse imposée sous le coût d'achat provoque des ruptures** : c'est la leçon commune de ces expériences, dont la transposition à la France reste un raisonnement."
+  },
+  "impact_environnement": {
+    "synthese": "Un litre moins cher fait rouler davantage : 6 à 12 % de consommation en plus à court terme.",
+    "texte": "Les transports représentent **34 % des émissions françaises** en 2024, dont 53 % pour les voitures particulières (SDES). L'Insee estime l'élasticité-prix de court terme de la consommation de carburant entre moins 0,21 et moins 0,40. Une baisse de prix d'environ 29 % augmenterait donc la consommation de **6 à 12 % à court terme** (estimation de l'analyste, en supposant le carburant disponible). Pour la remise de 2022, l'Insee et le CAE ont estimé 16 à 31 litres et 48 à 93 kg de CO2 de plus par ménage automobiliste.\n\nCourt terme (0 à 2 ans) : hausse limitée et temporaire si le blocage dure six mois, voire nulle si les pénuries rationnent la consommation. Moyen et long terme : effet faible si le blocage reste temporaire, mais un prix maintenu artificiellement bas retarderait les choix de véhicules moins consommateurs, ce qui irait contre les cibles de l'article L100-4 du code de l'énergie (moins 40 % d'émissions entre 1990 et 2030).\n\nLe programme de LFI mise sur la planification écologique plutôt que sur le prix du carbone : cette critique porte donc sur l'efficacité climatique, pas sur une contradiction avec un outil que le candidat revendiquerait. À l'inverse, la hausse des prix frappe d'abord les ménages sans alternative à la voiture, ce que le blocage cherche à corriger."
+  },
+  "analyse_par_criteres": "Opérationnalité & Moyens (16/30). Juridique 5/10 : **la base légale existe (L410-2, crise documentée, précédent de 1990), mais un prix fixé sous le coût d'achat expose le décret à une annulation pour disproportion et au droit européen** ; l'« état d'urgence sociale » n'existe pas en droit. Budgétaire 3/10 : le sens est établi (l'État perd au moins de la TVA) et l'ordre de grandeur est borné par l'analyste, de 2,4 milliards sur six mois sans compensation à environ 12 milliards si l'État compense les distributeurs ; le candidat ne choisit pas entre les deux. Moyens humains 8/10 : les prix des stations sont déjà déclarés en temps réel sur le site officiel, le contrôle est simple.\n\nEfficacité (7/30) : **mauvais signe, le prix visé est inférieur au prix de gros du gazole, donc les stations ne peuvent pas vendre sans perte**. Le lien entre décret et prix affiché est direct, mais la réaction prévisible (stations qui ferment ou se vident, importateurs qui n'importent plus) est documentée en Hongrie et déjà observée en France avec le plafond volontaire de TotalEnergies. L'objectif de référence du domaine (accès de tous à l'énergie à un prix supportable, article L100-1 du code de l'énergie) est donc manqué : un carburant bon marché mais introuvable ne protège pas le pouvoir d'achat. D'où une note FRAGILE, sans aller au plancher car un blocage plus court ou complété par une compensation atténuerait l'effet.\n\nEffets rebonds & Externalités (4/20) : **les pénuries et la faillite de stations indépendantes, souvent rurales, créent un problème aussi grave que celui visé**, sans mécanisme de compensation prévu. S'y ajoutent un rattrapage des prix probable à la levée (+12 % en Hongrie), une aide non ciblée qui profite d'abord aux gros rouleurs, une hausse des émissions, et un coût budgétaire non intégré à la trajectoire de la dette.\n\nDegré de préparation (3/10) : le candidat donne un prix cible et, dans d'autres documents, une base juridique et une durée ; mais **aucun chiffrage, aucune distinction essence et gazole, aucun mécanisme pour les stations**, et le livret de mars 2026 présente la mesure comme « neutre pour les finances publiques », ce que la perte de TVA dément.\n\nAlignement & Logique globale (8/10) : bon signe, **la mesure prolonge une position constante de LFI** (blocage à 1,40 € proposé en mars 2022, proposition de loi n° 419 d'octobre 2024 sur le blocage des prix de l'énergie, livret de mars 2026). La tension avec les objectifs climatiques relève des effets rebonds, pas d'une contradiction avec un instrument revendiqué.",
+  "analyse_longevites": {
+    "synthese": "Effet limité à six mois par la loi, avec un risque documenté de rattrapage des prix à la levée.",
+    "texte": "**Court terme (0 à 2 ans)** : baisse immédiate des prix affichés, mais ruptures d'approvisionnement probables dès les premières semaines dans les stations qui vendraient à perte. **À la levée du blocage**, rattrapage probable : en Hongrie, les prix sont restés environ 12 % au-dessus du scénario sans plafond. **Moyen et long terme** : aucun effet durable sur le prix, qui dépend du marché mondial ; risque de disparition de stations indépendantes, qui ne rouvriraient pas forcément. L'article L410-2 limite la mesure à six mois : la reconduire supposerait une nouvelle situation de crise ou une loi."
+  },
+  "impact_temporel_et_sectoriel": {
+    "synthese": "Gain immédiat pour les automobilistes servis, pertes pour la distribution et l'État, inflation reportée à la levée.",
+    "texte": "**Inflation et pouvoir d'achat** : l'énergie tire l'inflation (plus 24,1 % sur un an en octobre 2026, Insee) ; un blocage effectif ferait baisser l'indice des prix pendant six mois, puis le ferait remonter à la levée. **Consommation des ménages** : gain pour ceux qui trouvent du carburant, perte de temps et de mobilité pour les autres. **Secteurs** : la distribution supporte une perte qu'elle ne peut pas absorber (marge brute de 0,33 € par litre pour un écart d'environ 0,57 € hors TVA sur le gazole) ; les transporteurs et artisans sont exposés aux ruptures. **Stabilité bancaire** : pas d'effet identifiable, hormis l'exposition des banques aux réseaux indépendants fragilisés."
+  },
+  "ce_qui_est_etabli": {
+    "synthese": "La loi permet six mois de blocage en crise, et 1,70 € est sous le prix de gros du gazole.",
+    "texte": "L'article L410-2 du code de commerce autorise un décret temporaire, de **six mois au plus**, en cas de crise ou de situation anormale du marché dans un secteur déterminé ; il a servi pour les carburants en 1990. L'« état d'urgence sociale » n'existe pas en droit. Au 28 août 2026, **le prix de gros du gazole (0,90 €) dépassait ce qui resterait d'un litre vendu 1,70 €** une fois TVA et accise retirées (0,81 €). La France importe environ la moitié de son gazole. Le blocage hongrois de 2021-2022 s'est terminé par des pénuries."
+  },
+  "ce_qui_est_probable": {
+    "synthese": "Des ruptures d'approvisionnement, une perte de TVA de plusieurs milliards et un rattrapage des prix à la levée.",
+    "texte": "Sans compensation, **des stations cesseraient de vendre** plutôt que de vendre à perte, comme l'annoncent la Hongrie et les ruptures déjà observées sous le plafond volontaire de TotalEnergies. L'État perdrait au moins **2,4 milliards d'euros de TVA sur six mois** (estimation de l'analyste). Si l'État compense les distributeurs pour éviter les pénuries, la facture monterait vers **12 milliards sur six mois** hors TVA (estimation de l'analyste, à prix et volumes de 2025-2026)."
+  },
+  "ce_qui_est_discutable": {
+    "synthese": "La validité d'un prix sous le coût au regard du droit européen et l'effet d'un plafond des marges de raffinage.",
+    "texte": "Un juge pourrait estimer qu'un prix inférieur au coût d'importation entrave les importations : dans l'arrêt Cullet de 1985, la Cour de justice a jugé contraire au droit européen un régime français de prix des carburants qui neutralisait l'avantage des produits importés. Cet arrêt portait sur un prix minimum ; sa transposition à un prix maximum reste à discuter. Le plafonnement des marges de raffinage annoncé oralement rapprocherait le prix de gros de la cible, sans la rejoindre selon le calcul de l'analyste, et ne s'appliquerait pas aux importations."
+  },
+  "ce_qui_est_inconnu": {
+    "synthese": "La durée, la compensation des stations, le traitement du gazole et le prix du pétrole au moment de l'application.",
+    "texte": "Le contre-budget ne dit pas si l'État compenserait les distributeurs, ni si l'essence et le gazole seraient traités de la même façon, ni combien de temps durerait le blocage. Le prix du pétrole au moment d'une éventuelle application, au printemps 2027, est inconnu : **si les cours redescendaient, l'écart avec 1,70 € pourrait se réduire fortement**, et la mesure deviendrait beaucoup plus facile à tenir."
+  },
+  "angles_morts": {
+    "synthese": "Le blocage protège mal ceux qu'il vise : stations rurales fragilisées, gros rouleurs avantagés, coût caché pour l'État.",
+    "texte": "**Effet territorial** : les stations indépendantes, plus présentes en zone rurale, ont le moins de marge pour absorber une vente à perte, alors que leurs clients dépendent le plus de la voiture. **Ciblage** : une aide par litre profite davantage aux ménages qui consomment le plus, souvent plus aisés ; la Cour des comptes a relevé ce défaut pour la remise de 2022 et ses effets d'aubaine. **Alternatives au même objectif** : une baisse temporaire de l'accise, un chèque ciblé sur les ménages modestes et les gros rouleurs contraints, ou un plafond des marges indexé sur le coût d'approvisionnement, comme en Tchéquie, atteindraient l'objectif sans vendre sous le coût, mais coûteraient davantage à l'État. **Double comptage évité** : le risque de pénurie est noté en Efficacité, ses conséquences sur les stations et les territoires en Effets rebonds ; l'absence de base pour l'« état d'urgence sociale » n'est comptée qu'en juridique."
+  },
+  "notation_detaillee": {
+    "operationnalite_juridique": 5,
+    "qualification_juridique": "INCERTAIN",
+    "operationnalite_budgetaire": 3,
+    "qualification_budgetaire": "INCERTAIN",
+    "operationnalite_moyens_humains": 8,
+    "qualification_moyens_humains": "SOLIDE",
+    "operationnalite_moyens_total": 16,
+    "plafond_applique": false,
+    "plafond_declencheur": null,
+    "efficacite": 7,
+    "qualification_efficacite": "FRAGILE",
+    "effets_rebonds_externalites": 4,
+    "qualification_effets_rebonds": "FRAGILE",
+    "degre_preparation": 3,
+    "qualification_preparation": "INCERTAIN",
+    "alignement_logique": 8,
+    "qualification_alignement": "SOLIDE",
+    "score_total": 38,
+    "appreciation": "partiellement fondé"
+  },
+  "verdict_final": "Ce qui tient : la loi permet déjà de bloquer les prix des carburants pendant six mois en période de crise, et la France l'a fait en 1990. La position est constante chez LFI depuis 2022.\n\nCe qui ne tient pas : à 1,70 € le litre, il reste moins que le prix de gros du gazole une fois les taxes payées. Sans compensation, les stations ne peuvent pas vendre sans perte, et l'expérience hongroise comme les ruptures déjà observées en France annoncent des pénuries, puis un rattrapage des prix. La mesure n'est pas « neutre » pour l'État : elle coûte au moins 2,4 milliards de TVA sur six mois, et environ 12 milliards si l'État paie la différence. Reste incertain : le prix du pétrole au moment de l'application, qui pourrait rendre la cible plus réaliste. Note retenue avec l'hypothèse d'un plafond identique pour l'essence et le gazole, à taxes inchangées.",
+  "sources_utilisees": [
+    "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », melenchon2027.fr, octobre 2026, p. 9 et p. 14",
+    "Groupe LFI à l'Assemblée nationale, livret « Plan d'urgence énergie », mars 2026 (lafranceinsoumise.fr)",
+    "Ministère de la Transition écologique, DGEC, note sur les prix des produits pétroliers du 28 août 2026 (ecologie.gouv.fr)",
+    "Code de commerce, article L410-2 (texte lu sur une reproduction, Légifrance indisponible lors de la consultation)",
+    "A. Cartier-Bresson, Club des juristes, « Flambée des prix du carburant : jusqu'où l'État peut-il intervenir ? », 22 mai 2026",
+    "Cour de justice des Communautés européennes, arrêt Cullet c/ Leclerc, C-231/83, 29 janvier 1985",
+    "UFIP Énergies et Mobilités, étude du réseau de stations-service 2025 ; ministère de la Transition écologique, la distribution pétrolière en France continentale en 2024",
+    "CPDP et UFIP, consommation française de carburants routiers en 2025 (dépêche AFP du 15 janvier 2026)",
+    "Insee, document de travail 2023-17, élasticités-prix de la consommation de carburant",
+    "Insee et Conseil d'analyse économique, Focus n° 98, juillet 2023, effets de la remise carburant",
+    "SDES, Chiffres clés des transports, émissions de gaz à effet de serre 2024",
+    "Sénat, rapport n° 771 (2022-2023) ; Cour des comptes, rapport de mars 2024 sur les aides énergie",
+    "Telex, « The end of the fuel price cap », 7 décembre 2022 ; étude sur la levée du plafond hongrois, Energy Strategy Reviews, 2024",
+    "Bernhardt, Breiderhoff et Dewenter, Review of Economics, 2023 ; Dovern et al., Energy Economics vol. 126, 2023 (Tankrabatt allemand)",
+    "DG Trésor, mesures prises en Europe face à la hausse des carburants, avril 2026",
+    "Dépêches AFP (Connaissance des énergies) des 6 mai et 15 septembre 2026 sur les marges et le plafond TotalEnergies",
+    "Prix moyens à la pompe octobre 2026 : Selectra et Kelwatt, à partir des données officielles (sources secondaires)",
+    "Insee, indice des prix à la consommation, octobre 2026 (estimation provisoire)",
+    "Assemblée nationale, proposition de loi n° 419 (17e législature), 15 octobre 2024 ; Sud Radio, 14 mars 2022 (blocage à 1,40 €) ; Public Sénat, 23 septembre 2026"
+  ],
+  "niveau_de_confiance": "Moyen à élevé. Élevé sur la structure du prix, la base juridique et le précédent hongrois, tous documentés par des sources primaires ou académiques. Moyen sur le niveau des prix au moment d'une application en 2027, qui peut changer fortement le diagnostic, et sur l'interprétation retenue (même plafond pour l'essence et le gazole, taxes inchangées), que le candidat n'a pas précisée.",
+  "limites": {
+    "synthese": "Le diagnostic dépend du prix du pétrole en 2027 et d'une interprétation de la mesure non précisée par le candidat.",
+    "texte": "Les prix moyens d'octobre 2026 viennent de sites qui retraitent les données officielles (sources secondaires). Le texte de l'article L410-2 a été lu sur une reproduction, Légifrance n'ayant pas répondu, et le décret de 1990 n'a pas été retrouvé au Journal officiel. Aucune analyse juridique des Surligneurs sur cette version de la mesure n'a été trouvée. Les marges nettes de la distribution ne sont pas publiques. Les coûts présentés sont des estimations de l'analyste. Le document de référence des objectifs ancre le domaine Énergie et climat sur les articles L100-1 et L100-4 du code de l'énergie, retenus ici plutôt que le domaine Fiscalité et pouvoir d'achat, dont l'ancrage reste à vérifier. Cette fiche corrige la fiche du 31 août 2026 : les blocages de prix passés n'ont pas tous fini en rattrapage (le plan de 1963 a ralenti la hausse des prix, selon le Sénat), et l'argument retenu ici repose sur le niveau du prix visé, pas sur l'histoire."
+  },
+  "resume_court": "Jean-Luc Mélenchon veut bloquer par décret le prix du carburant à 1,70 € le litre, pour protéger les ménages de la flambée due à la guerre au Moyen-Orient. La loi le permet pour six mois en période de crise, et la France l'a déjà fait en 1990.\n\nLe problème est le niveau choisi : une fois les taxes payées, 1,70 € laisse moins que le prix de gros du gazole. Sans argent public pour compenser, les stations ne peuvent pas vendre sans perte, et la Hongrie a fini avec des pompes vides. Tout dépend donc du prix du pétrole au moment d'appliquer la mesure, et de qui paierait la différence. Note : 38/100, avec l'hypothèse d'un même plafond pour l'essence et le gazole, à taxes inchangées.",
+  "phrase_teasing": "À 1,70 € le litre, il reste moins que le prix payé pour le gazole sur le marché de gros de Rotterdam. Qui paiera la différence ?",
+  "relecture": {
+    "titre": "Carburant à 1,70 € : la loi le permet, le prix de gros non",
+    "candidat": "Jean-Luc Mélenchon",
+    "parti": "La France insoumise",
+    "theme": "Énergie et climat",
+    "date": "2026-11-02",
+    "version": 1,
+    "mesure_initiale": "Bloquer par décret le prix du carburant à la pompe à 1,70 € le litre, dans le cadre d'un état d'urgence sociale.",
+    "extrait": {
+      "citation": "« Dans le cadre de l'état d'urgence sociale, un décret de blocage des prix du carburant sera pris pour ramener le prix à la pompe à 1,70 euro par litre. »",
+      "source": "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », p. 9, melenchon2027.fr, octobre 2026"
+    },
+    "verdict_tient": "la loi permet un blocage de six mois en période de crise, déjà utilisé pour les carburants en 1990, et la position de LFI est constante depuis 2022.",
+    "verdict_flou": "le prix visé est inférieur au prix de gros du gazole une fois les taxes payées, sans compensation prévue : pénuries probables et coût pour l'État non reconnu.",
+    "niveau_confiance": "Moyen à élevé",
+    "questions": [
+      {
+        "titre": "Version de la mesure et interprétation",
+        "texte": "La fiche analyse la version du contre-budget d'octobre 2026 (carburant seul) et suppose un même plafond pour l'essence et le gazole, à taxes inchangées. Faut-il plutôt garder le gel plus large de la fiche du 31 août, ou chercher une précision du candidat sur le gazole ?"
+      },
+      {
+        "titre": "Efficacité à 7/30",
+        "texte": "La note FRAGILE repose sur un calcul de l'analyste (prix de gros supérieur à ce qui reste après taxes) et sur le précédent hongrois. Ce raisonnement est-il assez solide pour trancher, sachant que le prix du pétrole en 2027 est inconnu ?"
+      },
+      {
+        "titre": "Budget à 3/10",
+        "texte": "Le coût va de 2,4 milliards (TVA perdue sur six mois) à environ 12 milliards (compensation des distributeurs). Faut-il rester en INCERTAIN faute de choix du candidat, ou noter FRAGILE parce que le livret LFI affirme une neutralité budgétaire démentie par le calcul ?"
+      },
+      {
+        "titre": "Juridique à 5/10",
+        "texte": "La base légale existe, mais un prix sous le coût d'importation pourrait être jugé disproportionné ou contraire au droit européen (arrêt Cullet, qui portait sur un prix minimum). La note est-elle bien placée ?"
+      },
+      {
+        "titre": "Domaine de référence",
+        "texte": "La fiche juge la mesure à l'aune du code de l'énergie (prix supportable, accès de tous, climat) plutôt que de la fiscalité et du pouvoir d'achat. Ce choix vous paraît-il juste ?"
+      },
+      {
+        "titre": "Titre et teasing provisoires",
+        "texte": "Titre court proposé : « Le carburant bloqué à 1,70 € ». Teasing : « À 1,70 € le litre, il reste moins que le prix payé pour le gazole sur le marché de gros de Rotterdam. Qui paiera la différence ? » À ajuster ?"
+      }
+    ],
+    "archive": {
+      "date": "2026-11-04",
+      "version_suivante": "data/analyses finales/Melenchon/melenchon_blocage_carburant_etape3.json",
+      "synthese": "Ajout d'une mention non chiffrée d'une possible contribution des grandes entreprises et d'une nuance sur les précédents historiques français de blocage des prix ; aucune note ne change, le score reste à 38/100.",
+      "reponses": [
+        {
+          "commentaire_id": "cmw243bb0000007l88ecovgla",
+          "auteur": "Arno F.",
+          "section": "Effets rebonds & Externalités",
+          "commentaire": "Le plan de 1963 a pourtant ramené la\nhausse des prix d’environ 7 % à 2,5 % par an dans les mois suivants, selon un\nrapport du Sénat de l’époque. Le bilan de 1976 est plus mitigé, ce qui va plutôt\ndans le sens de la fiche. Le blocage de 1982 a été suivi d’une désinflation durable,\nde 12 % en 1982 à 3,1 % en 1988 (Universalis), même si la désindexation des salaires\net la baisse du pétrole y ont beaucoup contribué.\nJe proposerais donc de raisonner épisode par épisode et de sourcer l’affirmation.\nPour l’instant, aucune source d’histoire économique ne figure dans la liste.",
+          "reponse": "Tu as raison de signaler que les précédents français de blocage général des prix n'ont pas tous fini en rattrapage : le plan de 1963 et celui de 1982 semblent avoir eu des trajectoires différentes de 1976. Je n'ai pas pu vérifier ces épisodes avec une source d'histoire économique primaire dans le temps imparti, donc je ne les intègre pas comme fait établi.\n\nJ'ai ajouté une phrase dans la section sur la durée des effets et dans les limites pour signaler explicitement cette zone d'incertitude, plutôt que de laisser penser que le rattrapage hongrois est la seule issue possible historiquement. La note ne change pas, car elle s'appuie sur le précédent hongrois récent et documenté, pas sur les épisodes français anciens.",
+          "retenu": true
+        },
+        {
+          "commentaire_id": "cmw244h68000107l8qz67vzyl",
+          "auteur": "Arno F.",
+          "section": "Efficacité",
+          "commentaire": "LFI\npropose pourtant une caisse de péréquation inter-entreprises, financée par une\ncontribution des groupes de plus de 750 M€ de chiffre d’affaires et reversée aux\nPME. Le dispositif n’est pas chiffré et ne règle pas la question du gel des prix, mais\nil mérite d’être mentionné.",
+          "reponse": "Bonne remarque. J'ai ajouté une phrase dans « ce qui est discutable » et dans le critère Efficacité pour signaler que LFI évoque, dans d'autres volets de son programme, une contribution des grandes entreprises destinée à soutenir les PME, qui pourrait en théorie atténuer l'effet sur les stations indépendantes.\n\nJe n'ai toutefois pas pu vérifier ni le chiffrage ni le lien explicite de ce dispositif avec le blocage du carburant, donc je ne l'intègre pas comme une solution établie au problème des stations qui vendraient à perte. La note d'Efficacité reste donc inchangée, la mention ajoutée confirmant plutôt qu'atténuant la réserve déjà formulée.",
+          "retenu": true
+        },
+        {
+          "commentaire_id": "cmw245q1z000207l8hn0y5h4g",
+          "auteur": "Arno F.",
+          "section": "Degré de préparation",
+          "commentaire": "FI\na pourtant publié des chiffrages globaux en 2022, et le Nouveau Front populaire\nen 2024. Ils sont contestés, mais ils existent. Il serait utile d’indiquer quels\ndocuments du candidat ou du parti ont été consultés, pour distinguer l’absence\nde chiffrage publié d’un chiffrage qui n’a pas été trouvé",
+          "reponse": "C'est un point juste : des chiffrages globaux existent dans le programme de LFI de 2022 et dans celui du Nouveau Front populaire de 2024, même contestés. La fiche s'appuie spécifiquement sur le contre-budget 2027 et le livret de mars 2026 pour cette version précise de la mesure (prix à 1,70 €, base légale L410-2, durée de six mois), documents qui eux ne contiennent aucun chiffrage ni mécanisme pour les stations.\n\nJ'ai précisé ce périmètre dans le critère Degré de préparation, pour distinguer l'absence de chiffrage dans ces documents précis de l'existence éventuelle d'autres chiffrages plus anciens ou plus généraux. La note ne change pas : elle porte sur la préparation de cette mesure telle que présentée dans les documents consultés.",
+          "retenu": true
+        }
+      ]
+    }
+  }
 }
