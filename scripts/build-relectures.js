@@ -143,8 +143,13 @@ function paragraphes(text) {
   return out;
 }
 
+// Texte échappé, avec **gras** rendu en <strong>.
+function rich(text) {
+  return esc(text).replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
+}
+
 function ps(text) {
-  return paragraphes(text).map((p) => "<p>" + esc(p) + "</p>").join("");
+  return paragraphes(text).map((p) => "<p>" + rich(p) + "</p>").join("");
 }
 
 // Section en accordéon { synthese, texte } ou texte simple (fiches antérieures).
@@ -159,7 +164,7 @@ function texteDe(v) {
 }
 
 function syntheseHtml(v) {
-  return estAccordeon(v) && v.synthese ? '<p class="synthese">' + esc(v.synthese) + "</p>" : "";
+  return estAccordeon(v) && v.synthese ? '<p class="synthese">' + rich(v.synthese) + "</p>" : "";
 }
 
 // Synthèse en tête (si accordéon), puis le texte découpé en paragraphes.
@@ -168,16 +173,27 @@ function section(v) {
 }
 
 // Découpe analyse_par_criteres selon les intitulés « Critère (n/max) : ».
+// Tolère les variantes rencontrées dans les fiches : « et » ou « & », casse
+// libre (« Opérationnalité & Moyens »), précision après la note
+// (« (9/30, FRAGILE) », « (8/30, plafond appliqué) », « (9/30), FRAGILE »),
+// et « : » ou « . » ensuite.
+function motifNom(nom) {
+  return nom
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/ et /g, " (?:et|&) ");
+}
+
 function decouperCriteres(text) {
-  const noms = CRITERES.map((c) => c.nom).join("|");
-  const re = new RegExp(`(?:^|(?<=\\s))(${noms}) \\(\\d+/\\d+\\) : `, "gu");
-  const hits = [...String(text).matchAll(re)];
+  const t = String(text ?? "");
+  const noms = CRITERES.map((c) => `(${motifNom(c.nom)})`).join("|");
+  const re = new RegExp(`(?:^|(?<=\\s))(?:${noms}) \\(\\d+(?:[.,]\\d+)?/\\d+(?:[,;][^)]*)?\\)(?:,\\s*[^:.\\n]{1,40}?)?\\s*[:.]\\s*`, "giu");
+  const hits = [...t.matchAll(re)];
   if (!hits.length) return null;
   const parts = {};
   hits.forEach((m, i) => {
-    const fin = i + 1 < hits.length ? hits[i + 1].index : text.length;
-    const crit = CRITERES.find((c) => c.nom === m[1]);
-    parts[crit.id] = text.slice(m.index + m[0].length, fin).trim();
+    const fin = i + 1 < hits.length ? hits[i + 1].index : t.length;
+    const crit = CRITERES[m.slice(1).findIndex(Boolean)];
+    parts[crit.id] = t.slice(m.index + m[0].length, fin).trim();
   });
   return parts;
 }
@@ -246,7 +262,16 @@ function renderDetailScore(id, n) {
 
 function renderCriteres(slug, fiche) {
   const n = fiche.notation_detaillee;
-  const parts = decouperCriteres(fiche.analyse_par_criteres);
+  let parts = decouperCriteres(fiche.analyse_par_criteres);
+  if (parts) {
+    // Garde-fou : un critère introuvable donnerait une carte vide et décalerait
+    // le texte des autres ; on retombe alors sur un seul bloc.
+    const manquants = CRITERES.filter((c) => !parts[c.id]).map((c) => c.nom);
+    if (manquants.length) {
+      console.warn(`[${slug}] critère(s) introuvable(s) dans analyse_par_criteres : ${manquants.join(", ")}. Affichage en un seul bloc.`);
+      parts = null;
+    }
+  }
   if (!parts) {
     // Texte sans intitulés de critères : un seul bloc commentable.
     return subBlock(`${slug}-criteres-texte`, "Analyse par critères", ps(fiche.analyse_par_criteres), { foot: "Commenter" });
@@ -342,8 +367,8 @@ ${a ? renderArchiveBanner(a) : '<p class="anno-help">Survolez un paragraphe ou s
     id("verdict"),
     "Verdict final",
     ps(fiche.verdict_final) +
-      (r.verdict_tient ? `<h3 class="mini">Ce qui tient</h3><p>${esc(r.verdict_tient)}</p>` : "") +
-      (r.verdict_flou ? `<h3 class="mini">Ce qui reste flou</h3><p>${esc(r.verdict_flou)}</p>` : "") +
+      (r.verdict_tient ? `<h3 class="mini">Ce qui tient</h3><p>${rich(r.verdict_tient)}</p>` : "") +
+      (r.verdict_flou ? `<h3 class="mini">Ce qui reste flou</h3><p>${rich(r.verdict_flou)}</p>` : "") +
       `<p class="verdict-score">Score : <b>${n.score_total}</b> sur 100.</p>`,
   );
 
@@ -360,7 +385,7 @@ ${a ? renderArchiveBanner(a) : '<p class="anno-help">Survolez un paragraphe ou s
       `<h3 class="mini">Limites identifiées</h3>` +
       syntheseHtml(fiche.limites) +
       `<ul class="plist">` +
-      limites.map((l) => "<li>" + esc(l) + "</li>").join("") +
+      limites.map((l) => "<li>" + rich(l) + "</li>").join("") +
       "</ul>",
   );
 
