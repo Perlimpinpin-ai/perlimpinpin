@@ -714,6 +714,12 @@ export function outilRechercheWeb(maxUses) {
 // donc ne relit pas ce cache.
 const CACHE_5_MIN = { type: "ephemeral" };
 
+// Le JSON doit être le dernier texte écrit (voir reunirTexteFinal), complet.
+export const CONSIGNE_ORDRE_RECHERCHES =
+  "Fais toutes tes recherches web d'abord. Écris ensuite le JSON complet de l'étape 3, une seule fois, " +
+  "en dernier, sans recherche après lui ni phrase avant ou après : fiche_complete entière (tous ses blocs, " +
+  "y compris ceux que tu ne modifies pas) et revision_relecture.";
+
 export function construireRequeteEtape3(etape1, mistralResult, commentaires = null) {
   const vars = {
     reponse_etape_1: JSON.stringify(etape1, null, 2),
@@ -740,6 +746,7 @@ export function construireRequeteEtape3(etape1, mistralResult, commentaires = nu
         content: [
           { type: "text", text: fillTemplate(ARBITRAGE_TEMPLATE_AVEC_COMMENTAIRES, vars) },
           { type: "text", text: blocCommentaires(commentaires), cache_control: CACHE_5_MIN },
+          { type: "text", text: CONSIGNE_ORDRE_RECHERCHES },
         ],
       },
     ],
@@ -762,26 +769,44 @@ async function appelerEtape3AvecRecherche(body) {
   let messages = body.messages;
   let usage = {};
   let recherches = 0;
+  const contenus = []; // tous les tours : le JSON peut avoir été écrit avant une pause.
   for (let tour = 0; ; tour++) {
     const data = await appelerEtape3({ ...body, messages });
     usage = addUsage(usage, data.usage);
     recherches += recherchesDe(data.usage);
+    contenus.push(...data.content);
     if (data.stop_reason !== "pause_turn") {
-      return { ...data, content: reunirTexteFinal(data.content), usage, recherchesWeb: recherches };
+      return { ...data, content: reunirTexteFinal(contenus), usage, recherchesWeb: recherches };
     }
     if (tour >= MAX_REPRISES_PAUSE) throw new Error("Étape 3 : recherche web interrompue trop de fois (pause_turn).");
     messages = [...messages, { role: "assistant", content: data.content }];
   }
 }
 
-// Texte écrit après le dernier bloc de recherche, réuni en un seul bloc.
+// Texte final de l'étape 3 avec recherche web, réuni en un seul bloc.
+// Par défaut : le texte écrit après la dernière recherche. Mais le modèle
+// écrit parfois le JSON, lance encore une recherche, puis ne met après
+// qu'une phrase (ex. 4 novembre 2026, Mélenchon carburant : « Le JSON
+// final… », sans aucun JSON → « Unexpected token 'L' »). Dans ce cas, on
+// reprend le dernier passage de texte, entre deux recherches, qui contient
+// un objet JSON.
 export function reunirTexteFinal(content) {
-  const dernierOutil = content.findLastIndex((b) => b.type === "server_tool_use" || b.type === "web_search_tool_result");
-  const texte = content
-    .slice(dernierOutil + 1)
-    .filter((b) => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  const estOutil = (b) => b.type === "server_tool_use" || b.type === "web_search_tool_result";
+  const passages = [];
+  let courant = "";
+  for (const b of content) {
+    if (estOutil(b)) {
+      if (courant) passages.push(courant);
+      courant = "";
+    } else if (b.type === "text") courant += b.text;
+  }
+  if (courant || passages.length === 0) passages.push(courant);
+  const dernier = passages.at(-1);
+  const avecJson = passages.findLast((t) => t.includes("{") && t.includes("}"));
+  const texte = dernier.includes("{") || !avecJson ? dernier : avecJson;
+  if (texte !== dernier) {
+    console.error("  ↺  Étape 3 : pas de JSON après la dernière recherche web, JSON écrit avant elle repris.");
+  }
   return [...content.filter((b) => b.type !== "text"), ...(texte ? [{ type: "text", text: texte }] : [])];
 }
 
