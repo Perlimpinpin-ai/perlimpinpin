@@ -1,142 +1,147 @@
 {
- "mesure_reformulee": {
-  "synthese": "Porter le Smic à 1 700 € net, environ 15 % de plus, et indexer tous les salaires sur l'inflation.",
-  "texte": "Jean-Luc Mélenchon propose une **hausse du Smic à 1 700 € net par mois**, accompagnée d'une conférence exceptionnelle sur les salaires et d'une **indexation généralisée des salaires sur l'inflation** (contre-budget LFI 2027, p. 9). Le document ne donne ni calendrier, ni chiffrage, ni aide aux petites entreprises.\n\nLe Smic net vaut 1 477,93 € depuis la revalorisation automatique du 1er juin 2026 (DREETS) : la hausse est d'environ **15 %**, soit un Smic d'environ 2 148 € brut (calcul de l'analyste). La mesure combine donc deux mécanismes distincts, examinés ensemble car le candidat les lie : un relèvement ponctuel du salaire minimum et une règle permanente d'indexation de tous les salaires."
- },
- "mesure_vers_objectif": {
-  "objectif_court": "Mieux payer le travail peu qualifié",
-  "categorie_objectif": "Emploi et chômage",
-  "objectif_vise": "Permettre aux salariés modestes de vivre décemment de leur travail et protéger tous les salaires contre l'inflation.",
-  "mecanisme_propose": "Un décret relève le Smic de 15 % ; une loi rétablit l'indexation automatique de l'ensemble des salaires sur les prix.",
-  "lien_causal": "direct"
- },
- "nature_et_existant": "Mesure réglementaire et législative. Le Smic est déjà indexé sur l'inflation des ménages modestes et revalorisé automatiquement dès que les prix augmentent de plus de 2 % ; le gouvernement peut aller au-delà par décret (« coup de pouce »). La hausse de 15 % est donc un coup de pouce exceptionnellement fort, mais juridiquement ordinaire. L'indexation générale des autres salaires, en revanche, est interdite depuis 1958 (article L112-2 du code monétaire et financier) ; elle existait en pratique par les accords collectifs jusqu'à la désindexation de 1982-1983. La rétablir demande une loi : c'est un retour à un mécanisme abandonné, qui existe encore en Belgique et au Luxembourg.",
- "contexte_programme": {
-  "synthese": "Position constante de Mélenchon depuis 2012, mais l'aide aux PME prévue en 2022 et 2024 a disparu du contre-budget.",
-  "texte": "La hausse du Smic s'inscrit dans le volet « urgence sociale » du contre-budget, avec le **blocage du carburant à 1,70 €** et la **garantie d'autonomie des jeunes**, analysés dans deux fiches séparées. Le même document propose de **supprimer les exonérations de cotisations au-dessus de 2 Smic** (p. 14), sans chiffrer l'économie, et une hausse de 10 % du point d'indice des fonctionnaires (17 milliards d'euros).\n\nInteractions : l'indexation générale transmettrait aux salaires toute hausse des prix, y compris un éventuel rattrapage des prix du carburant à la levée d'un blocage. Le Smic et le blocage pèsent en partie sur les mêmes petites entreprises.\n\n**Le soutien aux petites entreprises a disparu** : la proposition de loi Corbière de 2022 prévoyait une caisse de péréquation entre grandes et petites entreprises, et le programme du Nouveau Front populaire de 2024 un fonds de solidarité pour les TPE-PME. Le contre-budget d'octobre 2026 ne reprend ni l'un ni l'autre."
- },
- "contexte_national": {
-  "synthese": "Le Smic est déjà le plus élevé d'Europe rapporté au salaire médian, et les TPE y sont très exposées.",
-  "texte": "**Le point de départ est élevé.** Le Smic représentait **62,5 % du salaire médian en 2024**, « le plus élevé d'Europe » selon le Groupe d'experts sur le Smic (rapport du 25 novembre 2025). 11,8 % des salariés du privé ont bénéficié de la hausse de janvier 2026, et **21,9 % dans les entreprises de moins de 10 salariés** (Dares, octobre 2026, chiffres relayés par TPE Actu). Environ 2,2 millions de salariés étaient concernés en novembre 2024.\n\n**Les allègements de cotisations amortissent le coût** : 75 milliards d'euros par an, concentrés sur les bas salaires (Groupe d'experts). Selon le même rapport, entre 1,2 et 2 Smic, **75 à 80 % d'une hausse de salaire est absorbée par les cotisations et la baisse des aides**, notamment de la prime d'activité. Le Groupe d'experts recommande de ne pas aller au-delà de l'indexation légale.\n\nL'inflation atteint 3,4 % sur un an en octobre 2026, tirée par l'énergie (plus 24,1 %, Insee). Les études françaises trouvent des effets négatifs sur l'emploi des bas salaires : selon Kramarz et Philippon (2001), une hausse de 1 % du coût du travail au voisinage du Smic augmente d'environ 1,5 % la probabilité de perdre son emploi.\n\nChiffrages d'une mesure proche (Smic à 1 600 € net, plus 14,4 %, en 2024) : l'Institut Montaigne, d'orientation libérale, estime un coût public d'environ **19 milliards d'euros par an** et au moins 300 000 emplois perdus ; une note de la Fondation Jean-Jaurès, de centre-gauche, cite une estimation de l'OFCE d'environ 322 000 emplois détruits par une hausse de 12 %, compensés en grande partie par la consommation et les allègements, pour un effet net d'environ moins 29 000. **L'écart entre ces estimations est considérable** et dépend surtout des hypothèses de compensation."
- },
- "contexte_international": {
-  "synthese": "Les fortes hausses étrangères ont peu réduit l'emploi, mais partaient de niveaux bien plus bas qu'en France.",
-  "texte": "**La recherche internationale récente est plutôt rassurante, avec une réserve de taille.** En Allemagne, l'introduction du salaire minimum en 2015 a augmenté les salaires sans réduire l'emploi, en partie parce que les salariés sont passés vers des entreprises plus productives (Dustmann et al., *Quarterly Journal of Economics*, 2022). Aux États-Unis, 138 hausses n'ont pas réduit le nombre d'emplois à bas salaire (Cengiz et al., 2019). En Hongrie, une hausse de près de 60 % en 2001 a eu un effet emploi « négatif mais faible », mais **environ 75 % du coût a été payé par les consommateurs via les prix** (Harasztosi et Lindner, *American Economic Review*, 2019). En Espagne, la hausse de 22 % de 2019 a freiné la croissance de l'emploi des plus bas salaires (Banque d'Espagne, 2021).\n\nLa réserve : l'Allemagne partait d'environ 47 % du salaire médian, la France est à 62,5 %. **Plus le salaire minimum est haut, plus le risque de toucher des emplois peu productifs augmente** : la transposition n'est pas automatique.\n\nSur l'indexation : la Belgique indexe automatiquement les salaires sur un indice lissé ; le FMI (2023) y constate une hausse permanente du coût du travail et un écart de compétitivité de 2,9 points fin 2022, et juge la boucle prix-salaires « à surveiller ». Le Luxembourg a encore appliqué une tranche de 2,5 % en juin 2026."
- },
- "impact_environnement": null,
- "analyse_par_criteres": "Opérationnalité & Moyens (21/30). Juridique 8/10 : **le Smic se relève par simple décret** ; l'indexation générale demande de modifier l'interdiction de 1958, par une loi ordinaire. Budgétaire 4/10 : le sens est établi, la mesure coûte aux finances publiques (allègements de cotisations plus élevés, employeurs publics), mais **les estimations vont d'environ 4 milliards à 19 milliards d'euros par an** selon qu'on applique l'ancien ratio de 240 millions par point de Smic (2017) ou le chiffrage de l'Institut Montaigne ; la suppression des exonérations au-dessus de 2 Smic, environ 6 milliards selon le Groupe d'experts, en compenserait une partie. Moyens humains 9/10 : rien à créer, la paie et les contrôles existent.\n\nEfficacité (15/30) : **le gain de salaire est direct et immédiat pour les salariés au Smic, mais une partie est reprise par la baisse de la prime d'activité, et l'emploi peu qualifié est exposé**. L'objectif de référence du domaine (quantité, qualité et inclusivité des emplois, selon la stratégie de l'OCDE) est servi sur la rémunération et menacé sur la quantité. Les études étrangères suggèrent un effet emploi limité, mais à partir de niveaux bien plus bas ; les études françaises sont plus pessimistes. L'indexation générale protège le pouvoir d'achat de tous les salariés, mais sans gain réel en moyenne. D'où INCERTAIN documenté, au milieu bas de la fourchette.\n\nEffets rebonds & Externalités (9/20) : **effet documenté et significatif dont l'ampleur reste incertaine**, de quelques dizaines de milliers à plusieurs centaines de milliers d'emplois selon les hypothèses. S'y ajoutent une hausse des prix dans les services à forte main-d'œuvre, un choc concentré sur les TPE sans aide prévue, et surtout le risque qu'une indexation générale transforme le choc énergétique importé de 2026 en spirale prix-salaires, sans dévaluation possible dans la zone euro. Le coût n'est pas intégré à la trajectoire de la dette.\n\nDegré de préparation (3/10) : le montant visé est précis, mais **ni calendrier, ni chiffrage, ni modalités de l'indexation, ni mesure pour les TPE**, alors que les versions précédentes en prévoyaient une.\n\nAlignement & Logique globale (8/10) : bon signe, **la revendication est constante depuis 2012** (1 700 € brut en 2012, 1 400 € net en 2022, 1 600 € net en 2024 et 2025) et l'indexation figurait déjà dans le programme de 2024. Seule tension : l'abandon, non expliqué, du soutien aux petites entreprises.",
- "analyse_longevites": {
-  "synthese": "Gain durable pour les salariés qui gardent leur emploi ; l'indexation installe une règle permanente aux effets lents.",
-  "texte": "**Court terme (0 à 2 ans)** : hausse immédiate du salaire net, risque concentré sur les embauches peu qualifiées et les TPE ; hausse de prix dans certains services. **Moyen terme (2 à 7 ans)** : les entreprises s'adaptent (prix, productivité, moindres embauches) ; si les hausses de prix rattrapent la hausse de salaire, le gain réel s'érode. **Long terme** : l'indexation générale rend durables les effets d'un choc de prix, ce qui a conduit la France à l'abandonner en 1982-1983 ; elle peut aussi réduire le tassement des salaires au voisinage du Smic."
- },
- "impact_temporel_et_sectoriel": {
-  "synthese": "Plus de consommation des ménages modestes, mais des prix plus élevés et un risque de boucle prix-salaires.",
-  "texte": "**Inflation et pouvoir d'achat** : une hausse du Smic de 15 % se diffuse aux prix des services à forte main-d'œuvre (en Hongrie, 75 % du coût est passé dans les prix) ; avec l'indexation générale, toute hausse de prix relèverait à son tour les salaires. **Consommation** : les ménages modestes dépensent presque toute hausse de revenu, ce qui soutient l'activité, avec une partie qui part en importations. **Secteurs** : hôtellerie-restauration, commerce, services à la personne et TPE sont les plus exposés. **Stabilité bancaire** : pas d'effet direct identifiable."
- },
- "ce_qui_est_etabli": {
-  "synthese": "Le Smic se relève par décret, il est au plus haut d'Europe, et l'indexation des salaires est interdite.",
-  "texte": "Le Smic net vaut **1 477,93 € depuis juin 2026** ; 1 700 € représente une hausse d'environ 15 %. Il atteint **62,5 % du salaire médian**, le niveau le plus élevé d'Europe (Groupe d'experts, 2025). Près de 22 % des salariés des TPE sont au Smic. L'indexation des salaires sur les prix est interdite par l'article L112-2 du code monétaire et financier ; la lever demande une loi. LFI réclame une forte hausse du Smic depuis 2012."
- },
- "ce_qui_est_probable": {
-  "synthese": "Un coût public de plusieurs milliards par an et des pertes d'emplois peu qualifiés, d'ampleur discutée.",
-  "texte": "La hausse augmenterait le coût des allègements de cotisations et la masse salariale publique : **plusieurs milliards d'euros par an**, peut-être une quinzaine ou plus selon les hypothèses retenues. Une partie du gain net serait reprise par la baisse de la prime d'activité. Des emplois peu qualifiés seraient perdus ou non créés, surtout dans les TPE, même si l'ampleur fait débat."
- },
- "ce_qui_est_discutable": {
-  "synthese": "L'ampleur des pertes d'emplois et la capacité de la consommation à compenser le choc de coût.",
-  "texte": "Les estimations vont d'un effet net d'environ **moins 29 000 emplois** (OFCE, cité par la Fondation Jean-Jaurès, pour plus 12 %) à **au moins 300 000** (Institut Montaigne, pour plus 14,4 %). L'écart tient aux hypothèses sur la relance par la consommation et sur les allègements. La recherche internationale récente penche vers des effets faibles, mais à partir de niveaux de salaire minimum bien plus bas qu'en France."
- },
- "ce_qui_est_inconnu": {
-  "synthese": "Le calendrier, les modalités de l'indexation et un éventuel soutien aux petites entreprises.",
-  "texte": "Le contre-budget ne dit pas si la hausse serait immédiate ou progressive, ni comment fonctionnerait l'indexation (indice retenu, fréquence, salaires concernés, articulation avec la négociation collective). Il ne prévoit **aucune aide aux TPE**, contrairement aux versions de 2022 et 2024. Aucun chiffrage du candidat n'est publié."
- },
- "angles_morts": {
-  "synthese": "Le choc est concentré sur les TPE, et l'indexation pourrait propager le choc énergétique aux salaires.",
-  "texte": "**Effet de concentration** : avec 21,9 % de salariés au Smic, les TPE supportent l'essentiel du choc, sans la caisse de péréquation des versions précédentes. **Choc importé** : l'inflation de 2026 vient de l'énergie importée ; indexer tous les salaires sur ce choc revient à le répercuter dans les coûts des entreprises françaises, sans possibilité de dévaluer, ce qui pèse sur la compétitivité face aux voisins européens. **Alternatives au même objectif** : une hausse progressive en deux étapes, comme le propose la Fondation Jean-Jaurès, ou une hausse de la prime d'activité, financée par l'impôt, augmenteraient le revenu des salariés modestes avec moins de risque sur l'emploi, mais ne revaloriseraient pas le salaire lui-même. **Double comptage évité** : le risque emploi est noté en Effets rebonds ; l'Efficacité ne retient que l'effet sur le revenu et l'inclusivité."
- },
- "notation_detaillee": {
-  "operationnalite_juridique": 8,
-  "qualification_juridique": "SOLIDE",
-  "operationnalite_budgetaire": 4,
-  "qualification_budgetaire": "INCERTAIN",
-  "operationnalite_moyens_humains": 9,
-  "qualification_moyens_humains": "SOLIDE",
-  "operationnalite_moyens_total": 21,
-  "plafond_applique": false,
-  "plafond_declencheur": null,
-  "efficacite": 15,
-  "qualification_efficacite": "INCERTAIN",
-  "effets_rebonds_externalites": 9,
-  "qualification_effets_rebonds": "INCERTAIN",
-  "degre_preparation": 3,
-  "qualification_preparation": "INCERTAIN",
-  "alignement_logique": 8,
-  "qualification_alignement": "SOLIDE",
-  "score_total": 56,
-  "appreciation": "plausible sous condition"
- },
- "verdict_final": "Ce qui tient : la hausse du Smic se décide par simple décret, profite immédiatement aux salariés concernés, et répond à une revendication constante de LFI depuis 2012. Les études étrangères récentes montrent que de fortes hausses peuvent ne pas détruire beaucoup d'emplois.\n\nCe qui reste fragile : la France part du salaire minimum le plus élevé d'Europe par rapport au salaire médian, une partie du gain serait reprise par la baisse de la prime d'activité, et les petites entreprises n'ont plus aucune aide prévue. L'indexation générale protège contre l'inflation, mais risque de transformer le choc énergétique importé en spirale prix-salaires. Reste incertain : l'ampleur des pertes d'emplois, entre quelques dizaines et plusieurs centaines de milliers selon les hypothèses, et le coût public, entre 4 et 19 milliards par an.",
- "sources_utilisees": [
-  "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », melenchon2027.fr, octobre 2026, p. 8, 9 et 14",
-  "DREETS Normandie, revalorisation du Smic au 1er juin 2026 ; décret n° 2025-1228 du 17 décembre 2025",
-  "Groupe d'experts sur le Smic, rapport annuel du 25 novembre 2025 (vie-publique.fr)",
-  "Dares, salariés bénéficiaires de la revalorisation du Smic au 1er janvier 2026, octobre 2026 (chiffres relayés par TPE Actu, source secondaire)",
-  "Insee, indice des prix à la consommation, octobre 2026 (estimation provisoire) ; définition de l'indexation du Smic",
-  "Institut Montaigne, chiffrage « Augmenter le Smic à 1 600 € net », juin 2024 (orientation libérale)",
-  "Fondation Jean-Jaurès, Delostal et Sengayrac, « Pour une hausse progressive du Smic jusqu'à 1 600 euros », septembre 2024 (centre-gauche, cite l'OFCE)",
-  "Kramarz et Philippon, Journal of Public Economics 82(1), 2001 ; Abowd et al., NBER w6111, 1997",
-  "Dustmann et al., Quarterly Journal of Economics 137(1), 2022 ; Cengiz et al., Quarterly Journal of Economics, 2019",
-  "Harasztosi et Lindner, American Economic Review, 2019 ; Banque d'Espagne, document 2113, 2021",
-  "FMI, rapport sur la Belgique, 2023 ; indexation automatique au Luxembourg (code du travail luxembourgeois, art. L.223-1)",
-  "Assemblée nationale, rapport n° 610 (17 décembre 2022) et compte rendu de la séance du 24 novembre 2022 (retrait de la proposition de loi Corbière) ; LCP, 16 novembre 2022",
-  "Programme du Nouveau Front populaire, juin 2024 ; Politis, programme du Front de gauche, 2011"
- ],
- "niveau_de_confiance": "Moyen. Élevé sur le niveau du Smic, sa position par rapport au salaire médian, le cadre juridique et la constance des positions du candidat. Moyen sur le coût public et l'effet emploi, pour lesquels les estimations disponibles divergent fortement et viennent en partie d'instituts d'orientation identifiable.",
- "limites": {
-  "synthese": "Coût et effet emploi reposent sur des chiffrages d'instituts orientés qui divergent fortement ; plusieurs chiffres sont secondaires.",
-  "texte": "Les chiffres Dares 2026 sont repris d'un site spécialisé, la page Dares étant inaccessible. Aucun chiffrage officiel (DG Trésor) d'une hausse de cette ampleur n'a été trouvé ; les estimations utilisées viennent de l'Institut Montaigne (libéral) et de la Fondation Jean-Jaurès citant l'OFCE (centre-gauche). Le ratio de 240 millions d'euros par point de Smic date de 2017, avant la réforme des allègements de 2026. Le texte de l'article L112-2 du code monétaire et financier n'a pas été lu sur Légifrance. Le programme 2025 n'a pas pu être consulté directement. Cette fiche remplace le volet Smic de la fiche du 31 août 2026, qui portait sur 1 600 € net."
- },
- "resume_court": "Jean-Luc Mélenchon veut porter le Smic à 1 700 € net, soit environ 15 % de plus, et indexer tous les salaires sur l'inflation. L'objectif est de permettre aux salariés modestes de vivre de leur travail malgré la hausse des prix.\n\nLa hausse est simple à décider, par décret, et touche directement les salariés concernés. Mais la France part du salaire minimum le plus élevé d'Europe par rapport au salaire médian, les petites entreprises n'ont plus d'aide prévue, et l'indexation générale pourrait entretenir l'inflation. Tout dépend de l'effet sur l'emploi peu qualifié, que les estimations situent entre quelques dizaines et plusieurs centaines de milliers d'emplois. Note : 56/100.",
- "phrase_teasing": "En Allemagne, le salaire minimum n'a pas détruit d'emplois. Mais il partait de 47 % du salaire médian, et le Smic français en est à 62,5 %.",
- "relecture": {
-  "titre": "Smic à 1 700 € : simple à décider, risqué pour les TPE",
-  "candidat": "Jean-Luc Mélenchon",
-  "parti": "La France insoumise",
-  "theme": "Emploi et chômage",
-  "date": "2026-11-02",
-  "version": 1,
-  "mesure_initiale": "Porter le Smic à 1 700 euros net par mois, avec une conférence exceptionnelle sur les salaires et une indexation généralisée des salaires sur l'inflation.",
-  "extrait": {
-   "citation": "« Ces mesures d'urgence sociale doivent être complétées par une hausse du SMIC à 1 700 euros net. Cette hausse sera accompagnée de la convocation d'une conférence exceptionnelle sur les salaires et d'une indexation généralisée de ceux-ci sur l'inflation. »",
-   "source": "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », p. 9, melenchon2027.fr, octobre 2026"
+  "mesure_reformulee": {
+    "synthese": "Porter le Smic à 1 700 € net, environ 15 % de plus, et indexer tous les salaires sur l'inflation.",
+    "texte": "Jean-Luc Mélenchon propose une **hausse du Smic à 1 700 € net par mois**, accompagnée d'une conférence exceptionnelle sur les salaires et d'une **indexation généralisée des salaires sur l'inflation** (contre-budget LFI 2027, p. 9). Le document ne donne ni calendrier, ni chiffrage, ni aide aux petites entreprises.\n\nLe Smic net vaut 1 477,93 € depuis la revalorisation automatique du 1er juin 2026 (DREETS) : la hausse est d'environ **15 %**, soit un Smic d'environ 2 148 € brut (calcul de l'analyste). La mesure combine donc deux mécanismes distincts, examinés ensemble car le candidat les lie : un relèvement ponctuel du salaire minimum et une règle permanente d'indexation de tous les salaires."
   },
-  "verdict_tient": "la hausse se décide par décret, profite immédiatement aux salariés concernés, et prolonge une revendication constante depuis 2012.",
-  "verdict_flou": "l'effet sur l'emploi peu qualifié, le coût public (de 4 à 19 milliards par an), l'absence d'aide aux TPE et le risque de spirale prix-salaires lié à l'indexation.",
-  "niveau_confiance": "Moyen",
-  "questions": [
-   {
-    "titre": "Version retenue",
-    "texte": "La fiche analyse le Smic à 1 700 € net du contre-budget d'octobre 2026, et non les 1 600 € de la fiche du 31 août. Faut-il le signaler davantage sur la page de la déclaration ?"
-   },
-   {
-    "titre": "Smic et indexation dans la même fiche",
-    "texte": "Le candidat lie la hausse du Smic et l'indexation générale dans la même phrase. Faut-il les garder ensemble ou faire une fiche séparée pour l'indexation ?"
-   },
-   {
-    "titre": "Efficacité à 15/30",
-    "texte": "La note tient compte du gain direct de salaire, de la reprise partielle par la prime d'activité et du risque sur l'emploi peu qualifié. Les études étrangères récentes justifieraient-elles une note plus haute, ou le niveau déjà élevé du Smic une note plus basse ?"
-   },
-   {
-    "titre": "Budget à 4/10",
-    "texte": "Les estimations vont de 4 à 19 milliards d'euros par an. Faut-il retenir une fourchette plus resserrée, et avec quelle source neutre ?"
-   },
-   {
-    "titre": "Effets rebonds à 9/20",
-    "texte": "Le risque de boucle prix-salaires lié à l'indexation, dans un contexte de choc énergétique importé, est-il assez documenté pour peser davantage ?"
-   },
-   {
-    "titre": "Titre et teasing provisoires",
-    "texte": "Titre court proposé : « Le Smic à 1 700 € net ». Teasing : « En Allemagne, le salaire minimum n'a pas détruit d'emplois. Mais il partait de 47 % du salaire médian, et le Smic français en est à 62,5 %. » À ajuster ?"
-   }
-  ]
- }
+  "mesure_vers_objectif": {
+    "objectif_court": "Mieux payer le travail peu qualifié",
+    "categorie_objectif": "Emploi et chômage",
+    "objectif_vise": "Permettre aux salariés modestes de vivre décemment de leur travail et protéger tous les salaires contre l'inflation.",
+    "mecanisme_propose": "Un décret relève le Smic de 15 % ; une loi rétablit l'indexation automatique de l'ensemble des salaires sur les prix.",
+    "lien_causal": "direct"
+  },
+  "nature_et_existant": "Mesure réglementaire et législative. Le Smic est déjà indexé sur l'inflation des ménages modestes et revalorisé automatiquement dès que les prix augmentent de plus de 2 % ; le gouvernement peut aller au-delà par décret (« coup de pouce »). La hausse de 15 % est donc un coup de pouce exceptionnellement fort, mais juridiquement ordinaire. L'indexation générale des autres salaires, en revanche, est interdite depuis 1958 (article L112-2 du code monétaire et financier) ; elle existait en pratique par les accords collectifs jusqu'à la désindexation de 1982-1983. La rétablir demande une loi : c'est un retour à un mécanisme abandonné, qui existe encore en Belgique et au Luxembourg.",
+  "contexte_programme": {
+    "synthese": "Position constante de Mélenchon depuis 2012, mais l'aide aux PME prévue en 2022 et 2024 a disparu du contre-budget.",
+    "texte": "La hausse du Smic s'inscrit dans le volet « urgence sociale » du contre-budget, avec le **blocage du carburant à 1,70 €** et la **garantie d'autonomie des jeunes**, analysés dans deux fiches séparées. Le même document propose de **supprimer les exonérations de cotisations au-dessus de 2 Smic** (p. 14), sans chiffrer l'économie, et une hausse de 10 % du point d'indice des fonctionnaires (17 milliards d'euros).\n\nInteractions : l'indexation générale transmettrait aux salaires toute hausse des prix, y compris un éventuel rattrapage des prix du carburant à la levée d'un blocage. Le Smic et le blocage pèsent en partie sur les mêmes petites entreprises.\n\n**Le soutien aux petites entreprises a disparu** : la proposition de loi Corbière de 2022 prévoyait une caisse de péréquation entre grandes et petites entreprises, et le programme du Nouveau Front populaire de 2024 un fonds de solidarité pour les TPE-PME. Le contre-budget d'octobre 2026 ne reprend ni l'un ni l'autre."
+  },
+  "contexte_national": {
+    "synthese": "Le Smic est déjà le plus élevé d'Europe rapporté au salaire médian, et les TPE y sont très exposées.",
+    "texte": "**Le point de départ est élevé.** Le Smic représentait **62,5 % du salaire médian en 2024**, « le plus élevé d'Europe » selon le Groupe d'experts sur le Smic (rapport du 25 novembre 2025). 11,8 % des salariés du privé ont bénéficié de la hausse de janvier 2026, et **21,9 % dans les entreprises de moins de 10 salariés** (Dares, octobre 2026, chiffres relayés par TPE Actu). Environ 2,2 millions de salariés étaient concernés en novembre 2024.\n\n**Les allègements de cotisations amortissent le coût** : 75 milliards d'euros par an, concentrés sur les bas salaires (Groupe d'experts). Selon le même rapport, entre 1,2 et 2 Smic, **75 à 80 % d'une hausse de salaire est absorbée par les cotisations et la baisse des aides**, notamment de la prime d'activité. Le Groupe d'experts recommande de ne pas aller au-delà de l'indexation légale.\n\nL'inflation atteint 3,4 % sur un an en octobre 2026, tirée par l'énergie (plus 24,1 %, Insee). Les études françaises trouvent des effets négatifs sur l'emploi des bas salaires : selon Kramarz et Philippon (2001), une hausse de 1 % du coût du travail au voisinage du Smic augmente d'environ 1,5 % la probabilité de perdre son emploi.\n\nChiffrages d'une mesure proche (Smic à 1 600 € net, plus 14,4 %, en 2024) : l'Institut Montaigne, d'orientation libérale, estime un coût public d'environ **19 milliards d'euros par an** et au moins 300 000 emplois perdus ; une note de la Fondation Jean-Jaurès, de centre-gauche, cite une estimation de l'OFCE d'environ 322 000 emplois détruits par une hausse de 12 %, compensés en grande partie par la consommation et les allègements, pour un effet net d'environ moins 29 000. **L'écart entre ces estimations est considérable** et dépend surtout des hypothèses de compensation."
+  },
+  "contexte_international": {
+    "synthese": "Les fortes hausses étrangères ont peu réduit l'emploi, mais partaient de niveaux bien plus bas qu'en France.",
+    "texte": "**La recherche internationale récente est plutôt rassurante, avec une réserve de taille.** En Allemagne, l'introduction du salaire minimum en 2015 a augmenté les salaires sans réduire l'emploi, en partie parce que les salariés sont passés vers des entreprises plus productives (Dustmann et al., *Quarterly Journal of Economics*, 2022). Aux États-Unis, 138 hausses n'ont pas réduit le nombre d'emplois à bas salaire (Cengiz et al., 2019). En Hongrie, une hausse de près de 60 % en 2001 a eu un effet emploi « négatif mais faible », mais **environ 75 % du coût a été payé par les consommateurs via les prix** (Harasztosi et Lindner, *American Economic Review*, 2019). En Espagne, la hausse de 22 % de 2019 a freiné la croissance de l'emploi des plus bas salaires (Banque d'Espagne, 2021).\n\nLa réserve : l'Allemagne partait d'environ 47 % du salaire médian, la France est à 62,5 %. **Plus le salaire minimum est haut, plus le risque de toucher des emplois peu productifs augmente** : la transposition n'est pas automatique.\n\nSur l'indexation : la Belgique indexe automatiquement les salaires sur un indice lissé ; le FMI (2023) y constate une hausse permanente du coût du travail et un écart de compétitivité de 2,9 points fin 2022, et juge la boucle prix-salaires « à surveiller ». Le Luxembourg a encore appliqué une tranche de 2,5 % en juin 2026."
+  },
+  "impact_environnement": null,
+  "analyse_par_criteres": "Opérationnalité & Moyens (21/30). Juridique 8/10 : **le Smic se relève par simple décret** ; l'indexation générale demande de modifier l'interdiction de 1958, par une loi ordinaire. Budgétaire 4/10 : le sens est établi, la mesure coûte aux finances publiques (allègements de cotisations plus élevés, employeurs publics), mais **les estimations vont d'environ 4 milliards à 19 milliards d'euros par an** selon qu'on applique l'ancien ratio de 240 millions par point de Smic (2017) ou le chiffrage de l'Institut Montaigne ; la suppression des exonérations au-dessus de 2 Smic, environ 6 milliards selon le Groupe d'experts, en compenserait une partie. Moyens humains 9/10 : rien à créer, la paie et les contrôles existent.\n\nEfficacité (15/30) : **le gain de salaire est direct et immédiat pour les salariés au Smic, mais une partie est reprise par la baisse de la prime d'activité, et l'emploi peu qualifié est exposé**. L'objectif de référence du domaine (quantité, qualité et inclusivité des emplois, selon la stratégie de l'OCDE) est servi sur la rémunération et menacé sur la quantité. Les études étrangères suggèrent un effet emploi limité, mais à partir de niveaux bien plus bas ; les études françaises sont plus pessimistes. L'indexation générale protège le pouvoir d'achat de tous les salariés, mais sans gain réel en moyenne. D'où INCERTAIN documenté, au milieu bas de la fourchette.\n\nEffets rebonds & Externalités (9/20) : **effet documenté et significatif dont l'ampleur reste incertaine**, de quelques dizaines de milliers à plusieurs centaines de milliers d'emplois selon les hypothèses. S'y ajoutent une hausse des prix dans les services à forte main-d'œuvre, un choc concentré sur les TPE sans aide prévue, et surtout le risque qu'une indexation générale transforme le choc énergétique importé de 2026 en spirale prix-salaires, sans dévaluation possible dans la zone euro. Le coût n'est pas intégré à la trajectoire de la dette.\n\nDegré de préparation (3/10) : le montant visé est précis, mais **ni calendrier, ni chiffrage, ni modalités de l'indexation, ni mesure pour les TPE**, alors que les versions précédentes en prévoyaient une.\n\nAlignement & Logique globale (8/10) : bon signe, **la revendication est constante depuis 2012** (1 700 € brut en 2012, 1 400 € net en 2022, 1 600 € net en 2024 et 2025) et l'indexation figurait déjà dans le programme de 2024. Seule tension : l'abandon, non expliqué, du soutien aux petites entreprises.",
+  "analyse_longevites": {
+    "synthese": "Gain durable pour les salariés qui gardent leur emploi ; l'indexation installe une règle permanente aux effets lents.",
+    "texte": "**Court terme (0 à 2 ans)** : hausse immédiate du salaire net, risque concentré sur les embauches peu qualifiées et les TPE ; hausse de prix dans certains services. **Moyen terme (2 à 7 ans)** : les entreprises s'adaptent (prix, productivité, moindres embauches) ; si les hausses de prix rattrapent la hausse de salaire, le gain réel s'érode. **Long terme** : l'indexation générale rend durables les effets d'un choc de prix, ce qui a conduit la France à l'abandonner en 1982-1983 ; elle peut aussi réduire le tassement des salaires au voisinage du Smic."
+  },
+  "impact_temporel_et_sectoriel": {
+    "synthese": "Plus de consommation des ménages modestes, mais des prix plus élevés et un risque de boucle prix-salaires.",
+    "texte": "**Inflation et pouvoir d'achat** : une hausse du Smic de 15 % se diffuse aux prix des services à forte main-d'œuvre (en Hongrie, 75 % du coût est passé dans les prix) ; avec l'indexation générale, toute hausse de prix relèverait à son tour les salaires. **Consommation** : les ménages modestes dépensent presque toute hausse de revenu, ce qui soutient l'activité, avec une partie qui part en importations. **Secteurs** : hôtellerie-restauration, commerce, services à la personne et TPE sont les plus exposés. **Stabilité bancaire** : pas d'effet direct identifiable."
+  },
+  "ce_qui_est_etabli": {
+    "synthese": "Le Smic se relève par décret, il est au plus haut d'Europe, et l'indexation des salaires est interdite.",
+    "texte": "Le Smic net vaut **1 477,93 € depuis juin 2026** ; 1 700 € représente une hausse d'environ 15 %. Il atteint **62,5 % du salaire médian**, le niveau le plus élevé d'Europe (Groupe d'experts, 2025). Près de 22 % des salariés des TPE sont au Smic. L'indexation des salaires sur les prix est interdite par l'article L112-2 du code monétaire et financier ; la lever demande une loi. LFI réclame une forte hausse du Smic depuis 2012."
+  },
+  "ce_qui_est_probable": {
+    "synthese": "Un coût public de plusieurs milliards par an et des pertes d'emplois peu qualifiés, d'ampleur discutée.",
+    "texte": "La hausse augmenterait le coût des allègements de cotisations et la masse salariale publique : **plusieurs milliards d'euros par an**, peut-être une quinzaine ou plus selon les hypothèses retenues. Une partie du gain net serait reprise par la baisse de la prime d'activité. Des emplois peu qualifiés seraient perdus ou non créés, surtout dans les TPE, même si l'ampleur fait débat."
+  },
+  "ce_qui_est_discutable": {
+    "synthese": "L'ampleur des pertes d'emplois et la capacité de la consommation à compenser le choc de coût.",
+    "texte": "Les estimations vont d'un effet net d'environ **moins 29 000 emplois** (OFCE, cité par la Fondation Jean-Jaurès, pour plus 12 %) à **au moins 300 000** (Institut Montaigne, pour plus 14,4 %). L'écart tient aux hypothèses sur la relance par la consommation et sur les allègements. La recherche internationale récente penche vers des effets faibles, mais à partir de niveaux de salaire minimum bien plus bas qu'en France."
+  },
+  "ce_qui_est_inconnu": {
+    "synthese": "Le calendrier, les modalités de l'indexation et un éventuel soutien aux petites entreprises.",
+    "texte": "Le contre-budget ne dit pas si la hausse serait immédiate ou progressive, ni comment fonctionnerait l'indexation (indice retenu, fréquence, salaires concernés, articulation avec la négociation collective). Il ne prévoit **aucune aide aux TPE**, contrairement aux versions de 2022 et 2024. Aucun chiffrage du candidat n'est publié."
+  },
+  "angles_morts": {
+    "synthese": "Le choc est concentré sur les TPE, et l'indexation pourrait propager le choc énergétique aux salaires.",
+    "texte": "**Effet de concentration** : avec 21,9 % de salariés au Smic, les TPE supportent l'essentiel du choc, sans la caisse de péréquation des versions précédentes. **Choc importé** : l'inflation de 2026 vient de l'énergie importée ; indexer tous les salaires sur ce choc revient à le répercuter dans les coûts des entreprises françaises, sans possibilité de dévaluer, ce qui pèse sur la compétitivité face aux voisins européens. **Alternatives au même objectif** : une hausse progressive en deux étapes, comme le propose la Fondation Jean-Jaurès, ou une hausse de la prime d'activité, financée par l'impôt, augmenteraient le revenu des salariés modestes avec moins de risque sur l'emploi, mais ne revaloriseraient pas le salaire lui-même. **Double comptage évité** : le risque emploi est noté en Effets rebonds ; l'Efficacité ne retient que l'effet sur le revenu et l'inclusivité."
+  },
+  "notation_detaillee": {
+    "operationnalite_juridique": 8,
+    "qualification_juridique": "SOLIDE",
+    "operationnalite_budgetaire": 4,
+    "qualification_budgetaire": "INCERTAIN",
+    "operationnalite_moyens_humains": 9,
+    "qualification_moyens_humains": "SOLIDE",
+    "operationnalite_moyens_total": 21,
+    "plafond_applique": false,
+    "plafond_declencheur": null,
+    "efficacite": 15,
+    "qualification_efficacite": "INCERTAIN",
+    "effets_rebonds_externalites": 9,
+    "qualification_effets_rebonds": "INCERTAIN",
+    "degre_preparation": 3,
+    "qualification_preparation": "INCERTAIN",
+    "alignement_logique": 8,
+    "qualification_alignement": "SOLIDE",
+    "score_total": 56,
+    "appreciation": "plausible sous condition"
+  },
+  "verdict_final": "Ce qui tient : la hausse du Smic se décide par simple décret, profite immédiatement aux salariés concernés, et répond à une revendication constante de LFI depuis 2012. Les études étrangères récentes montrent que de fortes hausses peuvent ne pas détruire beaucoup d'emplois.\n\nCe qui reste fragile : la France part du salaire minimum le plus élevé d'Europe par rapport au salaire médian, une partie du gain serait reprise par la baisse de la prime d'activité, et les petites entreprises n'ont plus aucune aide prévue. L'indexation générale protège contre l'inflation, mais risque de transformer le choc énergétique importé en spirale prix-salaires. Reste incertain : l'ampleur des pertes d'emplois, entre quelques dizaines et plusieurs centaines de milliers selon les hypothèses, et le coût public, entre 4 et 19 milliards par an.",
+  "sources_utilisees": [
+    "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », melenchon2027.fr, octobre 2026, p. 8, 9 et 14",
+    "DREETS Normandie, revalorisation du Smic au 1er juin 2026 ; décret n° 2025-1228 du 17 décembre 2025",
+    "Groupe d'experts sur le Smic, rapport annuel du 25 novembre 2025 (vie-publique.fr)",
+    "Dares, salariés bénéficiaires de la revalorisation du Smic au 1er janvier 2026, octobre 2026 (chiffres relayés par TPE Actu, source secondaire)",
+    "Insee, indice des prix à la consommation, octobre 2026 (estimation provisoire) ; définition de l'indexation du Smic",
+    "Institut Montaigne, chiffrage « Augmenter le Smic à 1 600 € net », juin 2024 (orientation libérale)",
+    "Fondation Jean-Jaurès, Delostal et Sengayrac, « Pour une hausse progressive du Smic jusqu'à 1 600 euros », septembre 2024 (centre-gauche, cite l'OFCE)",
+    "Kramarz et Philippon, Journal of Public Economics 82(1), 2001 ; Abowd et al., NBER w6111, 1997",
+    "Dustmann et al., Quarterly Journal of Economics 137(1), 2022 ; Cengiz et al., Quarterly Journal of Economics, 2019",
+    "Harasztosi et Lindner, American Economic Review, 2019 ; Banque d'Espagne, document 2113, 2021",
+    "FMI, rapport sur la Belgique, 2023 ; indexation automatique au Luxembourg (code du travail luxembourgeois, art. L.223-1)",
+    "Assemblée nationale, rapport n° 610 (17 décembre 2022) et compte rendu de la séance du 24 novembre 2022 (retrait de la proposition de loi Corbière) ; LCP, 16 novembre 2022",
+    "Programme du Nouveau Front populaire, juin 2024 ; Politis, programme du Front de gauche, 2011"
+  ],
+  "niveau_de_confiance": "Moyen. Élevé sur le niveau du Smic, sa position par rapport au salaire médian, le cadre juridique et la constance des positions du candidat. Moyen sur le coût public et l'effet emploi, pour lesquels les estimations disponibles divergent fortement et viennent en partie d'instituts d'orientation identifiable.",
+  "limites": {
+    "synthese": "Coût et effet emploi reposent sur des chiffrages d'instituts orientés qui divergent fortement ; plusieurs chiffres sont secondaires.",
+    "texte": "Les chiffres Dares 2026 sont repris d'un site spécialisé, la page Dares étant inaccessible. Aucun chiffrage officiel (DG Trésor) d'une hausse de cette ampleur n'a été trouvé ; les estimations utilisées viennent de l'Institut Montaigne (libéral) et de la Fondation Jean-Jaurès citant l'OFCE (centre-gauche). Le ratio de 240 millions d'euros par point de Smic date de 2017, avant la réforme des allègements de 2026. Le texte de l'article L112-2 du code monétaire et financier n'a pas été lu sur Légifrance. Le programme 2025 n'a pas pu être consulté directement. Cette fiche remplace le volet Smic de la fiche du 31 août 2026, qui portait sur 1 600 € net."
+  },
+  "resume_court": "Jean-Luc Mélenchon veut porter le Smic à 1 700 € net, soit environ 15 % de plus, et indexer tous les salaires sur l'inflation. L'objectif est de permettre aux salariés modestes de vivre de leur travail malgré la hausse des prix.\n\nLa hausse est simple à décider, par décret, et touche directement les salariés concernés. Mais la France part du salaire minimum le plus élevé d'Europe par rapport au salaire médian, les petites entreprises n'ont plus d'aide prévue, et l'indexation générale pourrait entretenir l'inflation. Tout dépend de l'effet sur l'emploi peu qualifié, que les estimations situent entre quelques dizaines et plusieurs centaines de milliers d'emplois. Note : 56/100.",
+  "phrase_teasing": "En Allemagne, le salaire minimum n'a pas détruit d'emplois. Mais il partait de 47 % du salaire médian, et le Smic français en est à 62,5 %.",
+  "relecture": {
+    "titre": "Smic à 1 700 € : simple à décider, risqué pour les TPE",
+    "candidat": "Jean-Luc Mélenchon",
+    "parti": "La France insoumise",
+    "theme": "Emploi et chômage",
+    "date": "2026-11-02",
+    "version": 1,
+    "mesure_initiale": "Porter le Smic à 1 700 euros net par mois, avec une conférence exceptionnelle sur les salaires et une indexation généralisée des salaires sur l'inflation.",
+    "extrait": {
+      "citation": "« Ces mesures d'urgence sociale doivent être complétées par une hausse du SMIC à 1 700 euros net. Cette hausse sera accompagnée de la convocation d'une conférence exceptionnelle sur les salaires et d'une indexation généralisée de ceux-ci sur l'inflation. »",
+      "source": "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », p. 9, melenchon2027.fr, octobre 2026"
+    },
+    "verdict_tient": "la hausse se décide par décret, profite immédiatement aux salariés concernés, et prolonge une revendication constante depuis 2012.",
+    "verdict_flou": "l'effet sur l'emploi peu qualifié, le coût public (de 4 à 19 milliards par an), l'absence d'aide aux TPE et le risque de spirale prix-salaires lié à l'indexation.",
+    "niveau_confiance": "Moyen",
+    "questions": [
+      {
+        "titre": "Version retenue",
+        "texte": "La fiche analyse le Smic à 1 700 € net du contre-budget d'octobre 2026, et non les 1 600 € de la fiche du 31 août. Faut-il le signaler davantage sur la page de la déclaration ?"
+      },
+      {
+        "titre": "Smic et indexation dans la même fiche",
+        "texte": "Le candidat lie la hausse du Smic et l'indexation générale dans la même phrase. Faut-il les garder ensemble ou faire une fiche séparée pour l'indexation ?"
+      },
+      {
+        "titre": "Efficacité à 15/30",
+        "texte": "La note tient compte du gain direct de salaire, de la reprise partielle par la prime d'activité et du risque sur l'emploi peu qualifié. Les études étrangères récentes justifieraient-elles une note plus haute, ou le niveau déjà élevé du Smic une note plus basse ?"
+      },
+      {
+        "titre": "Budget à 4/10",
+        "texte": "Les estimations vont de 4 à 19 milliards d'euros par an. Faut-il retenir une fourchette plus resserrée, et avec quelle source neutre ?"
+      },
+      {
+        "titre": "Effets rebonds à 9/20",
+        "texte": "Le risque de boucle prix-salaires lié à l'indexation, dans un contexte de choc énergétique importé, est-il assez documenté pour peser davantage ?"
+      },
+      {
+        "titre": "Titre et teasing provisoires",
+        "texte": "Titre court proposé : « Le Smic à 1 700 € net ». Teasing : « En Allemagne, le salaire minimum n'a pas détruit d'emplois. Mais il partait de 47 % du salaire médian, et le Smic français en est à 62,5 %. » À ajuster ?"
+      }
+    ],
+    "archive": {
+      "date": "2026-11-04",
+      "version_suivante": "data/analyses finales/Melenchon/melenchon_smic_1700_etape3.json",
+      "reponses": []
+    }
+  }
 }
