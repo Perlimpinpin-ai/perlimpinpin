@@ -5,7 +5,7 @@ import { fusionnerRevision, lienRecherchePR, verifierRevisionFusionnable } from 
 // src/lib/github.js : PR de révision (bouton « Publier » de /test). API GitHub
 // simulée, aucun appel réseau.
 
-const PR_OUVERTE = { number: 12, html_url: "https://github.com/Perlimpinpin2027/perlimpinpin/pull/12" };
+const PR_OUVERTE = { number: 12, html_url: "https://github.com/Perlimpinpin-ai/perlimpinpin/pull/12" };
 
 // Réponses par URL (la dernière d'une liste se répète) ; `appels` garde tout.
 function fauxGitHub(routes) {
@@ -28,7 +28,7 @@ const opts = (gh) => ({ token: "t", fetchImpl: gh.fetchImpl, attente: 0 });
 test("verifierRevisionFusionnable : PR ouverte de revision/<slug>, fusionnable", async () => {
   const gh = fauxGitHub({ "pulls?state=open": { body: [PR_OUVERTE] }, "pulls/12": { body: { mergeable: true } } });
   assert.deepEqual(await verifierRevisionFusionnable("ma-fiche", opts(gh)), { ok: true, pr: { numero: 12, lien: PR_OUVERTE.html_url } });
-  assert.match(gh.appels[0].url, /\/repos\/Perlimpinpin2027\/perlimpinpin\/pulls\?state=open&head=Perlimpinpin2027%3Arevision%2Fma-fiche$/);
+  assert.match(gh.appels[0].url, /\/repos\/Perlimpinpin-ai\/perlimpinpin\/pulls\?state=open&head=Perlimpinpin-ai%3Arevision%2Fma-fiche$/);
   assert.equal(gh.appels[0].options.headers.Authorization, "Bearer t");
   assert.ok(gh.appels.every((a) => !a.options.method || a.options.method === "GET"), "lecture seule");
 });
@@ -78,13 +78,13 @@ test("fusionnerRevision : refus de GitHub expliqué", async () => {
 test("lienRecherchePR : recherche des PR de la branche, sans appel à l'API", () => {
   assert.equal(
     lienRecherchePR("ma-fiche"),
-    "https://github.com/Perlimpinpin2027/perlimpinpin/pulls?q=is%3Apr%20head%3Arevision%2Fma-fiche",
+    "https://github.com/Perlimpinpin-ai/perlimpinpin/pulls?q=is%3Apr%20head%3Arevision%2Fma-fiche",
   );
 });
 
 test("verifierRevisionFusionnable : PR déjà fusionnée à la main, publication autorisée sans fusion", async () => {
   const gh = fauxGitHub({ "pulls?state=open": { body: [] }, "pulls?state=closed": { body: [{ ...PR_OUVERTE, merged_at: "2026-10-25T14:41:31Z" }] } });
   assert.deepEqual(await verifierRevisionFusionnable("ma-fiche", opts(gh)), { ok: true, dejaFusionnee: true, pr: { numero: 12, lien: PR_OUVERTE.html_url } });
-  assert.match(gh.appels[1].url, /pulls\?state=closed&head=Perlimpinpin2027%3Arevision%2Fma-fiche$/);
+  assert.match(gh.appels[1].url, /pulls\?state=closed&head=Perlimpinpin-ai%3Arevision%2Fma-fiche$/);
   assert.ok(gh.appels.every((a) => !a.options.method || a.options.method === "GET"), "lecture seule");
 });

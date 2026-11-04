@@ -1,6 +1,6 @@
-// Tous les appels à l'API GitHub du site (dépôt Perlimpinpin2027/perlimpinpin),
+// Tous les appels à l'API GitHub du site (dépôt Perlimpinpin-ai/perlimpinpin),
 // avec le jeton GITHUB_DISPATCH_TOKEN (variable Vercel). Permissions du jeton
-// (fine-grained, ce seul dépôt) : Actions, Contents et Pull requests en
+// (fine-grained, propriétaire Perlimpinpin-ai, ce seul dépôt) : Actions, Contents et Pull requests en
 // « Read and write ».
 //
 // - declencherRevision : bouton « Envoyer en révision » (/relectures), lance
@@ -12,7 +12,7 @@
 // Logique sans Next.js : fetch est injectable (tests : scripts/github.test.js,
 // scripts/relecture-revision.test.js).
 
-export const DEPOT = "Perlimpinpin2027/perlimpinpin";
+export const DEPOT = "Perlimpinpin-ai/perlimpinpin";
 export const WORKFLOW = "revision-relecture.yml";
 export const SLUG_PATTERN = /^[a-z0-9-]{1,120}$/;
 const PROPRIETAIRE = DEPOT.split("/")[0];

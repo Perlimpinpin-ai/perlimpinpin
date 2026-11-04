@@ -1271,6 +1271,38 @@ export function fusionnerReponseCorrigee(premiere, corrigee) {
   return fusion;
 }
 
+// Révision (commentaires du Club) : la fiche relue est réécrite en entier,
+// avec recherches web, et le modèle en omet parfois un bloc qu'il n'a pas
+// modifié (ex. 4 novembre 2026, Mélenchon carburant : mesure_vers_objectif
+// absent → « structure toujours invalide après tentative de réparation »).
+// Un bloc de texte manquant est repris, dans l'ordre : à la racine de la
+// réponse s'il y a été placé, sinon tel qu'il était dans la fiche relue.
+// Jamais pour la notation (analyse_par_criteres, notation_detaillee,
+// verdict_final) : elle doit venir de la nouvelle réponse.
+export const BLOCS_TEXTE_RECONDUCTIBLES = [
+  "mesure_reformulee", "mesure_vers_objectif", "nature_et_existant", "contexte_programme",
+  "contexte_national", "contexte_international", "impact_environnement", "analyse_longevites",
+  "impact_temporel_et_sectoriel", "ce_qui_est_etabli", "ce_qui_est_probable", "ce_qui_est_discutable",
+  "ce_qui_est_inconnu", "angles_morts", "sources_utilisees", "niveau_de_confiance", "limites",
+];
+
+export function completerAvecFicheRelue(fiche, arbitrage3, ficheRelue) {
+  const complete = { ...(fiche ?? {}) };
+  const repris = [];
+  for (const cle of BLOCS_TEXTE_RECONDUCTIBLES) {
+    if (complete[cle] !== undefined) continue;
+    if (arbitrage3?.[cle] !== undefined) {
+      complete[cle] = arbitrage3[cle];
+      repris.push(`${cle} (racine de la réponse)`);
+    } else if (ficheRelue?.[cle] !== undefined) {
+      complete[cle] = ficheRelue[cle];
+      repris.push(`${cle} (fiche relue, inchangé)`);
+    }
+  }
+  if (repris.length) console.error(`  ↺  Étape 3 : bloc(s) absent(s) de fiche_complete, repris : ${repris.join(", ")}.`);
+  return complete;
+}
+
 // --- Orchestration du pipeline (étapes 2 et 3) ------------------------------
 // L'étape 1 (recherche + analyse) est produite manuellement, en dehors de ce
 // script — voir loadEtape1() ci-dessus. Le pipeline automatisé enchaîne
@@ -1327,7 +1359,8 @@ async function runPipeline(etape1Input, { commentaires = null, candidatNom = nul
   }
 
   const auditArbitrage = Array.isArray(arbitrage3.auditArbitrage) ? [...arbitrage3.auditArbitrage] : [];
-  const rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
+  let rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
+  if (commentaires) rawFicheComplete = completerAvecFicheRelue(rawFicheComplete, arbitrage3, etape1);
   const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3");
 
   // titre_fiche/resume_court/teaser_accueil/verdict_final sont produits à la
