@@ -1,0 +1,170 @@
+{
+  "auditArbitrage": [
+    {
+      "remarque": "Le coût annoncé de 9,5 milliards d'euros semble sous-estimé (14-16 milliards estimés par l'analyste)",
+      "statut": "rejetee",
+      "raison": "Cette observation confirme l'analyse initiale sans la contredire ni apporter d'élément nouveau ; elle ne modifie aucun critère ni aucune note."
+    },
+    {
+      "remarque": "La note operationnalite_budgetaire (3/10) est cohérente, aucune incohérence",
+      "statut": "rejetee",
+      "raison": "Confirmation sans impact : ne modifie aucun champ."
+    },
+    {
+      "remarque": "La note efficacite (17/30) aurait pu justifier une qualification SOLIDE pour la partie établie du mécanisme",
+      "statut": "rejetee",
+      "raison": "Suggestion non étayée par un fait nouveau : le mécanisme direct ne concerne qu'une partie des bénéficiaires (ciblage incertain, non-recours documenté, désincitation au travail étudiant), ce qui justifie le maintien d'INCERTAIN documenté. Remplacer par SOLIDE reviendrait à ignorer les limites déjà identifiées dans l'analyse elle-même."
+    },
+    {
+      "remarque": "La règle de plafond est correctement appliquée",
+      "statut": "rejetee",
+      "raison": "Confirmation sans impact : ne modifie aucun champ."
+    },
+    {
+      "remarque": "L'absence de précision sur l'articulation avec les aides existantes pourrait modifier l'efficacité et le coût réel",
+      "statut": "rejetee",
+      "raison": "Déjà couvert explicitement dans ce_qui_est_inconnu et angles_morts ; aucune information nouvelle n'est apportée, l'impact sur la note est reconnu comme limité par Mistral lui-même."
+    }
+  ],
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Garantir aux jeunes au moins le seuil de pauvreté, 1 337 € par mois, pour 9,5 milliards annoncés.",
+      "texte": "Jean-Luc Mélenchon propose d'« avancer immédiatement vers la garantie d'autonomie pour les jeunes », qui financera « leur réussite durant les études et la formation » : **« plus aucun jeune ne doit vivre sous le seuil de pauvreté, fixé à 1 337 euros par mois »**, pour un coût de **9,5 milliards d'euros** (contre-budget LFI 2027, p. 8).\n\nLe document ne précise ni la tranche d'âge, ni les conditions de ressources, ni l'articulation avec les bourses ou le contrat d'engagement jeune. **Hypothèse de l'analyste**, reprise des versions précédentes de LFI (programme 2022, amendement au budget 2026 déposé en novembre 2025) : un complément de revenu jusqu'au seuil de pauvreté, versé aux jeunes de 18 à 25 ans en études ou en formation, sous conditions de ressources, s'ils ne sont plus rattachés au foyer fiscal de leurs parents."
+    },
+    "mesure_vers_objectif": {
+      "objectif_court": "Sortir les jeunes de la pauvreté",
+      "categorie_objectif": "Fiscalité et pouvoir d'achat",
+      "objectif_vise": "Qu'aucun jeune ne vive sous le seuil de pauvreté et que les jeunes puissent financer leurs études ou leur formation.",
+      "mecanisme_propose": "Une allocation différentielle complète les ressources des jeunes jusqu'à 1 337 € par mois.",
+      "lien_causal": "direct"
+    },
+    "nature_et_existant": "Mesure budgétaire et sociale. Les moins de 25 ans sont aujourd'hui exclus du RSA, sauf exceptions très rares (734 bénéficiaires du « RSA jeune actif » en 2019). Ils disposent du contrat d'engagement jeune (au plus 561,68 € par mois, environ 102 000 allocataires fin 2024) et des bourses sur critères sociaux (145 à 634 € par mois, 656 000 étudiants en 2025-2026). La garantie d'autonomie serait donc une véritable innovation en France : un revenu minimum propre aux jeunes, à un niveau plus de deux fois supérieur au RSA d'une personne seule (646,52 € en avril 2025). Elle ressemble à l'allocation étudiante universelle du Danemark, sans en avoir les mêmes conditions.",
+    "contexte_programme": {
+      "synthese": "Mesure portée par LFI depuis 2017, désormais au seuil de pauvreté, mais pour un coût annoncé en baisse.",
+      "texte": "La garantie s'inscrit dans le volet « urgence sociale » du contre-budget, avec le **Smic à 1 700 € net** et le **blocage du carburant**, analysés dans deux fiches séparées. Le contre-budget la range dans une enveloppe de **37,5 milliards d'euros** pour « relancer l'activité par les revenus des classes populaires » (p. 12), financée par environ 106 milliards de recettes nouvelles (impôt sur la fortune, suppression de la flat tax, taxe Zucman, successions, niches fiscales). Le document précise qu'il « ne constitue pas un chiffrage complet du programme » (p. 7).\n\nInteractions : un Smic à 1 700 € net rend plus attractif le travail des jeunes qui ne sont pas en formation, ce qui limite le risque de désincitation pour eux ; mais un revenu garanti de 1 337 € pour les jeunes en formation n'est que 363 € sous ce Smic.\n\nCette mesure remplace, dans le contre-budget, l'engagement plus large de la fiche du 31 août 2026 (relever tous les minima sociaux au seuil de pauvreté), qui n'y figure plus."
+    },
+    "contexte_national": {
+      "synthese": "1,5 million de 18-29 ans vivent sous le seuil de pauvreté, et ce chiffre augmente depuis trois ans.",
+      "texte": "**Le problème est réel et s'aggrave.** Selon l'Insee, le taux de pauvreté des 18-29 ans est passé de 16,2 % en 2022 à **18,6 % en 2024, soit 1,5 million de jeunes**. Le seuil de 1 337 € correspond bien au seuil de pauvreté à 60 % du niveau de vie médian en 2024 (Insee Première n° 2117, juillet 2026). Ces chiffres sous-estiment la précarité étudiante : l'enquête exclut les ménages dont la personne de référence est étudiante et les jeunes en résidence collective. Selon l'Observatoire de la vie étudiante (2023), 19 % des étudiants n'ont pas pu faire face à leurs besoins de base et 44 % travaillent.\n\n**Le coût annoncé paraît sous-estimé.** En 2022, LFI chiffrait la même garantie, avec un seuil de 1 063 €, à **10,3 milliards d'euros** ; l'Institut Montaigne, d'orientation libérale, l'estimait à 12,3 milliards pour environ 1,16 million de bénéficiaires, sans tenir compte des changements de comportement. Le seuil passe à 1 337 € (plus 26 %), mais le coût annoncé baisse à 9,5 milliards. En ajoutant les 274 € d'écart à chaque bénéficiaire de l'estimation de 2022, on obtient environ **14 milliards à partir du chiffrage LFI de 2022, et 16 milliards à partir de celui de l'Institut Montaigne** (estimation de l'analyste, à population constante, sans nouveaux éligibles ni inflation). Pour comparaison, la DREES chiffrait en 2016 l'ouverture du RSA dès 18 ans, à un montant bien plus faible, à 5,8 milliards d'euros nets."
+    },
+    "contexte_international": {
+      "synthese": "Le Danemark verse une allocation à tous ses étudiants, mais aucun pays ne garantit le seuil de pauvreté aux jeunes.",
+      "texte": "Le Danemark verse à ses étudiants une allocation universelle (SU). Une étude de 2025 sur les étudiants européens éligibles (Petersen, CEBI) montre qu'elle **augmente leur probabilité de travailler pendant les études, sans effet sur l'emploi après**, mais aucune évaluation générale du dispositif n'a été trouvée. Au Québec, avant 1989, les moins de 30 ans sans enfant touchaient une aide sociale 60 % plus faible ; une aide plus généreuse a réduit leur emploi (Lemieux et Milligan, *Journal of Econometrics*, 2008). **Transposabilité limitée** : aucun de ces dispositifs n'atteint le seuil de pauvreté sous forme d'allocation différentielle."
+    },
+    "impact_environnement": null,
+    "analyse_longevites": {
+      "synthese": "Effet immédiat sur la pauvreté des bénéficiaires ; effets durables possibles sur les études, encore non démontrés.",
+      "texte": "**Court terme (0 à 2 ans)** : hausse immédiate du revenu des bénéficiaires, au rythme de la montée en charge des caisses. **Moyen terme (2 à 7 ans)** : effet possible sur la réussite des études (moins de travail contraint) mais aussi sur les comportements (détachement fiscal, moindre travail étudiant), qui détermineront le coût réel. **Long terme** : si la garantie améliore la qualification, elle peut renforcer l'emploi futur ; aucune évaluation ne le démontre pour un dispositif de ce niveau."
+    },
+    "impact_temporel_et_sectoriel": {
+      "synthese": "Revenu directement dépensé par des jeunes modestes, effet faible sur les prix et nul sur les banques.",
+      "texte": "**Consommation** : les jeunes modestes dépensent presque tout revenu supplémentaire, ce que le contre-budget revendique (« pouvoir d'achat directement injecté dans leur consommation courante »). **Inflation** : effet faible au niveau national ; pression possible sur les loyers étudiants dans les villes universitaires tendues, comme pour les aides au logement. **Stabilité bancaire** : pas d'effet identifiable."
+    },
+    "ce_qui_est_etabli": {
+      "synthese": "Le seuil de pauvreté 2024 est bien de 1 337 €, et 18,6 % des 18-29 ans vivent en dessous.",
+      "texte": "Le seuil de 1 337 € correspond au **seuil de pauvreté 2024 de l'Insee**. **1,5 million de jeunes de 18 à 29 ans** vivent sous ce seuil, un chiffre en hausse depuis 2022. Les moins de 25 ans n'ont pas accès au RSA, sauf exceptions. LFI défend cette garantie depuis 2017 et la chiffrait à 10,3 milliards d'euros en 2022, avec un seuil de 1 063 €."
+    },
+    "ce_qui_est_probable": {
+      "synthese": "Le coût dépasserait les 9,5 milliards annoncés, vers 14 à 16 milliards avant effets de comportement.",
+      "texte": "En appliquant le nouveau seuil aux chiffrages de 2022, le coût atteindrait **14 à 16 milliards d'euros par an** (estimation de l'analyste). Des familles seraient incitées à détacher fiscalement leurs enfants pour qu'ils deviennent éligibles, ce qui augmenterait encore la dépense. Une partie des jeunes éligibles ne demanderait pas l'allocation, ce qui réduirait le coût mais aussi l'efficacité."
+    },
+    "ce_qui_est_discutable": {
+      "synthese": "L'effet sur le travail étudiant et la réussite des études, et l'ampleur du détachement fiscal.",
+      "texte": "Retirer un euro d'allocation par euro gagné décourage le travail étudiant, ce qui peut être un effet voulu (plus de temps pour étudier) ou un effet pervers (moins d'expérience professionnelle). L'ampleur du détachement fiscal dépend de conditions que le candidat n'a pas fixées, notamment la prise en compte ou non des revenus des parents."
+    },
+    "ce_qui_est_inconnu": {
+      "synthese": "L'âge, les conditions de ressources, le traitement des étudiants et la méthode de chiffrage des 9,5 milliards.",
+      "texte": "Le contre-budget ne dit pas **qui serait éligible** (tranche d'âge, étudiants, jeunes en emploi, jeunes vivant chez leurs parents), si les revenus des parents comptent, ni comment la garantie s'articule avec les bourses, les aides au logement et le contrat d'engagement jeune. La méthode de calcul des 9,5 milliards n'est pas publiée."
+    },
+    "angles_morts": {
+      "synthese": "Les jeunes pauvres des familles pauvres risquent d'être exclus, tandis que des familles aisées pourraient en profiter.",
+      "texte": "**Ciblage à rebours** : si l'éligibilité dépend du détachement fiscal et des seules ressources du jeune, un jeune issu d'une famille pauvre mais rattaché à ses impôts pourrait être exclu, alors qu'un jeune issu d'une famille aisée, détaché, pourrait toucher le maximum. **Écart avec le Smic** : 1 337 € garantis en formation, contre 1 700 € net au Smic proposé, réduisent l'intérêt d'un emploi à temps partiel. **Alternatives au même objectif** : une revalorisation forte des bourses et leur extension, ou l'ouverture du RSA dès 18 ans (5,8 milliards selon la DREES en 2016), coûteraient moins cher, au prix d'un montant plus faible. **Double comptage évité** : la désincitation au travail est discutée en Efficacité pour son effet sur l'objectif, et le détachement fiscal en Effets rebonds pour son effet sur le coût."
+    },
+    "notation_detaillee": {
+      "operationnalite_juridique": 9,
+      "qualification_juridique": "SOLIDE",
+      "operationnalite_budgetaire": 3,
+      "qualification_budgetaire": "INCERTAIN",
+      "operationnalite_moyens_humains": 7,
+      "qualification_moyens_humains": "INCERTAIN",
+      "operationnalite_moyens_total": 19,
+      "plafond_applique": false,
+      "plafond_declencheur": null,
+      "efficacite": 17,
+      "qualification_efficacite": "INCERTAIN",
+      "effets_rebonds_externalites": 9,
+      "qualification_effets_rebonds": "INCERTAIN",
+      "degre_preparation": 3,
+      "qualification_preparation": "INCERTAIN",
+      "alignement_logique": 9,
+      "qualification_alignement": "SOLIDE",
+      "score_total": 57,
+      "appreciation": "plausible sous condition"
+    },
+    "verdict_final": "La pauvreté des jeunes est réelle et s'aggrave : 1,5 million de 18-29 ans vivent sous le seuil de 1 337 € par mois, et ce seuil est exact. La garantie d'autonomie, portée par LFI depuis 2017, supprimerait mécaniquement cette pauvreté pour ceux qui la touchent.\n\nMais le chiffrage ne tient pas : 9,5 milliards d'euros annoncés, alors que LFI elle-même évaluait un seuil inférieur de 26 % à 10,3 milliards en 2022. En actualisant ce chiffrage, le coût réel approcherait plutôt 14 à 16 milliards par an, avant même de compter les effets de comportement comme le détachement fiscal des jeunes de familles aisées.\n\nLe public exact éligible n'est pas défini dans le contre-budget, ce qui laisse planer une incertitude à la fois sur le coût final et sur l'efficacité réelle de la mesure pour les jeunes les plus pauvres.",
+    "sources_utilisees": [
+      "La France insoumise, contre-budget 2027 « Comment nous allons remettre de l'ordre dans les comptes publics », melenchon2027.fr, octobre 2026, p. 7, 8, 12 et 14",
+      "Insee Première n° 2117, juillet 2026, niveau de vie et pauvreté en 2024 ; Insee, taux de pauvreté par âge (série publiée en juillet 2026)",
+      "DREES, Minima sociaux et prestations sociales, édition 2025, fiche 23 (RSA) et fiche 31 (contrat d'engagement jeune)",
+      "Ministère de l'Enseignement supérieur, SIES, Note Flash n° 23, boursiers 2025-2026, octobre 2026",
+      "Sénat, rapport n° 267 (2020-2021) sur la proposition de loi relative aux droits nouveaux dès 18 ans (cite la DREES, 2016)",
+      "Institut Montaigne, chiffrage de la garantie d'autonomie de Jean-Luc Mélenchon, février 2022, et micro-chiffrages NFP, juin 2024 (orientation libérale)",
+      "Terra Nova, T. Chevalier, « Soutenir les jeunes adultes », janvier 2022 (centre-gauche) ; Observatoire des inégalités, mai 2021",
+      "Bargain et Doorley, Journal of Public Economics 95(9-10), 2011 ; Lemieux et Milligan, Journal of Econometrics 142(2), 2008",
+      "Petersen, CEBI Working Paper 13/25, université de Copenhague, novembre 2025",
+      "DREES, Les dossiers de la DREES, mesure du non-recours au RSA, 2022",
+      "Observatoire de la vie étudiante, OVE Infos n° 48, septembre 2024",
+      "Assemblée nationale, scrutin n° 2864 du 3 novembre 2023 (amendement Boyard) et amendement CF1736 au PLF 2026 (novembre 2025)"
+    ],
+    "niveau_de_confiance": "Moyen. Élevé sur l'ampleur de la pauvreté des jeunes, le seuil retenu, les dispositifs existants et la constance de la position du candidat. Moyen sur le coût et les effets de comportement, car le public visé n'est pas défini dans le contre-budget et l'analyse repose sur une hypothèse tirée des versions précédentes. Réduit sur l'objectif de référence lui-même : selon le document de référence des objectifs par domaine, l'ancrage constitutionnel du domaine Fiscalité et pouvoir d'achat reste à vérifier.",
+    "limites": {
+      "synthese": "La note repose sur une hypothèse de public tirée d'anciens textes LFI, et le chiffrage alternatif est une extrapolation.",
+      "texte": "Le contre-budget ne définit pas le public visé ; l'analyse retient les conditions des versions de 2022 et 2025. Le texte de la p. 8 a été lu par fragments. L'estimation de 14 à 16 milliards est une extrapolation linéaire de l'analyste à partir des chiffrages de LFI et de l'Institut Montaigne en 2022, sans nouveaux éligibles, inflation ni effets de comportement. L'étude France Stratégie de 2021 et l'intensité de la pauvreté des jeunes en 2024 n'ont pas été retrouvées. Le domaine Fiscalité et pouvoir d'achat a un ancrage de référence encore à vérifier. Cette fiche remplace le volet minima sociaux de la fiche du 31 août 2026 : celle-ci comptait 4,25 millions d'allocataires du RSA, alors que ce chiffre correspond à l'ensemble des minima sociaux (1,84 million de foyers au RSA fin 2024 selon la DREES)."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 19,
+        "note_max": 30,
+        "plafond_applique": false,
+        "plafond_declencheur": null,
+        "texte": "Créer cette allocation relève d'une **loi ordinaire sans obstacle constitutionnel identifié**, ce qui explique la bonne note juridique. Le volet budgétaire est en revanche le point faible : à partir des propres chiffrages de LFI en 2022, **le coût réel se situerait plutôt entre 14 et 16 milliards d'euros, contre 9,5 milliards annoncés**, sans ligne de financement dédiée identifiable. Les CAF et les Crous savent verser des allocations sous conditions de ressources, mais la montée en charge de 100 000 à plus d'un million de bénéficiaires demande une préparation administrative conséquente."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 17,
+        "note_max": 30,
+        "texte": "**Pour chaque jeune qui la touche, la garantie supprime la pauvreté monétaire par construction**, ce qui constitue un mécanisme direct et solide. Mais trois limites réduisent sa portée réelle : selon l'hypothèse retenue, un jeune pauvre resté rattaché au foyer fiscal de ses parents pourrait être exclu ; **le non-recours est élevé chez les jeunes, 34 % des foyers éligibles au RSA ne le demandant pas** ; et le caractère différentiel de l'allocation décourage le travail étudiant jusqu'au seuil de 1 337 €. La recherche académique (Bargain et Doorley, 2011) confirme qu'un revenu minimum peut réduire l'activité des jeunes peu diplômés, un effet toutefois atténué par la condition de formation."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 9,
+        "note_max": 20,
+        "texte": "**La condition de détachement du foyer fiscal des parents crée une forte incitation à l'optimisation** : l'avantage fiscal du rattachement, plafonné, pèse peu face à une allocation pouvant dépasser 16 000 € par an. L'Institut Montaigne chiffrait d'ailleurs une version sans condition de ressources à 21,4 milliards d'euros, ce qui illustre l'ampleur du risque si le ciblage réel s'avère moins strict qu'annoncé. S'y ajoute la désincitation au travail étudiant, un coût qui n'est par ailleurs intégré à aucune trajectoire de dette publique présentée."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 3,
+        "note_max": 10,
+        "texte": "**Le contre-budget ne précise ni l'âge, ni les conditions de ressources, ni la méthode de calcul des 9,5 milliards annoncés**, ce qui laisse la mesure à l'état de principe plutôt que de dispositif opérationnel. Le montant du seuil est affiché, mais le chiffrage qui l'accompagne est incohérent avec celui produit par le même parti en 2022 pour un seuil inférieur."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 9,
+        "note_max": 10,
+        "texte": "**La garantie d'autonomie est défendue par LFI sans interruption depuis 2017**, portée par amendement en novembre 2023 puis en novembre 2025, et reprise par le Nouveau Front populaire en 2024. Cette constance programmatique renforce la cohérence de la mesure avec le reste du projet politique du candidat."
+      }
+    ],
+    "verdict_conclusion": "Une mesure juridiquement simple mais dont le chiffrage budgétaire est manifestement sous-estimé et le public cible encore indéfini."
+  },
+  "titre_fiche": "Un revenu garanti pour les jeunes",
+  "resume_court": "Jean-Luc Mélenchon veut qu'aucun jeune ne vive sous le seuil de pauvreté, fixé à 1 337 € par mois, grâce à une garantie d'autonomie qui compléterait leurs ressources pendant leurs études ou leur formation. Le problème qu'elle cible est bien réel : 1,5 million de jeunes de 18 à 29 ans sont aujourd'hui pauvres, et ce chiffre augmente depuis trois ans.\n\nPour ceux qui la touchent, la garantie fonctionne par construction. Mais le coût annoncé, 9,5 milliards d'euros, est étonnamment plus bas que celui calculé par LFI elle-même en 2022, avec un seuil pourtant inférieur : nos calculs, à partir de ce chiffrage, donnent plutôt 14 à 16 milliards. Le contre-budget ne dit surtout pas qui serait précisément éligible, une question qui détermine à la fois le coût final et l'efficacité réelle de la mesure pour les jeunes les plus pauvres.",
+  "teaser_accueil": "En 2022, LFI chiffrait sa garantie jeunes à 10,3 milliards pour un seuil plus bas. Avec un seuil relevé de 26 %, la facture annoncée baisse... à 9,5 milliards.",
+  "verdict_final": "La pauvreté des jeunes est réelle et s'aggrave : 1,5 million de 18-29 ans vivent sous le seuil de 1 337 € par mois, et ce seuil est exact. La garantie d'autonomie, portée par LFI depuis 2017, supprimerait mécaniquement cette pauvreté pour ceux qui la touchent.\n\nMais le chiffrage ne tient pas : 9,5 milliards d'euros annoncés, alors que LFI elle-même évaluait un seuil inférieur de 26 % à 10,3 milliards en 2022. En actualisant ce chiffrage, le coût réel approcherait plutôt 14 à 16 milliards par an, avant même de compter les effets de comportement comme le détachement fiscal des jeunes de familles aisées.\n\nLe public exact éligible n'est pas défini dans le contre-budget, ce qui laisse planer une incertitude à la fois sur le coût final et sur l'efficacité réelle de la mesure pour les jeunes les plus pauvres.",
+  "verdict_conclusion": "Une mesure juridiquement simple mais dont le chiffrage budgétaire est manifestement sous-estimé et le public cible encore indéfini."
+}
