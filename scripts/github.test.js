@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fusionnerRevision, lienRecherchePR, verifierRevisionFusionnable } from "../src/lib/github.js";
+import { depotGitHub, fusionnerRevision, lienRecherchePR, verifierRevisionFusionnable } from "../src/lib/github.js";
 
 // src/lib/github.js : PR de révision (bouton « Publier » de /test). API GitHub
 // simulée, aucun appel réseau.
@@ -87,4 +87,12 @@ test("verifierRevisionFusionnable : PR déjà fusionnée à la main, publication
   assert.deepEqual(await verifierRevisionFusionnable("ma-fiche", opts(gh)), { ok: true, dejaFusionnee: true, pr: { numero: 12, lien: PR_OUVERTE.html_url } });
   assert.match(gh.appels[1].url, /pulls\?state=closed&head=Perlimpinpin-ai%3Arevision%2Fma-fiche$/);
   assert.ok(gh.appels.every((a) => !a.options.method || a.options.method === "GET"), "lecture seule");
+});
+
+// Dépôt déplacé (Perlimpinpin2027 → Perlimpinpin-ai, novembre 2026) : le dépôt
+// est lu dans les variables système de Vercel, plus en dur dans le code.
+test("depotGitHub : variables Vercel, GITHUB_DEPOT prioritaire, valeur par défaut", () => {
+  assert.equal(depotGitHub({ VERCEL_GIT_REPO_OWNER: "Org", VERCEL_GIT_REPO_SLUG: "site" }), "Org/site");
+  assert.equal(depotGitHub({ GITHUB_DEPOT: "A/b", VERCEL_GIT_REPO_OWNER: "Org", VERCEL_GIT_REPO_SLUG: "site" }), "A/b");
+  assert.equal(depotGitHub({}), "Perlimpinpin-ai/perlimpinpin");
 });

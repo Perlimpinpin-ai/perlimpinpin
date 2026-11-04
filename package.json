@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test scripts/**/*.test.js",
+    "test": "node --test \"scripts/**/*.test.js\"",
     "vignettes": "node scripts/vignettes-photos.js",
     "postinstall": "prisma generate"
   },

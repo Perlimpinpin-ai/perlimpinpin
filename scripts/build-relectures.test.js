@@ -34,8 +34,15 @@ function zone(html, id) {
   return html.slice(debut, fin < 0 ? undefined : fin);
 }
 
+// Fiches à l'ancien format (sections en texte simple) : les fiches au format
+// accordéon (sections { synthese, texte }) ont leurs propres tests.
+const fichesTexteSimple = () =>
+  readdirSync(DATA_DIR)
+    .filter((x) => x.endsWith(".json"))
+    .filter((f) => typeof lire(f.replace(/\.json$/, "")).contexte_national === "string");
+
 test("texte simple : aucune synthèse affichée pour les fiches déjà en ligne", () => {
-  for (const f of readdirSync(DATA_DIR).filter((x) => x.endsWith(".json"))) {
+  for (const f of fichesTexteSimple()) {
     const slug = f.replace(/\.json$/, "");
     assert.doesNotMatch(renderVue(slug, lire(slug)), /class="synthese"/, slug);
   }
@@ -65,7 +72,7 @@ test("accordéon : synthèse en tête de section, puis le texte découpé en par
 });
 
 test("accordéon : mêmes identifiants et même texte qu'en texte simple, synthèses en plus", () => {
-  for (const f of readdirSync(DATA_DIR).filter((x) => x.endsWith(".json"))) {
+  for (const f of fichesTexteSimple()) {
     const slug = f.replace(/\.json$/, "");
     const fiche = lire(slug);
     const accordeon = renderVue(slug, enAccordeon(fiche));

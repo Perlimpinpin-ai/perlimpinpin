@@ -141,7 +141,7 @@ function erreursSortieEtape3(sortie) {
 }
 
 export function slugDepuisChemin(chemin) {
-  const slug = path.basename(chemin).replace(/\.json$/i, "");
+  const slug = path.win32.basename(chemin).replace(/\.json$/i, ""); // win32 : accepte / et \
   if (!SLUG_PATTERN.test(slug)) {
     throw new RelectureError(
       `Nom de fichier invalide : « ${slug} ». Le slug (nom sans .json) doit respecter ${SLUG_PATTERN} (minuscules, chiffres, tirets).`,
