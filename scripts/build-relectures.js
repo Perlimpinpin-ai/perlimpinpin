@@ -2,6 +2,12 @@
 //
 // Usage : node scripts/build-relectures.js
 //
+// La page générée n'est PAS commitée (.gitignore) : `npm run build` la génère
+// à chaque déploiement Vercel. Avant le 4 novembre 2026 elle était commitée par
+// chaque révision, et deux révisions lancées en parallèle se retrouvaient en
+// conflit sur ce fichier (PR #64, Smic à 1 700 €). Lancer ce script en local
+// sert seulement à prévisualiser la page et à vérifier les fiches.
+//
 // Chaque fichier data/relectures/<slug>.json est une analyse au format Étape 1
 // (mêmes clés que "data/analyses finales/"), complétée d'un bloc `relecture`
 // propre à la page (titre provisoire, candidat, parti, thème du filtre, date,

@@ -16,9 +16,10 @@
 //       → mêmes vérifications, puis demande de taper « oui » et fait
 //         git add + git commit + git push sur ces seuls fichiers :
 //           data/relectures/<slug>.json
-//           public/relectures/index.html
 //           la version suivante (relecture.archive.version_suivante)
 //         Les autres fichiers modifiés ne sont jamais inclus.
+//         public/relectures/index.html n'est plus commitée : Vercel la génère
+//         à chaque déploiement (npm run build), voir .gitignore.
 //
 // Garde-fous : branche main uniquement, copie à jour avec origin/main,
 // bloc archive présent, version suivante présente, JSON valide et au format
@@ -103,7 +104,7 @@ const archive = fiche.relecture?.archive;
 if (!archive) fail(`${source} : pas de bloc relecture.archive. La relecture n'a pas encore été traitée.`);
 if (!/^\d{4}-\d{2}-\d{2}$/.test(archive.date ?? "")) fail(`${source} : archive.date manquante ou pas au format AAAA-MM-JJ.`);
 
-const fichiers = [source, "public/relectures/index.html"];
+const fichiers = [source];
 const suivante = archive.version_suivante;
 if (suivante) {
   if (!existsSync(join(ROOT, suivante))) fail(`version suivante introuvable : ${suivante}`);

@@ -62,3 +62,7 @@ dev.db
 
 # Filet de secours de extractJson (scripts/analyze.js) : réponse brute à vérifier
 recovered-analysis-*.txt
+
+# page /relectures : générée au build (scripts/build-relectures.js), jamais commitée
+# (deux révisions en parallèle la réécrivaient toutes les deux → PR en conflit).
+/public/relectures/index.html

@@ -151,7 +151,7 @@ export async function reviser(slug, { sortie, root = ROOT, lire = lireBase, lanc
   const dossiers = relierFicheAuxDossiers({ root, slug, propositionId: resultat.propositionId });
   if (dossiers.length) log(`✓ Fiche reliée au(x) dossier(s) : ${dossiers.join(", ")} (proposition #${resultat.propositionId}).`);
 
-  const fichiers = [`data/relectures/${slug}.json`, "public/relectures/index.html", sorties.etape3, sorties.mistral, ...dossiers];
+  const fichiers = [`data/relectures/${slug}.json`, sorties.etape3, sorties.mistral, ...dossiers];
   writeFileSync(path.join(sortie, "fichiers.txt"), `${fichiers.join("\n")}\n`);
   const rapport = rapportMarkdown({ slug, relecture, notationAvant: ficheRelue.notation_detaillee, resultat, commentaires, theme, avertissements });
   writeFileSync(path.join(sortie, "rapport.md"), rapport);

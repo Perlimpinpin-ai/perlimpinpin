@@ -375,7 +375,7 @@ test("reviser : analyze.js lancé avec les bons paramètres, sorties écrites, a
   assert.ok(existsSync(path.join(root, "data/analyses finales/Zemmour/ma_fiche_etape3.json")));
   assert.ok(existsSync(path.join(root, "data/analyses finales/Zemmour/ma_fiche_etape2_mistral.json")));
   assert.deepEqual(fichiers, [
-    "data/relectures/ma-fiche.json", "public/relectures/index.html",
+    "data/relectures/ma-fiche.json",
     "data/analyses finales/Zemmour/ma_fiche_etape3.json", "data/analyses finales/Zemmour/ma_fiche_etape2_mistral.json",
   ]);
   assert.match(readFileSync(path.join(sortie, "rapport.md"), "utf8"), /\/test\/61/);
