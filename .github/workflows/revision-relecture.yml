@@ -135,6 +135,18 @@ jobs:
             cat "$rapport"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # Sorties brutes de Claude sauvegardées par analyze.js quand le JSON a dû
+      # être récupéré ou réparé : seul moyen de comprendre un échec d'étape 3.
+      - name: Sorties brutes de Claude
+        if: ${{ failure() && (hashFiles('recovered-analysis-*.txt') != '' || hashFiles('failed-analysis-*.txt') != '') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sorties-brutes-${{ inputs.slug }}-${{ github.run_id }}
+          path: |
+            recovered-analysis-*.txt
+            failed-analysis-*.txt
+          retention-days: 30
+
       # logs/ n'est pas conservé sur le serveur GitHub : le journal des
       # insertions (analyse créée en brouillon) est gardé ici 90 jours.
       - name: Journal des insertions
