@@ -19,14 +19,17 @@ const DEFAULT_TEXT =
 // `buttonLabel` : texte du bouton (modifiable pour la page d'accueil).
 // `embedded` : le bandeau est posé dans une page qui gère déjà ses marges
 // (ex. page d'analyse) — on retire alors la <section> à marges propres.
+// `compact` : version rétrécie (page d'accueil, où l'encart de don est posé
+// juste à côté) — titre plus petit, texte et bouton l'un sous l'autre.
 export default function SupportBanner({
   title = DEFAULT_TITLE,
   text = DEFAULT_TEXT,
   buttonLabel = "Rejoignez-nous →",
   embedded = false,
+  compact = false,
 }) {
   const card = (
-    <div className="relative mx-auto w-full max-w-[1280px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+    <div className="relative mx-auto h-full w-full max-w-[1280px] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
       {/* Image : en haut sur mobile, à gauche (≈ 60 %) sur grand écran */}
       <div className="relative h-40 w-full sm:h-52 lg:absolute lg:inset-y-0 lg:left-0 lg:h-auto lg:w-[65%]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -44,12 +47,30 @@ export default function SupportBanner({
       </div>
 
       {/* Texte + bouton */}
-      <div className="relative flex flex-col gap-5 px-6 pb-6 pt-2 lg:ml-auto lg:min-h-[250px] lg:w-[46%] lg:justify-center lg:py-10 lg:pl-0 lg:pr-8">
-        <h2 className="text-3xl font-extrabold leading-[1.05] tracking-tight text-zinc-900 sm:text-4xl">
+      <div
+        className={
+          compact
+            ? "relative flex flex-col gap-4 px-6 pb-6 pt-2 lg:ml-auto lg:min-h-[220px] lg:w-[52%] lg:justify-center lg:py-8 lg:pl-0 lg:pr-8"
+            : "relative flex flex-col gap-5 px-6 pb-6 pt-2 lg:ml-auto lg:min-h-[250px] lg:w-[46%] lg:justify-center lg:py-10 lg:pl-0 lg:pr-8"
+        }
+      >
+        <h2
+          className={
+            compact
+              ? "text-2xl font-extrabold leading-[1.05] tracking-tight text-zinc-900 sm:text-3xl"
+              : "text-3xl font-extrabold leading-[1.05] tracking-tight text-zinc-900 sm:text-4xl"
+          }
+        >
           {title}
         </h2>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          className={
+            compact
+              ? "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-start"
+              : "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          }
+        >
           <p className="text-sm leading-relaxed text-zinc-700 sm:text-base">
             {text}
           </p>

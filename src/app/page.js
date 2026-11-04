@@ -7,6 +7,7 @@ import FeaturedCarousel from "@/components/FeaturedCarousel";
 import ThemeTags from "@/components/ThemeTags";
 import BottomColumns from "@/components/BottomColumns";
 import SupportBanner from "@/components/SupportBanner";
+import EncartDonCompteARebours from "@/components/EncartDonCompteARebours";
 import { enLignes } from "@/lib/textes-site";
 import { lireTextes } from "@/lib/textes-site-serveur";
 import {
@@ -90,11 +91,20 @@ export default async function Home() {
         </div>
       </section>
 
-      <SupportBanner
-        title={titreBandeau}
-        text={t["bandeau.texte"]}
-        buttonLabel={t["bandeau.bouton"]}
-      />
+      {/* Bandeau « Rejoignez-nous » rétréci, avec l'encart de don (compte à
+          rebours jusqu'au premier tour) juste à côté sur grand écran. */}
+      <section className="w-full px-6 pb-6 sm:px-8">
+        <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+          <SupportBanner
+            embedded
+            compact
+            title={titreBandeau}
+            text={t["bandeau.texte"]}
+            buttonLabel={t["bandeau.bouton"]}
+          />
+          <EncartDonCompteARebours />
+        </div>
+      </section>
 
       <section className="w-full px-6 pb-16 sm:px-8 sm:pb-20">
         <div className="mx-auto flex w-full max-w-[1280px] flex-col items-start justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-6 sm:flex-row sm:items-center sm:p-8">

@@ -1,5 +1,7 @@
 import { Fragment } from "react";
 import Header from "@/components/Header";
+import EncartDon from "@/components/EncartDon";
+import { MESSAGE_DON_DOSSIER } from "@/lib/message-don-dossier";
 import { getScoreBadge, getScoreBands } from "@/lib/score";
 import { criteresPrincipaux, OPERATIONNALITE } from "@/lib/criteresScore";
 import { getFichesPubliees } from "@/lib/queries";
@@ -745,6 +747,20 @@ export default async function DossierMouvementSocialPage() {
         {(ordreSections ?? ORDRE_PAR_DEFAUT).map((nom) => (
           <Fragment key={nom}>{sections[nom] ?? null}</Fragment>
         ))}
+
+        {/* Encart de don, toujours en dernier (hors de l'ordre des sections
+            réglé par le JSON). */}
+        <section className={SECTION}>
+          <div className={CONTENEUR}>
+            <EncartDon
+              titre={MESSAGE_DON_DOSSIER.titre}
+              texte={MESSAGE_DON_DOSSIER.texte}
+              emplacement="dossier-mouvement-social"
+              format="bandeau"
+              apparition
+            />
+          </div>
+        </section>
       </main>
 
       {/* Bouton flottant qui ramène au plan de lecture. */}
