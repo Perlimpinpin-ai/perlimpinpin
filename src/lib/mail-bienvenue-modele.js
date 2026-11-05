@@ -1,7 +1,10 @@
 // Modèle HTML du mail de bienvenue du Club Perlimpinpin (adhésion HelloAsso).
 // Mis en page sur le modèle de « La lettre de Perlimpinpin ». Généré à partir de
 // la maquette validée le 23 octobre 2026 : modifier le texte ici directement.
-// __SALUTATION__ est remplacé par « Bonjour Prénom, » (voir src/lib/mail-bienvenue.js).
+// __SALUTATION__ est remplacé par « Bonjour Prénom, » et __LIEN_ACTIVATION__ par le
+// lien personnel « Choisir mon mot de passe » (voir src/lib/mail-bienvenue.js).
+// Novembre 2026 (Club ouvert) : texte revu pour l'annotation des analyses publiées,
+// et accent jaune (#FFE45C, texte sombre posé dessus) à la place de l'orange.
 // Images servies par le site : /logo/perlimpinpin-logo.png, /bannière/Rejoindre.jpeg,
 // /club/mascotte-bienvenue.jpg (public/club/).
 
@@ -77,7 +80,7 @@ export const MODELE_HTML_BIENVENUE = `<!DOCTYPE html>
         <tr>
           <td style="padding:22px 24px;">
             <p style="margin:0 0 10px 0; font-family:'Courier New', Courier, monospace; font-size:12px; letter-spacing:1.5px; color:#8A8B99;">// NOTRE_OBJECTIF</p>
-            <p style="margin:0; font-size:24px; line-height:30px; font-weight:700; letter-spacing:-0.5px; color:#111114;">Une politique fondée sur les faits, <span style="color:#F2551B;">pas sur les discours.</span></p>
+            <p style="margin:0; font-size:24px; line-height:30px; font-weight:700; letter-spacing:-0.5px; color:#111114;">Une politique fondée sur les faits, <span style="background-color:#FFE45C; padding:0 4px;">pas sur les discours.</span></p>
             <p style="margin:14px 0 0 0; font-size:15px; line-height:22px; color:#6E7080;">En nous rejoignant, tu deviens l'un des gardiens de cette exigence.</p>
           </td>
         </tr>
@@ -89,30 +92,30 @@ export const MODELE_HTML_BIENVENUE = `<!DOCTYPE html>
   <tr>
     <td class="px" style="padding:36px 36px 0 36px;">
       <h2 style="margin:0 0 6px 0; font-size:24px; line-height:30px; font-weight:700; letter-spacing:-0.5px; color:#111114;">Ce qu'on fait ensemble</h2>
-      <p style="margin:0 0 16px 0; font-size:15px; line-height:22px; color:#6E7080;">Aucune analyse n'est publiée sur <a href="https://perlimpinpin.ai" style="color:#111114;">perlimpinpin.ai</a> sans être passée par le Club :</p>
+      <p style="margin:0 0 16px 0; font-size:15px; line-height:22px; color:#6E7080;">Les analyses publiées sur <a href="https://perlimpinpin.ai" style="color:#111114;">perlimpinpin.ai</a> restent ouvertes : en tant que membre du Club, tu peux les annoter et les challenger à tout moment.</p>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEECE8; border-radius:12px; margin-bottom:10px;">
         <tr>
-          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#F2551B;">01</td>
-          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">Une nouvelle fiche arrive dans l'espace du Club, et chacun reçoit un e-mail avec un court résumé.</td>
+          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#111114;"><span style="background-color:#FFE45C; padding:0 5px; border-radius:6px;">01</span></td>
+          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">Sur n'importe quelle analyse, tu surlignes un passage et tu laisses une annotation : une source à ajouter, un chiffre discutable, un argument oublié, une question…</td>
         </tr>
       </table>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEECE8; border-radius:12px; margin-bottom:10px;">
         <tr>
-          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#F2551B;">02</td>
-          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">On la lit et on la commente pendant quelques jours : une source à ajouter, un chiffre discutable, un argument oublié…</td>
+          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#111114;"><span style="background-color:#FFE45C; padding:0 5px; border-radius:6px;">02</span></td>
+          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">Chaque semaine, l'équipe passe en revue toutes les annotations. Celles qui apportent un argument ou une source sont étudiées de près.</td>
         </tr>
       </table>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEECE8; border-radius:12px; margin-bottom:10px;">
         <tr>
-          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#F2551B;">03</td>
-          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">La fiche est reprise à partir de tous les commentaires, et chacun reçoit une réponse.</td>
+          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#111114;"><span style="background-color:#FFE45C; padding:0 5px; border-radius:6px;">03</span></td>
+          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">Si elles changent l'analyse, la fiche est révisée : une nouvelle version (V2, V3…) est publiée, avec son historique.</td>
         </tr>
       </table>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEECE8; border-radius:12px;">
         <tr>
-          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#F2551B;">04</td>
-          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">La version finale est publiée, plus solide grâce à tous ceux qui l'ont relue.</td>
+          <td width="62" valign="middle" style="padding:16px 0 16px 20px; font-size:28px; line-height:30px; font-weight:800; color:#111114;"><span style="background-color:#FFE45C; padding:0 5px; border-radius:6px;">04</span></td>
+          <td valign="middle" style="padding:16px 20px 16px 6px; font-size:15px; line-height:22px; color:#2A2B33;">L'équipe te répond sous 7 jours.</td>
         </tr>
       </table>
       <p style="margin:14px 0 0 0; font-size:14px; line-height:21px; color:#8A8B99;">Pas besoin d'être expert : un « je n'ai pas compris ce passage » compte autant qu'une référence de la Cour des comptes.</p>
@@ -125,19 +128,17 @@ export const MODELE_HTML_BIENVENUE = `<!DOCTYPE html>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F7F6F3" style="background-color:#F7F6F3; border-radius:14px;">
         <tr>
           <td style="padding:24px;">
-            <p style="margin:0 0 6px 0; font-family:'Courier New', Courier, monospace; font-size:12px; letter-spacing:1.5px; color:#8A8B99;">// 2_MINUTES</p>
-            <h2 style="margin:0 0 14px 0; font-size:22px; line-height:28px; font-weight:700; letter-spacing:-0.5px; color:#111114;">Active ton compte</h2>
-            <p style="margin:0 0 6px 0; font-size:15px; line-height:22px; color:#2A2B33;"><span style="color:#F2551B; font-weight:700;">1.</span> Rends-toi sur <a href="https://perlimpinpin.ai/relectures/inscription" style="color:#111114;">perlimpinpin.ai/relectures/inscription</a></p>
-            <p style="margin:0 0 6px 0; font-size:15px; line-height:22px; color:#2A2B33;"><span style="color:#F2551B; font-weight:700;">2.</span> Saisis l'adresse e-mail utilisée pour ton adhésion HelloAsso.</p>
-            <p style="margin:0 0 20px 0; font-size:15px; line-height:22px; color:#2A2B33;"><span style="color:#F2551B; font-weight:700;">3.</span> Choisis ton mot de passe et confirme-le.</p>
+            <p style="margin:0 0 6px 0; font-family:'Courier New', Courier, monospace; font-size:12px; letter-spacing:1.5px; color:#8A8B99;">// 1_MINUTE</p>
+            <h2 style="margin:0 0 14px 0; font-size:22px; line-height:28px; font-weight:700; letter-spacing:-0.5px; color:#111114;">Choisis ton mot de passe</h2>
+            <p style="margin:0 0 20px 0; font-size:15px; line-height:22px; color:#2A2B33;">Un clic sur ce bouton, un mot de passe, et tu peux annoter ta première analyse.</p>
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td bgcolor="#111114" style="background-color:#111114; border-radius:999px;">
-                  <a href="https://perlimpinpin.ai/relectures/inscription" style="display:inline-block; padding:13px 26px; font-size:15px; font-weight:600; color:#FFFFFF; text-decoration:none; border-radius:999px;">Activer mon compte →</a>
+                <td bgcolor="#FFE45C" style="background-color:#FFE45C; border-radius:999px;">
+                  <a href="__LIEN_ACTIVATION__" style="display:inline-block; padding:13px 26px; font-size:15px; font-weight:600; color:#111114; text-decoration:none; border-radius:999px;">Choisir mon mot de passe →</a>
                 </td>
               </tr>
             </table>
-            <p style="margin:16px 0 0 0; font-size:13px; line-height:20px; color:#8A8B99;">Ensuite, il suffira de te connecter sur <a href="https://perlimpinpin.ai/relectures/connexion" style="color:#6E7080;">perlimpinpin.ai/relectures/connexion</a>.</p>
+            <p style="margin:16px 0 0 0; font-size:13px; line-height:20px; color:#8A8B99;">Ce lien est personnel, valable 7 jours, et ne sert qu'une fois. Passé ce délai : <a href="https://perlimpinpin.ai/relectures/inscription" style="color:#6E7080;">perlimpinpin.ai/relectures/inscription</a>, avec l'adresse e-mail de ton adhésion. Ensuite, il suffira de te connecter sur <a href="https://perlimpinpin.ai/relectures/connexion" style="color:#6E7080;">perlimpinpin.ai/relectures/connexion</a>.</p>
           </td>
         </tr>
       </table>
@@ -148,24 +149,24 @@ export const MODELE_HTML_BIENVENUE = `<!DOCTYPE html>
   <tr>
     <td class="px" style="padding:36px 36px 0 36px;">
       <h2 style="margin:0 0 6px 0; font-size:24px; line-height:30px; font-weight:700; letter-spacing:-0.5px; color:#111114;">Les PerlimpinPOINTS</h2>
-      <p style="margin:0 0 16px 0; font-size:15px; line-height:22px; color:#6E7080;">Chaque relecture fait avancer la mission, et ça mérite d'être reconnu :</p>
+      <p style="margin:0 0 16px 0; font-size:15px; line-height:22px; color:#6E7080;">Chaque annotation fait avancer la mission, et ça mérite d'être reconnu :</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td class="pts" width="33%" valign="top" style="padding:0 5px 0 0;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEECE8; border-radius:12px;"><tr>
               <td style="padding:16px;">
-                <p style="margin:0; font-size:32px; line-height:34px; font-weight:800; color:#F2551B;">+10<span style="font-size:15px; font-weight:500; color:#8A8B99;"> pts</span></p>
-                <p style="margin:8px 0 10px 0; font-size:14px; line-height:20px; color:#2A2B33;">pour chaque commentaire</p>
-                <span style="display:inline-block; padding:4px 10px; border-radius:999px; background-color:#FFEBE1; color:#E04E16; font-size:12px; font-weight:600; white-space:nowrap;">jusqu'à 5 par fiche</span>
+                <p style="margin:0; font-size:32px; line-height:34px; font-weight:800; color:#111114;"><span style="background-color:#FFE45C; padding:0 5px; border-radius:6px;">+10</span><span style="font-size:15px; font-weight:500; color:#8A8B99;"> pts</span></p>
+                <p style="margin:8px 0 10px 0; font-size:14px; line-height:20px; color:#2A2B33;">pour chaque annotation</p>
+                <span style="display:inline-block; padding:4px 10px; border-radius:999px; background-color:#FFF3B0; color:#5C4A00; font-size:12px; font-weight:600; white-space:nowrap;">jusqu'à 5 par fiche</span>
               </td>
             </tr></table>
           </td>
           <td class="pts" width="33%" valign="top" style="padding:0 5px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEECE8; border-radius:12px;"><tr>
               <td style="padding:16px;">
-                <p style="margin:0; font-size:32px; line-height:34px; font-weight:800; color:#F2551B;">+20<span style="font-size:15px; font-weight:500; color:#8A8B99;"> pts</span></p>
+                <p style="margin:0; font-size:32px; line-height:34px; font-weight:800; color:#111114;"><span style="background-color:#FFE45C; padding:0 5px; border-radius:6px;">+20</span><span style="font-size:15px; font-weight:500; color:#8A8B99;"> pts</span></p>
                 <p style="margin:8px 0 10px 0; font-size:14px; line-height:20px; color:#2A2B33;">en bonus</p>
-                <span style="display:inline-block; padding:4px 10px; border-radius:999px; background-color:#FFEBE1; color:#E04E16; font-size:12px; font-weight:600; white-space:nowrap;">commentaire retenu</span>
+                <span style="display:inline-block; padding:4px 10px; border-radius:999px; background-color:#FFF3B0; color:#5C4A00; font-size:12px; font-weight:600; white-space:nowrap;">annotation retenue</span>
               </td>
             </tr></table>
           </td>
@@ -194,7 +195,7 @@ export const MODELE_HTML_BIENVENUE = `<!DOCTYPE html>
   <tr>
     <td class="px" style="padding:36px 36px 0 36px;">
       <h2 style="margin:0 0 6px 0; font-size:24px; line-height:30px; font-weight:700; letter-spacing:-0.5px; color:#111114;">Et ce n'est qu'un début</h2>
-      <p style="margin:0 0 16px 0; font-size:15px; line-height:22px; color:#6E7080;">Le Club, ce n'est pas seulement des fiches à relire :</p>
+      <p style="margin:0 0 16px 0; font-size:15px; line-height:22px; color:#6E7080;">Le Club, ce n'est pas seulement des analyses à challenger :</p>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #EEECE8; border-radius:12px; margin-bottom:10px;">
         <tr>
@@ -245,8 +246,8 @@ export const MODELE_HTML_BIENVENUE = `<!DOCTYPE html>
               <tr>
                 <td>
                   <h2 style="margin:0 0 10px 0; font-size:24px; line-height:29px; font-weight:800; letter-spacing:-0.5px; color:#111114;">Fais grandir le Club.</h2>
-                  <p style="margin:0 0 12px 0; font-size:14px; line-height:21px; color:#3A3B45;">Une politique sur les faits, ça ne se construit pas à quelques-uns. Plus on est nombreux à relire, plus les analyses sont solides, et plus elles pèsent dans le débat.</p>
-                  <p style="margin:0 0 18px 0; font-size:15px; line-height:22px; font-weight:700; color:#111114;">Tu connais quelqu'un qui en a assez des promesses en l'air ? Transfère-lui ce mail, ou envoie-lui ce lien :</p>
+                  <p style="margin:0 0 12px 0; font-size:14px; line-height:21px; color:#3A3B45;">Une politique sur les faits, ça ne se construit pas à quelques-uns. Plus on est nombreux à challenger les analyses, plus elles sont solides, et plus elles pèsent dans le débat.</p>
+                  <p style="margin:0 0 18px 0; font-size:15px; line-height:22px; font-weight:700; color:#111114;">Tu connais quelqu'un qui en a assez des promesses en l'air ? Envoie-lui ce lien (pas ce mail : ton lien pour choisir ton mot de passe est personnel) :</p>
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                     <tr>
                       <td bgcolor="#111114" style="background-color:#111114; border-radius:999px;">
