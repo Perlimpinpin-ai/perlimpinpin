@@ -21,8 +21,10 @@ const ICONE_PARTAGER =
 const ICONE_PDF =
   "M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z";
 
+// Boutons sans cadre (icône + texte), sans marge horizontale : le groupe est
+// aligné sur le bord droit de la carte du dessous.
 const CLASSE_BOUTON =
-  "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 sm:flex-none";
+  "inline-flex items-center gap-2 rounded py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900";
 
 function Icone({ d }) {
   return (
@@ -105,7 +107,7 @@ export default function ActionsFiche({ chemin, texte, partage = true }) {
   }
 
   return (
-    <div ref={conteneur} className="relative flex gap-2 print:hidden">
+    <div ref={conteneur} className="relative flex justify-end gap-6 print:hidden sm:ml-auto">
       {partage ? (
         <button
           type="button"
@@ -132,7 +134,7 @@ export default function ActionsFiche({ chemin, texte, partage = true }) {
       {menuOuvert ? (
         <div
           role="menu"
-          className="absolute left-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
+          className="absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
         >
           {liensReseaux(url(), texte).map((lien) => (
             <a
