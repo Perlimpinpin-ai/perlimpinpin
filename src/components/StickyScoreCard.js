@@ -50,7 +50,7 @@ export default function StickyScoreCard({
   }, [vueAnalyse?.vue]);
 
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-6">
+    <div className="break-inside-avoid rounded-2xl border border-zinc-200 bg-white p-6">
       <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
         Score Perlimpinpin
       </span>
@@ -71,7 +71,7 @@ export default function StickyScoreCard({
       {enBrefNotation ? <ScoreEnBref notation={enBrefNotation} /> : null}
 
       {scrolledPast ? (
-        <nav className="mt-4 flex flex-col gap-1 border-t border-zinc-100 pt-4">
+        <nav className="mt-4 flex flex-col gap-1 border-t border-zinc-100 pt-4 print:hidden">
           <span className="mb-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">
             Sur cette page
           </span>
@@ -110,7 +110,7 @@ export default function StickyScoreCard({
         <button
           type="button"
           onClick={() => vueAnalyse.basculer("expert", { defiler: true })}
-          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 print:hidden"
         >
           Lire l&apos;analyse détaillée
           <span aria-hidden="true">→</span>
@@ -118,7 +118,7 @@ export default function StickyScoreCard({
       ) : (
         <Link
           href="#raisonnement-complet"
-          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+          className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 print:hidden"
         >
           Lire l&apos;analyse détaillée
           <span aria-hidden="true">→</span>
