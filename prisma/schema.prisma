@@ -144,6 +144,9 @@ model Analyse {
   updatedAt DateTime @updatedAt
 
   feedbacks Feedback[]
+  // Annotations du Club posées sur cette version de la fiche publiée
+  // (RelectureComment.analyseId). Relation inverse, sans colonne ici.
+  annotations RelectureComment[]
 }
 
 model Feedback {
@@ -388,9 +391,24 @@ model RelectureComment {
   // de la fiche (+20 PerlimpinPOINTS). Mis à true uniquement par
   // scripts/marquer-retenus.js, jamais remis à false automatiquement.
   retenu       Boolean   @default(false)
+  // --- Club ouvert (nov. 2026) : annotations sur les fiches PUBLIÉES ---
+  // Pour ces annotations, ficheSlug vaut « fiche-<id de la Proposition> »
+  // (clé stable d'une version à l'autre) et sectionId est la clé du contenu
+  // annoté (ex. « contexte_national », « analyse_par_criteres.efficacite »).
+  // analyseId : version précise de la fiche (Analyse) affichée au moment de
+  // l'annotation ; sert à l'archivage par version. Nul pour les commentaires
+  // de /relectures (brouillons) et ceux d'avant ce champ. Une analyse n'est
+  // jamais supprimée ; si elle l'était, l'annotation resterait (SetNull).
+  analyseId    Int?
+  analyse      Analyse?  @relation(fields: [analyseId], references: [id], onDelete: SetNull)
+  // Accord de l'adhérent pour être crédité par son prénom dans l'historique
+  // des versions (case cochée à l'annotation). Nul = question non posée
+  // (commentaires anciens) : traité comme un refus.
+  creditAccord Boolean?
 
   @@index([ficheSlug, sectionId])
   @@index([adherentId])
+  @@index([analyseId])
 }
 
 // Chronomètre de relecture d'une fiche en brouillon (/relectures), rattaché

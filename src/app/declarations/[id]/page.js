@@ -21,6 +21,9 @@ import { renderRichText, renderSourceString } from "@/lib/fiche-rendu";
 import { lireVersionBasique } from "@/lib/version-basique";
 import VueBasique, { TOC_SECTIONS_BASIQUE, ID_SOURCES_EXPERT, ScriptVueInitiale } from "@/components/VueBasique";
 import { VueAnalyseProvider, BasculeVue, Vue } from "@/components/VueAnalyseProvider";
+import AnnotationsFiche from "@/components/AnnotationsFiche";
+import { attributsZone, slugFiche } from "@/lib/fiche-annotations-core";
+import { EXPLICATIONS_CRITERES } from "@/lib/criteresScore";
 
 // ISR : chaque fiche est calculée à sa première visite, puis servie depuis le
 // cache du CDN et recalculée au plus toutes les 5 minutes (nouvelle analyse,
@@ -551,10 +554,13 @@ function CriteriaCard({
   plafondDeclencheur,
   texte,
   margeCrayon = false,
+  explication = null,
+  annotation = null,
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 ${
+      {...attributsZone(Boolean(annotation), annotation?.cle, annotation?.label)}
+      className={`${annotation ? "anno-zone " : ""}rounded-xl border p-4 ${
         isGardeFou ? "border-amber-200 bg-amber-50/50" : "border-blue-100 bg-blue-50/40"
       }${margeCrayon ? " pr-12" : ""}`}
     >
@@ -598,7 +604,15 @@ function CriteriaCard({
           ) : null}
         </p>
       </div>
-      <p className="mt-3 max-w-[68ch] text-sm leading-7 text-zinc-600">{renderRichText(texte)}</p>
+      {/* Explication du critère pour le lecteur (barème 2026), hors zone annotable. */}
+      {explication ? <p className="mt-2 max-w-[68ch] text-xs leading-5 text-zinc-500">{explication}</p> : null}
+      {annotation ? (
+        <div className="body">
+          <p className="mt-3 max-w-[68ch] text-sm leading-7 text-zinc-600">{renderRichText(texte)}</p>
+        </div>
+      ) : (
+        <p className="mt-3 max-w-[68ch] text-sm leading-7 text-zinc-600">{renderRichText(texte)}</p>
+      )}
     </div>
   );
 }
@@ -610,7 +624,7 @@ function CriteriaCard({
 // `edition` (/test/[id]) : crayon sur le TEXTE de chaque critère du tableau
 // structuré (jamais sur sa note). Un critère en double n'a de crayon que sur sa
 // première carte (c'est celle que l'enregistrement retrouve).
-function CriteresCards({ criteres, notation, edition = null }) {
+function CriteresCards({ criteres, notation, edition = null, annotable = false }) {
   if (Array.isArray(criteres)) {
     if (criteres.length === 0) return <TextOrList value={null} />;
     return (
@@ -637,6 +651,12 @@ function CriteresCards({ criteres, notation, edition = null }) {
                 plafondDeclencheur={item.plafond_declencheur}
                 texte={item.texte}
                 margeCrayon={Boolean(editionCarte)}
+                explication={EXPLICATIONS_CRITERES[item.critere]}
+                annotation={
+                  annotable && typeof item.critere === "string"
+                    ? { cle: `analyse_par_criteres.${item.critere}`, label: item.titre ?? CRITERES_ANALYSE[item.critere] ?? item.critere }
+                    : null
+                }
               />
             </Editable>
           );
@@ -664,6 +684,7 @@ function CriteresCards({ criteres, notation, edition = null }) {
           isGardeFou={false}
           vetoApplique={false}
           texte={criteres[key]}
+          annotation={annotable ? { cle: `analyse_par_criteres.${key}`, label } : null}
         />
       ))}
     </div>
@@ -952,6 +973,9 @@ export default async function DeclarationDetailPage({ params, preview = false, e
   const editionMesure = edition && !edition.mesurePubliee ? edition : null;
   // Fiche sans bandeau « Mesure initiale » : le crayon de la mesure passe sur la citation.
   const editionExtrait = contenu.mesure_vers_objectif ? null : editionMesure;
+  // Vue experte annotable par le Club : fiche publiée seulement (pas l'aperçu
+  // /test ni le mode édition, qui relisent des brouillons).
+  const annotable = !preview && !edition;
 
   // Étapes du « raisonnement complet », dans l'ordre d'affichage. Seules les
   // étapes réellement présentes sont gardées, puis numérotées sans trou au
@@ -975,47 +999,50 @@ export default async function DeclarationDetailPage({ params, preview = false, e
     contenu.sources_utilisees.every((source) => typeof source === "string");
   const editionSources = sourcesEditables ? edition : null;
   const etapesRaisonnement = [
-    !isV4 && { titre: "Mesure reformulée", contenu: section("mesure_reformulee") },
+    !isV4 && { titre: "Mesure reformulée", cle: "mesure_reformulee", contenu: section("mesure_reformulee") },
     !isV4 && {
       titre: "Mise en contexte dans le programme",
-      contenu: section("contexte_programme"),
+      cle: "contexte_programme", contenu: section("contexte_programme"),
     },
     !isV4 && {
       id: "contexte",
       titre: "Contexte national",
-      contenu: section("contexte_national", { splitParagraphs: true }),
+      cle: "contexte_national", contenu: section("contexte_national", { splitParagraphs: true }),
     },
     !isV4 && {
       titre: "Contexte international",
-      contenu: section("contexte_international", { splitParagraphs: true }),
+      cle: "contexte_international", contenu: section("contexte_international", { splitParagraphs: true }),
     },
     !isV4 &&
       contenu.impact_environnement && {
         titre: "Impact environnemental",
-        contenu: section("impact_environnement"),
+        cle: "impact_environnement", contenu: section("impact_environnement"),
       },
     {
       id: "analyse-criteres",
       titre: "Analyse par critères",
-      contenu: <CriteresCards criteres={contenu.analyse_par_criteres} notation={notation} edition={edition} />,
+      contenu: (
+        <CriteresCards criteres={contenu.analyse_par_criteres} notation={notation} edition={edition} annotable={annotable} />
+      ),
     },
-    !isV4 && { titre: "Longévité des effets", contenu: section("analyse_longevites") },
+    !isV4 && { titre: "Longévité des effets", cle: "analyse_longevites", contenu: section("analyse_longevites") },
     !isV4 &&
       contenu.impact_temporel_et_sectoriel && {
         titre: "Impact temporel et sectoriel",
-        contenu: section("impact_temporel_et_sectoriel"),
+        cle: "impact_temporel_et_sectoriel", contenu: section("impact_temporel_et_sectoriel"),
       },
-    !isV4 && { titre: "Ce qui est établi", contenu: section("ce_qui_est_etabli") },
-    !isV4 && { titre: "Ce qui est probable", contenu: section("ce_qui_est_probable") },
-    !isV4 && { titre: "Ce qui est discutable", contenu: section("ce_qui_est_discutable") },
-    !isV4 && { titre: "Ce qui est inconnu", contenu: section("ce_qui_est_inconnu") },
+    !isV4 && { titre: "Ce qui est établi", cle: "ce_qui_est_etabli", contenu: section("ce_qui_est_etabli") },
+    !isV4 && { titre: "Ce qui est probable", cle: "ce_qui_est_probable", contenu: section("ce_qui_est_probable") },
+    !isV4 && { titre: "Ce qui est discutable", cle: "ce_qui_est_discutable", contenu: section("ce_qui_est_discutable") },
+    !isV4 && { titre: "Ce qui est inconnu", cle: "ce_qui_est_inconnu", contenu: section("ce_qui_est_inconnu") },
     !isV4 && {
       id: "angles-morts",
       titre: "Angles morts et effets de bord",
-      contenu: section("angles_morts"),
+      cle: "angles_morts", contenu: section("angles_morts"),
     },
     {
       id: "verdict",
+      cle: "verdict_final",
       titre: "Verdict final",
       contenu: (
         <VerdictBody
@@ -1177,6 +1204,9 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               </>
             ) : null}
 
+            {/* Annotations du Club (fiche publiée uniquement, jamais en aperçu /test) :
+                data-view délimite la zone annotable, voir AnnotationsFiche. */}
+            <div className="contents" {...(annotable ? { "data-view": slugFiche(propositionId) } : {})}>
             <VueExpertSi actif={Boolean(versionBasique)}>
             {/* Résumé : simples paragraphes, sans titre ni carte.
                 Texte intégral de contenu.resume_court (pas analyse.teaser,
@@ -1189,8 +1219,18 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               valeurBrute={contenu.resume_court}
               multiligne
             >
-              <section aria-label="Résumé de l'analyse" className={`max-w-[68ch]${edition ? " pr-11" : ""}`}>
-                <TeaserParagraphs text={contenu.resume_court} />
+              <section
+                aria-label="Résumé de l'analyse"
+                className={`max-w-[68ch]${edition ? " pr-11" : ""}${annotable ? " anno-zone" : ""}`}
+                {...attributsZone(annotable, "resume_court", "Résumé")}
+              >
+                {annotable ? (
+                  <div className="body">
+                    <TeaserParagraphs text={contenu.resume_court} />
+                  </div>
+                ) : (
+                  <TeaserParagraphs text={contenu.resume_court} />
+                )}
               </section>
             </Editable>
 
@@ -1359,7 +1399,13 @@ export default async function DeclarationDetailPage({ params, preview = false, e
 
               <div className="mt-3 divide-y divide-zinc-200">
                 {etapesRaisonnement.map((etape, index) => (
-                  <EtapeRaisonnement key={etape.titre} numero={index + 1} titre={etape.titre} id={etape.id}>
+                  <EtapeRaisonnement
+                    key={etape.titre}
+                    numero={index + 1}
+                    titre={etape.titre}
+                    id={etape.id}
+                    annotation={annotable && etape.cle ? { cle: etape.cle, label: etape.titre } : null}
+                  >
                     {etape.contenu}
                   </EtapeRaisonnement>
                 ))}
@@ -1374,6 +1420,14 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               </div>
             ) : null}
             </VueExpertSi>
+            </div>
+            {annotable ? (
+              <AnnotationsFiche
+                propositionId={propositionId}
+                analyseId={analyse.id}
+                retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+              />
+            ) : null}
             {versionBasique ? <ScriptVueInitiale /> : null}
 
             {/* Vote sur la mesure elle-même, juste après la Fiabilité de

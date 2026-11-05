@@ -27,10 +27,12 @@ export async function GET(request) {
   // commentaires. Sans compte (commentaires anciens ou compte supprimé), on
   // garde la copie enregistrée avec le commentaire.
   return Response.json(
-    comments.map(({ adherent, ...comment }) => ({
+    // creditAccord : choix personnel de chaque auteur, jamais montré aux autres.
+    comments.map(({ adherent, creditAccord: _creditAccord, ...comment }) => ({
       ...comment,
       authorName: nomAffiche(adherent) ?? comment.authorName,
-    }))
+    })),
+    { headers: { "Cache-Control": "private, no-store" } }
   );
 }
 
@@ -41,6 +43,17 @@ export async function POST(request) {
     adherent,
     data,
     trouverFiche: (ficheSlug) => prisma.relectureFiche.findUnique({ where: { ficheSlug } }),
+    // Fiche publiée : version affichée sur /declarations/<id> (même choix que
+    // getDeclarationDetail : la plus récente analyse publiée).
+    trouverFichePubliee: async (propositionId) => {
+      const analyse = await prisma.analyse.findFirst({
+        where: { propositionId, statut: "publie" },
+        orderBy: { createdAt: "desc" },
+        select: { id: true },
+      });
+      return analyse ? { analyseId: analyse.id } : null;
+    },
+    // Écriture : create uniquement (jamais d'upsert ni de mise à jour).
     creer: (values) => prisma.relectureComment.create({ data: values }),
   });
   return Response.json(body, { status });
