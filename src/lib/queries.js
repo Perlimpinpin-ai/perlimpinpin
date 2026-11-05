@@ -531,11 +531,13 @@ export async function getCandidatAvecDeclarations(id) {
 }
 
 // Compte les votes like/dislike par Analyse, filtré depuis `sinceDate`
-// (ou sur toute la période si `sinceDate` est omis).
+// (ou sur toute la période si `sinceDate` est omis). Seules les analyses
+// PUBLIÉES comptent : une version « remplacee » (revue du dimanche) ne doit
+// jamais apparaître dans le classement de /prix-perlimpinpin.
 async function getVoteCountsByAnalyse(sinceDate) {
   const rows = await prisma.feedback.groupBy({
     by: ["analyseId", "type"],
-    where: sinceDate ? { createdAt: { gte: sinceDate } } : undefined,
+    where: { analyse: { statut: "publie" }, ...(sinceDate ? { createdAt: { gte: sinceDate } } : {}) },
     _count: { _all: true },
   });
 

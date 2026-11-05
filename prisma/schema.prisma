@@ -147,6 +147,10 @@ model Analyse {
   // Annotations du Club posées sur cette version de la fiche publiée
   // (RelectureComment.analyseId). Relation inverse, sans colonne ici.
   annotations RelectureComment[]
+  // Revue du dimanche (relations inverses, sans colonne ici) : révisions
+  // proposées à partir de cette version, et décisions qui l'ont publiée.
+  revisionsProposees RevisionProposee[] @relation("RevisionSource")
+  decisionsPublication DecisionRevision[] @relation("RevisionPubliee")
 }
 
 model Feedback {
@@ -405,10 +409,123 @@ model RelectureComment {
   // des versions (case cochée à l'annotation). Nul = question non posée
   // (commentaires anciens) : traité comme un refus.
   creditAccord Boolean?
+  // Tris successifs de la revue du dimanche (relation inverse, sans colonne ici).
+  tris         TriAnnotation[]
 
   @@index([ficheSlug, sectionId])
   @@index([adherentId])
   @@index([analyseId])
+}
+
+// =====================================================================
+// Revue du dimanche (Club ouvert, lot 4). Toutes ces tables sont en
+// ÉCRITURE PAR AJOUT SEULEMENT : aucune ligne n'est jamais modifiée ni
+// supprimée par le code. Un changement (reclassement, décision) est une
+// nouvelle ligne ; la plus récente fait foi.
+// =====================================================================
+
+// Un passage de revue : la revue hebdomadaire (clôture le dimanche à 8 h,
+// heure de Paris) ou un « traiter maintenant » sur une seule fiche.
+model RevueLot {
+  id            Int      @id @default(autoincrement())
+  // "hebdo" | "urgence"
+  type          String
+  // Urgence : la fiche traitée (id de la Proposition). Nul pour la revue hebdomadaire.
+  propositionId Int?
+  // Fin de la fenêtre : seules les annotations créées avant cet instant sont traitées.
+  clotureAt     DateTime
+  createdAt     DateTime @default(now())
+
+  etapes    RevueEtape[]
+  tris      TriAnnotation[]
+  revisions RevisionProposee[]
+
+  @@index([createdAt])
+}
+
+// Journal d'avancement d'un passage de revue (affiché sur la page admin) :
+// "tri_soumis", "tri_recu", "revision_soumise", "revision_recue",
+// "etapes_2_3", "termine", "echec".
+model RevueEtape {
+  id         Int      @id @default(autoincrement())
+  revueLotId Int
+  revueLot   RevueLot @relation(fields: [revueLotId], references: [id])
+  etape      String
+  // Identifiant du lot de l'API Message Batches d'Anthropic, s'il y en a un
+  batchId    String?
+  // Détails sans donnée personnelle (compteurs, message d'erreur, coût)
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([revueLotId, createdAt])
+}
+
+// Classement d'une annotation. Le plus récent fait foi : « modele » au tri
+// automatique, « arno » quand Arno reclasse sur la page admin.
+model TriAnnotation {
+  id            Int              @id @default(autoincrement())
+  commentId     String
+  comment       RelectureComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  // "hors_sujet" (hors sujet ou abusif) | "question" | "desaccord_sans_argument"
+  // | "argument_ou_source" (seule catégorie qui déclenche une révision)
+  categorie     String
+  // Raison du classement, en une phrase
+  justification String?
+  // Réponse de l'équipe proposée pour l'adhérent (relue par Arno avant envoi)
+  reponse       String?
+  // "modele" | "arno"
+  source        String
+  revueLotId    Int?
+  revueLot      RevueLot?        @relation(fields: [revueLotId], references: [id])
+  createdAt     DateTime         @default(now())
+
+  @@index([commentId, createdAt])
+  @@index([revueLotId])
+}
+
+// Nouvelle version proposée d'une fiche, en attente de la validation
+// d'Arno. Rien n'est publié sans une DecisionRevision « publiee », créée
+// uniquement quand Arno a tapé « oui ».
+model RevisionProposee {
+  id              Int      @id @default(autoincrement())
+  revueLotId      Int
+  revueLot        RevueLot @relation(fields: [revueLotId], references: [id])
+  propositionId   Int
+  // Version publiée à partir de laquelle la révision a été faite
+  analyseSourceId Int
+  analyseSource   Analyse  @relation("RevisionSource", fields: [analyseSourceId], references: [id])
+  // contenuComplet complet de la version proposée (score recalculé par le code)
+  contenuPropose  Json
+  // { scoreAvant, scoreApres, raison, criteresModifies: [{ critere, ancienneNote,
+  //   nouvelleNote, raison }] } : affiché à Arno, puis repris dans l'historique
+  resume          Json
+  // Ids des annotations « argument_ou_source » prises en compte
+  commentIds      Json
+  // true si un critère a changé et que les Étapes 2 et 3 ont été relancées
+  etapes23        Boolean  @default(false)
+  // Tokens et coût estimé, comme Analyse.coutPipeline
+  coutPipeline    Json?
+  createdAt       DateTime @default(now())
+
+  decisions DecisionRevision[]
+
+  @@index([propositionId, createdAt])
+  @@index([revueLotId])
+}
+
+// Décision d'Arno sur une révision proposée. « publiee » : créée seulement
+// après la saisie de « oui » ; analysePublieeId = la nouvelle version créée.
+model DecisionRevision {
+  id               Int              @id @default(autoincrement())
+  revisionId       Int
+  revision         RevisionProposee @relation(fields: [revisionId], references: [id])
+  // "publiee" | "rejetee"
+  decision         String
+  analysePublieeId Int?
+  analysePubliee   Analyse?         @relation("RevisionPubliee", fields: [analysePublieeId], references: [id])
+  createdAt        DateTime         @default(now())
+
+  @@index([revisionId, createdAt])
 }
 
 // Chronomètre de relecture d'une fiche en brouillon (/relectures), rattaché
