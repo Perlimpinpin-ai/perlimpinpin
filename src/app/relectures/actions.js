@@ -55,8 +55,15 @@ export async function connexion(_previousState, formData) {
 
   await ouvrirSession(adherent.id);
   // Pas de redirect() : /relectures est un fichier statique, le client le charge
-  // par une navigation complète (voir ConnexionForm).
-  return { ok: true, redirectTo: "/relectures" };
+  // par une navigation complète (voir ConnexionForm). Venu d'une fiche
+  // (« Commenter cette analyse ») : retour vers elle, chemin vérifié.
+  return { ok: true, redirectTo: retourDuFormulaire(formData) ?? "/relectures" };
+}
+
+// Fiche d'où vient l'adhérent (champ caché « retour » des formulaires de
+// connexion et d'inscription), ou null : seuls les chemins de fiche sont suivis.
+function retourDuFormulaire(formData) {
+  return retourValide(formData.get("retour"));
 }
 
 export async function inscription(_previousState, formData) {
@@ -100,7 +107,7 @@ export async function inscription(_previousState, formData) {
   if (!adherentId) return { error: INSCRIPTION_REFUSEE, refus: true, email: typed };
 
   await ouvrirSession(adherentId);
-  return { ok: true, redirectTo: "/relectures" };
+  return { ok: true, redirectTo: retourDuFormulaire(formData) ?? "/relectures" };
 }
 
 // « Mot de passe oublié » : la réponse est TOUJOURS la même (on ne révèle

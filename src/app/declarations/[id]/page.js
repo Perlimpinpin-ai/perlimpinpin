@@ -22,6 +22,7 @@ import { lireVersionBasique } from "@/lib/version-basique";
 import VueBasique, { TOC_SECTIONS_BASIQUE, ID_SOURCES_EXPERT, ScriptVueInitiale } from "@/components/VueBasique";
 import { VueAnalyseProvider, BasculeVue, Vue } from "@/components/VueAnalyseProvider";
 import AnnotationsFiche from "@/components/AnnotationsFiche";
+import CommenterAnalyse from "@/components/CommenterAnalyse";
 import { attributsZone, slugFiche } from "@/lib/fiche-annotations-core";
 import { EXPLICATIONS_CRITERES } from "@/lib/criteresScore";
 
@@ -1202,6 +1203,16 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                   />
                 </Vue>
               </>
+            ) : null}
+
+            {/* « Commenter cette analyse » (Club) : visible dans les deux vues,
+                au-dessus de l'analyse détaillée ; fiche publiée uniquement. */}
+            {annotable ? (
+              <CommenterAnalyse
+                propositionId={propositionId}
+                analyseId={analyse.id}
+                retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+              />
             ) : null}
 
             {/* Annotations du Club (fiche publiée uniquement, jamais en aperçu /test) :

@@ -125,3 +125,20 @@ test("archives /relectures : la fermeture par le chrono s'applique toujours", as
   assert.equal(status, 403);
   assert.equal(crees.length, 0);
 });
+
+test("« Commenter cette analyse » : commentaire général sans passage, toujours ouvert", async () => {
+  const { status, crees } = await poster({
+    ficheSlug: "fiche-12",
+    sectionId: "analyse_generale",
+    sectionLabel: "Commentaire sur l'ensemble de l'analyse",
+    body: "Le chiffrage me paraît daté.",
+    analyseId: 55,
+    creditAccord: false,
+  });
+  assert.equal(status, 201);
+  assert.equal(crees[0].quotedText, undefined);
+  assert.equal(crees[0].sectionId, "analyse_generale");
+  assert.equal(crees[0].creditAccord, false);
+  // Côté visiteurs : une zone sans passage ni texte.
+  assert.deepEqual(zonesPubliques([{ sectionId: "analyse_generale", body: "SECRET" }]), [{ sectionId: "analyse_generale" }]);
+});

@@ -9,6 +9,9 @@ import { cheminRelectureProtege } from "../src/lib/relecture-auth-core.js";
 test("chemins de fiche acceptés", () => {
   assert.equal(retourValide("/declarations/12"), "/declarations/12");
   assert.equal(retourValide("/declarations/12?vue=expert"), "/declarations/12?vue=expert");
+  assert.equal(retourValide("/declarations/12#commenter"), "/declarations/12#commenter");
+  assert.equal(retourValide("/declarations/12?vue=expert#commenter"), "/declarations/12?vue=expert#commenter");
+  assert.equal(retourValide("/declarations/12#commenter?vue=expert"), null);
 });
 
 test("tout le reste est refusé", () => {

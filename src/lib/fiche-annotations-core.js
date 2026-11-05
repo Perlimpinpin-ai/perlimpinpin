@@ -17,6 +17,10 @@
 //     note, sans auteur, sans date, sans nombre.
 
 export const PREFIXE_FICHE = "fiche-";
+// Commentaire sur l'ensemble de l'analyse (bouton « Commenter cette analyse »,
+// src/components/CommenterAnalyse.js) : sans passage cité.
+export const SECTION_GENERALE = "analyse_generale";
+export const LABEL_SECTION_GENERALE = "Commentaire sur l'ensemble de l'analyse";
 const SLUG_FICHE = /^fiche-([1-9]\d{0,9})$/;
 const SECTION_ID = /^[a-z][a-z0-9_]{0,59}(?:\.[a-z0-9_]{1,40})?$/;
 
