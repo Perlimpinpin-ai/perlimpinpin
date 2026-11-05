@@ -1062,7 +1062,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
       />
       <Header />
 
-      <main className="w-full px-6 py-12 sm:px-8 sm:py-16">
+      <main className="w-full px-6 py-12 sm:px-8 sm:py-16 print:p-0">
         <EnveloppeVue>
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr] lg:items-start lg:gap-x-8">
           {/* Colonne principale : tout le contenu de lecture, empilé dans
@@ -1072,6 +1072,24 @@ export default async function DeclarationDetailPage({ params, preview = false, e
           <div className="flex flex-col gap-6">
             {/* En-tête */}
             <div>
+              {/* Bandeau de marque, seulement dans le PDF (bouton « PDF ») :
+                  logo, slogan et adresse du site, filet jaune (accent de la
+                  charte). */}
+              <div className="mb-2 hidden items-end justify-between gap-6 border-b-2 border-yellow-400 pb-3 print:flex">
+                <div>
+                  <img
+                    src="/logo/perlimpinpin-logo.png"
+                    alt="Perlimpinpin"
+                    width={615}
+                    height={72}
+                    className="h-6 w-auto"
+                  />
+                  <p className="mt-1.5 text-sm text-zinc-500">
+                    Ce que valent vraiment les promesses politiques
+                  </p>
+                </div>
+                <span className="text-sm font-semibold text-zinc-700">perlimpinpin.ai</span>
+              </div>
               <Link
                 href={preview ? "/test" : "/declarations"}
                 className="text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800 print:hidden"
@@ -1421,8 +1439,40 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               </div>
             ) : null}
 
+            {/* Pied de fiche, seulement dans le PDF : où lire l'analyse
+                complète (toutes les sources, vue expert) et la méthode. */}
+            <div className="hidden break-inside-avoid border-t-2 border-yellow-400 pt-4 text-sm leading-relaxed text-zinc-600 print:block">
+              <img
+                src="/logo/perlimpinpin-logo.png"
+                alt="Perlimpinpin"
+                width={615}
+                height={72}
+                className="h-5 w-auto"
+              />
+              <p className="mt-1.5 text-zinc-500">Ce que valent vraiment les promesses politiques.</p>
+              <p className="mt-3">
+                Analyse complète et toutes les sources :{" "}
+                <span className="font-semibold text-zinc-900">perlimpinpin.ai/declarations/{propositionId}</span>
+              </p>
+              <p>
+                Notre méthode : <span className="font-semibold text-zinc-900">perlimpinpin.ai/methode</span>
+              </p>
+              {/* Même formulaire de don que l'encart « Je soutiens »
+                  (EncartDon) ; lien cliquable dans le PDF, adresse lisible
+                  sur papier. */}
+              <p>
+                Soutenez Perlimpinpin à partir de 2 € :{" "}
+                <a
+                  href="https://www.helloasso.com/associations/perlimpinpin-ai/formulaires/2"
+                  className="font-semibold text-zinc-900"
+                >
+                  helloasso.com/associations/perlimpinpin-ai/formulaires/2
+                </a>
+              </p>
+            </div>
+
             {/* Bandeau de confiance : voir TRUST_ITEMS plus haut. */}
-            <div className="grid grid-cols-1 gap-6 rounded-2xl border border-zinc-200 bg-white p-6 sm:grid-cols-3 sm:p-8">
+            <div className="grid grid-cols-1 gap-6 rounded-2xl border border-zinc-200 bg-white p-6 sm:grid-cols-3 sm:p-8 print:hidden">
               {TRUST_ITEMS.map((item, index) => (
                 <div key={item.title}>
                   <MonoTag>{String(index + 1).padStart(2, "0")}</MonoTag>
