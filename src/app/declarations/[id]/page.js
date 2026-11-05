@@ -1457,6 +1457,18 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               <p>
                 Notre méthode : <span className="font-semibold text-zinc-900">perlimpinpin.ai/methode</span>
               </p>
+              {/* Même formulaire de don que l'encart « Je soutiens »
+                  (EncartDon) ; lien cliquable dans le PDF, adresse lisible
+                  sur papier. */}
+              <p>
+                Soutenez Perlimpinpin à partir de 2 € :{" "}
+                <a
+                  href="https://www.helloasso.com/associations/perlimpinpin-ai/formulaires/2"
+                  className="font-semibold text-zinc-900"
+                >
+                  helloasso.com/associations/perlimpinpin-ai/formulaires/2
+                </a>
+              </p>
             </div>
 
             {/* Bandeau de confiance : voir TRUST_ITEMS plus haut. */}
