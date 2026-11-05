@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/test-auth";
-import { publierRevisionCore, reclasserCore, rejeterRevisionCore } from "@/lib/revue-admin-core";
+import { publierRevisionCore, reclasserCore, rejeterRevisionCore, validerReponsesCore } from "@/lib/revue-admin-core";
 import { declencherRevue } from "@/lib/github";
 
 // Actions serveur de la revue du dimanche (/test/revue). Un fichier
@@ -49,6 +49,20 @@ export async function rejeterRevision(_etat, formData) {
   const r = await rejeterRevisionCore({ revisionId: Number(formData.get("revisionId")), isEditor: await isEditor(), prisma });
   if (r.ok) rafraichir();
   return r.ok ? { ok: true, message: "Révision rejetée." } : r;
+}
+
+// Fiche sans révision : valide les réponses de l'équipe et clôt les
+// annotations (« oui » obligatoire, revérifié côté serveur).
+export async function validerReponses(_etat, formData) {
+  const propositionId = Number(formData.get("propositionId"));
+  const r = await validerReponsesCore({
+    propositionId,
+    confirmation: formData.get("confirmation"),
+    isEditor: await isEditor(),
+    prisma,
+  });
+  if (r.ok) rafraichir(propositionId);
+  return r.ok ? { ok: true, message: `${r.closes} annotation(s) close(s), réponses visibles des adhérents.` } : r;
 }
 
 // « Traiter maintenant » : lance le workflow « Revue du dimanche » sur une

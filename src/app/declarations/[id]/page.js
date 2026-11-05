@@ -14,7 +14,8 @@ import SupportBanner from "@/components/SupportBanner";
 import EncartDon from "@/components/EncartDon";
 import Editable from "@/app/test/Editable";
 import { CRITERES_ANALYSE } from "@/lib/test-edition";
-import { getDeclarationDetail } from "@/lib/queries";
+import { getDeclarationDetail, getNumeroVersion } from "@/lib/queries";
+import HistoriqueVersions from "@/components/HistoriqueVersions";
 import { getScoreBadge, PLAFOND_DECLENCHEUR_LABELS } from "@/lib/score";
 import { vignettePhoto } from "@/lib/photo-vignette";
 import { renderRichText, renderSourceString } from "@/lib/fiche-rendu";
@@ -977,6 +978,9 @@ export default async function DeclarationDetailPage({ params, preview = false, e
   // Vue experte annotable par le Club : fiche publiée seulement (pas l'aperçu
   // /test ni le mode édition, qui relisent des brouillons).
   const annotable = !preview && !edition;
+  // Numéro de version (V1, V2…) visible de tous : rang de la version affichée
+  // parmi les versions publiées de la fiche (Club ouvert, lot 5).
+  const numeroVersionFiche = preview ? null : await getNumeroVersion(propositionId, analyse.id);
 
   // Étapes du « raisonnement complet », dans l'ordre d'affichage. Seules les
   // étapes réellement présentes sont gardées, puis numérotées sans trou au
@@ -1184,6 +1188,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 sectionsBasique={sectionsBasique}
                 versionMethodologie={analyse.versionMethodologie}
                 generationDateLabel={declaration.generationDateLabel}
+                numeroVersion={preview ? null : numeroVersionFiche}
               />
             </div>
 
@@ -1441,6 +1446,16 @@ export default async function DeclarationDetailPage({ params, preview = false, e
             ) : null}
             {versionBasique ? <ScriptVueInitiale /> : null}
 
+            {/* Historique des versions (Club ouvert, lot 5) : numéro visible de
+                tous, détail réservé aux adhérents (chargé par le navigateur). */}
+            {annotable ? (
+              <HistoriqueVersions
+                propositionId={propositionId}
+                numeroVersion={numeroVersionFiche}
+                retour={`/declarations/${propositionId}`}
+              />
+            ) : null}
+
             {/* Vote sur la mesure elle-même, juste après la Fiabilité de
                 l'analyse — la maquette 413 (public/maquettes) montre "Et
                 vous, qu'en pensez-vous ?" immédiatement sous ce bloc, pas
@@ -1501,6 +1516,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                   sectionsBasique={sectionsBasique}
                   versionMethodologie={analyse.versionMethodologie}
                   generationDateLabel={declaration.generationDateLabel}
+                  numeroVersion={preview ? null : numeroVersionFiche}
                   enBrefNotation={isNouveauBaremeV5 ? notation : null}
                 />
               </div>

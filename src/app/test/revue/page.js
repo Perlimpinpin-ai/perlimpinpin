@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/test-auth";
 import { CATEGORIES, dernierTri, enTexte } from "@/lib/revue-core";
 import { PREFIXE_FICHE, propositionDuSlug } from "@/lib/fiche-annotations-core";
-import { Publier, Reclasser, Rejeter, TraiterMaintenant } from "./Formulaires";
+import { Publier, Reclasser, Rejeter, TraiterMaintenant, ValiderReponses } from "./Formulaires";
+import { estTraitee } from "@/lib/versions-core";
 
 // Page admin de la revue du dimanche (Club ouvert, lot 4) : avancement des
 // passages de revue, annotations triées (reclassement), révisions proposées
@@ -54,6 +55,7 @@ async function donnees() {
         authorName: true,
         createdAt: true,
         tris: { select: { id: true, categorie: true, justification: true, reponse: true, source: true, createdAt: true } },
+        traitements: { select: { id: true, etat: true, createdAt: true } },
       },
     }),
   ]);
@@ -61,7 +63,8 @@ async function donnees() {
   const parFiche = new Map();
   for (const r of revisions) if (!parFiche.has(r.propositionId)) parFiche.set(r.propositionId, r);
   const dejaReglees = new Set(reglees.flatMap((r) => (Array.isArray(r.commentIds) ? r.commentIds : [])));
-  const enAttente = annotations.filter((a) => !dejaReglees.has(a.id));
+  // Lot 5 : une annotation close (TraitementAnnotation « traitee ») n'est plus en attente.
+  const enAttente = annotations.filter((a) => !dejaReglees.has(a.id) && !estTraitee(a));
   const annotationsParFiche = new Map();
   for (const a of enAttente) {
     const id = propositionDuSlug(a.ficheSlug);
@@ -233,7 +236,10 @@ export default async function RevuePage() {
                       <Link href={`/declarations/${fiche}?vue=expert`} className="font-semibold text-zinc-900 underline decoration-zinc-300 underline-offset-4">
                         Fiche {fiche}
                       </Link>
-                      <TraiterMaintenant propositionId={String(fiche)} />
+                      <div className="flex flex-col gap-2">
+                        <TraiterMaintenant propositionId={String(fiche)} />
+                        <ValiderReponses propositionId={fiche} />
+                      </div>
                     </div>
                     <ul className="mt-3 flex flex-col gap-4">
                       {liste.map((a) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { publierRevision, reclasserAnnotation, rejeterRevision, traiterMaintenant } from "./actions";
+import { publierRevision, reclasserAnnotation, rejeterRevision, traiterMaintenant, validerReponses } from "./actions";
 
 // Formulaires de la page admin de la revue du dimanche (/test/revue). Les
 // contrôles d'accès et la vérification du « oui » sont faits côté serveur.
@@ -74,6 +74,35 @@ export function Publier({ revisionId }) {
       <div>
         <button type="submit" disabled={!pret || enCours || etat?.ok} className={`${bouton} bg-zinc-900 text-white hover:bg-zinc-700`}>
           {enCours ? "Publication…" : "Publier la nouvelle version"}
+        </button>
+      </div>
+      <Etat etat={etat} />
+    </form>
+  );
+}
+
+// Fiche sans révision : clôt les annotations triées (sauf « argument ou
+// source ») et rend les réponses visibles des adhérents, après « oui ».
+export function ValiderReponses({ propositionId }) {
+  const [etat, action, enCours] = useActionState(validerReponses, null);
+  const [saisie, setSaisie] = useState("");
+  const pret = saisie.trim().toLowerCase() === "oui";
+  return (
+    <form action={action} className="flex flex-col gap-2">
+      <input type="hidden" name="propositionId" value={propositionId} />
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="text-sm text-zinc-700">
+          Valider les réponses (tapez <b>oui</b>) :
+          <input
+            name="confirmation"
+            value={saisie}
+            onChange={(e) => setSaisie(e.target.value)}
+            autoComplete="off"
+            className="ml-2 w-20 rounded-lg border border-zinc-300 bg-white px-2 py-1 text-sm"
+          />
+        </label>
+        <button type="submit" disabled={!pret || enCours || etat?.ok} className={`${bouton} border border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-100`}>
+          {enCours ? "…" : "Valider les réponses"}
         </button>
       </div>
       <Etat etat={etat} />

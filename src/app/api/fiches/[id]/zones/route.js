@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { slugFiche, zonesPubliques } from "@/lib/fiche-annotations-core";
+import { dernierTraitement } from "@/lib/versions-core";
 
 // Passages annotés d'une fiche publiée, pour TOUT visiteur (adhérent ou non) :
 // /api/fiches/<id de la Proposition>/zones
@@ -22,11 +23,28 @@ export async function GET(_request, { params }) {
 
   const annotations = await prisma.relectureComment.findMany({
     where: { ficheSlug: slugFiche(propositionId) },
-    select: { sectionId: true, quotedText: true, startOffset: true, endOffset: true },
+    select: {
+      sectionId: true,
+      quotedText: true,
+      startOffset: true,
+      endOffset: true,
+      traitements: { select: { id: true, etat: true, rattachement: true, createdAt: true } },
+    },
   });
 
+  // Lot 5 : une annotation close (traitée) n'est plus surlignée ; une
+  // annotation réaccrochée au bloc (passage disparu) n'a plus de passage.
+  const visibles = annotations
+    .map((a) => ({ a, t: dernierTraitement(a.traitements) }))
+    .filter(({ t }) => t?.etat !== "traitee")
+    .map(({ a, t }) =>
+      t?.etat === "reaccrochee" && t.rattachement === "section"
+        ? { sectionId: a.sectionId, quotedText: null, startOffset: null, endOffset: null }
+        : { sectionId: a.sectionId, quotedText: a.quotedText, startOffset: a.startOffset, endOffset: a.endOffset },
+    );
+
   return Response.json(
-    { zones: zonesPubliques(annotations) },
+    { zones: zonesPubliques(visibles) },
     // Données publiques (texte de la fiche) : courte mise en cache CDN.
     { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } },
   );

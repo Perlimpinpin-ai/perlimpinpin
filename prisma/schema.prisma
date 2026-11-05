@@ -151,6 +151,9 @@ model Analyse {
   // proposées à partir de cette version, et décisions qui l'ont publiée.
   revisionsProposees RevisionProposee[] @relation("RevisionSource")
   decisionsPublication DecisionRevision[] @relation("RevisionPubliee")
+  // Annotations archivées avec cette version, ou réaccrochées sur elle
+  // (TraitementAnnotation.analyseId). Relation inverse, sans colonne ici.
+  traitementsAnnotations TraitementAnnotation[]
 }
 
 model Feedback {
@@ -411,6 +414,8 @@ model RelectureComment {
   creditAccord Boolean?
   // Tris successifs de la revue du dimanche (relation inverse, sans colonne ici).
   tris         TriAnnotation[]
+  // Clôture / réaccrochage (lot 5, relation inverse, sans colonne ici).
+  traitements  TraitementAnnotation[]
 
   @@index([ficheSlug, sectionId])
   @@index([adherentId])
@@ -525,7 +530,45 @@ model DecisionRevision {
   analysePubliee   Analyse?         @relation("RevisionPubliee", fields: [analysePublieeId], references: [id])
   createdAt        DateTime         @default(now())
 
+  traitements TraitementAnnotation[]
+
   @@index([revisionId, createdAt])
+}
+
+// Suite donnée à une annotation (Club ouvert, lot 5). ÉCRITURE PAR AJOUT
+// SEULEMENT : la ligne la plus récente fait foi.
+//   - « traitee » : annotation close et archivée, avec la réponse de l'équipe
+//     (visible des adhérents) et « retenu » (+20 PerlimpinPOINTS). Créée quand
+//     Arno publie ou rejette une révision de la fiche, ou valide les réponses
+//     d'une fiche sans révision ;
+//   - « reaccrochee » : annotation pas encore traitée, reportée sur la
+//     nouvelle version publiée : au même passage s'il existe encore
+//     (rattachement « passage »), sinon au bloc de la fiche (« section »).
+model TraitementAnnotation {
+  id           Int                @id @default(autoincrement())
+  commentId    String
+  comment      RelectureComment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  // "traitee" | "reaccrochee"
+  etat         String
+  // Traitée : version avec laquelle elle est archivée (celle qui était en
+  // ligne au moment de la décision). Réaccrochée : la nouvelle version.
+  analyseId    Int?
+  analyse      Analyse?           @relation(fields: [analyseId], references: [id], onDelete: SetNull)
+  // Décision d'Arno qui l'a close (nulle pour une validation des réponses sans révision)
+  decisionId   Int?
+  decision     DecisionRevision?  @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+  // Catégorie qui faisait foi au moment de la clôture
+  categorie    String?
+  // Réponse de l'équipe telle que validée
+  reponse      String?
+  // Annotation qui a fait évoluer la fiche (+20 PerlimpinPOINTS)
+  retenu       Boolean            @default(false)
+  // Réaccrochée : "passage" (le passage cité existe encore) | "section"
+  rattachement String?
+  createdAt    DateTime           @default(now())
+
+  @@index([commentId, createdAt])
+  @@index([analyseId])
 }
 
 // Chronomètre de relecture d'une fiche en brouillon (/relectures), rattaché

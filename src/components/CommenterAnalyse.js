@@ -48,7 +48,8 @@ export default function CommenterAnalyse({ propositionId, analyseId, retour }) {
       return;
     }
     const liste = (await lireJson(`/api/relectures/comments?fiche=${encodeURIComponent(slug)}`).catch(() => null)) ?? [];
-    setCommentaires(liste.filter((c) => c.sectionId === SECTION_GENERALE && c.quotedText == null));
+    // Lot 5 : les commentaires clos sont dans l'historique des versions.
+    setCommentaires(liste.filter((c) => c.sectionId === SECTION_GENERALE && c.quotedText == null && c.etat !== "traitee"));
     setEtat("membre");
   }, [slug]);
 

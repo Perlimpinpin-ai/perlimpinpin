@@ -51,6 +51,7 @@ import {
 import { appliquerScoreCode } from "./lib/scoring.js";
 import { annotationsATrier, dernierTri, estHeureRevue, fichesAReviser, lireTri } from "../src/lib/revue-core.js";
 import { PREFIXE_FICHE, slugFiche } from "../src/lib/fiche-annotations-core.js";
+import { estTraitee } from "../src/lib/versions-core.js";
 
 neonConfig.webSocketConstructor = ws;
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -121,7 +122,7 @@ async function versionsPubliees(ids) {
 }
 
 async function chargerAnnotations() {
-  return prisma.relectureComment.findMany({
+  const annotations = await prisma.relectureComment.findMany({
     where: {
       ficheSlug: propositionId ? slugFiche(propositionId) : { startsWith: PREFIXE_FICHE },
       createdAt: { lt: maintenant },
@@ -136,8 +137,11 @@ async function chargerAnnotations() {
       body: true,
       createdAt: true,
       tris: { select: { id: true, categorie: true, createdAt: true } },
+      // Lot 5 : une annotation close n'est plus ni triée ni révisée.
+      traitements: { select: { id: true, etat: true, createdAt: true } },
     },
   });
+  return annotations.filter((a) => !estTraitee(a));
 }
 
 // Annotations déjà réglées : prises en compte par une révision qu'Arno a

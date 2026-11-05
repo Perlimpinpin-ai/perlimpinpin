@@ -1,6 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { creerMoteur } from "@/lib/recherche";
 import { resolveTheme, themeLabel } from "@/lib/themes";
+import { STATUTS_VERSION, numeroVersion } from "@/lib/versions-core";
+
+// Numéro de version (V1, V2…) de l'analyse affichée, parmi les versions
+// publiées de la fiche (statut « publie » ou « remplacee », Club ouvert lot 5).
+// Sert seulement au numéro : aucune version remplacée n'est affichée ni comptée ailleurs.
+export async function getNumeroVersion(propositionId, analyseId) {
+  const versions = await prisma.analyse.findMany({
+    where: { propositionId, statut: { in: STATUTS_VERSION } },
+    select: { id: true, statut: true, createdAt: true },
+  });
+  return numeroVersion(versions, analyseId);
+}
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",

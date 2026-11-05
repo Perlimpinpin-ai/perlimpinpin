@@ -91,7 +91,9 @@ export default function AnnotationsFiche({ propositionId, analyseId, retour }) {
             erreurSession: () => new Error("Votre session a expiré. Reconnectez-vous pour envoyer votre note."),
             ouvrirAnnotees: deplierAnnotees,
           });
-          outil.charger(slug, liste.filter((c) => c.quotedText != null));
+          // Lot 5 : les annotations closes (traitées) quittent la fiche ; elles
+          // sont dans l'historique, avec la réponse de l'équipe.
+          outil.charger(slug, liste.filter((c) => c.quotedText != null && c.etat !== "traitee"));
         } else {
           const data = await lireJson(`/api/fiches/${propositionId}/zones`);
           if (annule || !data?.zones?.length || !reserver()) return;

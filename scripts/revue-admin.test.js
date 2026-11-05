@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { publierRevisionCore, reclasserCore, rejeterRevisionCore } from "../src/lib/revue-admin-core.js";
+import { publierRevisionCore, reclasserCore, rejeterRevisionCore, validerReponsesCore } from "../src/lib/revue-admin-core.js";
 import { declencherRevue } from "../src/lib/github.js";
 
 // Page admin de la revue : publication seulement avec « oui », décision
@@ -40,6 +40,14 @@ function fausseBase({ decisions = [], actuelleId = 100 } = {}) {
     },
     decisionRevision: { create: async ({ data }) => (ecritures.push(["decision.create", data]), { id: 7 }) },
     candidat: { update: async (q) => (ecritures.push(["candidat.update", q]), {}) },
+    // Lot 5 : annotations de la fiche et clôture / réaccrochage
+    relectureComment: {
+      findMany: async () => [
+        { id: "c1", sectionId: "contexte_national", quotedText: "x", tris: [{ id: 1, categorie: "question", reponse: "Réponse proposée", createdAt: "2026-11-08T07:10:00Z" }], traitements: [] },
+        { id: "c2", sectionId: "contexte_national", quotedText: "texte disparu", tris: [], traitements: [] },
+      ],
+    },
+    traitementAnnotation: { createMany: async ({ data }) => (ecritures.push(["traitements.createMany", data]), { count: data.length }) },
   };
   return {
     ecritures,
@@ -49,10 +57,11 @@ function fausseBase({ decisions = [], actuelleId = 100 } = {}) {
       revisionProposee: {
         findUnique: async ({ where }) =>
           where.id === 5
-            ? { id: 5, propositionId: 12, decisions, contenuPropose: { notation_detaillee: NOTATION }, coutPipeline: null, analyseSource: source }
+            ? { id: 5, propositionId: 12, decisions, commentIds: [], resume: { reponses: [] }, contenuPropose: { notation_detaillee: NOTATION }, coutPipeline: null, analyseSource: source }
             : null,
       },
       relectureComment: {
+        ...tx.relectureComment,
         findUnique: async ({ where }) =>
           where.id === "c1" ? { id: "c1", ficheSlug: "fiche-12", tris: [{ id: 1, reponse: "Réponse proposée", createdAt: "2026-11-08T07:10:00Z" }] } : null,
       },
@@ -76,13 +85,18 @@ test("publication avec « oui » : nouvelle version créée, ancienne remplacée
   const maintenant = new Date("2026-11-08T19:05:00Z");
   const r = await publierRevisionCore({ revisionId: 5, confirmation: "oui", isEditor: true, prisma, maintenant, journaliser: (e) => journal.push(e) });
   assert.equal(r.ok, true, r.message);
-  assert.deepEqual(ecritures.map(([quoi]) => quoi), ["analyse.create", "analyse.updateMany", "decision.create", "candidat.update"]);
+  assert.deepEqual(ecritures.map(([quoi]) => quoi), ["analyse.create", "analyse.updateMany", "decision.create", "traitements.createMany", "candidat.update"]);
+  // Lot 5 : la question est close avec l'ancienne version, l'annotation non triée réaccrochée au bloc de la nouvelle.
+  assert.deepEqual(
+    ecritures[3][1].map((l) => [l.commentId, l.etat, l.analyseId, l.rattachement ?? null]),
+    [["c1", "traitee", 100, null], ["c2", "reaccrochee", 101, "section"]],
+  );
   assert.equal(ecritures[0][1].statut, "publie");
   assert.equal(ecritures[0][1].scoreFaisabilite, 51);
   // Condition 1 : seuls le statut et la date de changement de l'ancienne version.
   assert.deepEqual(ecritures[1][1], { where: { id: 100, statut: "publie" }, data: { statut: "remplacee", updatedAt: maintenant } });
   // Condition 3 : création, remplacement et décision journalisés.
-  assert.deepEqual(journal.map((e) => e.type), ["analyse_creee", "analyse_remplacee", "decision_revision"]);
+  assert.deepEqual(journal.map((e) => e.type), ["analyse_creee", "analyse_remplacee", "decision_revision", "traitements_annotations"]);
   assert.equal(journal[1].analyseId, 100);
   assert.equal(journal[1].remplaceePar, 101);
   assert.deepEqual(ecritures[2][1], { revisionId: 5, decision: "publiee", analysePublieeId: 101 });
@@ -111,7 +125,9 @@ test("publication refusée si déjà décidée ou si une autre version a été p
 test("rejet : une décision créée, une seule fois", async () => {
   const { prisma, ecritures } = fausseBase();
   assert.equal((await rejeterRevisionCore({ revisionId: 5, isEditor: true, prisma, journaliser: () => {} })).ok, true);
-  assert.deepEqual(ecritures, [["decision.create", { revisionId: 5, decision: "rejetee" }]]);
+  assert.deepEqual(ecritures.map(([quoi]) => quoi), ["decision.create", "traitements.createMany"]);
+  assert.deepEqual(ecritures[0][1], { revisionId: 5, decision: "rejetee" });
+  assert.deepEqual(ecritures[1][1].map((l) => [l.commentId, l.etat, l.retenu]), [["c1", "traitee", false]]);
   const deja = fausseBase({ decisions: [{ id: 1, decision: "publiee", createdAt: "x" }] });
   assert.equal((await rejeterRevisionCore({ revisionId: 5, isEditor: true, prisma: deja.prisma })).ok, false);
 });
@@ -164,4 +180,16 @@ test("journal : ligne JSON horodatée, écrite aussi dans les journaux du serveu
   const lectureSeule = journaliser({ type: "x" }, { ecrire: () => { throw new Error("EROFS"); }, log: { log: (m) => sortie.push(m) } });
   assert.equal(lectureSeule, false);
   assert.equal(sortie.length, 2);
+});
+
+test("valider les réponses (fiche sans révision) : « oui » obligatoire, questions closes", async () => {
+  const sansOui = fausseBase();
+  assert.equal((await validerReponsesCore({ propositionId: 12, confirmation: "", isEditor: true, prisma: sansOui.prisma })).ok, false);
+  assert.equal(sansOui.ecritures.length, 0);
+  const { prisma, ecritures } = fausseBase();
+  const r = await validerReponsesCore({ propositionId: 12, confirmation: "oui", isEditor: true, prisma, journaliser: () => {} });
+  assert.equal(r.ok, true, r.message);
+  assert.equal(r.closes, 1);
+  assert.deepEqual(ecritures[0][1].map((l) => [l.commentId, l.etat, l.decisionId]), [["c1", "traitee", null]]);
+  assert.equal((await validerReponsesCore({ propositionId: 12, confirmation: "oui", isEditor: false, prisma })).ok, false);
 });
