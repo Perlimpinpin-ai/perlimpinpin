@@ -125,7 +125,7 @@ export default function Header() {
     // Le <header> reste sticky mais devient transparent : c'est la "pilule"
     // blanche à l'intérieur qui flotte, avec une marge autour (maquette). Le
     // dégradé de la page (bg-page-gradient) passe donc derrière la barre.
-    <header className="sticky top-0 z-30 w-full px-4 pt-3 sm:px-8 sm:pt-4 lg:px-12">
+    <header className="print:hidden sticky top-0 z-30 w-full px-4 pt-3 sm:px-8 sm:pt-4 lg:px-12">
       {/* box-shadow/backdrop-filter posés en style inline plutôt qu'en
           classes Tailwind (shadow-sm/backdrop-blur-md) : ces utilitaires
           composent leur valeur via des custom properties CSS (--tw-shadow,
