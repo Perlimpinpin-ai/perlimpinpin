@@ -1,3 +1,5 @@
+(Mise à jour du 6 novembre 2026 : `teaser_accueil` / `phrase_teasing` doivent se comprendre seuls, sans calcul sous-entendu ni chiffre non expliqué ; la clarté passe avant l'effet de surprise.)
+
 (Mise à jour du 27 octobre 2026 : `resume_court` ne contient plus aucune note chiffrée.)
 
 (Mise à jour du 9 octobre 2026 : commentaires du Club dans les étapes 2 et 3.)
@@ -791,7 +793,7 @@ Aller à l'essentiel, avec des phrases naturelles et plutôt courtes. Style clai
 
 **Sections en accordéon dès l'étape 1.** Les 13 sections listées dans « Sections en accordéon (synthese + texte) » (voir Étape 3) sont produites dès l'étape 1 sous la forme `{ "synthese": "...", "texte": "..." }` : `synthese` en une phrase de 20 mots maximum (220 caractères au plus), qui commence par la conclusion et reste fidèle au `texte` ; `texte` = le contenu complet de la section. `impact_environnement` et `impact_temporel_et_sectoriel` valent `null` (l'objet entier) quand ils ne s'appliquent pas, jamais un objet aux champs vides. Les autres champs texte (`nature_et_existant`, `analyse_par_criteres`, `verdict_final`, `niveau_de_confiance`, `resume_court`, `phrase_teasing`) restent de simples chaînes.
 
-**Phrase de teasing.** `phrase_teasing` suit dès l'étape 1 les mêmes règles que `teaser_accueil` (voir Étape 3, « Teaser accueil ») : une ou deux phrases, 200 caractères maximum (espaces compris), qui crée une tension ou une question sans jamais révéler le score ni le verdict, fidèle au contenu de la fiche.
+**Phrase de teasing.** `phrase_teasing` suit dès l'étape 1 les mêmes règles que `teaser_accueil` (voir Étape 3, « Teaser accueil ») : une ou deux phrases, 200 caractères maximum (espaces compris), qui se comprend seule sans le titre ni la fiche, crée une tension ou une question sans jamais révéler le score ni le verdict, et reste fidèle au contenu de la fiche.
 
 Pas de tirets cadratins. Expliquer brièvement chaque note. Sourcer toute affirmation déterminante.
 
@@ -1005,27 +1007,47 @@ Ne jamais écrire de note chiffrée dans le résumé : ni le score sur 100 (pas 
 ### Teaser accueil
 `teaser_accueil` est la description affichée sous le titre sur la carte
 « à la une » de la page d'accueil. Son rôle est de donner envie d'ouvrir la
-fiche, pas de la résumer.
+fiche, pas de la résumer. Mais un lecteur qui ne comprend pas la phrase
+n'ouvre pas la fiche : **la clarté passe avant l'effet de surprise.**
 
 - **Une ou deux phrases, 200 caractères maximum** (espaces compris). Elle doit
   s'afficher en entier sur la carte, sans coupure.
-- Tout chiffre cité doit dire ce qu'il mesure (stock ou montant par an,
-  montant annoncé ou estimé) : ne jamais opposer deux chiffres de nature
-  différente sans le préciser.
+- **Compréhensible seule.** Un lecteur qui ne connaît ni le sujet ni la fiche
+  doit comprendre de quoi on parle. Nommer la chose dont on parle (le gazole,
+  le salaire minimum, l'impôt sur l'héritage...) : pas de « il », « elle »,
+  « la même promesse » qui renvoie au titre ou à un élément non dit.
+- **Pas de raisonnement sous-entendu.** Si la tension vient d'un calcul ou
+  d'une comparaison, donner directement le résultat en clair, jamais les
+  pièces du calcul en laissant le lecteur le refaire. Mauvais : « À 1,70 € le
+  litre, il reste moins que le prix de gros à Rotterdam. » Bon : « Bloquer le
+  gazole à 1,70 € laisse environ 50 centimes par litre à trouver. Qui paiera ? »
+- **Un seul chiffre de préférence, deux au maximum**, chacun accompagné de ce
+  qu'il mesure et de ce à quoi il se compare (stock ou montant par an, montant
+  annoncé ou estimé, « vingt fois moins » de quoi). Ne jamais opposer deux
+  chiffres de nature différente sans le préciser. Pas de notion technique
+  (« salaire médian », « marché de gros », « assiette ») sans la traduire en
+  mots courants.
 - Ton de teasing : créer une tension, une surprise ou une question
   (un argument du candidat qui se retourne, un chiffre qui étonne, un
-  « mais » qui intrigue). Les points de suspension sont permis une fois.
+  « mais » qui intrigue). La question posée doit être claire et porter sur
+  le cœur de la mesure. Les points de suspension sont permis une fois.
 - Ne jamais révéler le score, l'appréciation ou le verdict : pas de note,
   pas de « fragile », « solide », « irréaliste », « réaliste », « réalisme ».
-- Ne pas répéter les mots du titre.
+- Ne pas recopier le titre mot pour mot. Reprendre un mot du titre est permis
+  quand il est nécessaire pour que la phrase se comprenne seule.
 - Engageant, jamais clickbait, partisan, moqueur ou exagéré : la tension
   annoncée doit être réellement traitée dans la fiche et fidèle à son
   contenu (aucune information absente de la fiche).
 
+**Test avant de valider** : lire la phrase sans le titre ni la fiche. Un
+lecteur non spécialiste peut-il dire, en une phrase, de quoi elle parle et
+quelle question elle pose ? Sinon, réécrire plus simplement, quitte à perdre
+l'effet de surprise.
+
 Exemples de forme (pas des textes à reprendre) :
-« Le Japon, cité en modèle, fait… exactement l'inverse. »
-« Une idée qui séduit… jusqu'aux chiffres. »
-« Moins chère qu'annoncé, mais pour qui ? »
+« Le Japon, cité en modèle, fait… exactement l'inverse sur les retraites. »
+« L'idée de baisser les loyers séduit… jusqu'à ce qu'on regarde qui paie. »
+« Ce chèque énergie coûterait moins cher qu'annoncé. Mais qui le recevrait ? »
 
 ### Analyse par critères
 
