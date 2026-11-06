@@ -165,3 +165,69 @@ mark.anno-hl.pending { background: var(--anno-hl-fort); cursor: default; }
 }
 /* Cartes de critère : la bulle reste dans la carte (pas de débordement vers la colonne de droite). */
 .anno-zone.rounded-xl > .anno-bulle { position: absolute; top: 12px; right: 12px; margin-top: 0; }
+/* Sur papier (bouton « PDF ») : ni bulles, ni boutons, ni notes, ni surlignage. */
+@media print {
+  .anno-bulle,
+  .annot-btn,
+  .anno-add,
+  .anno-inline,
+  .anote,
+  .anno-message {
+    display: none !important;
+  }
+  mark.anno-hl {
+    background: none !important;
+  }
+}
+
+/* Export PDF d'une fiche (bouton « PDF », voir src/components/ActionsFiche.js) :
+   marges de page, couleurs conservées, fond blanc. Les éléments inutiles sur
+   papier portent la classe print:hidden ; le bandeau de marque et le pied de
+   fiche n'apparaissent qu'à l'impression (hidden print:flex / print:block).
+   Bas de page : slogan à gauche, site et numéro de page à droite. Déclarer
+   ces cases de marge remplace, dans Chrome, la date / le titre / l'adresse
+   que le navigateur imprime sinon en haut et en bas de chaque page. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 14mm 16mm;
+    @top-left {
+      content: "";
+    }
+    @bottom-left {
+      content: "Perlimpinpin · Ce que valent vraiment les promesses politiques";
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8pt;
+      color: #71717a;
+    }
+    @bottom-right {
+      content: "perlimpinpin.ai · " counter(page) " / " counter(pages);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8pt;
+      color: #71717a;
+    }
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Texte un peu plus compact sur papier (toutes les tailles sont en rem). */
+  html {
+    font-size: 14px;
+  }
+  html,
+  body,
+  .bg-page-gradient {
+    background: #fff !important;
+  }
+  /* Pas de titre seul en bas de page, pas de puce ou de source coupée. */
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  li,
+  p {
+    break-inside: avoid;
+  }
+}

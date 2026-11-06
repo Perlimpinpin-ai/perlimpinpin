@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import ArrowIcon from "./ArrowIcon";
 
 // Dupliqué depuis declarations/[id]/page.js : ce composant vit côté client
@@ -100,6 +101,21 @@ export default function AccordionSection({ value, splitParagraphs = false }) {
     el.addEventListener("club-deplier", deplier);
     return () => el.removeEventListener("club-deplier", deplier);
   }, []);
+  // Impression / export PDF (bouton « PDF » ou Ctrl+P) : tout est déplié le
+  // temps de l'impression, puis l'état d'avant est rétabli. flushSync : le
+  // contenu doit être dans le DOM avant que le navigateur ne mette en page.
+  const [impression, setImpression] = useState(false);
+  useEffect(() => {
+    const avant = () => flushSync(() => setImpression(true));
+    const apres = () => setImpression(false);
+    window.addEventListener("beforeprint", avant);
+    window.addEventListener("afterprint", apres);
+    return () => {
+      window.removeEventListener("beforeprint", avant);
+      window.removeEventListener("afterprint", apres);
+    };
+  }, []);
+  const deplie = open || impression;
 
   if (!value) {
     return <p className="text-zinc-400">Non renseigné.</p>;
@@ -121,10 +137,12 @@ export default function AccordionSection({ value, splitParagraphs = false }) {
         <p className="flex-1 font-medium text-slate-700">{renderRichText(synthese)}</p>
         <ArrowIcon
           direction="down"
-          className={`mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-transform ${deplie ? "rotate-180" : ""}`}
         />
       </button>
-      <div hidden={!open} className="mt-3 border-t border-zinc-100 pt-3">
+      {/* Texte toujours présent (ancrage des annotations du Club), masqué tant
+          que l'accordéon est fermé ; déplié aussi le temps d'une impression. */}
+      <div hidden={!deplie} className="mt-3 border-t border-zinc-100 pt-3">
         {splitParagraphs ? <ParagraphedContent value={texte} /> : <TextOrListContent value={texte} />}
       </div>
     </div>

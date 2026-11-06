@@ -92,7 +92,7 @@ function ColumnLabel({ children }) {
 
 export default function Footer() {
   return (
-    <footer className="mt-auto w-full bg-zinc-100 px-6 pt-14 pb-10 text-zinc-600 sm:px-8 sm:pt-16">
+    <footer className="print:hidden mt-auto w-full bg-zinc-100 px-6 pt-14 pb-10 text-zinc-600 sm:px-8 sm:pt-16">
       <div className="mx-auto w-full max-w-[1280px]">
         <div className="flex flex-col gap-10 md:flex-row md:justify-between">
           <div>

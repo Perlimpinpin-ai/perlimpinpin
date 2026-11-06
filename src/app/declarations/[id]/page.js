@@ -26,6 +26,7 @@ import AnnotationsFiche from "@/components/AnnotationsFiche";
 import CommenterAnalyse from "@/components/CommenterAnalyse";
 import { attributsZone, slugFiche } from "@/lib/fiche-annotations-core";
 import { EXPLICATIONS_CRITERES } from "@/lib/criteresScore";
+import ActionsFiche from "@/components/ActionsFiche";
 
 // ISR : chaque fiche est calculée à sa première visite, puis servie depuis le
 // cache du CDN et recalculée au plus toutes les 5 minutes (nouvelle analyse,
@@ -970,6 +971,16 @@ export default async function DeclarationDetailPage({ params, preview = false, e
   const versionBasique = lireVersionBasique(contenu, propositionId);
   const EnveloppeVue = versionBasique ? VueAnalyseProvider : Fragment;
   const sectionsBasique = versionBasique ? TOC_SECTIONS_BASIQUE : undefined;
+  // Boutons « Partager » et « PDF » (à côté de la bascule basique/expert).
+  // Le partage pointe toujours vers l'adresse publique ; masqué sur l'aperçu.
+  const titrePartage = typeof contenu.titre_fiche === "string" && contenu.titre_fiche ? contenu.titre_fiche : declaration.titre;
+  const actionsFiche = (
+    <ActionsFiche
+      chemin={`/declarations/${propositionId}`}
+      texte={`${titrePartage} — ${analyse.scoreFaisabilite}/100 sur Perlimpinpin`}
+      partage={!preview}
+    />
+  );
   // Mesure initiale (colonne de la proposition, partagée par ses analyses) :
   // pas de crayon si une version de la mesure est déjà publiée.
   const editionMesure = edition && !edition.mesurePubliee ? edition : null;
@@ -1083,7 +1094,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
       />
       <Header />
 
-      <main className="w-full px-6 py-12 sm:px-8 sm:py-16">
+      <main className="w-full px-6 py-12 sm:px-8 sm:py-16 print:p-0">
         <EnveloppeVue>
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr] lg:items-start lg:gap-x-8">
           {/* Colonne principale : tout le contenu de lecture, empilé dans
@@ -1093,9 +1104,27 @@ export default async function DeclarationDetailPage({ params, preview = false, e
           <div className="flex flex-col gap-6">
             {/* En-tête */}
             <div>
+              {/* Bandeau de marque, seulement dans le PDF (bouton « PDF ») :
+                  logo, slogan et adresse du site, filet jaune (accent de la
+                  charte). */}
+              <div className="mb-2 hidden items-end justify-between gap-6 border-b-2 border-yellow-400 pb-3 print:flex">
+                <div>
+                  <img
+                    src="/logo/perlimpinpin-logo.png"
+                    alt="Perlimpinpin"
+                    width={615}
+                    height={72}
+                    className="h-6 w-auto"
+                  />
+                  <p className="mt-1.5 text-sm text-zinc-500">
+                    Ce que valent vraiment les promesses politiques
+                  </p>
+                </div>
+                <span className="text-sm font-semibold text-zinc-700">perlimpinpin.ai</span>
+              </div>
               <Link
                 href={preview ? "/test" : "/declarations"}
-                className="text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800"
+                className="text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800 print:hidden"
               >
                 ← Retour
               </Link>
@@ -1197,7 +1226,10 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 expert (contenu inchangé, non réindenté). */}
             {versionBasique ? (
               <>
-                <BasculeVue />
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center print:hidden">
+                  <BasculeVue />
+                  {actionsFiche}
+                </div>
                 <Vue nom="basique">
                   {/* Crayons seulement si la version basique est en base (pas
                       celle lue en local dans data/versions-basiques-dev). */}
@@ -1208,7 +1240,9 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                   />
                 </Vue>
               </>
-            ) : null}
+            ) : (
+              actionsFiche
+            )}
 
             {/* « Commenter cette analyse » (Club) : visible dans les deux vues,
                 au-dessus de l'analyse détaillée ; fiche publiée uniquement. */}
@@ -1464,25 +1498,61 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 "doublon" — c'est en fait cette position-ci, pas l'autre,
                 qui correspond à la maquette). */}
             {!preview ? (
+              <div className="print:hidden">
               <VoteMesureWidget
                 propositionId={declaration.id}
                 initialAccord={declaration.voteMesureCounts.accord}
                 initialDesaccord={declaration.voteMesureCounts.desaccord}
               />
+              </div>
             ) : null}
 
             {/* "Je trouve cette analyse pertinente" (qualité de l'analyse),
                 distinct du vote sur la mesure elle-même ci-dessus. */}
             {!preview ? (
+              <div className="print:hidden">
               <FeedbackWidget
                 analyseId={analyse.id}
                 initialLikes={declaration.feedbackCounts.likes}
                 initialDislikes={declaration.feedbackCounts.dislikes}
               />
+              </div>
             ) : null}
 
+            {/* Pied de fiche, seulement dans le PDF : où lire l'analyse
+                complète (toutes les sources, vue expert) et la méthode. */}
+            <div className="hidden break-inside-avoid border-t-2 border-yellow-400 pt-4 text-sm leading-relaxed text-zinc-600 print:block">
+              <img
+                src="/logo/perlimpinpin-logo.png"
+                alt="Perlimpinpin"
+                width={615}
+                height={72}
+                className="h-5 w-auto"
+              />
+              <p className="mt-1.5 text-zinc-500">Ce que valent vraiment les promesses politiques.</p>
+              <p className="mt-3">
+                Analyse complète et toutes les sources :{" "}
+                <span className="font-semibold text-zinc-900">perlimpinpin.ai/declarations/{propositionId}</span>
+              </p>
+              <p>
+                Notre méthode : <span className="font-semibold text-zinc-900">perlimpinpin.ai/methode</span>
+              </p>
+              {/* Même formulaire de don que l'encart « Je soutiens »
+                  (EncartDon) ; lien cliquable dans le PDF, adresse lisible
+                  sur papier. */}
+              <p>
+                Soutenez Perlimpinpin à partir de 2 € :{" "}
+                <a
+                  href="https://www.helloasso.com/associations/perlimpinpin-ai/formulaires/2"
+                  className="font-semibold text-zinc-900"
+                >
+                  helloasso.com/associations/perlimpinpin-ai/formulaires/2
+                </a>
+              </p>
+            </div>
+
             {/* Bandeau de confiance : voir TRUST_ITEMS plus haut. */}
-            <div className="grid grid-cols-1 gap-6 rounded-2xl border border-zinc-200 bg-white p-6 sm:grid-cols-3 sm:p-8">
+            <div className="grid grid-cols-1 gap-6 rounded-2xl border border-zinc-200 bg-white p-6 sm:grid-cols-3 sm:p-8 print:hidden">
               {TRUST_ITEMS.map((item, index) => (
                 <div key={item.title}>
                   <MonoTag>{String(index + 1).padStart(2, "0")}</MonoTag>
@@ -1540,7 +1610,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
         {/* Sur mobile (pas de colonne latérale), l'encart de don est posé
             juste avant le bandeau du bas. */}
         {!preview ? (
-          <div className="mx-auto mt-10 w-full max-w-6xl lg:hidden">
+          <div className="mx-auto mt-10 w-full max-w-6xl lg:hidden print:hidden">
             <EncartDon
               titre="Vous venez de vérifier une promesse."
               texte="Aidez-nous à vérifier toutes les autres."
@@ -1551,7 +1621,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
           </div>
         ) : null}
         {!preview ? (
-          <div className="mx-auto mt-10 w-full max-w-6xl">
+          <div className="mx-auto mt-10 w-full max-w-6xl print:hidden">
             <SupportBanner
               embedded
               title={"Vous n’êtes pas d’accord avec cette analyse ?"}
