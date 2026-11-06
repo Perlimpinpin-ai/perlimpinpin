@@ -3,6 +3,7 @@ import { getAdherent } from "@/lib/relecture-auth";
 import { SESSION_EXPIREE } from "@/lib/relecture-comments-core";
 import { bilanAdherent } from "@/lib/club-points-core";
 import { modifierPseudo, nomAffiche } from "@/lib/club-pseudo-core";
+import { commentairesPourPoints } from "@/lib/versions-core";
 
 // Adhérent connecté (bandeau et panneau « Mon compte » de la page /relectures),
 // ou 401. Les PerlimpinPOINTS sont recalculés à chaque appel depuis ses
@@ -13,7 +14,8 @@ export async function GET() {
 
   const commentaires = await prisma.relectureComment.findMany({
     where: { adherentId: adherent.id },
-    select: { ficheSlug: true, retenu: true },
+    // Lot 5 : « retenu » vient aussi des annotations closes (TraitementAnnotation).
+    select: { ficheSlug: true, retenu: true, traitements: { select: { id: true, etat: true, retenu: true, createdAt: true } } },
   });
 
   return Response.json({
@@ -24,7 +26,7 @@ export async function GET() {
     email: adherent.email,
     // Date de création du mot de passe (activation du compte).
     membreDepuis: adherent.activatedAt,
-    ...bilanAdherent(commentaires),
+    ...bilanAdherent(commentairesPourPoints(commentaires)),
   });
 }
 

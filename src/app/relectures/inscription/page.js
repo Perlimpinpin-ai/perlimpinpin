@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PASSWORD_MIN_LENGTH } from "@/lib/live-password";
 import { getAdherent } from "@/lib/relecture-auth";
+import { retourValide } from "@/lib/club-retour-core";
 import ClubShell from "../ClubShell";
 import InscriptionForm from "./InscriptionForm";
 
@@ -10,8 +11,12 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function RelectureInscriptionPage() {
-  if (await getAdherent()) redirect("/relectures");
+// ?retour=/declarations/<id>… : retour vers la fiche après l'inscription
+// (chemin vérifié par retourValide, fiches du site uniquement).
+export default async function RelectureInscriptionPage({ searchParams }) {
+  const retour = retourValide((await searchParams)?.retour);
+  if (await getAdherent()) redirect(retour ?? "/relectures");
+  const suite = retour ? `?retour=${encodeURIComponent(retour)}` : "";
 
   return (
     <ClubShell
@@ -20,13 +25,13 @@ export default async function RelectureInscriptionPage() {
       basDePage={
         <>
           Déjà un mot de passe ?{" "}
-          <Link href="/relectures/connexion" className="font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-900">
+          <Link href={`/relectures/connexion${suite}`} className="font-medium text-zinc-900 underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-900">
             Se connecter
           </Link>
         </>
       }
     >
-      <InscriptionForm minLength={PASSWORD_MIN_LENGTH} />
+      <InscriptionForm minLength={PASSWORD_MIN_LENGTH} retour={retour} />
     </ClubShell>
   );
 }

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getAdherent } from "@/lib/relecture-auth";
 import { SESSION_EXPIREE, posterCommentaire } from "@/lib/relecture-comments-core";
 import { nomAffiche } from "@/lib/club-pseudo-core";
+import { dernierTraitement } from "@/lib/versions-core";
 
 // Commentaires de relecture (Club Perlimpinpin) : lecture et écriture réservées
 // aux adhérents connectés. La vérification est faite ici, pas seulement dans le
@@ -19,7 +20,11 @@ export async function GET(request) {
   const comments = await prisma.relectureComment.findMany({
     where: { ficheSlug },
     orderBy: { createdAt: "asc" },
-    include: { adherent: { select: { nom: true, pseudo: true } } },
+    include: {
+      adherent: { select: { nom: true, pseudo: true } },
+      // Lot 5 : suite donnée (close avec la réponse de l'équipe, ou réaccrochée)
+      traitements: { select: { id: true, etat: true, reponse: true, retenu: true, rattachement: true, analyseId: true, createdAt: true } },
+    },
   });
 
   // Nom affiché : celui du compte AUJOURD'HUI (pseudo s'il existe, sinon nom
@@ -27,10 +32,19 @@ export async function GET(request) {
   // commentaires. Sans compte (commentaires anciens ou compte supprimé), on
   // garde la copie enregistrée avec le commentaire.
   return Response.json(
-    comments.map(({ adherent, ...comment }) => ({
-      ...comment,
-      authorName: nomAffiche(adherent) ?? comment.authorName,
-    }))
+    // creditAccord : choix personnel de chaque auteur, jamais montré aux autres.
+    comments.map(({ adherent, creditAccord: _creditAccord, traitements, ...comment }) => {
+      const t = dernierTraitement(traitements);
+      return {
+        ...comment,
+        authorName: nomAffiche(adherent) ?? comment.authorName,
+        etat: t?.etat ?? null,
+        reponseEquipe: t?.etat === "traitee" ? t.reponse ?? null : null,
+        retenu: comment.retenu === true || (t?.etat === "traitee" && t.retenu === true),
+        rattachement: t?.etat === "reaccrochee" ? t.rattachement : null,
+      };
+    }),
+    { headers: { "Cache-Control": "private, no-store" } }
   );
 }
 
@@ -41,6 +55,17 @@ export async function POST(request) {
     adherent,
     data,
     trouverFiche: (ficheSlug) => prisma.relectureFiche.findUnique({ where: { ficheSlug } }),
+    // Fiche publiée : version affichée sur /declarations/<id> (même choix que
+    // getDeclarationDetail : la plus récente analyse publiée).
+    trouverFichePubliee: async (propositionId) => {
+      const analyse = await prisma.analyse.findFirst({
+        where: { propositionId, statut: "publie" },
+        orderBy: { createdAt: "desc" },
+        select: { id: true },
+      });
+      return analyse ? { analyseId: analyse.id } : null;
+    },
+    // Écriture : create uniquement (jamais d'upsert ni de mise à jour).
     creer: (values) => prisma.relectureComment.create({ data: values }),
   });
   return Response.json(body, { status });
