@@ -117,69 +117,6 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---------- Annotations du Club sur les fiches publiées ----------
-   Outil partagé avec /relectures (public/club/annotations.js) ; mêmes classes
-   que le gabarit scripts/templates/relectures.html, couleurs du site.
-   Jaune uniquement (jamais d'orange), aucun compteur. */
-:root {
-  --anno-hl: #fff3a3;
-  --anno-hl-fort: #ffe36b;
-  --anno-note-bg: #fff8cc;
-  --anno-note-trait: #ead56a;
-  --anno-note-encre: #3d3510;
-}
-.anno-zone { position: relative; }
-mark.anno-hl { background: var(--anno-hl); color: inherit; border-radius: 2px; padding: 0; cursor: pointer; }
-mark.anno-hl.pending { background: var(--anno-hl-fort); cursor: default; }
-.annot-btn { position: absolute; z-index: 50; transform: translate(-50%, -100%); font: inherit; font-size: 13px; font-weight: 500; background: #171717; color: #fafafa; border: 0; border-radius: 999px; padding: 6px 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); white-space: nowrap; user-select: none; }
-.annot-btn.below { transform: translate(-50%, 0); }
-.annot-btn[hidden], .anno-add[hidden], .anote[hidden] { display: none; }
-.anno-layer { display: none; }
-.anno-add { font: inherit; font-size: 12.5px; font-weight: 500; line-height: 1.4; background: var(--anno-hl); color: var(--anno-note-encre); border: 1px solid var(--anno-note-trait); border-radius: 999px; padding: 2px 10px; cursor: pointer; white-space: nowrap; user-select: none; }
-.anno-add:hover { background: var(--anno-hl-fort); }
-.anno-inline { display: grid; gap: 10px; margin-top: 12px; }
-.anno-inline:empty { display: none; }
-.anno-inline .anno-add { justify-self: start; }
-.anote { background: var(--anno-note-bg); color: var(--anno-note-encre); border: 1px solid var(--anno-note-trait); border-radius: 4px 4px 4px 14px; padding: 10px 12px; font-size: 13.5px; line-height: 1.45; box-shadow: 0 1px 0 rgba(0, 0, 0, .04), 0 6px 16px rgba(80, 60, 0, .10); }
-.anote-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12.5px; margin-bottom: 4px; }
-.anote-h b { font-weight: 600; overflow-wrap: anywhere; }
-.anote-h span { flex: none; font-size: 11px; opacity: .72; }
-.anote-q { margin: 0 0 6px; font-size: 12px; font-style: italic; opacity: .78; overflow-wrap: anywhere; }
-.anote-b { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.anote-orphan { margin: 0 0 6px; font-size: 12px; font-weight: 500; }
-.anote .cerr { margin: 0; color: #9f1d1d; font-size: 13px; }
-.anote-draft { display: grid; gap: 7px; }
-.anote-draft textarea { font: inherit; font-size: 13.5px; background: rgba(255, 255, 255, .8); color: #1c1a0a; border: 1px solid var(--anno-note-trait); border-radius: 6px; padding: 6px 8px; width: 100%; min-height: 76px; resize: vertical; }
-.anote-credit { display: flex; gap: 6px; align-items: flex-start; font-size: 12px; line-height: 1.4; }
-.anote-credit input { margin-top: 2px; }
-.anote-actions { display: flex; gap: 6px; }
-.anote-actions button { font-size: 12.5px; font-weight: 500; border: 1px solid var(--anno-note-encre); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
-.anote-actions [type=submit] { background: var(--anno-note-encre); color: var(--anno-note-bg); }
-.anote-actions [type=button] { background: transparent; color: var(--anno-note-encre); }
-/* Bulle de marge : sans chiffre. En fin de bloc sur petit écran, dans la
-   marge droite sur grand écran. */
-.anno-bulle { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-top: 8px; border-radius: 999px; border: 1px solid var(--anno-note-trait); background: var(--anno-hl); color: var(--anno-note-encre); cursor: pointer; }
-.anno-bulle:hover { background: var(--anno-hl-fort); }
-@media (min-width: 1024px) {
-  .anno-bulle { position: absolute; top: 0; right: -40px; margin-top: 0; }
-}
-/* Cartes de critère : la bulle reste dans la carte (pas de débordement vers la colonne de droite). */
-.anno-zone.rounded-xl > .anno-bulle { position: absolute; top: 12px; right: 12px; margin-top: 0; }
-/* Sur papier (bouton « PDF ») : ni bulles, ni boutons, ni notes, ni surlignage. */
-@media print {
-  .anno-bulle,
-  .annot-btn,
-  .anno-add,
-  .anno-inline,
-  .anote,
-  .anno-message {
-    display: none !important;
-  }
-  mark.anno-hl {
-    background: none !important;
-  }
-}
-
 /* Export PDF d'une fiche (bouton « PDF », voir src/components/ActionsFiche.js) :
    marges de page, couleurs conservées, fond blanc. Les éléments inutiles sur
    papier portent la classe print:hidden ; le bandeau de marque et le pied de

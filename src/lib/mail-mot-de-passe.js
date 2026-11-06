@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import { configSmtpClub, prenomDepuisNom } from "./mail-bienvenue.js";
-import { STATUT_BLOQUE, envoiMailAutorise } from "./envoi-mail-autorise.js";
 
 // Mail « mot de passe oublié » de /relectures (adhérents) et de /live (équipe).
 // Envoyé depuis la boîte Zimbra du Club, avec les mêmes variables CLUB_SMTP_*
@@ -86,11 +85,6 @@ export async function envoyerMailMotDePasse(
   if (typeof email !== "string" || !email.includes("@") || typeof lien !== "string") {
     log.warn(`${etiquette} non envoyé : adresse ou lien absent`);
     return { statut: "ignore" };
-  }
-  // Jamais depuis une preview (base partagée avec la production) : voir envoi-mail-autorise.js
-  if (!envoiMailAutorise(env)) {
-    log.warn(`${etiquette} non envoyé : envoi bloqué hors production`);
-    return { statut: STATUT_BLOQUE };
   }
   const config = configSmtpClub(env);
   if (!config) {

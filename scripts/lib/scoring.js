@@ -132,60 +132,6 @@ function computePlafondDeclencheurAttendu({
   return fragiles.reduce((lowest, item) => (item.note < lowest.note ? item : lowest)).nom;
 }
 
-// --- Score calculé par le code (Club ouvert, lot 4) ---------------------------
-// Règle du Club (novembre 2026) : « le score est toujours calculé par le code,
-// jamais par un modèle ». Pour les NOUVELLES versions produites par la revue
-// du dimanche, les champs dérivés de notation_detaillee (total
-// Opérationnalité & Moyens, plafond, score_total, appreciation) sont
-// recalculés ici à partir des notes des critères, avec exactement les règles
-// que checkNotationCoherence vérifie (CALCUL de data/prompt-methodologie.md).
-// Les fiches déjà publiées ne sont pas modifiées : scripts/rapport-scores.js
-// compare seulement, en lecture seule.
-// Renvoie null si une note de critère manque (ancien barème) : pas de calcul.
-const NOTES_CRITERES = [
-  "operationnalite_juridique",
-  "operationnalite_budgetaire",
-  "operationnalite_moyens_humains",
-  "efficacite",
-  "effets_rebonds_externalites",
-  "degre_preparation",
-  "alignement_logique",
-];
-
-export function calculerScore(notation) {
-  if (!notation || NOTES_CRITERES.some((cle) => !Number.isInteger(notation[cle]))) return null;
-  const sousTotal =
-    notation.operationnalite_juridique + notation.operationnalite_budgetaire + notation.operationnalite_moyens_humains;
-  const plafondDeclencheur = computePlafondDeclencheurAttendu(notation);
-  const plafondApplique = plafondDeclencheur !== null;
-  const operationnaliteTotal = plafondApplique ? Math.min(sousTotal, 10) : sousTotal;
-  const scoreTotal = Math.max(
-    0,
-    Math.min(
-      100,
-      operationnaliteTotal +
-        notation.efficacite +
-        notation.effets_rebonds_externalites +
-        notation.degre_preparation +
-        notation.alignement_logique,
-    ),
-  );
-  return {
-    operationnalite_moyens_total: operationnaliteTotal,
-    plafond_applique: plafondApplique,
-    plafond_declencheur: plafondDeclencheur,
-    score_total: scoreTotal,
-    appreciation: computeAppreciation(scoreTotal),
-  };
-}
-
-// notation_detaillee dont les champs dérivés sont remplacés par le calcul du
-// code (les notes et qualifications des critères restent celles de l'analyse).
-export function appliquerScoreCode(notation) {
-  const calcul = calculerScore(notation);
-  return calcul ? { ...notation, ...calcul } : null;
-}
-
 // Revérifie la cohérence arithmétique de notation_detaillee (CALCUL, voir
 // data/prompt-methodologie.md) sans jamais écraser les valeurs produites
 // par le modèle — voir l'en-tête de ce fichier. Retourne une liste d'écarts
