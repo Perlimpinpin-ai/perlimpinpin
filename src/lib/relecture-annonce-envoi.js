@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import nodemailer from "nodemailer";
 import { EXPEDITEUR, configSmtpClub } from "./mail-bienvenue.js";
-import { envoiMailAutorise } from "./envoi-mail-autorise.js";
 import { isAdmin } from "./relecture-admin.js";
 import { NOM_APERCU, fichesAAnnoncer, lirePersonnalisation, prenomDepuisNom, redigerAnnonce } from "./relecture-annonce.js";
 import { SLUG_PATTERN } from "./relecture-revision.js";
@@ -63,8 +62,6 @@ export async function traiterEnvoi({
   const { perso, error } = lirePersonnalisation(data);
   if (error) return refus(400, error);
 
-  // Jamais depuis une preview (base partagée avec la production) : voir envoi-mail-autorise.js
-  if (!envoiMailAutorise(env)) return refus(403, "Envoi de mails bloqué hors production.");
   const config = configSmtpClub(env);
   if (!config) return refus(500, "Configuration SMTP incomplète.");
 

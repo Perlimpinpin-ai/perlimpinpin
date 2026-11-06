@@ -1,7 +1,5 @@
 import nodemailer from "nodemailer";
 import { MODELE_HTML_BIENVENUE } from "./mail-bienvenue-modele.js";
-import { STATUT_BLOQUE, envoiMailAutorise } from "./envoi-mail-autorise.js";
-import { creerJetonActivation, lienActivation } from "./club-activation-core.js";
 
 // Mail de bienvenue envoyé automatiquement à chaque nouvel adhérent du Club,
 // juste après la création de son compte depuis HelloAsso
@@ -35,34 +33,17 @@ const echapperHtml = (s) =>
 
 const salutation = (prenom) => (prenom ? `Bonjour ${prenom},` : "Bonjour,");
 
-// Page de repli pour choisir son mot de passe (adresse + mot de passe), quand
-// le lien personnel n'a pas pu être créé ou a expiré.
-export const LIEN_INSCRIPTION = "https://perlimpinpin.ai/relectures/inscription";
-
-// Lien personnel « Choisir mon mot de passe » (7 jours), ou null s'il ne peut
-// pas être créé (AUTH_SECRET absent, compte sans numéro).
-export function lienActivationPour({ adherentId, email }, env = process.env) {
-  try {
-    const jeton = creerJetonActivation({ secret: env.AUTH_SECRET, adherentId, email });
-    return lienActivation({ jeton, env });
-  } catch {
-    return null;
-  }
-}
-
-// { objet, html, texte } prêts à envoyer. `lienActivation` : lien personnel
-// pour choisir son mot de passe ; à défaut, la page d'inscription.
-export function composerMailBienvenue({ prenom, lienActivation: lien = null } = {}) {
+// { objet, html, texte } prêts à envoyer.
+export function composerMailBienvenue({ prenom } = {}) {
   const p = typeof prenom === "string" && prenom.trim() ? prenom.trim() : null;
-  const lienBouton = typeof lien === "string" && lien.startsWith("http") ? lien : LIEN_INSCRIPTION;
-  const html = MODELE_HTML_BIENVENUE.replace("__SALUTATION__", echapperHtml(salutation(p))).replaceAll(
-    "__LIEN_ACTIVATION__",
-    echapperHtml(lienBouton),
+  const html = MODELE_HTML_BIENVENUE.replace(
+    "__SALUTATION__",
+    echapperHtml(salutation(p)),
   );
-  return { objet: OBJET_BIENVENUE, html, texte: texteBienvenue(p, lienBouton) };
+  return { objet: OBJET_BIENVENUE, html, texte: texteBienvenue(p) };
 }
 
-function texteBienvenue(prenom, lien) {
+function texteBienvenue(prenom) {
   return `${salutation(prenom)}
 
 Ça y est, tu fais partie de l’aventure. Bienvenue au Club Perlimpinpin !
@@ -74,27 +55,23 @@ Perlimpinpin existe pour changer ça. Notre objectif : une politique fondée sur
 En nous rejoignant, tu deviens l’un des gardiens de cette exigence.
 
 CE QU’ON FAIT ENSEMBLE
-Les analyses publiées sur perlimpinpin.ai restent ouvertes : en tant que membre du Club, tu peux les annoter et les challenger à tout moment.
-1. Sur n’importe quelle analyse, tu surlignes un passage et tu laisses une annotation : une source à ajouter, un chiffre discutable, un argument oublié, une question…
-2. Chaque semaine, l’équipe passe en revue toutes les annotations. Celles qui apportent un argument ou une source sont étudiées de près.
-3. Si elles changent l’analyse, la fiche est révisée : une nouvelle version (V2, V3…) est publiée, avec son historique.
-4. L’équipe te répond sous 7 jours.
+Aucune analyse n’est publiée sur perlimpinpin.ai sans être passée par le Club :
+1. Une nouvelle fiche arrive dans l’espace du Club, et chacun reçoit un e-mail avec un court résumé.
+2. On la lit et on la commente pendant quelques jours : une source à ajouter, un chiffre discutable, un argument oublié…
+3. La fiche est reprise à partir de tous les commentaires, et chacun reçoit une réponse.
+4. La version finale est publiée, plus solide grâce à tous ceux qui l’ont relue.
 Pas besoin d’être expert : un « je n’ai pas compris ce passage » compte autant qu’une référence de la Cour des comptes.
 
-CHOISIS TON MOT DE PASSE (1 MINUTE)
-${
-  lien === LIEN_INSCRIPTION
-    ? `Rends-toi sur ${LIEN_INSCRIPTION}, saisis l’adresse e-mail de ton adhésion HelloAsso, puis choisis ton mot de passe.`
-    : `Clique sur ce lien personnel pour choisir ton mot de passe :
-${lien}
-Ce lien est valable 7 jours et ne sert qu’une fois. Passé ce délai, rends-toi sur ${LIEN_INSCRIPTION} avec l’adresse e-mail de ton adhésion.`
-}
+ACTIVE TON COMPTE (2 MINUTES)
+1. Rends-toi sur https://perlimpinpin.ai/relectures/inscription
+2. Saisis l’adresse e-mail utilisée pour ton adhésion HelloAsso.
+3. Choisis ton mot de passe et confirme-le.
 Ensuite, il suffira de te connecter sur https://perlimpinpin.ai/relectures/connexion
 
 LES PERLIMPINPOINTS
-Chaque annotation fait avancer la mission, et ça mérite d’être reconnu :
-- +10 points pour chaque annotation (jusqu’à 5 par fiche) ;
-- +20 points en bonus quand ton annotation fait évoluer la fiche.
+Chaque relecture fait avancer la mission, et ça mérite d’être reconnu :
+- +10 points pour chaque commentaire (jusqu’à 5 par fiche) ;
+- +20 points en bonus quand ton commentaire est retenu dans la version finale.
 Tous les 150 points, tu gagnes un rang : Bronze, Silver, Gold… et la suite reste une surprise. Les membres les plus actifs seront mis à l’honneur dans le Club.
 
 ET CE N’EST QU’UN DÉBUT
@@ -108,9 +85,8 @@ Si tu le souhaites, n’hésite pas à répondre à ce message pour te présente
 Un souci à l’inscription ? Réponds simplement à ce message, on s’en occupe.
 
 FAIS GRANDIR LE CLUB
-Une politique sur les faits, ça ne se construit pas à quelques-uns. Plus on est nombreux à challenger les analyses, plus elles sont solides, et plus elles pèsent dans le débat.
-Tu connais quelqu’un qui en a assez des promesses en l’air ? Envoie-lui ce lien : https://perlimpinpin.ai/nous-rejoindre
-(Ne transfère pas ce mail : ton lien pour choisir ton mot de passe est personnel.)
+Une politique sur les faits, ça ne se construit pas à quelques-uns. Plus on est nombreux à relire, plus les analyses sont solides, et plus elles pèsent dans le débat.
+Tu connais quelqu’un qui en a assez des promesses en l’air ? Transfère-lui ce mail, ou envoie-lui ce lien : https://perlimpinpin.ai/nous-rejoindre
 
 Très heureux de t’avoir avec nous. À très vite sur les fiches !
 Arno, au nom du Club Perlimpinpin
@@ -148,20 +124,12 @@ export async function envoyerMailBienvenue(
     log.warn(`[club] mail de bienvenue non envoyé (${ref}) : adresse absente`);
     return { statut: "ignore" };
   }
-  // Jamais depuis une preview (base partagée avec la production) : voir envoi-mail-autorise.js
-  if (!envoiMailAutorise(env)) {
-    log.warn(`[club] mail de bienvenue non envoyé (${ref}) : envoi bloqué hors production`);
-    return { statut: STATUT_BLOQUE };
-  }
   const config = configSmtpClub(env);
   if (!config) {
     log.error(`[club] mail de bienvenue non envoyé (${ref}) : variables CLUB_SMTP_* incomplètes`);
     return { statut: "non-configure" };
   }
-  // Lien personnel « Choisir mon mot de passe » (jamais journalisé : il contient le jeton)
-  const lien = adherentId != null ? lienActivationPour({ adherentId, email }, env) : null;
-  if (!lien) log.warn(`[club] mail de bienvenue (${ref}) : sans lien personnel, page d'inscription à la place`);
-  const mail = composerMailBienvenue({ prenom: prenomDepuisNom(nom), lienActivation: lien });
+  const mail = composerMailBienvenue({ prenom: prenomDepuisNom(nom) });
   try {
     const transport = creerTransport(config);
     await transport.sendMail({

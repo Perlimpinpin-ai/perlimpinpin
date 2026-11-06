@@ -5,8 +5,7 @@ import { inscription } from "../actions";
 import { buttonClass, inputClass, labelClass } from "../ui";
 
 // minLength vient de la page serveur (live-password importe bcrypt : pas côté client).
-// `retour` : fiche d'où vient l'adhérent (vérifiée par la page puis par l'action).
-export default function InscriptionForm({ minLength, retour = null }) {
+export default function InscriptionForm({ minLength }) {
   const [state, formAction, pending] = useActionState(inscription, null);
 
   // Compte activé : le cookie est posé, on charge /relectures par une vraie navigation.
@@ -16,7 +15,6 @@ export default function InscriptionForm({ minLength, retour = null }) {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
-      {retour ? <input type="hidden" name="retour" value={retour} /> : null}
       <div>
         <label htmlFor="relecture-email" className={labelClass}>
           Adresse e-mail

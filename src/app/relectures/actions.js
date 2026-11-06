@@ -6,9 +6,6 @@ import { hashPassword, normalizeEmail, passwordProblem, verifyPassword } from "@
 import { secretUtilisable } from "@/lib/relecture-auth-core";
 import { ouvrirSession } from "@/lib/relecture-auth";
 import { changerMotDePasse, envoyerLienSiCompte } from "@/lib/mot-de-passe-oublie";
-import { cookies } from "next/headers";
-import { activerCompte } from "@/lib/club-activation";
-import { COOKIE_RETOUR, retourValide } from "@/lib/club-retour-core";
 
 // Connexion et inscription de l'espace adhérents (/relectures). Session séparée
 // de /live : cookie signé relecture_auth (voir src/lib/relecture-auth-core.js).
@@ -55,15 +52,8 @@ export async function connexion(_previousState, formData) {
 
   await ouvrirSession(adherent.id);
   // Pas de redirect() : /relectures est un fichier statique, le client le charge
-  // par une navigation complète (voir ConnexionForm). Venu d'une fiche
-  // (« Commenter cette analyse ») : retour vers elle, chemin vérifié.
-  return { ok: true, redirectTo: retourDuFormulaire(formData) ?? "/relectures" };
-}
-
-// Fiche d'où vient l'adhérent (champ caché « retour » des formulaires de
-// connexion et d'inscription), ou null : seuls les chemins de fiche sont suivis.
-function retourDuFormulaire(formData) {
-  return retourValide(formData.get("retour"));
+  // par une navigation complète (voir ConnexionForm).
+  return { ok: true, redirectTo: "/relectures" };
 }
 
 export async function inscription(_previousState, formData) {
@@ -107,7 +97,7 @@ export async function inscription(_previousState, formData) {
   if (!adherentId) return { error: INSCRIPTION_REFUSEE, refus: true, email: typed };
 
   await ouvrirSession(adherentId);
-  return { ok: true, redirectTo: retourDuFormulaire(formData) ?? "/relectures" };
+  return { ok: true, redirectTo: "/relectures" };
 }
 
 // « Mot de passe oublié » : la réponse est TOUJOURS la même (on ne révèle
@@ -153,40 +143,4 @@ export async function choisirNouveauMotDePasse(_previousState, formData) {
 
   await ouvrirSession(compte.id);
   return { ok: true, redirectTo: "/relectures" };
-}
-
-const LIEN_ACTIVATION_INVALIDE =
-  "Ce lien n'est plus valable (expiré ou déjà utilisé). Choisissez votre mot de passe depuis la page « Première connexion ».";
-
-// Page « choisir mon mot de passe » (lien du mail de bienvenue, nouvel
-// adhérent HelloAsso). Une fois le mot de passe choisi, le lien ne marche plus,
-// l'adhérent est connecté et renvoyé vers la fiche d'où il venait (cookie
-// club_retour, voir src/lib/club-retour-core.js), sinon vers le Club.
-export async function activerMonCompte(_previousState, formData) {
-  const jeton = formData.get("jeton");
-  const password = formData.get("password");
-  const confirmation = formData.get("confirmation");
-
-  const probleme = passwordProblem(password);
-  if (probleme) return { error: probleme };
-  if (password !== confirmation) return { error: "Les deux mots de passe ne correspondent pas." };
-  if (!secretUtilisable(process.env.AUTH_SECRET)) {
-    console.error("[club] AUTH_SECRET absent : activation impossible.");
-    return { error: INDISPONIBLE };
-  }
-
-  let adherentId;
-  try {
-    adherentId = await activerCompte(typeof jeton === "string" ? jeton : "", password);
-  } catch (error) {
-    console.error("[club] activation impossible :", error?.message ?? error);
-    return { error: INDISPONIBLE };
-  }
-  if (!adherentId) return { error: LIEN_ACTIVATION_INVALIDE, lienInvalide: true };
-
-  await ouvrirSession(adherentId);
-  const magasin = await cookies();
-  const retour = retourValide(magasin.get(COOKIE_RETOUR)?.value);
-  if (retour) magasin.delete({ name: COOKIE_RETOUR, path: "/" });
-  return { ok: true, redirectTo: retour ?? "/relectures" };
 }

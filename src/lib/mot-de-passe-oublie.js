@@ -9,7 +9,6 @@ import {
   urlSite,
 } from "@/lib/mot-de-passe-oublie-core";
 import { envoyerMailMotDePasse } from "@/lib/mail-mot-de-passe";
-import { STATUT_BLOQUE } from "@/lib/envoi-mail-autorise";
 
 // « Mot de passe oublié », côté serveur : lecture des comptes en base et envoi
 // du mail. Le cœur (jetons signés, URL du site) est dans mot-de-passe-oublie-core.js.
@@ -25,12 +24,11 @@ function table(espace) {
 
 const REF = { relectures: "adhérent", live: "compte live" };
 
-// Envoie le mail ; en local (SMTP absent, ou envoi bloqué sous `next dev`),
-// affiche le lien dans le terminal.
+// Envoie le mail ; en local sans SMTP, affiche le lien dans le terminal.
 async function envoyer(params) {
   const { statut } = await envoyerMailMotDePasse(params);
-  if ((statut === "non-configure" || statut === STATUT_BLOQUE) && lienAfficheEnLocal()) {
-    console.log(`[${params.espace}] (local, mail non envoyé) lien à ouvrir : ${params.lien}`);
+  if (statut === "non-configure" && lienAfficheEnLocal()) {
+    console.log(`[${params.espace}] (local, SMTP non configuré) lien à ouvrir : ${params.lien}`);
   }
 }
 

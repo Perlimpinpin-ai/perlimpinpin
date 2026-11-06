@@ -82,36 +82,6 @@ export async function declencherRevision({ slug, token, fetchImpl = fetch }) {
   return { lien: res.html_url || LIEN_WORKFLOW, dejaLance: false };
 }
 
-// ---------- « Traiter maintenant » (page admin /test/revue, Club ouvert) ----------
-
-export const WORKFLOW_REVUE = "revue-dimanche.yml";
-const API_WORKFLOW_REVUE = `${API_DEPOT}/actions/workflows/${WORKFLOW_REVUE}`;
-const LIEN_WORKFLOW_REVUE = `https://github.com/${DEPOT}/actions/workflows/${WORKFLOW_REVUE}`;
-
-// Lance la revue d'UNE fiche (workflow revue-dimanche.yml, entrée « fiche »).
-// Le run s'intitule « Revue fiche <id> » : pas de second lancement tant qu'il
-// est en attente ou en cours. Branche : GITHUB_REVUE_REF, sinon main.
-// Renvoie { lien, dejaLance }.
-export async function declencherRevue({ propositionId, token, fetchImpl = fetch, ref = process.env.GITHUB_REVUE_REF || "main" }) {
-  if (!Number.isSafeInteger(propositionId) || propositionId <= 0) throw new Error("Fiche invalide.");
-  if (!token) throw new Error("GITHUB_DISPATCH_TOKEN absent : envoi impossible.");
-  for (const status of ["queued", "in_progress"]) {
-    const r = await fetchImpl(`${API_WORKFLOW_REVUE}/runs?status=${status}&per_page=50`, { headers: entetes(token) });
-    if (!r.ok) throw new Error(erreurGitHub("la liste des revues en cours", r.status));
-    const { workflow_runs: runs = [] } = await r.json();
-    const run = runs.find((x) => x.display_title === `Revue fiche ${propositionId}`);
-    if (run) return { lien: run.html_url || LIEN_WORKFLOW_REVUE, dejaLance: true };
-  }
-  const r = await fetchImpl(`${API_WORKFLOW_REVUE}/dispatches`, {
-    method: "POST",
-    headers: { ...entetes(token), "Content-Type": "application/json" },
-    body: JSON.stringify({ ref, inputs: { fiche: String(propositionId) }, return_run_details: true }),
-  });
-  if (!r.ok) throw new Error(erreurGitHub("le lancement de la revue", r.status));
-  const res = r.status === 200 ? await r.json().catch(() => ({})) : {};
-  return { lien: res.html_url || LIEN_WORKFLOW_REVUE, dejaLance: false };
-}
-
 // ---------- PR de révision (bouton « Publier » de /test) ----------
 
 // Lien de recherche des PR de la branche, sans appel à l'API (« Voir la PR »).

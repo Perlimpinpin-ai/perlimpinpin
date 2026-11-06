@@ -14,10 +14,6 @@ export default function NouveauMotDePasseForm({
   labelClass,
   inputClass,
   buttonClass,
-  // Libellés : par défaut ceux du « mot de passe oublié » ; la page
-  // d'activation du Club (/relectures/activer) les remplace.
-  libelleMotDePasse = "Nouveau mot de passe",
-  libelleBouton = "Enregistrer le mot de passe",
 }) {
   const [state, formAction, pending] = useActionState(action, null);
 
@@ -31,7 +27,7 @@ export default function NouveauMotDePasseForm({
       <input type="hidden" name="jeton" value={jeton} />
       <div>
         <label htmlFor={`${idPrefix}-password`} className={labelClass}>
-          {libelleMotDePasse}
+          Nouveau mot de passe
         </label>
         <input
           id={`${idPrefix}-password`}
@@ -77,7 +73,7 @@ export default function NouveauMotDePasseForm({
       )}
 
       <button type="submit" disabled={pending || state?.ok} className={buttonClass}>
-        {pending ? "Enregistrement…" : libelleBouton}
+        {pending ? "Enregistrement…" : "Enregistrer le mot de passe"}
       </button>
     </form>
   );
