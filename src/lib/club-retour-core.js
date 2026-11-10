@@ -21,8 +21,8 @@ export const DUREE_RETOUR_S = 7 * 24 * 60 * 60;
 export const ADHESION_URL_DEFAUT = "https://www.helloasso.com/associations/perlimpinpin-ai";
 const HOTES_HELLOASSO = new Set(["www.helloasso.com", "www.helloasso-sandbox.com"]);
 
-// « #commenter » : rouvre le panneau « Commenter cette analyse » au retour
-// (src/components/CommenterAnalyse.js).
+// « #commenter » : ancre de retour historique (ancien panneau « Commenter
+// cette analyse ») ; acceptée, sans effet particulier.
 const CHEMIN_FICHE = /^\/declarations\/[1-9]\d{0,9}(?:\?vue=expert)?(?:#commenter)?$/;
 
 // Le chemin s'il est une fiche du site, sinon null.

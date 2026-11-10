@@ -163,6 +163,12 @@ mark.anno-hl.pending { background: var(--anno-hl-fort); cursor: default; }
 @media (min-width: 1024px) {
   .anno-bulle { position: absolute; top: 0; right: -40px; margin-top: 0; }
 }
+/* Zone de note ouverte : délai de réponse, et encart d'adhésion pour un visiteur. */
+.anote-delai { margin: 0; font-size: 11.5px; opacity: .75; }
+.anote-adhesion { display: grid; gap: 6px; margin-top: 2px; padding: 8px 10px; border-radius: 10px; background: #fff; border: 1px solid var(--anno-note-trait); font-size: 12.5px; }
+.anote-adhesion p { margin: 0; }
+.anote-adhesion a { color: var(--anno-note-encre); text-decoration: underline; text-underline-offset: 3px; }
+.anote-adhesion a.anote-adhesion-principal { justify-self: start; text-decoration: none; font-weight: 600; background: var(--anno-hl-fort); border-radius: 999px; padding: 4px 12px; }
 /* Cartes de critère : la bulle reste dans la carte (pas de débordement vers la colonne de droite). */
 .anno-zone.rounded-xl > .anno-bulle { position: absolute; top: 12px; right: 12px; margin-top: 0; }
 /* Sur papier (bouton « PDF ») : ni bulles, ni boutons, ni notes, ni surlignage. */

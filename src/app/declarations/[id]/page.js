@@ -23,7 +23,7 @@ import { lireVersionBasique } from "@/lib/version-basique";
 import VueBasique, { TOC_SECTIONS_BASIQUE, ID_SOURCES_EXPERT, ScriptVueInitiale } from "@/components/VueBasique";
 import { VueAnalyseProvider, BasculeVue, Vue } from "@/components/VueAnalyseProvider";
 import AnnotationsFiche from "@/components/AnnotationsFiche";
-import CommenterAnalyse from "@/components/CommenterAnalyse";
+import RemarqueGenerale from "@/components/RemarqueGenerale";
 import { attributsZone, slugFiche } from "@/lib/fiche-annotations-core";
 import { EXPLICATIONS_CRITERES } from "@/lib/criteresScore";
 import ActionsFiche from "@/components/ActionsFiche";
@@ -1244,16 +1244,6 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               actionsFiche
             )}
 
-            {/* « Commenter cette analyse » (Club) : visible dans les deux vues,
-                au-dessus de l'analyse détaillée ; fiche publiée uniquement. */}
-            {annotable ? (
-              <CommenterAnalyse
-                propositionId={propositionId}
-                analyseId={analyse.id}
-                retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
-              />
-            ) : null}
-
             {/* Annotations du Club (fiche publiée uniquement, jamais en aperçu /test) :
                 data-view délimite la zone annotable, voir AnnotationsFiche. */}
             <div className="contents" {...(annotable ? { "data-view": slugFiche(propositionId) } : {})}>
@@ -1274,6 +1264,11 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 className={`max-w-[68ch]${edition ? " pr-11" : ""}${annotable ? " anno-zone" : ""}`}
                 {...attributsZone(annotable, "resume_court", "Résumé")}
               >
+                {/* Ligne d'aide discrète en haut de la vue experte (hors zone
+                    annotable : elle ne compte pas dans le texte du résumé). */}
+                {annotable ? (
+                  <p className="mb-3 text-xs text-zinc-400 print:hidden">Sélectionnez un passage pour l&rsquo;annoter</p>
+                ) : null}
                 {annotable ? (
                   <div className="body">
                     <TeaserParagraphs text={contenu.resume_court} />
@@ -1467,6 +1462,17 @@ export default async function DeclarationDetailPage({ params, preview = false, e
             {!isV4 ? (
               <div>
                 <FiabiliteSection contenu={contenu} edition={edition} />
+              </div>
+            ) : null}
+            {/* « Une remarque sur l'ensemble de l'analyse ? » (Club), en bas de
+                la vue experte ; fiche publiée uniquement. */}
+            {annotable ? (
+              <div>
+                <RemarqueGenerale
+                  propositionId={propositionId}
+                  analyseId={analyse.id}
+                  retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+                />
               </div>
             ) : null}
             </VueExpertSi>
