@@ -16,9 +16,15 @@
  * publiées : clé du contenu, ex. « contexte_national »), sinon l'id HTML
  * (/relectures).
  *
- * Mode lectureSeule (visiteur non adhérent d'une fiche publiée) : seuls les
- * passages surlignés sont affichés, sans aucun texte de note (le serveur ne
- * l'envoie même pas) ; un clic sur un passage appelle config.surClicZone.
+ * Mode lectureSeule : seuls les passages surlignés sont affichés, sans note ni
+ * bouton « Annoter ». afficherNotes: false (visiteur d'une fiche publiée) :
+ * on peut annoter, mais les notes des autres ne sont pas affichées (le serveur
+ * n'envoie que des zones sans texte). surClicZone : appelé au clic sur un
+ * passage surligné ou une bulle (sinon, les notes repliées s'ouvrent).
+ * avantEnvoi(donnees, form, brouillon) : renvoie false pour NE PAS envoyer
+ * (visiteur : la note est gardée dans le navigateur, voir AnnotationsFiche).
+ * reprendreBrouillon({ sectionId, quotedText, startOffset, body, creditAccord }) :
+ * rouvre une note gardée, au même passage, prête à envoyer.
  *
  * Aucune dépendance, aucune donnée : ce fichier est public (public/club/).
  */
@@ -220,6 +226,7 @@
       if (!draft) return;
       var d = draft;
       draft = null;
+      if (cfg.apresAnnulation) cfg.apresAnnulation(d);
       unwrapMarks(d.target.root, "draft");
       d.el.remove();
       renderNotes(d.slug);
@@ -248,6 +255,11 @@
       if (cfg.champsEnvoi) {
         var extra = cfg.champsEnvoi(form) || {};
         Object.keys(extra).forEach(function (k) { donnees[k] = extra[k]; });
+      }
+      if (cfg.avantEnvoi && cfg.avantEnvoi(donnees, form, d) === false) {
+        btn.disabled = false;
+        btn.textContent = "Valider";
+        return;
       }
       fetch(cfg.api, {
         method: "POST",
@@ -388,7 +400,7 @@
           section.appendChild(bulleEl(a.sectionId));
         });
       }
-      if (!lectureSeule) {
+      if (!lectureSeule && cfg.afficherNotes !== false) {
         list.forEach(function (a) {
           var section = sectionOf(a.sectionId);
           if (!section) return;
@@ -593,11 +605,11 @@
       var mark = !bulle && ev.target.closest("mark.anno-hl:not(.pending)");
       if (!bulle && !mark) return;
       var section = (bulle || mark).closest("[data-comment-target]");
-      if (lectureSeule) {
+      if (cfg.surClicZone) {
         // Un clic qui termine une sélection de texte n'est pas un clic sur le passage.
         var sel = window.getSelection();
         if (mark && sel && !sel.isCollapsed) return;
-        if (cfg.surClicZone) cfg.surClicZone(section, bulle || mark);
+        cfg.surClicZone(section, bulle || mark);
         return;
       }
       if (cfg.notesRepliees && section) {
@@ -639,6 +651,33 @@
       afficher: renderNotes,
       masquerBouton: hideAnnot,
       masquerPastille: hidePastille,
+      // Note gardée dans le navigateur (visiteur devenu adhérent) : rouverte au
+      // même passage s'il existe encore, sinon sur tout le bloc. Vrai si rouverte.
+      reprendreBrouillon: function (b) {
+        if (!b || typeof b.body !== "string") return false;
+        var section = sectionOf(b.sectionId);
+        var root = section && section.querySelector(ANNOT_ROOT);
+        if (!root) return false;
+        var target = null;
+        if (b.quotedText) {
+          var full = root.textContent;
+          var start = full.slice(b.startOffset, b.startOffset + b.quotedText.length) === b.quotedText ? b.startOffset : -1;
+          if (start < 0) {
+            for (var i = full.indexOf(b.quotedText); i >= 0; i = full.indexOf(b.quotedText, i + 1)) {
+              if (start < 0 || Math.abs(i - b.startOffset) < Math.abs(start - b.startOffset)) start = i;
+            }
+          }
+          if (start >= 0) target = makeTarget(root, start, start + b.quotedText.length);
+        }
+        target = target || sectionTarget(section);
+        if (!target) return false;
+        startDraft(target);
+        if (!draft) return false;
+        draft.el.body.value = b.body;
+        if (draft.el.credit) draft.el.credit.checked = b.creditAccord === true;
+        section.scrollIntoView({ block: "center" });
+        return true;
+      },
       annulerBrouillon: function (slug) {
         if (draft && (slug == null || draft.slug === slug)) cancelDraft();
       },

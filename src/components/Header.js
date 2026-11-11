@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NewsletterModal from "./NewsletterModal";
+import { libelleCompte, moiClub } from "@/lib/moi-club";
 
 // Onglets du centre de la barre (maquette : Déclarations, Candidats,
 // Méthode, À propos) + Thèmes, conservé à la demande. "Prix Perlimpinpin"
@@ -75,7 +76,34 @@ const CLUB_LETTRES = [
   ["B", "#f4649a"],
 ];
 
+// Adhérent connecté : le bouton affiche son pseudo (sinon le premier mot de
+// son nom) et mène à « Mon compte » ; sinon « CLUB ». Session lue une seule
+// fois par page (src/lib/moi-club.js).
 function ClubLink({ className = "", onClick }) {
+  const [compte, setCompte] = useState(null);
+  useEffect(() => {
+    let annule = false;
+    moiClub().then((moi) => !annule && setCompte(libelleCompte(moi)));
+    return () => {
+      annule = true;
+    };
+  }, []);
+
+  if (compte) {
+    return (
+      <a
+        href="/relectures#moi"
+        onClick={onClick}
+        aria-label={`Mon compte du Club Perlimpinpin (${compte})`}
+        title="Mon compte"
+        className={`inline-flex max-w-[12rem] items-center gap-1.5 text-sm font-semibold text-zinc-900 transition-opacity hover:opacity-80 ${className}`}
+      >
+        <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-yellow-400" />
+        <span className="truncate">{compte}</span>
+      </a>
+    );
+  }
+
   return (
     <a
       href="/relectures"

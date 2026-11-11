@@ -12,13 +12,24 @@ export async function GET() {
   const adherent = await getAdherent();
   if (!adherent) return Response.json(SESSION_EXPIREE, { status: 401 });
 
-  const commentaires = await prisma.relectureComment.findMany({
-    where: { adherentId: adherent.id },
-    // Lot 5 : « retenu » vient aussi des annotations closes (TraitementAnnotation).
-    select: { ficheSlug: true, retenu: true, traitements: { select: { id: true, etat: true, retenu: true, createdAt: true } } },
-  });
+  // Une panne du calcul des points ne doit jamais faire passer l'adhérent pour
+  // un visiteur (l'en-tête, la fiche et les annotations lisent cette route pour
+  // savoir s'il est connecté) : l'identité est renvoyée quoi qu'il arrive.
+  let commentaires = [];
+  let pointsIndisponibles = false;
+  try {
+    commentaires = await prisma.relectureComment.findMany({
+      where: { adherentId: adherent.id },
+      // Lot 5 : « retenu » vient aussi des annotations closes (TraitementAnnotation).
+      select: { ficheSlug: true, retenu: true, traitements: { select: { id: true, etat: true, retenu: true, createdAt: true } } },
+    });
+  } catch (error) {
+    pointsIndisponibles = true;
+    console.error(`[club] PerlimpinPOINTS indisponibles (adhérent n°${adherent.id}) :`, error?.code ?? error?.message);
+  }
 
   return Response.json({
+    pointsIndisponibles,
     // Nom affiché (pseudo s'il existe), pseudo seul, et nom par défaut.
     nom: nomAffiche(adherent),
     pseudo: adherent.pseudo,
