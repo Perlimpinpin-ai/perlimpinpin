@@ -27,6 +27,8 @@ export default function StickyScoreCard({
   versionMethodologie,
   generationDateLabel,
   enBrefNotation,
+  // Numéro de version de la fiche (V1, V2…), visible de tous (Club ouvert, lot 5)
+  numeroVersion = null,
 }) {
   const [scrolledPast, setScrolledPast] = useState(false);
   const vueAnalyse = useVueAnalyse();
@@ -51,9 +53,20 @@ export default function StickyScoreCard({
 
   return (
     <div className="break-inside-avoid rounded-2xl border border-zinc-200 bg-white p-6">
-      <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
-        Score Perlimpinpin
-      </span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+          Score Perlimpinpin
+        </span>
+        {numeroVersion ? (
+          <a
+            href="#historique"
+            title="Historique des versions de cette analyse"
+            className="rounded-full border border-yellow-300 bg-yellow-100 px-2 py-0.5 font-mono text-xs font-semibold text-zinc-800 hover:bg-yellow-200"
+          >
+            V{numeroVersion}
+          </a>
+        ) : null}
+      </div>
       <div className="mt-2 flex items-baseline gap-1.5">
         <span className={`text-[3.6rem] font-extrabold tracking-tight ${badge.scoreClass}`}>
           {score}

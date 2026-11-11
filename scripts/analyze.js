@@ -1339,7 +1339,7 @@ export function completerAvecFicheRelue(fiche, arbitrage3, ficheRelue) {
 // construireRequeteEtape3). L'étape 3 doit alors produire revision_relecture.
 //
 // candidatNom (facultatif) : nécessaire à l'étape 3 ter (publications X).
-async function runPipeline(etape1Input, { commentaires = null, candidatNom = null } = {}) {
+export async function runPipeline(etape1Input, { commentaires = null, candidatNom = null } = {}) {
   const etape1 = validateEtape1Local(loadEtape1(etape1Input), "Étape 1");
   console.log(
     `✓ Étape 1 chargée et validée (score initial : ${etape1.notation_detaillee.score_total}/100${etape1.notation_detaillee.plafond_applique ? `, plafond appliqué — déclencheur : ${etape1.notation_detaillee.plafond_declencheur}` : ""}).`,

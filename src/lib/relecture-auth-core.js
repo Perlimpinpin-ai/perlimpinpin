@@ -72,6 +72,11 @@ const PAGES_PUBLIQUES = new Set([
   "/relectures/deconnexion",
   "/relectures/mot-de-passe-oublie",
   "/relectures/nouveau-mot-de-passe",
+  // Adhésion au Club (lot « Club ouvert ») : départ vers HelloAsso, page de
+  // retour après paiement, choix du mot de passe depuis le mail de bienvenue.
+  "/relectures/adherer",
+  "/relectures/merci",
+  "/relectures/activer",
 ]);
 
 // Le proxy doit-il exiger une session pour ce chemin ? Protégé par défaut : tout

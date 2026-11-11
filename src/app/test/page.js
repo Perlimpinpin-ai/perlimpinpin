@@ -120,6 +120,15 @@ export default async function TestPage() {
                     Publications réseaux sociaux →
                   </Link>
                 ) : null}
+                {/* Revue du dimanche du Club (annotations, révisions à valider). */}
+                {editeur ? (
+                  <Link
+                    href="/test/revue"
+                    className="rounded-full border border-yellow-300 bg-yellow-100 px-3 py-1 text-xs font-semibold text-zinc-900 transition-colors hover:bg-yellow-200"
+                  >
+                    Revue du dimanche →
+                  </Link>
+                ) : null}
               </div>
             ) : null}
           </div>
