@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAdherent } from "@/lib/relecture-auth";
 import { retourValide } from "@/lib/club-retour-core";
+import { ajouterMarqueurConnexion } from "@/lib/session-club-core";
 import ClubShell from "../ClubShell";
 import ConnexionForm from "./ConnexionForm";
 
@@ -19,7 +20,7 @@ export default async function RelectureConnexionPage({ searchParams }) {
   const retour = retourValide((await searchParams)?.retour);
 
   // Déjà connecté : pas de formulaire, on va directement au Club (ou à la fiche)
-  if (await getAdherent()) redirect(retour ?? "/relectures");
+  if (await getAdherent()) redirect(ajouterMarqueurConnexion(retour ?? "/relectures"));
 
   const suite = retour ? `?retour=${encodeURIComponent(retour)}` : "";
 
@@ -37,8 +38,8 @@ export default async function RelectureConnexionPage({ searchParams }) {
           <p className="mt-3">
             Réservé aux adhérents de l&apos;association Perlimpinpin. Pas encore membre ?{" "}
             {retour ? (
-              <a href={`/relectures/adherer${suite}`} className={lienClass}>
-                Adhérer dès 2 € →
+              <a href={`/relectures/adherer${suite}`} target="_blank" rel="noopener noreferrer" className={lienClass}>
+                Rejoindre le Club →
               </a>
             ) : (
               <a
@@ -47,7 +48,7 @@ export default async function RelectureConnexionPage({ searchParams }) {
                 rel="noopener noreferrer"
                 className={lienClass}
               >
-                Adhérer sur HelloAsso →
+                Rejoindre le Club →
               </a>
             )}
           </p>

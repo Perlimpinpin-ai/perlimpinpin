@@ -52,9 +52,11 @@ export default function HistoriqueVersions({ propositionId, numeroVersion, retou
           </p>
           <a
             href={`/relectures/adherer?retour=${encodeURIComponent(retour)}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-3 inline-flex rounded-full bg-yellow-300 px-4 py-2 font-semibold text-zinc-900 hover:bg-yellow-400"
           >
-            Adhérer au Club
+            Rejoindre le Club
           </a>
         </div>
       ) : (

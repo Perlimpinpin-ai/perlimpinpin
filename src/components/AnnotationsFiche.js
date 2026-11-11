@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { garderBrouillon, liensAdhesion, lireBrouillon, oublierBrouillon } from "@/lib/brouillon-club";
-import { moiClub } from "@/lib/moi-club";
+import { moiClub, surSessionClub } from "@/lib/moi-club";
 
 // Annotations du Club sur la vue experte d'une fiche PUBLIÉE (/declarations/[id]).
 // Réutilise l'outil de /relectures (public/club/annotations.js), chargé une
@@ -69,7 +69,7 @@ function afficherEncartAdhesion(form, liens) {
   encart.className = "anote-adhesion";
   encart.innerHTML =
     "<p>Votre note est gardée sur cet appareil. Pour l’envoyer :</p>" +
-    `<a class="anote-adhesion-principal" href="${echapper(liens.adherer)}">Adhérer au Club</a>` +
+    `<a class="anote-adhesion-principal" href="${echapper(liens.adherer)}" target="_blank" rel="noopener noreferrer">Rejoindre le Club</a>` +
     `<a href="${echapper(liens.connexion)}">Déjà adhérent ? Se connecter</a>`;
   form.appendChild(encart);
 }
@@ -100,6 +100,12 @@ export default function AnnotationsFiche({ propositionId, analyseId, retour }) {
         const moi = await moiClub();
         if (annule) return;
         const membre = Boolean(moi);
+        // Connexion détectée après coup (page restaurée, onglet revenu…) :
+        // l'outil est recréé en mode adhérent par un rechargement (une note
+        // gardée dans le navigateur est alors rouverte, prête à envoyer).
+        surSessionClub((nouvelle) => {
+          if (!membre && nouvelle) window.location.reload();
+        });
         const liens = liensAdhesion(retour);
 
         // Adhérent : notes complètes. Visiteur : zones surlignées sans texte.
@@ -213,9 +219,11 @@ export default function AnnotationsFiche({ propositionId, analyseId, retour }) {
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
         <a
           href={lienAdhesion}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center rounded-full bg-yellow-300 px-4 py-2 font-semibold text-zinc-900 transition-colors hover:bg-yellow-400"
         >
-          Adhérer au Club
+          Rejoindre le Club
         </a>
         <a href={lienConnexion} className="text-zinc-600 underline decoration-zinc-300 underline-offset-4 hover:text-zinc-900">
           Déjà adhérent ? Se connecter

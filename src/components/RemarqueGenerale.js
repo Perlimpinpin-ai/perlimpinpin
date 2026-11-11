@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { LABEL_SECTION_GENERALE, SECTION_GENERALE } from "@/lib/fiche-annotations-core";
 import { garderBrouillon, liensAdhesion, lireBrouillon, oublierBrouillon } from "@/lib/brouillon-club";
-import { moiClub } from "@/lib/moi-club";
+import { surSessionClub } from "@/lib/moi-club";
 
 // « Une remarque sur l'ensemble de l'analyse ? », en bas de la vue experte
 // d'une fiche publiée (remplace l'encadré « Commenter cette analyse »).
@@ -46,9 +46,10 @@ export default function RemarqueGenerale({ propositionId, analyseId, retour }) {
   // ou de connexion : la remarque gardée est rouverte, prête à envoyer.
   useEffect(() => {
     let annule = false;
-    (async () => {
-      const moi = await moiClub();
-      if (annule || !moi) return;
+    let charge = false;
+    const charger = async (moi) => {
+      if (annule || !moi || charge) return;
+      charge = true;
       const liste = (await lireJson(`/api/relectures/comments?fiche=${encodeURIComponent(slug)}`).catch(() => null)) ?? [];
       if (annule) return;
       setMembre(true);
@@ -59,9 +60,12 @@ export default function RemarqueGenerale({ propositionId, analyseId, retour }) {
         setCredit(brouillon.creditAccord === true);
         setOuvert(true);
       }
-    })();
+    };
+    // Mis à jour en direct si la connexion est détectée après l'affichage.
+    const desabonner = surSessionClub(charger);
     return () => {
       annule = true;
+      desabonner();
     };
   }, [slug, propositionId]);
 
@@ -206,9 +210,11 @@ export default function RemarqueGenerale({ propositionId, analyseId, retour }) {
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                 <a
                   href={liens.adherer}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex rounded-full bg-yellow-300 px-4 py-1.5 font-semibold text-zinc-900 hover:bg-yellow-400"
                 >
-                  Adhérer au Club
+                  Rejoindre le Club
                 </a>
                 <a href={liens.connexion} className="underline decoration-zinc-300 underline-offset-4 hover:text-zinc-900">
                   Déjà adhérent ? Se connecter

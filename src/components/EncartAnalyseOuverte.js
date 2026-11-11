@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { liensAdhesion, retourCourant } from "@/lib/brouillon-club";
-import { moiClub } from "@/lib/moi-club";
+import { useMoiClub } from "@/lib/moi-club";
 import { LienVersExpert } from "@/components/VueAnalyseProvider";
 
 // Encadré jaune clair « Cette analyse est ouverte à la critique » d'une fiche
@@ -17,15 +16,9 @@ import { LienVersExpert } from "@/components/VueAnalyseProvider";
 export const ID_ENCART_EXPERT = "encart-critique";
 
 export default function EncartAnalyseOuverte({ retour, vue = "expert" }) {
-  const [membre, setMembre] = useState(null); // null = pas encore vérifié
-
-  useEffect(() => {
-    let annule = false;
-    moiClub().then((moi) => !annule && setMembre(Boolean(moi)));
-    return () => {
-      annule = true;
-    };
-  }, []);
+  // undefined = pas encore vérifié ; mis à jour en direct (connexion détectée après coup).
+  const moi = useMoiClub();
+  const membre = moi === undefined ? null : Boolean(moi);
 
   // Adresse calculée au clic : la vue a pu changer depuis l'affichage.
   const versLien = (type) => (event) => {
@@ -63,6 +56,10 @@ export default function EncartAnalyseOuverte({ retour, vue = "expert" }) {
           <a
             href={liensAdhesion(retour).adherer}
             onClick={versLien("adherer")}
+            // Nouvel onglet : la fiche reste ouverte ; la fiche de retour est
+            // mémorisée par /relectures/adherer (cookie partagé entre onglets).
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex rounded-full bg-yellow-300 px-4 py-1.5 text-sm font-semibold text-zinc-900 transition-colors hover:bg-yellow-400"
           >
             Rejoindre le Club
