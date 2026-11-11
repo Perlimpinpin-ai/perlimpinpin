@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PASSWORD_MIN_LENGTH } from "@/lib/live-password";
 import { getAdherent } from "@/lib/relecture-auth";
 import { retourValide } from "@/lib/club-retour-core";
+import { ajouterMarqueurConnexion } from "@/lib/session-club-core";
 import ClubShell from "../ClubShell";
 import InscriptionForm from "./InscriptionForm";
 
@@ -15,7 +16,7 @@ export const metadata = {
 // (chemin vérifié par retourValide, fiches du site uniquement).
 export default async function RelectureInscriptionPage({ searchParams }) {
   const retour = retourValide((await searchParams)?.retour);
-  if (await getAdherent()) redirect(retour ?? "/relectures");
+  if (await getAdherent()) redirect(ajouterMarqueurConnexion(retour ?? "/relectures"));
   const suite = retour ? `?retour=${encodeURIComponent(retour)}` : "";
 
   return (

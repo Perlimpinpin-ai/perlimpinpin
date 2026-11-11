@@ -11,6 +11,7 @@ import { connexionBloquee, noterEchec } from "@/lib/limite-connexion";
 import { MESSAGE_TROP_DE_TENTATIVES, ipDeLaRequete } from "@/lib/limite-connexion-core";
 import { activerCompte } from "@/lib/club-activation";
 import { COOKIE_RETOUR, retourValide } from "@/lib/club-retour-core";
+import { ajouterMarqueurConnexion } from "@/lib/session-club-core";
 
 // Connexion et inscription de l'espace adhérents (/relectures). Session séparée
 // de /live : cookie signé relecture_auth (voir src/lib/relecture-auth-core.js).
@@ -67,13 +68,20 @@ export async function connexion(_previousState, formData) {
   // Pas de redirect() : /relectures est un fichier statique, le client le charge
   // par une navigation complète (voir ConnexionForm). Venu d'une fiche
   // (« Commenter cette analyse ») : retour vers elle, chemin vérifié.
-  return { ok: true, redirectTo: retourDuFormulaire(formData) ?? "/relectures" };
+  return { ok: true, redirectTo: apresConnexion(retourDuFormulaire(formData) ?? "/relectures") };
 }
 
 // Fiche d'où vient l'adhérent (champ caché « retour » des formulaires de
 // connexion et d'inscription), ou null : seuls les chemins de fiche sont suivis.
 function retourDuFormulaire(formData) {
   return retourValide(formData.get("retour"));
+}
+
+// Adresse de retour marquée « club=connecte » : la page d'arrivée relit alors la
+// session avec insistance, pour afficher tout de suite le prénom et « Merci de
+// faire partie du Club ! » (voir src/lib/moi-club.js).
+function apresConnexion(chemin) {
+  return ajouterMarqueurConnexion(chemin);
 }
 
 export async function inscription(_previousState, formData) {
@@ -117,7 +125,7 @@ export async function inscription(_previousState, formData) {
   if (!adherentId) return { error: INSCRIPTION_REFUSEE, refus: true, email: typed };
 
   await ouvrirSession(adherentId);
-  return { ok: true, redirectTo: retourDuFormulaire(formData) ?? "/relectures" };
+  return { ok: true, redirectTo: apresConnexion(retourDuFormulaire(formData) ?? "/relectures") };
 }
 
 // « Mot de passe oublié » : la réponse est TOUJOURS la même (on ne révèle
@@ -162,7 +170,7 @@ export async function choisirNouveauMotDePasse(_previousState, formData) {
   if (!compte) return { error: LIEN_INVALIDE, lienInvalide: true };
 
   await ouvrirSession(compte.id);
-  return { ok: true, redirectTo: "/relectures" };
+  return { ok: true, redirectTo: apresConnexion("/relectures") };
 }
 
 const LIEN_ACTIVATION_INVALIDE =
@@ -198,5 +206,5 @@ export async function activerMonCompte(_previousState, formData) {
   const magasin = await cookies();
   const retour = retourValide(magasin.get(COOKIE_RETOUR)?.value);
   if (retour) magasin.delete({ name: COOKIE_RETOUR, path: "/" });
-  return { ok: true, redirectTo: retour ?? "/relectures" };
+  return { ok: true, redirectTo: apresConnexion(retour ?? "/relectures") };
 }

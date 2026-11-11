@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NewsletterModal from "./NewsletterModal";
-import { libelleCompte, moiClub } from "@/lib/moi-club";
+import { libelleCompte, useMoiClub } from "@/lib/moi-club";
 import { liensAdhesion, retourCourant } from "@/lib/brouillon-club";
 
 // Onglets du centre de la barre (maquette : Déclarations, Candidats,
@@ -78,17 +78,10 @@ const CLUB_LETTRES = [
 ];
 
 // Adhérent connecté : le bouton affiche son pseudo (sinon le premier mot de
-// son nom) et mène à « Mon compte » ; sinon « CLUB ». Session lue une seule
-// fois par page (src/lib/moi-club.js).
+// son nom) et mène à « Mon compte » ; sinon « CLUB ». Session partagée et
+// relue au besoin, mise à jour en direct (src/lib/moi-club.js).
 function ClubLink({ className = "", onClick }) {
-  const [compte, setCompte] = useState(null);
-  useEffect(() => {
-    let annule = false;
-    moiClub().then((moi) => !annule && setCompte(libelleCompte(moi)));
-    return () => {
-      annule = true;
-    };
-  }, []);
+  const compte = libelleCompte(useMoiClub());
 
   if (compte) {
     return (
