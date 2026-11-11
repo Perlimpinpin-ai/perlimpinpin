@@ -1,6 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { creerMoteur } from "@/lib/recherche";
 import { resolveTheme, themeLabel } from "@/lib/themes";
+import { STATUTS_VERSION, numeroVersion } from "@/lib/versions-core";
+
+// Numéro de version (V1, V2…) de l'analyse affichée, parmi les versions
+// publiées de la fiche (statut « publie » ou « remplacee », Club ouvert lot 5).
+// Sert seulement au numéro : aucune version remplacée n'est affichée ni comptée ailleurs.
+export async function getNumeroVersion(propositionId, analyseId) {
+  const versions = await prisma.analyse.findMany({
+    where: { propositionId, statut: { in: STATUTS_VERSION } },
+    select: { id: true, statut: true, createdAt: true },
+  });
+  return numeroVersion(versions, analyseId);
+}
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
@@ -531,11 +543,13 @@ export async function getCandidatAvecDeclarations(id) {
 }
 
 // Compte les votes like/dislike par Analyse, filtré depuis `sinceDate`
-// (ou sur toute la période si `sinceDate` est omis).
+// (ou sur toute la période si `sinceDate` est omis). Seules les analyses
+// PUBLIÉES comptent : une version « remplacee » (revue du dimanche) ne doit
+// jamais apparaître dans le classement de /prix-perlimpinpin.
 async function getVoteCountsByAnalyse(sinceDate) {
   const rows = await prisma.feedback.groupBy({
     by: ["analyseId", "type"],
-    where: sinceDate ? { createdAt: { gte: sinceDate } } : undefined,
+    where: { analyse: { statut: "publie" }, ...(sinceDate ? { createdAt: { gte: sinceDate } } : {}) },
     _count: { _all: true },
   });
 
