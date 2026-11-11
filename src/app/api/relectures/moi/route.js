@@ -8,9 +8,13 @@ import { commentairesPourPoints } from "@/lib/versions-core";
 // Adhérent connecté (bandeau et panneau « Mon compte » de la page /relectures),
 // ou 401. Les PerlimpinPOINTS sont recalculés à chaque appel depuis ses
 // commentaires ; ils ne sont renvoyés qu'à l'adhérent lui-même.
+// Jamais mise en cache (ni navigateur ni CDN) : une réponse « visiteur »
+// gardée après une connexion ferait croire que la connexion n'a pas marché.
+const SANS_CACHE = { "Cache-Control": "private, no-store, max-age=0" };
+
 export async function GET() {
   const adherent = await getAdherent();
-  if (!adherent) return Response.json(SESSION_EXPIREE, { status: 401 });
+  if (!adherent) return Response.json(SESSION_EXPIREE, { status: 401, headers: SANS_CACHE });
 
   // Une panne du calcul des points ne doit jamais faire passer l'adhérent pour
   // un visiteur (l'en-tête, la fiche et les annotations lisent cette route pour
@@ -38,7 +42,7 @@ export async function GET() {
     // Date de création du mot de passe (activation du compte).
     membreDepuis: adherent.activatedAt,
     ...bilanAdherent(commentairesPourPoints(commentaires)),
-  });
+  }, { headers: SANS_CACHE });
 }
 
 // Modifie le pseudo de l'adhérent CONNECTÉ (identifié par sa session, jamais

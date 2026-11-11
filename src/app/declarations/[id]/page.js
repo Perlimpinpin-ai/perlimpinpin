@@ -1232,6 +1232,11 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                   {actionsFiche}
                 </div>
                 <Vue nom="basique">
+                  {/* Encadré « ouverte à la critique » aussi en vue basique, avec
+                      un lien vers la vue experte (seule annotable). */}
+                  {annotable ? (
+                    <EncartAnalyseOuverte vue="basique" retour={`/declarations/${propositionId}`} />
+                  ) : null}
                   {/* Crayons seulement si la version basique est en base (pas
                       celle lue en local dans data/versions-basiques-dev). */}
                   <VueBasique

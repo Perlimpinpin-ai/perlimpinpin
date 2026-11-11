@@ -67,6 +67,17 @@ export function oublierBrouillon(propositionId, type, { stockage = stockageParDe
 // Liens de l'encart « Adhérer au Club » / « Déjà adhérent ? Se connecter »,
 // avec retour sur la fiche (chemins vérifiés côté serveur par retourValide).
 export function liensAdhesion(retour) {
-  const suite = `?retour=${encodeURIComponent(retour)}`;
+  const suite = retour ? `?retour=${encodeURIComponent(retour)}` : "";
   return { adherer: `/relectures/adherer${suite}`, connexion: `/relectures/connexion${suite}` };
+}
+
+// Fiche affichée en ce moment, DANS LA VUE affichée (basique ou experte : la
+// bascule écrit ?vue=expert dans l'adresse), pour y revenir après connexion,
+// première connexion ou adhésion. Hors d'une fiche : `defaut` (souvent null).
+// `lieu` est remplaçable en test.
+export function retourCourant(defaut = null, lieu = typeof window !== "undefined" ? window.location : null) {
+  const m = lieu ? /^\/declarations\/([1-9]\d{0,9})\/?$/.exec(lieu.pathname) : null;
+  if (!m) return defaut;
+  const vue = new URLSearchParams(lieu.search).get("vue");
+  return `/declarations/${m[1]}${vue === "expert" ? "?vue=expert" : ""}`;
 }
