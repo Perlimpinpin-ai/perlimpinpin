@@ -24,6 +24,7 @@ import VueBasique, { TOC_SECTIONS_BASIQUE, ID_SOURCES_EXPERT, ScriptVueInitiale 
 import { VueAnalyseProvider, BasculeVue, Vue } from "@/components/VueAnalyseProvider";
 import AnnotationsFiche from "@/components/AnnotationsFiche";
 import RemarqueGenerale from "@/components/RemarqueGenerale";
+import EncartAnalyseOuverte from "@/components/EncartAnalyseOuverte";
 import { attributsZone, slugFiche } from "@/lib/fiche-annotations-core";
 import { EXPLICATIONS_CRITERES } from "@/lib/criteresScore";
 import ActionsFiche from "@/components/ActionsFiche";
@@ -1264,10 +1265,13 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 className={`max-w-[68ch]${edition ? " pr-11" : ""}${annotable ? " anno-zone" : ""}`}
                 {...attributsZone(annotable, "resume_court", "Résumé")}
               >
-                {/* Ligne d'aide discrète en haut de la vue experte (hors zone
-                    annotable : elle ne compte pas dans le texte du résumé). */}
+                {/* Encadré « analyse ouverte à la critique » en haut de la vue
+                    experte (hors zone annotable : il ne compte pas dans le texte
+                    du résumé ; absent du PDF). */}
                 {annotable ? (
-                  <p className="mb-3 text-xs text-zinc-400 print:hidden">Sélectionnez un passage pour l&rsquo;annoter</p>
+                  <EncartAnalyseOuverte
+                    retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+                  />
                 ) : null}
                 {annotable ? (
                   <div className="body">
