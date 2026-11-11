@@ -72,3 +72,14 @@ test("liens de l'encart : retour sur la fiche, accepté par le serveur", () => {
   const retour = decodeURIComponent(adherer.split("retour=")[1]);
   assert.equal(retourValide(retour), "/declarations/12?vue=expert");
 });
+
+test("retour après connexion : la fiche affichée, dans la vue affichée", async () => {
+  const { retourCourant } = await import("../src/lib/brouillon-club.js");
+  const lieu = (pathname, search = "") => ({ pathname, search });
+  assert.equal(retourCourant(null, lieu("/declarations/79", "?vue=expert")), "/declarations/79?vue=expert");
+  assert.equal(retourCourant(null, lieu("/declarations/79")), "/declarations/79");
+  assert.equal(retourCourant(null, lieu("/declarations/79", "?vue=basique&x=1")), "/declarations/79");
+  assert.equal(retourCourant("/declarations/5", lieu("/candidats")), "/declarations/5");
+  assert.equal(retourCourant(null, lieu("/")), null);
+  assert.equal(retourValide(retourCourant(null, lieu("/declarations/79", "?vue=expert"))), "/declarations/79?vue=expert");
+});

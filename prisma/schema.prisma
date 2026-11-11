@@ -632,3 +632,20 @@ model TexteSite {
 
   @@id([page, cle])
 }
+
+// Essai RATÉ de connexion au Club (/relectures/connexion), pour limiter les
+// tentatives répétées : 5 par quart d'heure pour une même adresse e-mail, 10
+// pour une même IP (voir src/lib/limite-connexion-core.js). ÉCRITURE PAR AJOUT
+// SEULEMENT. Ni e-mail ni IP en clair : empreintes SHA-256 salées avec
+// AUTH_SECRET. Les lignes de plus d'un quart d'heure ne servent plus.
+model TentativeConnexion {
+  id        Int      @id @default(autoincrement())
+  // "relectures" (seul espace concerné pour l'instant)
+  espace    String
+  cleEmail  String?
+  cleIp     String?
+  createdAt DateTime @default(now())
+
+  @@index([cleEmail, createdAt])
+  @@index([cleIp, createdAt])
+}

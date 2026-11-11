@@ -6,7 +6,9 @@ import { hashPassword, normalizeEmail, passwordProblem, verifyPassword } from "@
 import { secretUtilisable } from "@/lib/relecture-auth-core";
 import { ouvrirSession } from "@/lib/relecture-auth";
 import { changerMotDePasse, envoyerLienSiCompte } from "@/lib/mot-de-passe-oublie";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { connexionBloquee, noterEchec } from "@/lib/limite-connexion";
+import { MESSAGE_TROP_DE_TENTATIVES, ipDeLaRequete } from "@/lib/limite-connexion-core";
 import { activerCompte } from "@/lib/club-activation";
 import { COOKIE_RETOUR, retourValide } from "@/lib/club-retour-core";
 
@@ -39,6 +41,13 @@ export async function connexion(_previousState, formData) {
     return { error: INDISPONIBLE, email: typed };
   }
 
+  // Trop d'essais ratés récents (même adresse ou même IP) : refus, même message
+  // que le compte existe ou non. Voir src/lib/limite-connexion.js.
+  const ip = ipDeLaRequete(await headers());
+  if (await connexionBloquee({ email, ip, prisma })) {
+    return { error: MESSAGE_TROP_DE_TENTATIVES, email: typed };
+  }
+
   let adherent;
   try {
     adherent = await prisma.adherent.findUnique({ where: { email }, select: { id: true, motDePasseHash: true } });
@@ -50,6 +59,7 @@ export async function connexion(_previousState, formData) {
   // Compte inconnu ou pas encore activé : verifyPassword compare quand même à un
   // faux hachage (même temps de réponse) puis répond faux.
   if (!(await verifyPassword(password, adherent?.motDePasseHash ?? null))) {
+    await noterEchec({ email, ip, prisma });
     return { error: BAD_CREDENTIALS, email: typed };
   }
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NewsletterModal from "./NewsletterModal";
 import { libelleCompte, moiClub } from "@/lib/moi-club";
+import { liensAdhesion, retourCourant } from "@/lib/brouillon-club";
 
 // Onglets du centre de la barre (maquette : Déclarations, Candidats,
 // Méthode, À propos) + Thèmes, conservé à la demande. "Prix Perlimpinpin"
@@ -107,7 +108,12 @@ function ClubLink({ className = "", onClick }) {
   return (
     <a
       href="/relectures"
-      onClick={onClick}
+      onClick={(event) => {
+        // Visiteur sur une fiche : connexion avec retour sur cette fiche, dans la vue affichée.
+        const retour = retourCourant(null);
+        if (retour) event.currentTarget.href = liensAdhesion(retour).connexion;
+        onClick?.(event);
+      }}
       aria-label="Club Perlimpinpin (espace adhérents)"
       title="Club Perlimpinpin"
       className={`inline-flex items-center gap-[0.32em] text-sm font-semibold tracking-normal transition-opacity hover:opacity-80 ${className}`}
