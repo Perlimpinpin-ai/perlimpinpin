@@ -55,8 +55,9 @@ const ICON_INFO = (
   </>
 );
 
-// 6 étapes publiques, dans l'ordre réel du processus : analyse par Claude,
-// relecture par le Club, révision par l'IA, contre-analyse Mistral, synthèse.
+// 6 étapes publiques, dans l'ordre réel du processus : sources, analyse par
+// Claude, contre-analyse Mistral puis publication en V1, annotations du Club,
+// révision hebdomadaire validée par l'équipe, nouvelles versions (V2, V3…).
 // Représentation simplifiée pour le public. Les textes (carte, titre, détail)
 // viennent de src/lib/textes/methode.js (clés pipelineN.*). Les noms
 // input/output sont plausibles mais volontairement pas les vrais noms de
@@ -64,10 +65,10 @@ const ICON_INFO = (
 const STEPS = [
   { id: "01", icon: ICON_DATABASE, input: "declaration_brute", output: "corpus_sources" },
   { id: "02", icon: ICON_BARCHART, input: "corpus_sources", output: "analyse_initiale" },
-  { id: "03", icon: ICON_USERS, input: "analyse_initiale", output: "contributions_club" },
-  { id: "04", icon: ICON_PENCIL, input: "contributions_club", output: "analyse_revisee" },
-  { id: "05", icon: ICON_TARGET, input: "analyse_revisee", output: "contre_analyse" },
-  { id: "06", icon: ICON_SCALE, input: "contre_analyse", output: "verdict_final" },
+  { id: "03", icon: ICON_TARGET, input: "analyse_initiale", output: "analyse_v1" },
+  { id: "04", icon: ICON_USERS, input: "analyse_v1", output: "annotations_club" },
+  { id: "05", icon: ICON_PENCIL, input: "annotations_club", output: "analyse_revisee" },
+  { id: "06", icon: ICON_SCALE, input: "analyse_revisee", output: "versions_publiees" },
 ];
 
 function StepIcon({ icon, active }) {
