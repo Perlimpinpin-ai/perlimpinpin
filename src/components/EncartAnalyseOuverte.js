@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { liensAdhesion } from "@/lib/brouillon-club";
+import { moiClub } from "@/lib/moi-club";
 
 // Encadré jaune clair en haut de la vue experte d'une fiche publiée (Club
 // ouvert) : invite à annoter. Visiteur : lien « Rejoindre le Club » (retour
@@ -14,9 +15,7 @@ export default function EncartAnalyseOuverte({ retour }) {
 
   useEffect(() => {
     let annule = false;
-    fetch("/api/relectures/moi", { cache: "no-store", credentials: "same-origin" })
-      .then((r) => !annule && setMembre(r.ok))
-      .catch(() => !annule && setMembre(false));
+    moiClub().then((moi) => !annule && setMembre(Boolean(moi)));
     return () => {
       annule = true;
     };

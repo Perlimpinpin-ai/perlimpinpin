@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { LABEL_SECTION_GENERALE, SECTION_GENERALE } from "@/lib/fiche-annotations-core";
 import { garderBrouillon, liensAdhesion, lireBrouillon, oublierBrouillon } from "@/lib/brouillon-club";
+import { moiClub } from "@/lib/moi-club";
 
 // « Une remarque sur l'ensemble de l'analyse ? », en bas de la vue experte
 // d'une fiche publiée (remplace l'encadré « Commenter cette analyse »).
@@ -46,7 +47,7 @@ export default function RemarqueGenerale({ propositionId, analyseId, retour }) {
   useEffect(() => {
     let annule = false;
     (async () => {
-      const moi = await lireJson("/api/relectures/moi").catch(() => null);
+      const moi = await moiClub();
       if (annule || !moi) return;
       const liste = (await lireJson(`/api/relectures/comments?fiche=${encodeURIComponent(slug)}`).catch(() => null)) ?? [];
       if (annule) return;

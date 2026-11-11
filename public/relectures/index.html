@@ -2090,7 +2090,9 @@ Est-ce qu&#x27;on parle du nombre d&#x27;actif pour un retraité ? Si c&#x27;est
   function route() {
     var h = (location.hash || "").replace(/^#\/?/, "");
     var toArchives = h === "archives";
-    var name = h && !toArchives ? h : "hub";
+    // #moi : panneau « Mon compte » du hub (bouton du compte dans l'en-tête du site).
+    var toMoi = h === "moi";
+    var name = h && !toArchives && !toMoi ? h : "hub";
     var found = false;
     views.forEach(function (v) {
       var on = v.getAttribute("data-view") === name;
@@ -2105,6 +2107,13 @@ Est-ce qu&#x27;on parle du nombre d&#x27;actif pour un retraité ? Si c&#x27;est
     if (toArchives) {
       var arch = document.getElementById("archives");
       if (arch) arch.scrollIntoView({ block: "start" });
+    }
+    if (toMoi) {
+      // Le panneau s'affiche une fois le compte chargé : on attend un peu.
+      setTimeout(function () {
+        var moiPanneau = document.getElementById("moi");
+        if (moiPanneau && !moiPanneau.hidden) moiPanneau.scrollIntoView({ block: "start" });
+      }, 400);
     }
     document.body.classList.toggle("on-fiche", name !== "hub");
     if (name !== "hub") {

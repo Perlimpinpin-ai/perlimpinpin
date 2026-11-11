@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { garderBrouillon, liensAdhesion, lireBrouillon, oublierBrouillon } from "@/lib/brouillon-club";
+import { moiClub } from "@/lib/moi-club";
 
 // Annotations du Club sur la vue experte d'une fiche PUBLIÉE (/declarations/[id]).
 // Réutilise l'outil de /relectures (public/club/annotations.js), chargé une
@@ -96,7 +97,7 @@ export default function AnnotationsFiche({ propositionId, analyseId, retour }) {
           return true;
         };
 
-        const moi = await lireJson("/api/relectures/moi");
+        const moi = await moiClub();
         if (annule) return;
         const membre = Boolean(moi);
         const liens = liensAdhesion(retour);
