@@ -1,0 +1,278 @@
+{
+  "slug": "education-jeunesse",
+  "visible": false,
+  "note": "Dossier n°3 en relecture : page accessible par son adresse seulement (/dossiers/education-jeunesse), hors du registre (src/lib/hors-series.js), donc absente de /dossiers, du carrousel et du sitemap, et non indexée. Pour le publier : passer `visible` à true et l'ajouter au registre.",
+  "numero": 3,
+  "etiquette": "Éducation et jeunesse · novembre 2026",
+  "titre": "École, études, premier emploi : que promettent les candidats à la jeunesse ?",
+  "titreSurligne": "que promettent les candidats",
+  "miseAJour": {
+    "date": "2026-11-05",
+    "libelle": "Mis à jour le",
+    "avertissement": "Dossier évolutif : le nouveau programme de Jean-Luc Mélenchon et la désignation des Écologistes (vote du 10 au 13 décembre) seront intégrés dès leur publication."
+  },
+  "bandeauRelecture": "Version de relecture, non publiée : cette page n'est ni listée sur le site ni indexée. Les chiffres datent du recensement du 4 novembre.",
+  "chapo": "Depuis la rentrée, lycéens et étudiants manifestent pour leurs conditions d'études. Le 5 octobre, ils ont publié dix mesures d'urgence. Nous avons recensé les 189 propositions des onze candidats sur l'éducation et la jeunesse, puis analysé une à deux mesures phares par candidat, notées sur 100 après relecture par le Club Perlimpinpin.",
+  "boutons": [
+    { "label": "Voir les face-à-face", "ancre": "#face-a-face" },
+    { "label": "Notre méthode", "ancre": "#methode" }
+  ],
+  "charte": {
+    "police": "Inter",
+    "couleurs": {
+      "noir": "#0a0a0a",
+      "gris900": "#18181b",
+      "gris600": "#52525b",
+      "gris400": "#a1a1aa",
+      "gris200": "#e4e4e7",
+      "gris50": "#fafafa",
+      "jaune": "#ecd06f",
+      "jauneFonce": "#d4b23f",
+      "jaunePale": "#fbf7e6",
+      "grisPlan": "#ececea",
+      "grisFonce": "#27272a",
+      "titres": "rgba(10, 10, 10, 0.9)"
+    }
+  },
+  "plan": {
+    "titre": "Plan de lecture",
+    "items": [
+      { "num": "1", "titre": "L'essentiel en deux minutes", "ancre": "#essentiel" },
+      { "num": "2", "titre": "Les demandes des jeunes face aux programmes", "ancre": "#grille" },
+      { "num": "3", "titre": "Face-à-face : même sujet, propositions notées", "ancre": "#face-a-face" },
+      { "num": "4", "titre": "De la classe au premier emploi : toutes les propositions", "ancre": "#parcours" },
+      { "num": "5", "titre": "Méthode, sources et absences", "ancre": "#methode" }
+    ]
+  },
+  "essentiel": {
+    "num": "1",
+    "titre": "L'essentiel en deux minutes",
+    "paragraphes": [
+      "Sur l'éducation et la jeunesse, les candidats parlent surtout du salaire des enseignants, de l'entrée au collège et de Parcoursup. Quatre des dix demandes des lycéens et des étudiants ne reçoivent aucune réponse, dont les APL et la démocratie lycéenne.",
+      "Nous avons relevé toutes les propositions publiées par les candidats depuis leur entrée en campagne : programmes, sites, interviews, conférences de presse. Chacune est vérifiée (source, date, auteur) avant d'entrer dans le dossier. Les doublons et les mesures trop vagues pour être évaluées sont écartés.",
+      "Notre question : ces propositions sont-elles réalisables, et peuvent-elles améliorer les conditions d'études et l'entrée des jeunes dans la vie active ? Nous les comparons, puis évaluons chacune : efficacité, faisabilité juridique, coût, effets indésirables. Nous ne disons pas pour qui voter."
+    ]
+  },
+  "chiffres": {
+    "titre": "// En quatre chiffres",
+    "items": [
+      { "valeur": "189", "legende": "propositions recensées chez les 11 candidats, dont 52 retenues pour le dossier" },
+      { "valeur": "19", "legende": "mesures phares analysées et notées sur 100, dont 4 déjà publiées" },
+      { "valeur": "6 sur 10", "legende": "demandes des lycéens et des étudiants traitées par au moins un candidat" },
+      { "valeur": "5", "legende": "face-à-face entre candidats qui proposent sur le même sujet" }
+    ]
+  },
+  "grille": {
+    "num": "2",
+    "titre": "Les demandes des jeunes face aux programmes",
+    "intro": "Le 5 octobre, l'Union syndicale lycéenne et l'Union étudiante ont publié dix mesures d'urgence. Pour chacune, nous indiquons si un candidat la traite, en partie ou en totalité, ou s'il propose l'inverse. Traiter une demande ne veut pas dire la satisfaire.",
+    "candidats": ["Attal", "Glucksmann", "Le Pen", "Lisnard", "Mélenchon", "Philippe", "Retailleau", "Roussel", "Tondelier", "Villepin", "Zemmour"],
+    "legende": {
+      "traite": "Traite la demande",
+      "partiel": "La traite en partie",
+      "inverse": "Propose l'inverse",
+      "rien": "Aucune proposition"
+    },
+    "demandes": [
+      { "label": "Rénover les bâtiments et les adapter à la chaleur", "reponses": { "Attal": "traite", "Tondelier": "traite", "Villepin": "traite" } },
+      { "label": "Recruter : santé scolaire, orientation, AESH, titulaires", "reponses": { "Attal": "traite", "Mélenchon": "traite", "Tondelier": "traite", "Villepin": "traite" } },
+      { "label": "Rythmes scolaires, réforme du bac, pause de midi", "reponses": { "Attal": "traite", "Philippe": "traite", "Villepin": "traite" } },
+      { "label": "Des places dans le supérieur, la fin de la sélection algorithmique", "reponses": { "Attal": "traite", "Mélenchon": "traite", "Philippe": "traite", "Villepin": "traite", "Retailleau": "inverse" } },
+      { "label": "Revaloriser les APL des étudiants", "reponses": {} },
+      { "label": "Le repas à 1 € au CROUS", "note": "Déjà appliqué depuis mai 2026", "reponses": {} },
+      { "label": "Les frais d'inscription des étudiants étrangers", "reponses": { "Mélenchon": "traite" } },
+      { "label": "Les bourses étudiantes", "note": "Mesures sur les ressources des étudiants, pas sur les bourses", "reponses": { "Le Pen": "partiel", "Mélenchon": "partiel" } },
+      { "label": "La démocratie lycéenne", "reponses": {} },
+      { "label": "La fin de la répression des mobilisations", "horsPerimetre": { "texte": "Hors périmètre : traitée dans le dossier", "lien": { "label": "« Violences urbaines »", "url": "/dossiers/mouvement-social" } } }
+    ],
+    "encadre": "Ce tableau décrit ce dont parlent les candidats, pas la qualité de leurs réponses. 33 des 52 propositions retenues ne répondent à aucune de ces demandes et restent au cœur du dossier : salaires des enseignants, groupes de niveau, voie professionnelle. La qualité de chaque proposition est évaluée dans nos fiches notées."
+  },
+  "faceAFace": {
+    "num": "3",
+    "titre": "Face-à-face : même sujet, propositions notées",
+    "intro": "Quand plusieurs candidats proposent sur le même sujet, nous mettons leurs mesures côte à côte, notées selon la même méthode. Tant que la fiche n'est pas publiée, la mesure est signalée « Analyse à venir », sans note provisoire.",
+    "items": [
+      {
+        "titre": "Le salaire des enseignants",
+        "chapo": "Trois candidats promettent une hausse, mais ni du même montant ni pour les mêmes enseignants.",
+        "mesures": [
+          { "candidat": "Gabriel Attal", "parti": "Renaissance", "mesure": "+200 à +500 € nets par mois pour les enseignants" },
+          { "candidat": "Raphaël Glucksmann", "parti": "Place publique", "mesure": "+10 à +25 % de rémunération pour les enseignants", "ficheId": 65 },
+          { "candidat": "Édouard Philippe", "parti": "Horizons", "mesure": "+20 % de rémunération pour les enseignants", "ficheId": 39 }
+        ]
+      },
+      {
+        "titre": "L'entrée au collège et au lycée",
+        "chapo": "Deux candidats veulent conditionner le passage d'un cycle à l'autre à un examen.",
+        "mesures": [
+          { "candidat": "Gabriel Attal", "parti": "Renaissance", "mesure": "Brevet obligatoire pour entrer en seconde, certificat à l'entrée en 6e, retour du redoublement" },
+          { "candidat": "Bruno Retailleau", "parti": "Les Républicains", "mesure": "Examen d'entrée en 6e, groupes de niveau, fin du collège unique" }
+        ]
+      },
+      {
+        "titre": "L'autonomie des établissements",
+        "chapo": "Donner plus de libertés aux chefs d'établissement : sur le recrutement pour l'un, en échange de résultats publiés pour l'autre.",
+        "mesures": [
+          { "candidat": "David Lisnard", "parti": "Nouvelle Énergie", "mesure": "Enseignants contractuels recrutés directement par les établissements" },
+          { "candidat": "Édouard Philippe", "parti": "Horizons", "mesure": "Autonomie des établissements contre publication de leurs résultats" }
+        ]
+      },
+      {
+        "titre": "Parcoursup",
+        "chapo": "L'un supprime la plateforme, l'autre la garde en y ajoutant un accompagnement humain.",
+        "mesures": [
+          { "candidat": "Jean-Luc Mélenchon", "parti": "La France insoumise", "mesure": "Supprimer Parcoursup", "ficheId": 59 },
+          { "candidat": "Dominique de Villepin", "parti": "La France humaniste", "mesure": "Garder Parcoursup avec un accompagnement humain des élèves" }
+        ]
+      },
+      {
+        "titre": "Les ressources des jeunes",
+        "chapo": "Deux façons d'augmenter le revenu des jeunes : moins d'impôt, ou une allocation.",
+        "mesures": [
+          { "candidat": "Marine Le Pen", "parti": "Rassemblement national", "mesure": "Pas d'impôt sur le revenu avant 30 ans, jusqu'à 4 SMIC" },
+          { "candidat": "Jean-Luc Mélenchon", "parti": "La France insoumise", "mesure": "Garantie d'autonomie de 1 337 € par mois pour les jeunes" }
+        ]
+      }
+    ]
+  },
+  "parcours": {
+    "num": "4",
+    "titre": "De la classe au premier emploi : toutes les propositions",
+    "intro": "Les 52 propositions retenues, classées en huit étapes. Les mesures phares sont notées ; les autres sont listées sans note.",
+    "etapeParDefaut": 4,
+    "libelleNonAnalysee": "Mesure recensée, non analysée",
+    "etapes": [
+      {
+        "titre": "Les moyens de l'école", "total": 13,
+        "repartition": "Attal 3 · Tondelier 3 · Villepin 2 · Glucksmann, Lisnard, Mélenchon, Philippe, Retailleau 1",
+        "chapo": "Salaires des enseignants, effectifs par classe, bâtiments, inclusion, statut des enseignants et budget global.",
+        "phares": [
+          { "candidat": "Glucksmann", "mesure": "+10 à +25 % pour les enseignants", "ficheId": 65 },
+          { "candidat": "Philippe", "mesure": "+20 % pour les enseignants", "ficheId": 39 },
+          { "candidat": "Attal", "mesure": "+200 à +500 € nets par mois pour les enseignants" },
+          { "candidat": "Lisnard", "mesure": "Enseignants contractuels recrutés par les établissements" },
+          { "candidat": "Tondelier", "mesure": "Classes de 19 élèves, 12 en éducation prioritaire" },
+          { "candidat": "Tondelier", "mesure": "Établissements « refuges climatiques », 2 Md€ par an" },
+          { "candidat": "Villepin", "mesure": "Budget de l'école sanctuarisé, +20 % de dépense par élève en dix ans" }
+        ],
+        "autres": []
+      },
+      {
+        "titre": "Ce qu'on apprend", "total": 10,
+        "repartition": "Attal 4 · Philippe 2 · Retailleau 2 · Mélenchon, Villepin 1",
+        "chapo": "Programmes, examens, organisation du collège et autonomie pédagogique.",
+        "phares": [
+          { "candidat": "Attal", "mesure": "Brevet pour la seconde, certificat à l'entrée en 6e, redoublement" },
+          { "candidat": "Philippe", "mesure": "Autonomie des établissements contre publication des résultats" },
+          { "candidat": "Retailleau", "mesure": "Réforme du collège : examen d'entrée en 6e, groupes de niveau" }
+        ],
+        "autres": []
+      },
+      {
+        "titre": "La vie à l'école", "total": 6,
+        "repartition": "Attal, Le Pen, Lisnard, Mélenchon, Philippe, Retailleau 1",
+        "chapo": "Discipline, cantine, choix de l'école et égalité d'accès.",
+        "phares": [
+          { "candidat": "Mélenchon", "mesure": "Cantine gratuite", "ficheId": 31 },
+          { "candidat": "Le Pen", "mesure": "Exclusion des élèves perturbateurs" },
+          { "candidat": "Lisnard", "mesure": "Libre choix de l'école et chèque-éducation" }
+        ],
+        "autres": []
+      },
+      {
+        "titre": "Choisir sa voie", "total": 5,
+        "repartition": "Mélenchon 2 · Attal, Lisnard, Retailleau 1",
+        "chapo": "Orientation, voie professionnelle et apprentissage.",
+        "phares": [
+          { "candidat": "Retailleau", "mesure": "Apprentissage dès 14 ans, voie pro confiée aux régions, 100 % alternance" }
+        ],
+        "autres": []
+      },
+      {
+        "titre": "Entrer dans le supérieur", "total": 6,
+        "repartition": "Mélenchon 2 · Attal, Philippe, Retailleau, Villepin 1",
+        "chapo": "Parcoursup, sélection à l'entrée de l'université, durée des études et nombre de places.",
+        "phares": [
+          { "candidat": "Mélenchon", "mesure": "Supprimer Parcoursup", "ficheId": 59 },
+          { "candidat": "Villepin", "mesure": "Parcoursup avec un accompagnement humain" }
+        ],
+        "autres": [
+          { "candidat": "Attal", "mesure": "Démassifier le supérieur et raccourcir les études" },
+          { "candidat": "Philippe", "mesure": "Former 100 000 ingénieurs par an" },
+          { "candidat": "Retailleau", "mesure": "Nouvelle plateforme « au mérite » et fin de l'accès sans condition en licence" },
+          { "candidat": "Mélenchon", "mesure": "Frais d'inscription des étudiants étrangers" }
+        ]
+      },
+      {
+        "titre": "La vie étudiante", "total": 6,
+        "repartition": "Le Pen 3 · Mélenchon 3",
+        "chapo": "Logement, ressources et conditions de vie des étudiants.",
+        "phares": [
+          { "candidat": "Mélenchon", "mesure": "Garantie d'autonomie de 1 337 € par mois" }
+        ],
+        "autres": []
+      },
+      {
+        "titre": "Trouver un premier emploi", "total": 2,
+        "repartition": "Glucksmann, Le Pen 1",
+        "chapo": "Stages, fiscalité des jeunes actifs et insertion professionnelle.",
+        "phares": [
+          { "candidat": "Le Pen", "mesure": "Pas d'impôt sur le revenu avant 30 ans, jusqu'à 4 SMIC" }
+        ],
+        "autres": []
+      },
+      {
+        "titre": "S'engager", "total": 4,
+        "repartition": "Attal, Glucksmann, Le Pen, Philippe 1",
+        "chapo": "Service civique, engagement et autonomie des jeunes.",
+        "phares": [
+          { "candidat": "Glucksmann", "mesure": "Service civique obligatoire de dix mois" }
+        ],
+        "autres": []
+      }
+    ]
+  },
+  "toutesLesAnalyses": {
+    "titre": "Toutes les analyses du dossier",
+    "texte": "Retrouvez ici chaque mesure phare, par candidat. Chaque lien ouvre la fiche complète : raisonnement, sources et détail de la note.",
+    "candidats": [
+      { "candidat": "Gabriel Attal", "parti": "Renaissance", "mesures": [ { "mesure": "+200 à +500 € pour les enseignants" }, { "mesure": "Examens de passage et redoublement" } ] },
+      { "candidat": "Raphaël Glucksmann", "parti": "Place publique", "mesures": [ { "mesure": "+10 à +25 % pour les enseignants", "ficheId": 65 }, { "mesure": "Service civique obligatoire" } ] },
+      { "candidat": "Marine Le Pen", "parti": "Rassemblement national", "mesures": [ { "mesure": "Pas d'impôt avant 30 ans" }, { "mesure": "Exclure les élèves perturbateurs" } ] },
+      { "candidat": "David Lisnard", "parti": "Nouvelle Énergie", "mesures": [ { "mesure": "Chèque-éducation et libre choix de l'école" }, { "mesure": "Enseignants recrutés par les établissements" } ] },
+      { "candidat": "Jean-Luc Mélenchon", "parti": "La France insoumise", "mesures": [ { "mesure": "Supprimer Parcoursup", "ficheId": 59 }, { "mesure": "Cantine gratuite", "ficheId": 31 }, { "mesure": "Garantie d'autonomie de 1 337 €" } ] },
+      { "candidat": "Édouard Philippe", "parti": "Horizons", "mesures": [ { "mesure": "+20 % pour les enseignants", "ficheId": 39 }, { "mesure": "Autonomie contre résultats publiés" } ] },
+      { "candidat": "Bruno Retailleau", "parti": "Les Républicains", "mesures": [ { "mesure": "Réforme du collège" }, { "mesure": "Réforme de la voie professionnelle" } ] },
+      { "candidat": "Fabien Roussel", "parti": "PCF", "mesures": [], "vide": "Plan Jeunesse en attente de confirmation pour 2027." },
+      { "candidat": "Marine Tondelier", "parti": "Les Écologistes", "mesures": [ { "mesure": "Classes de 19 élèves" }, { "mesure": "Établissements « refuges climatiques »" } ] },
+      { "candidat": "Dominique de Villepin", "parti": "La France humaniste", "mesures": [ { "mesure": "Budget de l'école sanctuarisé" }, { "mesure": "Parcoursup accompagné" } ] },
+      { "candidat": "Éric Zemmour", "parti": "Reconquête", "mesures": [], "vide": "Aucune proposition éducative vérifiable pour 2027." }
+    ]
+  },
+  "methode": {
+    "num": "5",
+    "titre": "Méthode, sources et absences",
+    "entonnoir": [
+      { "valeur": "189", "texte": "propositions recensées" },
+      { "valeur": "52", "texte": "retenues après regroupement et vérification" },
+      { "valeur": "19", "texte": "mesures phares notées sur 100" }
+    ],
+    "criteresTitre": "Comment nous avons sélectionné",
+    "criteres": [
+      "Place de la mesure dans le projet du candidat",
+      "Précision suffisante pour être évaluée",
+      "Possibilité de la comparer à celle d'un autre candidat",
+      "Couverture des huit étapes du parcours",
+      "À précision égale, réponse à une demande du 5 octobre"
+    ],
+    "absencesTitre": "Ce que nous n'avons pas trouvé",
+    "absences": [
+      { "candidat": "Éric Zemmour", "texte": "n'a publié aucune proposition éducative vérifiable pour 2027." },
+      { "candidat": "Fabien Roussel", "texte": "a présenté un Plan Jeunesse, dont la reprise pour 2027 reste à confirmer." },
+      { "candidat": "Marine Tondelier", "texte": "reste candidate provisoire jusqu'au vote des adhérents des Écologistes, du 10 au 13 décembre." }
+    ],
+    "limitesTitre": "Méthode et limites",
+    "limites": "Chaque mesure phare est notée sur 100 selon cinq critères : opérationnalité et moyens, efficacité, effets rebonds, degré de préparation, alignement. Seules les mesures publiées par le candidat ou son parti sont retenues ; les contributions citoyennes ne valent pas engagement.",
+    "lienMethode": { "label": "Lire notre méthode", "url": "/methode" }
+  }
+}
