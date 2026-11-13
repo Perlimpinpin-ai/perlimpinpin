@@ -613,6 +613,34 @@ model Adherent {
   desinscritMailsRelectureAt DateTime?
 
   commentaires RelectureComment[]
+  // Mesures proposées à l'analyse depuis l'espace du Club (relation inverse, sans colonne ici).
+  propositionsClub PropositionClub[]
+}
+
+// Mesure proposée à l'analyse par un adhérent (onglet « Proposer une mesure »
+// de /relectures, nov. 2026). Écriture par le code : create uniquement. Arno
+// fait évoluer `statut`, `reponse` et `propositionId` à la main (Prisma Studio) ;
+// l'adhérent les voit dans son espace.
+model PropositionClub {
+  id            Int       @id @default(autoincrement())
+  // Auteur. Si le compte est supprimé, la proposition reste (SetNull).
+  adherentId    Int?
+  adherent      Adherent? @relation(fields: [adherentId], references: [id], onDelete: SetNull)
+  candidat      String
+  mesure        String
+  // Lien vers la déclaration ou le programme (facultatif)
+  source        String?
+  // Pourquoi l'analyser (facultatif)
+  pourquoi      String?
+  // "recue" | "retenue" | "analysee" | "non_retenue"
+  statut        String    @default("recue")
+  // Mot de l'équipe, affiché à l'adhérent
+  reponse       String?
+  // Fiche publiée qui en est issue (id de Proposition), une fois analysée
+  propositionId Int?
+  createdAt     DateTime  @default(now())
+
+  @@index([adherentId, createdAt])
 }
 
 // Textes modifiables des pages publiques (ex. /nous-rejoindre), édités depuis
