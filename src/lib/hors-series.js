@@ -1,3 +1,4 @@
+import EDUCATION_JEUNESSE from "../../data/hors-series/education-jeunesse.json" with { type: "json" };
 import MOUVEMENT_SOCIAL from "../../data/hors-series/mouvement-social.json" with { type: "json" };
 import RN_PLAN_BUDGETAIRE from "../../data/hors-series/rn-plan-budgetaire.json" with { type: "json" };
 import { getFichesPubliees } from "./queries";
@@ -10,11 +11,11 @@ import { getFichesPubliees } from "./queries";
 // l'ajouter à la liste (le plus récent en premier). Un dossier dont le JSON
 // porte `visible: false` reste hors du registre (page accessible par son
 // adresse seulement).
-const HORS_SERIES = [MOUVEMENT_SOCIAL, RN_PLAN_BUDGETAIRE].filter((hs) => hs.visible !== false);
+const HORS_SERIES = [EDUCATION_JEUNESSE, MOUVEMENT_SOCIAL, RN_PLAN_BUDGETAIRE].filter((hs) => hs.visible !== false);
 
 // Dossiers servis par leur propre route (src/app/dossiers/<slug>/), leur JSON
 // n'ayant pas la structure lue par le gabarit /dossiers/[slug].
-const ROUTES_DEDIEES = new Set(["mouvement-social"]);
+const ROUTES_DEDIEES = new Set(["education-jeunesse", "mouvement-social"]);
 
 const PAR_SLUG = new Map(HORS_SERIES.map((hs) => [hs.slug, hs]));
 

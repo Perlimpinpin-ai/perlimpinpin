@@ -52,6 +52,7 @@ export default async function DossiersPage() {
                 >
                   {/* Image jamais recadrée : 4:5 sur téléphone, version
                       verticale 1:2 à gauche dès sm (voir FeaturedCard). */}
+                  {dossier.photo?.src ? (
                   <div
                     className={`w-full shrink-0 sm:w-1/2 ${DOSSIER.fond}`}
                     style={dossier.photo?.fondVertical ? { backgroundColor: dossier.photo.fondVertical } : undefined}
@@ -71,6 +72,7 @@ export default async function DossiersPage() {
                       />
                     ) : null}
                   </div>
+                  ) : null}
 
                   <div className="flex flex-1 flex-col gap-3 p-6 sm:p-8">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">

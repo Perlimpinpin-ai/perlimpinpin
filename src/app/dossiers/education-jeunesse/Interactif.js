@@ -180,7 +180,9 @@ export function Parcours({ etapes, etapeParDefaut = 0, libelleNonAnalysee }) {
         <div className="flex flex-col border-t border-(--ms-gris200) pt-3.5">
           <p className="text-[15px] font-bold text-(--ms-noir)">
             {reste > 0
-              ? `${reste} autre${pluriel} proposition${pluriel} recensée${pluriel}, non analysée${pluriel}`
+              ? `${reste} autre${pluriel} proposition${pluriel} recensée${pluriel}, non analysée${pluriel}${
+                  etape.autres.length && etape.autres.length < reste ? ", dont :" : ""
+                }`
               : "Aucune autre proposition retenue"}
           </p>
           {etape.autres.length ? (

@@ -3,24 +3,24 @@ import { getScoreBadge } from "@/lib/score";
 import { getFichesPubliees } from "@/lib/queries";
 import DOSSIER from "../../../../data/hors-series/education-jeunesse.json" with { type: "json" };
 import { inter, variablesCharte } from "../mouvement-social/charte";
-import { Etiquette, OMBRE_CARTE, Prose, TitreNumerote, TuileChiffre } from "../mouvement-social/elements";
+import { Etiquette, ListeSources, OMBRE_CARTE, TitreNumerote, TuileChiffre } from "../mouvement-social/elements";
 import { FaceAFace, Parcours } from "./Interactif";
 
-// Dossier n°3 « Éducation et jeunesse » (/dossiers/education-jeunesse), en
-// relecture. Route dédiée (prioritaire sur /dossiers/[slug]), qui reprend la
-// charte et les briques du dossier « Mouvement social ». Tout le texte vient
-// de data/hors-series/education-jeunesse.json.
-// Le dossier n'est PAS inscrit au registre (src/lib/hors-series.js) : il
-// n'apparaît ni sur /dossiers, ni dans le carrousel, ni dans le sitemap, et
-// tant que `visible` vaut false la page n'est pas indexée. Elle reste
-// accessible par son adresse, pour la relecture.
-// Les notes ne sont jamais écrites dans le JSON : chaque `ficheId` est lu en
-// base (lecture seule, dernière analyse publiée) ; sans fiche publiée, la
-// mesure affiche « Analyse à venir ».
+// Dossier n°3 « Éducation et jeunesse » (/dossiers/education-jeunesse).
+// Route dédiée (prioritaire sur /dossiers/[slug]), qui reprend la charte et
+// les briques du dossier « Mouvement social ». Tout le texte vient de
+// data/hors-series/education-jeunesse.json.
+// Inscrit au registre (src/lib/hors-series.js) : listé sur /dossiers et dans
+// le sitemap ; dans le carrousel de l'accueil seulement si
+// `accueil.afficher` vaut true. Avec `visible: false`, il sort du registre et
+// la page n'est plus indexée, mais reste accessible par son adresse.
+// Les notes ne sont jamais écrites dans le JSON : chaque `ficheId` et chaque
+// jeton {note:<ficheId>} du texte est lu en base (lecture seule, dernière
+// analyse publiée) ; sans fiche publiée, la mesure affiche « Analyse à venir ».
 
 export const metadata = {
   title: `${DOSSIER.titre} | Perlimpinpin`,
-  description: DOSSIER.chapo,
+  description: DOSSIER.description,
   ...(DOSSIER.visible ? {} : { robots: { index: false, follow: false } }),
 };
 
@@ -63,6 +63,44 @@ function vueFiche(fiche) {
   };
 }
 
+// Remplace les {clés} d'un texte du JSON par leurs valeurs calculées.
+function remplir(texte, valeurs) {
+  return String(texte ?? "").replace(/\{(\w+)\}/g, (tout, cle) => (cle in valeurs ? String(valeurs[cle]) : tout));
+}
+
+// Jeton {note:<ficheId>} dans le texte d'analyse : la note de la dernière
+// analyse publiée de cette fiche (lue en base à chaque régénération), en lien
+// vers la fiche et dans la couleur du barème. Fiche non publiée ou base
+// injoignable : « à venir », sans note provisoire.
+const JETON_NOTE = /\{note:(\d+)\}/g;
+
+function avecNotes(texte, fiches) {
+  const morceaux = [];
+  let dernier = 0;
+  for (const correspondance of texte.matchAll(JETON_NOTE)) {
+    morceaux.push(texte.slice(dernier, correspondance.index));
+    const fiche = vueFiche(fiches[Number(correspondance[1])]);
+    morceaux.push(
+      fiche ? (
+        <a
+          key={correspondance.index}
+          href={fiche.url}
+          className={`whitespace-nowrap font-bold underline decoration-(--ms-jaune) decoration-2 underline-offset-4 ${fiche.classeScore}`}
+        >
+          {fiche.score}/100
+        </a>
+      ) : (
+        <span key={correspondance.index} className="italic">
+          à venir
+        </span>
+      ),
+    );
+    dernier = correspondance.index + correspondance[0].length;
+  }
+  morceaux.push(texte.slice(dernier));
+  return morceaux;
+}
+
 // Pastille d'une case de la grille, selon la réponse du candidat.
 function Pastille({ reponse, taille = "h-[18px] w-[18px]" }) {
   if (reponse === "traite") return <span className={`${taille} rounded-full border-[1.5px] border-(--ms-jauneFonce) bg-(--ms-jaune)`} />;
@@ -88,6 +126,11 @@ export default async function DossierEducationJeunessePage() {
   faceAFace.items.forEach((it) => it.mesures.forEach(noter));
   parcours.etapes.forEach((e) => e.phares.forEach(noter));
   toutesLesAnalyses.candidats.forEach((c) => c.mesures.forEach(noter));
+  // Notes citées dans le texte d'analyse : jetons {note:<ficheId>}.
+  const textesAnalyse = [...(essentiel.paragraphes ?? []), ...(essentiel.analyse ?? []).flatMap((b) => b.paragraphes)];
+  for (const texte of textesAnalyse) {
+    for (const [, id] of texte.matchAll(JETON_NOTE)) ids.add(Number(id));
+  }
   let fiches = {};
   try {
     fiches = await getFichesPubliees([...ids]);
@@ -113,6 +156,24 @@ export default async function DossierEducationJeunessePage() {
     return { ...d, num: String(i + 1).padStart(2, "0"), total: Object.keys(reponses).length };
   });
 
+  // Chiffres calculés, jamais écrits en dur : remplacent les {clés} des
+  // tuiles et de l'intro du parcours.
+  const phares = new Set(analyses.flatMap((c) => c.mesures.map((m) => m.mesure + c.candidat))).size;
+  const valeurs = {
+    recensees: DOSSIER.recensees,
+    retenues: parcours.etapes.reduce((somme, e) => somme + e.total, 0),
+    phares,
+    publiees: [...ids].filter((id) => fiches[id]).length,
+    demandesTotal: grille.demandes.length,
+    demandesTraitees: grille.demandes.filter((d) => !d.horsPerimetre && Object.keys(d.reponses ?? {}).length).length,
+  };
+  const tuiles = chiffres.items.map((item) => ({ ...item, valeur: remplir(item.valeur, valeurs), legende: remplir(item.legende, valeurs) }));
+  const paragrapheAnalyse = (texte, i) => (
+    <p key={i} className={i === "chapo" ? "border-l-4 border-(--ms-jaune) pl-4 font-medium text-zinc-900" : undefined}>
+      {avecNotes(texte, fiches)}
+    </p>
+  );
+
   return (
     <div className="flex min-h-screen flex-col bg-(--ms-gris50) font-sans" style={variablesCharte(charte?.couleurs)}>
       <Header />
@@ -126,7 +187,7 @@ export default async function DossierEducationJeunessePage() {
 
         {/* En-tête */}
         <section className="w-full px-6 pb-12 pt-12 sm:px-8 sm:pb-14 sm:pt-20">
-          <div className={`${CONTENEUR} grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.08fr_1fr] lg:gap-14`}>
+          <div className={`${CONTENEUR} grid grid-cols-1 items-center gap-10 ${DOSSIER.photo?.src ? "lg:grid-cols-[1.08fr_1fr] lg:gap-14" : ""}`}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-(--ms-jaune) px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-[0.1em] text-(--ms-noir)">
@@ -145,7 +206,7 @@ export default async function DossierEducationJeunessePage() {
               <h1 className="text-4xl font-black leading-[1.02] tracking-[-0.04em] text-(--ms-noir) sm:text-5xl xl:text-6xl">
                 <TitreSurligne titre={titre} surligne={titreSurligne} />
               </h1>
-              <p className="max-w-2xl text-lg leading-relaxed text-(--ms-gris600) sm:text-xl">{chapo}</p>
+              <p className="max-w-2xl text-lg leading-relaxed text-(--ms-gris600) sm:text-xl">{remplir(chapo, valeurs)}</p>
               <div className="mt-2 flex flex-wrap gap-3">
                 {boutons.map((bouton, i) => (
                   <a
@@ -167,15 +228,16 @@ export default async function DossierEducationJeunessePage() {
                 ))}
               </div>
             </div>
-            {/* Illustration à venir : emplacement réservé, comme pour un dossier sans photo. */}
-            <figure className="mx-auto flex w-full max-w-md flex-col gap-2 lg:max-w-[460px]">
-              <div
-                aria-hidden="true"
-                className={`flex aspect-[4/5] w-full items-center justify-center rounded-2xl border-2 border-dashed border-(--ms-jaune) bg-(--ms-jaunePale) font-mono text-xs uppercase tracking-[0.1em] text-(--ms-gris600) ${OMBRE_CARTE}`}
-              >
-                Illustration à venir
-              </div>
-            </figure>
+            {/* Illustration du dossier (`photo` du JSON) ; sans image, l'en-tête
+                tient sur une colonne. */}
+            {DOSSIER.photo?.src ? (
+              <figure className="mx-auto flex w-full max-w-md flex-col gap-2 lg:max-w-[460px]">
+                <div className={`relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-(--ms-jaunePale) ring-1 ring-(--ms-gris200) ${OMBRE_CARTE}`}>
+                  <img src={DOSSIER.photo.src} alt={DOSSIER.photo.alt ?? ""} className="absolute inset-0 h-full w-full object-cover object-top" />
+                </div>
+                {DOSSIER.photo.credit ? <figcaption className="text-xs text-(--ms-gris600)">{DOSSIER.photo.credit}</figcaption> : null}
+              </figure>
+            ) : null}
           </div>
         </section>
 
@@ -202,14 +264,34 @@ export default async function DossierEducationJeunessePage() {
         <section id="essentiel" className="w-full scroll-mt-20 px-6 pb-8 sm:px-8">
           <div className={`${CONTENEUR} flex flex-col gap-5`}>
             <TitreNumerote num={essentiel.num}>{essentiel.titre}</TitreNumerote>
-            <Prose paragraphes={essentiel.paragraphes} chapo className="text-(--ms-gris900)" />
+            <div className="flex max-w-3xl flex-col gap-5 text-lg leading-relaxed text-(--ms-gris900)">
+              {(essentiel.paragraphes ?? []).map((texte, i) => paragrapheAnalyse(texte, i === 0 ? "chapo" : i))}
+            </div>
+            {/* Analyse par grand sujet : intertitre puis paragraphes (`essentiel.analyse` du JSON). */}
+            {(essentiel.analyse ?? []).map((bloc) => (
+              <div key={bloc.intertitre} className="flex max-w-3xl flex-col gap-3 pt-2">
+                <h3 className="flex items-center gap-2.5 text-xl font-extrabold leading-snug tracking-[-0.02em] text-(--ms-noir) sm:text-2xl">
+                  <span aria-hidden="true" className="h-2.5 w-2.5 flex-none bg-(--ms-jaune)" />
+                  {bloc.intertitre}
+                </h3>
+                <div className="flex flex-col gap-5 text-lg leading-relaxed text-zinc-700">
+                  {bloc.paragraphes.map((texte, i) => paragrapheAnalyse(texte, i))}
+                </div>
+              </div>
+            ))}
+            {essentiel.conclusion ? (
+              <p className="max-w-3xl rounded-2xl bg-(--ms-jaunePale) px-5 py-4 text-base leading-relaxed text-(--ms-gris900)">
+                {essentiel.conclusion}
+              </p>
+            ) : null}
+            <ListeSources sources={DOSSIER.sources} className="max-w-3xl" />
           </div>
         </section>
         <section className={SECTION}>
           <div className={`${CONTENEUR} flex flex-col gap-4`}>
             <Etiquette>{chiffres.titre}</Etiquette>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {chiffres.items.map((item) => (
+              {tuiles.map((item) => (
                 <TuileChiffre key={item.legende} item={item} />
               ))}
             </div>
@@ -324,7 +406,7 @@ export default async function DossierEducationJeunessePage() {
         <section id="parcours" className={SECTION}>
           <div className={`${CONTENEUR} flex flex-col gap-5`}>
             <TitreNumerote num={parcours.num}>{parcours.titre}</TitreNumerote>
-            <p className="max-w-3xl text-lg leading-relaxed text-zinc-700">{parcours.intro}</p>
+            <p className="max-w-3xl text-lg leading-relaxed text-zinc-700">{remplir(parcours.intro, valeurs)}</p>
             <Parcours etapes={etapes} etapeParDefaut={parcours.etapeParDefaut} libelleNonAnalysee={parcours.libelleNonAnalysee} />
           </div>
         </section>
