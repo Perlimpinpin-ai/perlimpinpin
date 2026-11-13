@@ -470,22 +470,55 @@ mark.anno-hl.pending{background:var(--hl-strong)}
 .plus:hover{color:var(--ink);text-decoration-color:var(--ink)}
 .fiche.rapide .plus{display:inline-block}
 .fiche.rapide .pliable:not(.ouvert) > .body > .synthese{border-left-color:var(--ink)}
+
+/* ---------- espace adhérent : mes commentaires, proposer une mesure ---------- */
+.pill-r .pill-link{white-space:nowrap}
+.pill-link .sm{display:none}
+@media (max-width:559px){.pill-link .lg{display:none}.pill-link .sm{display:inline}.pill-r .pill-link{padding:6px 11px}}
+.pill-link[aria-current="page"]{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
+.hub-head a{color:var(--ink)}
+.mc-item{background:var(--surface);border:1px solid var(--rule);border-radius:20px;padding:20px 22px;display:grid;gap:10px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.mc-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.02em}
+.mc-fiche{margin:0;font-size:1.08rem;font-weight:600;letter-spacing:-.01em;line-height:1.35}
+.mc-fiche a{color:var(--ink);text-decoration:none}
+.mc-fiche a:hover{text-decoration:underline;text-underline-offset:3px}
+.mc-passage{margin:0;font-size:14px;color:var(--note-ink);background:var(--note-bg);border-left:3px solid var(--note-line);border-radius:4px;padding:6px 10px;overflow-wrap:anywhere}
+.mc-texte p{margin:0 0 6px;font-size:15px;overflow-wrap:anywhere}
+.mc-texte p:last-child{margin:0}
+.mc-statut{display:inline-flex;align-items:center;border-radius:999px;padding:2px 10px;font-family:var(--mono);font-size:11.5px;font-weight:500;border:1px solid var(--rule);color:var(--muted);background:var(--soft)}
+.mc-statut.s-retenu{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.mc-statut.s-repondu{background:var(--ink);color:var(--ink-inv);border-color:var(--ink)}
+.mc-statut.s-en_attente{background:var(--warn-bg);color:var(--warn-ink);border-color:transparent}
+.prop-form{display:grid;gap:8px;max-width:640px;margin-top:28px;background:var(--surface);border:1px solid var(--rule);border-radius:20px;padding:22px}
+.prop-form label{font-size:14px;font-weight:500;margin-top:8px}
+.prop-form label span{font-weight:400;color:var(--faint)}
+.prop-form input,.prop-form textarea{box-sizing:border-box;width:100%;font:inherit;font-size:15px;line-height:1.5;background:var(--bg);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:9px 12px}
+.prop-form input:focus,.prop-form textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
+.prop-form textarea{resize:vertical}
+.prop-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:12px}
+.prop-actions .btn-dark{padding:9px 18px;font-size:14px}
+.prop-actions .btn-dark:disabled{opacity:.6;cursor:default}
+.prop-msg{margin:0;font-size:14px;color:var(--muted)}
+.prop-msg.err{color:var(--bad)}
+.prop-msg.ok{color:var(--ok)}
+.prop-mes{margin-top:48px;padding-top:30px;border-top:1px solid var(--rule);display:grid;gap:10px}
+.prop-mes h2{font-size:clamp(1.4rem,3.5vw,1.9rem);margin:0}
+.prop-mes .list{margin-top:10px}
 </style>
 </head>
 <body>
 <div class="wrap">
 <div class="adh-bar" style="display:flex;justify-content:flex-end;align-items:center;gap:6px;padding:6px 0 0;font-size:12.5px;color:var(--faint)"><span data-adh-etat>Connecté</span><span aria-hidden="true">·</span><form method="post" action="/relectures/deconnexion" style="margin:0"><button type="submit" style="font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px">Se déconnecter</button></form></div>
 <header class="pill"><a class="brand" href="#/" aria-label="Club Perlimpinpin — accueil"><img class="logo-l" src="/logo/club-perlimpinpin.webp" alt="Club Perlimpinpin" width="1412" height="120"><img class="logo-d" src="/logo/club-perlimpinpin-sombre.webp" alt="" width="1412" height="120"></a>
-<div class="pill-r"><span class="pill-tag">Espace adhérents</span><a class="pill-link" href="#/archives">Archives</a><a class="btn-dark" href="#/">Brouillons</a></div></header>
-<p class="banner">Brouillons non publiés, réservés aux adhérents du Club. Merci de ne pas les diffuser.</p>
+<nav class="pill-r" aria-label="Espace adhérents"><span class="pill-tag">Espace adhérents</span><a class="pill-link" href="#/" data-onglet="hub"><span class="lg">Mes c</span><span class="sm">C</span>ommentaires</a><a class="pill-link" href="#/proposer" data-onglet="proposer">Proposer<span class="lg"> une mesure</span></a></nav></header>
+<p class="banner">Espace réservé aux adhérents du Club Perlimpinpin.</p>
 
 <div data-view="hub">
 <section class="hub-head">
-  <p class="label">// Brouillons</p>
-  <h1>Analyses à relire</h1>
-  <p>Ces analyses ne sont pas publiées. Choisissez une fiche, lisez-la, puis cliquez sur « Commenter » à côté de la section concernée. Les commentaires sont repris dans la version suivante.</p>
-  <ol class="steps" aria-label="Circuit de relecture"><li>Analyse de Claude (étape 1)</li><li class="now">Relecture du comité</li><li>Révision</li><li>Validation puis étapes 2 et 3</li></ol>
-  <div class="admin" id="chrono-admin"></div>
+  <p class="label">// Mon espace</p>
+  <h1>Mes commentaires</h1>
+  <p>Tous les commentaires que tu as déposés sur les analyses, avec la réponse de l’équipe. Les nouveaux commentaires sont étudiés lors de la revue du dimanche soir.</p>
+  <p>Pour commenter, ouvre une <a href="/declarations">analyse publiée</a>, passe en vue experte et surligne le passage qui te fait réagir.</p>
 </section>
 <aside class="moi" id="moi" aria-labelledby="moi-titre" hidden>
   <p class="label" id="moi-titre">// Mon compte</p>
@@ -513,21 +546,40 @@ mark.anno-hl.pending{background:var(--hl-strong)}
   <p class="moi-stats" data-moi-stats></p>
   <details class="moi-regle"><summary>Comment gagner des points ?</summary><p>10 points par commentaire (5 max par fiche), +20 si votre commentaire est retenu dans la version suivante.</p></details>
 </aside>
-{{FILTRES}}
-<p class="count" id="hub-count"></p>
-<div class="list list-brouillons">{{CARTES}}</div>
+<div class="filters" role="group" aria-label="Filtrer mes commentaires" data-mc-filtres><button class="chipf" type="button" data-mc="tous" aria-pressed="true">Tous<i>0</i></button><button class="chipf" type="button" data-mc="en_attente" aria-pressed="false">En attente<i>0</i></button><button class="chipf" type="button" data-mc="repondu" aria-pressed="false">Avec réponse<i>0</i></button><button class="chipf" type="button" data-mc="retenu" aria-pressed="false">Retenus<i>0</i></button></div>
+<p class="count" data-mc-count></p>
+<div class="list mc-list" data-mc-list aria-live="polite"><p class="cempty">Chargement de tes commentaires…</p></div>
+</div>
 
-<section class="archives" id="archives" aria-labelledby="archives-titre">
-  <p class="label">// Archives · {{NB_ARCHIVES}}</p>
-  <h2 id="archives-titre">Analyses archivées</h2>
-  <p>Relectures traitées : la version suivante est déposée dans « analyses finales » pour les étapes 2 et 3. Chaque fiche reste consultable en lecture seule, avec la réponse apportée à chaque commentaire.</p>
-  <div class="list list-archives">{{ARCHIVES}}</div>
+<div data-view="proposer" hidden>
+<section class="hub-head">
+  <p class="label">// Proposer une mesure</p>
+  <h1>Une mesure à analyser ?</h1>
+  <p>Tu as repéré une proposition d’un candidat qui mérite une analyse ? Envoie-la à l’équipe. Indique si possible un lien vers la déclaration ou le programme : cela nous fait gagner du temps.</p>
+</section>
+<form class="prop-form" data-prop-form novalidate>
+  <label for="prop-candidat">Candidat ou candidate</label>
+  <input id="prop-candidat" name="candidat" list="prop-candidats" maxlength="120" autocomplete="off" required>
+  <datalist id="prop-candidats"></datalist>
+  <label for="prop-mesure">La mesure, en une ou deux phrases</label>
+  <textarea id="prop-mesure" name="mesure" rows="4" maxlength="2000" required placeholder="Ex. : rétablir l’ISF sur les patrimoines de plus de 1,3 million d’euros"></textarea>
+  <label for="prop-source">Lien vers la source <span>(facultatif)</span></label>
+  <input id="prop-source" name="source" type="url" maxlength="500" placeholder="https://…" inputmode="url">
+  <label for="prop-pourquoi">Pourquoi l’analyser ? <span>(facultatif)</span></label>
+  <textarea id="prop-pourquoi" name="pourquoi" rows="3" maxlength="1500"></textarea>
+  <div class="prop-actions"><button type="submit" class="btn-dark" data-prop-ok>Envoyer la proposition</button><p class="prop-msg" data-prop-msg role="status"></p></div>
+</form>
+<section class="prop-mes" aria-labelledby="prop-mes-titre">
+  <p class="label">// Suivi</p>
+  <h2 id="prop-mes-titre">Mes propositions</h2>
+  <div class="list" data-prop-list><p class="cempty">Chargement…</p></div>
 </section>
 </div>
 
 {{VUES}}
 </div>
 <script src="/club/annotations.js"></script>
+<script src="/club/espace.js" defer></script>
 <script>window.__RELECTURE_REPONSES = {{REPONSES}};</script>
 <script>(function () {
   var REPONSES = window.__RELECTURE_REPONSES || {};
@@ -759,10 +811,10 @@ mark.anno-hl.pending{background:var(--hl-strong)}
 
   function route() {
     var h = (location.hash || "").replace(/^#\/?/, "");
-    var toArchives = h === "archives";
     // #moi : panneau « Mon compte » du hub (bouton du compte dans l'en-tête du site).
+    // #archives (anciens liens) : renvoie aussi vers l'espace.
     var toMoi = h === "moi";
-    var name = h && !toArchives && !toMoi ? h : "hub";
+    var name = h && h !== "archives" && !toMoi ? h : "hub";
     var found = false;
     views.forEach(function (v) {
       var on = v.getAttribute("data-view") === name;
@@ -774,10 +826,11 @@ mark.anno-hl.pending{background:var(--hl-strong)}
       views.forEach(function (v) { v.hidden = v.getAttribute("data-view") !== "hub"; });
     }
     window.scrollTo(0, 0);
-    if (toArchives) {
-      var arch = document.getElementById("archives");
-      if (arch) arch.scrollIntoView({ block: "start" });
-    }
+    // Onglet actif de l'en-tête (les fiches archivées n'en activent aucun).
+    Array.prototype.forEach.call(document.querySelectorAll("[data-onglet]"), function (a) {
+      if (a.getAttribute("data-onglet") === name) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
     if (toMoi) {
       // Le panneau s'affiche une fois le compte chargé : on attend un peu.
       setTimeout(function () {
@@ -785,8 +838,9 @@ mark.anno-hl.pending{background:var(--hl-strong)}
         if (moiPanneau && !moiPanneau.hidden) moiPanneau.scrollIntoView({ block: "start" });
       }, 400);
     }
-    document.body.classList.toggle("on-fiche", name !== "hub");
-    if (name !== "hub") {
+    var estPage = name === "hub" || name === "proposer";
+    document.body.classList.toggle("on-fiche", !estPage);
+    if (!estPage) {
       preparerLecture(document.querySelector('[data-view="' + name + '"]'));
       loadFiche(name);
       renderNotes(name);

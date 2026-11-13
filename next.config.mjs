@@ -10,6 +10,8 @@ const nextConfig = {
     // Aperçu et envoi du mail d'annonce : candidat, parti et titre des fiches en relecture.
     "/api/relectures/annonce/apercu": ["./data/relectures/*.json"],
     "/api/relectures/annonce/envoyer": ["./data/relectures/*.json"],
+    // « Mes commentaires » : titre des anciennes fiches relues et réponses archivées.
+    "/api/relectures/mes-commentaires": ["./data/relectures/*.json"],
     // Cartes des publications X : police Inter et portraits bleus lus sur disque.
     "/api/carte/[id]": ["./public/fonts/*.otf", "./public/portraits-bleus/*.png"],
   },

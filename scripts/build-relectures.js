@@ -53,22 +53,6 @@ const DATA_DIR = path.join(ROOT, "data/relectures");
 const TEMPLATE_PATH = path.join(ROOT, "scripts/templates/relectures.html");
 const OUTPUT_PATH = path.join(ROOT, "public/relectures/index.html");
 
-// Thèmes des filtres du hub : [valeur de data-cat, libellé du bouton].
-const THEMES = [
-  ["Logement", "Logement"],
-  ["Perspectives économiques, pouvoir d'achat, inflation & fiscalité", "Économie & pouvoir d'achat"],
-  ["IA & Numérique", "IA & Numérique"],
-  ["Éducation nationale", "Éducation nationale"],
-  ["Sécurité & Justice", "Sécurité & Justice"],
-  ["Santé & Hôpital", "Santé & Hôpital"],
-  ["Retraites", "Retraites"],
-  ["Emploi & Chômage", "Emploi & Chômage"],
-  ["Énergie & Climat", "Énergie & Climat"],
-  ["Alimentation & Agriculture", "Alimentation & Agriculture"],
-  ["Immigration", "Immigration"],
-  ["Démocratie et institutions", "Démocratie et institutions"],
-];
-
 // Paliers du score (mêmes bornes que APPRECIATION_BANDS dans scripts/lib/scoring.js).
 const TIERS = [
   { min: 85, cls: "exemplaire", label: "Exemplaire", range: "85 à 100", flex: 16 },
@@ -301,7 +285,7 @@ export function renderVue(slug, fiche) {
 
   const a = r.archive;
   const head = `<div data-view="${slug}" class="fiche${a ? " is-archived" : ""}"${a ? ' data-archived="1"' : ""} hidden>
-<a class="back" href="${a ? "#/archives" : "#/"}">← ${a ? "Toutes les analyses archivées" : "Tous les brouillons"}</a>
+<a class="back" href="#/">← Mon espace</a>
 ${a ? renderArchiveBanner(a) : '<p class="anno-help">Survolez un paragraphe ou sélectionnez un passage pour ajouter une note.</p>'}
 <header class="f-head tier-${tier.cls}">
   <p class="badge-cat">${esc(r.theme)}</p>
@@ -422,44 +406,6 @@ function renderReponses(sectionId, a) {
   );
 }
 
-function renderCarte(slug, fiche) {
-  const r = fiche.relecture;
-  const a = r.archive;
-  const score = fiche.notation_detaillee.score_total;
-  const tier = tierOf(score);
-  const n = a?.reponses.length ?? 0;
-  const bas = a
-    ? `<p class="meta"><span>Étape 1</span><span>Version ${r.version}</span><span>${dateFr(r.date)}</span></p>` +
-      `<p class="arch-line"><span class="arch-badge">Archivée · version suivante déposée</span><span>le ${dateFr(a.date)} · ${n} réponse${n > 1 ? "s" : ""} aux commentaires</span></p></div>`
-    : `<p class="meta"><span>Étape 1</span><span>Version ${r.version}</span><span>${dateFr(r.date)}</span><span data-statut>À relire</span></p></div>`;
-  return (
-    `<article class="fcard tier-${tier.cls}${a ? " archived" : ""}" data-fiche="${slug}" data-cat="${esc(r.theme)}"><div class="main">` +
-    `<p class="badge-cat">${esc(r.theme)} · ${esc(r.candidat)}</p>` +
-    `<h2><a class="fcard-link" href="#/${slug}">${esc(r.titre)}</a></h2>` +
-    `<p class="teaser">${esc(fiche.phrase_teasing)}</p>` +
-    bas +
-    `<div class="fscore"><span class="n">${score}<small>/100</small></span><span class="tierl">${tier.label}</span><span class="go" aria-hidden="true">→</span></div>` +
-    // Hors de .main : la barre de temps restant prend toute la largeur de la carte.
-    (a ? "" : `<div class="chrono" data-chrono="${slug}"></div>`) +
-    `</article>`
-  );
-}
-
-function renderFiltres(fiches) {
-  const themes = [...THEMES];
-  for (const { fiche } of fiches) {
-    if (!themes.some(([v]) => v === fiche.relecture.theme)) themes.push([fiche.relecture.theme, fiche.relecture.theme]);
-  }
-  const chip = (value, label, count, pressed) =>
-    `<button class="chipf" type="button" data-cat="${esc(value)}" aria-pressed="${pressed}"${count || value === "all" ? "" : " disabled"}>${esc(label)}<i>${count}</i></button>`;
-  return (
-    '<div class="filters" role="group" aria-label="Filtrer par thème">' +
-    chip("all", "Tous", fiches.length, true) +
-    themes.map(([v, label]) => chip(v, label, fiches.filter(({ fiche }) => fiche.relecture.theme === v).length, false)).join("") +
-    "</div>"
-  );
-}
-
 // ---------- chargement ----------
 
 const CHAMPS_RELECTURE = ["titre", "candidat", "theme", "date", "version"];
@@ -521,15 +467,10 @@ function main() {
   );
   const reponsesJson = JSON.stringify(reponses).replace(/</g, "\\u003c");
 
+  // Plus de liste de brouillons ni d'archives sur l'accueil (espace adhérent,
+  // nov. 2026) : les fiches relues restent consultables par leur lien (#/<slug>),
+  // notamment depuis « Mes commentaires ».
   const html = readFileSync(TEMPLATE_PATH, "utf8")
-    .replace("{{FILTRES}}", () => renderFiltres(brouillons))
-    .replace("{{CARTES}}", () => brouillons.map(({ slug, fiche }) => renderCarte(slug, fiche)).join(""))
-    .replace("{{NB_ARCHIVES}}", () => String(archives.length))
-    .replace("{{ARCHIVES}}", () =>
-      archives.length
-        ? archives.map(({ slug, fiche }) => renderCarte(slug, fiche)).join("")
-        : '<p class="cempty">Aucune analyse archivée pour l’instant.</p>',
-    )
     .replace("{{VUES}}", () => [...brouillons, ...archives].map(({ slug, fiche }) => renderVue(slug, fiche)).join("\n\n\n"))
     .replace("{{REPONSES}}", () => reponsesJson);
   writeFileSync(OUTPUT_PATH, html);
