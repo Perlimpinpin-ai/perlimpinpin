@@ -28,58 +28,58 @@ const page = {
     },
 
     { cle: "pipeline1.carte", groupe: G_ETAPES, libelle: "Étape 01 — texte de la carte", defaut: "Reformuler et rassembler les sources" },
-    { cle: "pipeline1.titre", groupe: G_ETAPES, libelle: "Étape 01 — titre du détail", defaut: "La déclaration est reformulée, puis les sources sont rassemblées." },
+    { cle: "pipeline1.titre", groupe: G_ETAPES, libelle: "Étape 01 — titre du détail", defaut: "Reformuler et rassembler les sources" },
     {
       cle: "pipeline1.texte",
       groupe: G_ETAPES,
       libelle: "Étape 01 — texte du détail",
       defaut:
-        "On résume la promesse en une phrase claire, sans l'interprétation du candidat ni la nôtre. Puis on rassemble les sources : données publiques d'abord (Légifrance, INSEE, Cour des comptes...), jamais une source militante comme preuve d'un fait.",
+        "On résume la promesse en une phrase claire, sans l’interprétation du candidat ni la nôtre. Puis on rassemble les sources : données publiques d’abord (Légifrance, INSEE, Cour des comptes…), jamais une source militante comme preuve d’un fait.",
     },
     { cle: "pipeline2.carte", groupe: G_ETAPES, libelle: "Étape 02 — texte de la carte", defaut: "Première analyse avec Claude" },
-    { cle: "pipeline2.titre", groupe: G_ETAPES, libelle: "Étape 02 — titre du détail", defaut: "Une première analyse est effectuée avec Claude." },
+    { cle: "pipeline2.titre", groupe: G_ETAPES, libelle: "Étape 02 — titre du détail", defaut: "Première analyse avec Claude" },
     {
       cle: "pipeline2.texte",
       groupe: G_ETAPES,
       libelle: "Étape 02 — texte du détail",
       defaut:
-        "Elle soulève les points les plus importants : chiffres et sources, faisabilité juridique, coût, effets attendus, angles morts.",
+        "Claude examine la mesure selon les cinq critères : chiffres et sources, faisabilité juridique, coût, effets attendus, angles morts.",
     },
-    { cle: "pipeline3.carte", groupe: G_ETAPES, libelle: "Étape 03 — texte de la carte", defaut: "Relecture par le Club" },
-    { cle: "pipeline3.titre", groupe: G_ETAPES, libelle: "Étape 03 — titre du détail", defaut: "L'analyse est soumise au Club Perlimpinpin." },
+    { cle: "pipeline3.carte", groupe: G_ETAPES, libelle: "Étape 03 — texte de la carte", defaut: "Contre-analyse avec Mistral" },
+    { cle: "pipeline3.titre", groupe: G_ETAPES, libelle: "Étape 03 — titre du détail", defaut: "Contre-analyse avec Mistral" },
     {
       cle: "pipeline3.texte",
       groupe: G_ETAPES,
       libelle: "Étape 03 — texte du détail",
       defaut:
-        "Pendant la relecture, ses membres peuvent apporter une source, contester un raisonnement, signaler une erreur ou proposer une autre lecture.",
+        "Mistral, un second modèle indépendant, challenge cette analyse : un chiffre douteux, une affirmation juridique trop tranchée, un point oublié. Claude tranche ensuite entre les deux et n’intègre que les remarques fondées. L’analyse est alors relue par l’équipe et publiée en version 1.",
     },
-    { cle: "pipeline4.carte", groupe: G_ETAPES, libelle: "Étape 04 — texte de la carte", defaut: "L'IA intègre les contributions" },
-    { cle: "pipeline4.titre", groupe: G_ETAPES, libelle: "Étape 04 — titre du détail", defaut: "L'IA confronte les contributions aux sources." },
+    { cle: "pipeline4.carte", groupe: G_ETAPES, libelle: "Étape 04 — texte de la carte", defaut: "Le Club challenge" },
+    { cle: "pipeline4.titre", groupe: G_ETAPES, libelle: "Étape 04 — titre du détail", defaut: "Le Club challenge" },
     {
       cle: "pipeline4.texte",
       groupe: G_ETAPES,
       libelle: "Étape 04 — texte du détail",
       defaut:
-        "Elle corrige ses erreurs, nuance ses conclusions ou maintient son analyse lorsque les objections sont insuffisamment étayées, et répond à chaque commentaire.",
+        "Sur chaque analyse publiée, les adhérents surlignent un passage pour apporter une source, contester un raisonnement ou signaler une erreur, à tout moment.",
     },
-    { cle: "pipeline5.carte", groupe: G_ETAPES, libelle: "Étape 05 — texte de la carte", defaut: "Contre-analyse avec Mistral" },
-    { cle: "pipeline5.titre", groupe: G_ETAPES, libelle: "Étape 05 — titre du détail", defaut: "Une contre-analyse est effectuée avec Mistral." },
+    { cle: "pipeline5.carte", groupe: G_ETAPES, libelle: "Étape 05 — texte de la carte", defaut: "L’analyse est révisée" },
+    { cle: "pipeline5.titre", groupe: G_ETAPES, libelle: "Étape 05 — titre du détail", defaut: "L’analyse est révisée" },
     {
       cle: "pipeline5.texte",
       groupe: G_ETAPES,
       libelle: "Étape 05 — texte du détail",
       defaut:
-        "Ce second modèle indépendant a pour rôle de challenger l'analyse en repérant un chiffre douteux, une affirmation juridique trop tranchée, ou un point structurant qui aurait été oublié.",
+        "Chaque semaine, les annotations sont examinées. L’IA les confronte aux sources, puis l’équipe valide : la fiche est corrigée, nuancée ou maintenue, avec une réponse à chaque contributeur.",
     },
-    { cle: "pipeline6.carte", groupe: G_ETAPES, libelle: "Étape 06 — texte de la carte", defaut: "Synthèse finale" },
-    { cle: "pipeline6.titre", groupe: G_ETAPES, libelle: "Étape 06 — titre du détail", defaut: "Le résumé final est produit par Claude." },
+    { cle: "pipeline6.carte", groupe: G_ETAPES, libelle: "Étape 06 — texte de la carte", defaut: "L’analyse devient collective" },
+    { cle: "pipeline6.titre", groupe: G_ETAPES, libelle: "Étape 06 — titre du détail", defaut: "L’analyse devient collective" },
     {
       cle: "pipeline6.texte",
       groupe: G_ETAPES,
       libelle: "Étape 06 — texte du détail",
       defaut:
-        "Il tranche entre les analyses et n'intègre que les remarques réellement fondées.",
+        "Chaque révision donne une nouvelle version (V2, V3…). Ce qui a changé, et pourquoi, reste visible.",
     },
     {
       cle: "etapes.note",
@@ -184,12 +184,9 @@ const page = {
       libelle: "Texte (un paragraphe par ligne)",
       riche: true,
       defaut: [
-        "Chaque analyse passe par plusieurs étapes avant publication, pour limiter les erreurs et les angles morts d'un seul modèle.",
-        "Une première analyse est effectuée avec Claude, qui soulève les points les plus importants : chiffres et sources, faisabilité juridique, coût, effets attendus, angles morts.",
-        "*Cette analyse est ensuite soumise au Club Perlimpinpin.* Pendant la relecture, ses membres peuvent apporter une source, contester un raisonnement, signaler une erreur ou proposer une autre lecture.",
-        "À l'issue de la relecture, l'IA confronte ces contributions aux sources : elle corrige ses erreurs, nuance ses conclusions ou maintient son analyse lorsque les objections sont insuffisamment étayées, et répond à chaque commentaire.",
-        "Une contre-analyse est ensuite effectuée avec Mistral, un second modèle indépendant, dont le rôle est justement de challenger l'analyse en repérant un chiffre douteux, une affirmation juridique trop tranchée, ou un point structurant qui aurait été oublié.",
-        "Le résumé final est produit par Claude, qui tranche entre les analyses et n'intègre que les remarques réellement fondées.",
+        "Chaque analyse passe par plusieurs étapes, avant et après publication, pour limiter les erreurs et les angles morts d’un seul modèle.",
+        "Une première analyse est effectuée avec Claude. Une contre-analyse est ensuite effectuée avec Mistral, un second modèle indépendant. Claude tranche entre les deux et n’intègre que les remarques réellement fondées. L’équipe relit, puis publie la version 1.",
+        "Une fois publiée, l’analyse reste ouverte à la critique. Les membres du Club Perlimpinpin peuvent annoter n’importe quel passage. Chaque semaine, l’IA confronte ces contributions aux sources : elle corrige, nuance ou maintient son analyse, et répond à chaque commentaire. Rien n’est publié sans validation de l’équipe.",
       ].join("\n"),
     },
 
@@ -201,8 +198,8 @@ const page = {
       libelle: "Texte (un paragraphe par ligne)",
       riche: true,
       defaut: [
-        "Avant publication, chaque analyse est ouverte à la relecture des membres du Club Perlimpinpin. La contradiction fait partie du système.",
-        "Les contributions pertinentes enrichissent le résultat final. Les sources, incertitudes et désaccords restent visibles.",
+        "Chaque analyse publiée reste ouverte à la critique des membres du Club Perlimpinpin. La contradiction fait partie du système.",
+        "Les contributions retenues donnent une nouvelle version de la fiche. Les sources, incertitudes et désaccords restent visibles.",
       ].join("\n"),
     },
     { cle: "club.bouton", groupe: G_CLUB, libelle: "Texte du bouton (mène au bloc d'adhésion de /nous-rejoindre)", defaut: "Rejoindre le Club →" },
