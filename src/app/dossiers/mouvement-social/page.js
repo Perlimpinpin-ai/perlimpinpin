@@ -290,7 +290,7 @@ export default async function DossierMouvementSocialPage() {
   );
   const publiees = new Set(propositions.filter((p) => fiches[p.ficheId]).map((p) => p.ficheId)).size;
 
-  // Barème du plus bas au plus haut (0-19 Irréaliste … 85-100 Exemplaire).
+  // Barème du plus bas au plus haut (0-19 Irréaliste … 80-100 Exemplaire).
   const bandes = getScoreBands().slice().reverse();
 
   // Chaque section de la page, affichées dans l'ordre de `ordreSections` du

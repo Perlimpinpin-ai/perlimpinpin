@@ -38,10 +38,10 @@ import {
 // barème, deux consommateurs différents : ce fichier valide côté pipeline
 // d'analyse, score.js affiche côté site).
 export const APPRECIATION_BANDS = [
-  { min: 85, max: 100, label: "exemplaire" },
-  { min: 70, max: 84, label: "solide et chiffré" },
-  { min: 55, max: 69, label: "plausible sous condition" },
-  { min: 35, max: 54, label: "partiellement fondé" },
+  { min: 80, max: 100, label: "exemplaire" },
+  { min: 65, max: 79, label: "solide et chiffré" },
+  { min: 50, max: 64, label: "plausible sous condition" },
+  { min: 35, max: 49, label: "partiellement fondé" },
   { min: 20, max: 34, label: "fragile" },
   { min: 0, max: 19, label: "irréaliste" },
 ];
