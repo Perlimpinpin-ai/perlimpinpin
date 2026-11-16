@@ -595,6 +595,12 @@ async function validateFicheCompleteWithRepair(rawFiche, label) {
   const second = validateFicheCompleteStructure(repairedRaw);
 
   if (!second.valid) {
+    const dump = join(__dirname, "..", "logs", `fiche-invalide-${Date.now()}.json`);
+    try {
+      mkdirSync(dirname(dump), { recursive: true });
+      writeFileSync(dump, JSON.stringify({ label, erreurs: second.errors, brut: rawFiche, repare: repairedRaw }, null, 2));
+      console.error(`  JSON brut sauvegardé dans ${dump}`);
+    } catch {}
     throw new Error(`${label} : structure toujours invalide après tentative de réparation.\n${second.errors.join("\n")}`);
   }
 
@@ -627,14 +633,22 @@ async function callMistralJson(userMessage) {
       response_format: { type: "json_object" },
       temperature: 0.2,
     }),
-  });
+    // Réponse non streamée : le premier octet n'arrive qu'à la fin de la
+    // génération, qui dépasse parfois 60 s sur une fiche riche.
+  }, 180_000);
 
   if (!response.ok) {
     throw new Error(`Erreur API Mistral (${response.status}) : ${await response.text()}`);
   }
 
   const data = await response.json();
-  const raw = data.choices?.[0]?.message?.content;
+  // Les modèles Mistral récents peuvent renvoyer `content` sous forme de
+  // tableau de blocs ({ type: "thinking" | "text", … }) : seuls les blocs
+  // texte portent le JSON.
+  const content = data.choices?.[0]?.message?.content;
+  const raw = Array.isArray(content)
+    ? content.filter((b) => b?.type === "text").map((b) => b.text ?? "").join("")
+    : content;
   if (!raw) {
     throw new Error("Réponse Mistral vide ou mal formée.");
   }
