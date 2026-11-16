@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "description": "Parcours des 11 candidats couverts par Perlimpinpin, pour la page /candidats. Les listes sont triées par importance : la carte affiche les 2 premiers éléments de chaque rubrique.",
+    "description": "Parcours des 12 candidats couverts par Perlimpinpin, pour la page /candidats. Les listes sont triées par importance : la carte affiche les 2 premiers éléments de chaque rubrique.",
     "date_verification": "2026-10-05",
     "statut": "VALIDÉ éditorialement le 2026-10-06 (choix : note judiciaire affichée, rubrique 'Hors mandat électif', points à vérifier masqués)",
     "regle": "Chaque ligne doit pouvoir être retrouvée dans au moins une des sources listées pour le candidat. Les éléments incertains sont dans 'points_a_verifier' et NE doivent PAS être affichés tant qu'ils ne sont pas confirmés.",
@@ -17,6 +17,7 @@
       "points_a_verifier": "jamais affichés"
     },
     "ajout_2026_10_06": "Ajout de David Lisnard et Fabien Roussel (aucune fiche publiée à ce jour → carte 'Analyse en cours').",
+    "ajout_2026_11_16": "Ajout de Teddy Riner (candidature annoncée le 9 novembre 2026, aucune fiche publiée → carte 'Analyse en cours'). Entrée non encore validée éditorialement.",
     "indemnites": "Montants bruts mensuels au 1er janvier 2026 (barèmes officiels). Pour les mandats locaux, ce sont des plafonds légaux, pas les montants réellement votés. 'hatvp_url' = null quand aucune fiche HATVP n'est en ligne : afficher alors 'Pas de déclaration HATVP en ligne'.",
     "revenus_hatvp": "Totaux recalculés à partir des fichiers XML officiels de la HATVP (relevé du 2026-10-06). Montants NETS déclarés par l'élu, contrairement aux indemnités d'élu (BRUT). 'NA' = aucune déclaration d'intérêts publiée."
   },
@@ -823,6 +824,38 @@
         "regle": null,
         "declaration": null
       }
+    },
+    {
+      "slug": "teddy-riner",
+      "prenom": "Teddy",
+      "nom": "Riner",
+      "parti": "Sans étiquette",
+      "mandat_actuel": [],
+      "experience_politique": [
+        "Candidat à la présidentielle 2027 (candidature annoncée le 9 novembre 2026, sans étiquette partisane)",
+        "N'a jamais exercé de mandat électif"
+      ],
+      "hors_mandat_electif": [
+        "Judoka (plus de 100 kg, Paris Saint-Germain), onze fois champion du monde en individuel",
+        "Cinq médailles d'or olympiques : Londres 2012, Rio 2016, Tokyo 2020 (par équipes mixtes), Paris 2024 (en individuel et par équipes mixtes)",
+        "A allumé la vasque olympique de Paris avec Marie-José Pérec (26 juillet 2024)"
+      ],
+      "etudes": [],
+      "sources": [
+        {
+          "label": "Wikipédia FR",
+          "url": "https://fr.wikipedia.org/wiki/Teddy_Riner"
+        }
+      ],
+      "points_a_verifier": [
+        "Ajouter les liens des articles sur l'annonce de candidature (LCP, Public Sénat, Ouest-France, 9 novembre 2026).",
+        "Études : non renseignées.",
+        "Condamnations et rémunérations : pas encore relevées (data/condamnations.json, data/remunerations-moyens.json)."
+      ],
+      "indemnites_elu": null,
+      "frais_mandat": null,
+      "hatvp_url": null,
+      "revenus_declares_hatvp": null
     }
   ]
 }
