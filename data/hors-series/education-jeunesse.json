@@ -13,7 +13,7 @@
     "titre": "École, études, premier emploi : que promettent les candidats ?",
     "accroche": "Salaires des enseignants, examens de passage, Parcoursup, revenu des jeunes : les propositions des onze candidats, analysées une à une.",
     "messageSansFiche": "Premières analyses en relecture",
-    "fichesPrevues": 19
+    "fichesPrevues": 21
   },
   "propositions": [
     {
@@ -27,13 +27,40 @@
     },
     {
       "ficheId": 31
+    },
+    {
+      "ficheId": 82
+    },
+    {
+      "ficheId": 80
+    },
+    {
+      "ficheId": 87
+    },
+    {
+      "ficheId": 90
+    },
+    {
+      "ficheId": 91
+    },
+    {
+      "ficheId": 92
+    },
+    {
+      "ficheId": 78
+    },
+    {
+      "ficheId": 89
+    },
+    {
+      "ficheId": 81
     }
   ],
   "notePropositions": "Fiches déjà rattachées au dossier, lues par la barre d'avancement de /dossiers (avancementHorsSerie) ; les autres mesures phares comptent « à venir » via accueil.fichesPrevues. Ajouter ici chaque nouvelle fiche publiée, en plus de son `ficheId` dans le reste du JSON.",
   "titre": "École, études, premier emploi : que promettent les candidats à la jeunesse ?",
   "titreSurligne": "que promettent les candidats",
   "miseAJour": {
-    "date": "2026-11-13",
+    "date": "2026-11-16",
     "libelle": "Mis à jour le",
     "avertissement": "Dossier évolutif : le programme de Jean-Luc Mélenchon publié le 6 novembre est intégré ; la désignation des Écologistes (vote du 10 au 13 décembre) le sera dès sa publication."
   },
@@ -99,40 +126,40 @@
     "num": "1",
     "titre": "L'essentiel : ce que proposent les candidats",
     "paragraphes": [
-      "Les candidats se divisent moins sur le constat que sur la méthode. Les uns veulent d'abord plus de moyens : de meilleurs salaires, des classes moins chargées, des bâtiments rénovés. Les autres misent sur l'exigence et l'autonomie : examens de passage, groupes de niveau, établissements libres de recruter. Jean-Luc Mélenchon est le seul à répondre à presque toutes les demandes publiées par les lycéens et les étudiants le 5 octobre ; quatre d'entre elles ne sont reprises par aucun autre candidat."
+      "Les candidats se divisent moins sur le constat que sur la méthode. Les uns veulent d'abord plus de moyens : de meilleurs salaires, des classes moins chargées, des bâtiments rénovés. Les autres misent sur l'exigence et l'autonomie : examens de passage, groupes de niveau, établissements libres de recruter. Jean-Luc Mélenchon répond à presque toutes les demandes publiées par les lycéens et les étudiants le 5 octobre, Fabien Roussel et Raphaël Glucksmann à plusieurs d'entre elles ; trois ne sont reprises que par Jean-Luc Mélenchon."
     ],
     "analyse": [
       {
         "intertitre": "Les enseignants : tous augmentent, aucun de la même façon",
         "paragraphes": [
-          "Trois candidats chiffrent une hausse propre aux enseignants. Gabriel Attal promet 200 € nets de plus par mois, jusqu'à 500 € en milieu de carrière, pour environ 2,5 Md€ par an selon l'AFP. Raphaël Glucksmann annonce de 10 à 25 % de hausse (note : {note:65}) ; Édouard Philippe 20 %, financés par moins de recrutements (note : {note:39}). Jean-Luc Mélenchon propose de revaloriser de 10 % le point d'indice de tous les fonctionnaires, enseignants compris.",
-          "Marine Tondelier mise plutôt sur les effectifs, avec 19 élèves par classe d'ici 2032 et 12 en éducation prioritaire ; Jean-Luc Mélenchon vise aussi moins de 19 élèves en moyenne, sans échéance. Pour le bâti, Marine Tondelier prévoit 2 Md€ par an pour des établissements « refuges climatiques », seule mesure de rénovation chiffrée par un candidat. Dominique de Villepin est le seul à prendre un engagement budgétaire global : un budget sanctuarisé et 20 % de dépense par élève en plus en dix ans."
+          "Trois candidats chiffrent une hausse propre aux enseignants. Gabriel Attal promet 200 € nets de plus par mois, jusqu'à 500 € en milieu de carrière, pour environ 2,5 Md€ par an selon l'AFP (note : {note:82}). Raphaël Glucksmann annonce de 10 à 25 % de hausse (note : {note:65}) ; Édouard Philippe 20 %, financés par moins de recrutements (note : {note:39}). Jean-Luc Mélenchon propose de revaloriser de 10 % le point d'indice de tous les fonctionnaires, enseignants compris.",
+          "Fabien Roussel veut recruter 90 000 enseignants pour alléger les classes et consacrer 5 Md€ à la rénovation des lycées. Marine Tondelier mise elle aussi sur les effectifs, avec 19 élèves par classe d'ici 2032 et 12 en éducation prioritaire ; Jean-Luc Mélenchon vise moins de 19 élèves en moyenne, sans échéance. Pour le bâti, Marine Tondelier prévoit 2 Md€ par an pour des établissements « refuges climatiques », l'autre mesure de rénovation chiffrée. Dominique de Villepin est le seul à prendre un engagement budgétaire global : un budget sanctuarisé et 20 % de dépense par élève en plus en dix ans."
         ]
       },
       {
         "intertitre": "Le collège et le lycée : le retour des examens de passage",
         "paragraphes": [
-          "Gabriel Attal et Bruno Retailleau veulent conditionner le passage d'un cycle à l'autre. Le premier propose un certificat à l'entrée en 6e et un brevet obligatoire pour entrer en seconde, une mesure qu'il avait annoncée comme ministre avant de l'abandonner. Le second va plus loin : un examen d'entrée en 6e qui fixe le groupe de niveau de l'élève, et la fin du collège unique. À l'inverse, Jean-Luc Mélenchon veut abroger le « choc des savoirs » et les réformes du lycée et du collège, rétablir le bac national et porter l'obligation scolaire à 18 ans.",
-          "Édouard Philippe, Bruno Retailleau et David Lisnard veulent des établissements plus autonomes, libres notamment de choisir leurs enseignants ; pour Édouard Philippe, en échange de la publication de leurs résultats. David Lisnard propose aussi de supprimer la carte scolaire et de créer un chèque-éducation, quand Jean-Luc Mélenchon veut une nouvelle carte scolaire contre la ségrégation. Marine Le Pen ne formule qu'une mesure scolaire en 2026 : exclure les élèves de plus de 16 ans qui dégradent ou menacent, et leur faire payer les réparations."
+          "Gabriel Attal et Bruno Retailleau veulent conditionner le passage d'un cycle à l'autre. Le premier propose un certificat à l'entrée en 6e et un brevet obligatoire pour entrer en seconde, une mesure qu'il avait annoncée comme ministre avant de l'abandonner (note : {note:80}). Le second va plus loin : un examen d'entrée en 6e qui fixe le groupe de niveau de l'élève, et la fin du collège unique (note : {note:87}). À l'inverse, Jean-Luc Mélenchon veut abroger le « choc des savoirs » et les réformes du lycée et du collège, rétablir le bac national et porter l'obligation scolaire à 18 ans.",
+          "Édouard Philippe, Bruno Retailleau et David Lisnard veulent des établissements plus autonomes, libres notamment de choisir leurs enseignants (note de David Lisnard : {note:90}) ; pour Édouard Philippe, en échange de la publication de leurs résultats (note : {note:91}). David Lisnard propose aussi de supprimer la carte scolaire et de créer un chèque-éducation, quand Jean-Luc Mélenchon veut une nouvelle carte scolaire contre la ségrégation. Marine Le Pen ne formule qu'une mesure scolaire en 2026 : exclure les élèves de plus de 16 ans qui dégradent ou menacent, et leur faire payer les réparations."
         ]
       },
       {
         "intertitre": "Après le bac : supprimer Parcoursup ou le transformer",
         "paragraphes": [
-          "Jean-Luc Mélenchon confirme dans son programme du 6 novembre vouloir démanteler Parcoursup, sans décrire ce qui le remplacerait (note de notre fiche : {note:59}). Il propose aussi la gratuité du supérieur, quelle que soit la nationalité. Dominique de Villepin garde la plateforme mais y ajoute un accompagnement humain des élèves. Bruno Retailleau prend la direction inverse de la demande étudiante : une plateforme « au mérite » et la fin de l'accès sans condition en licence. Gabriel Attal veut « démassifier » le supérieur et raccourcir les études."
+          "Jean-Luc Mélenchon confirme dans son programme du 6 novembre vouloir démanteler Parcoursup, sans décrire ce qui le remplacerait (note de notre fiche : {note:59}). Il propose aussi la gratuité du supérieur, quelle que soit la nationalité. Fabien Roussel veut lui aussi en finir avec Parcoursup et Mon Master, quand Raphaël Glucksmann propose de « repenser en profondeur » Parcoursup par une concertation. Dominique de Villepin garde la plateforme mais y ajoute un accompagnement humain pour en faire un outil d'orientation (note : {note:92}). Bruno Retailleau prend la direction inverse de la demande étudiante : une plateforme « au mérite » et la fin de l'accès sans condition en licence. Gabriel Attal veut « démassifier » le supérieur et raccourcir les études, et Édouard Philippe former 100 000 ingénieurs par an (note : {note:81})."
         ]
       },
       {
         "intertitre": "Les ressources des jeunes : une allocation ou moins d'impôt",
         "paragraphes": [
-          "Jean-Luc Mélenchon maintient sa garantie d'autonomie au niveau du seuil de pauvreté, 1 337 € par mois, pour les jeunes détachés du foyer fiscal de leurs parents : environ 9,5 Md€ par an selon son plan pour le supérieur, la plus coûteuse des mesures sur la vie étudiante. Marine Le Pen veut exonérer d'impôt sur le revenu les moins de 30 ans, jusqu'à 4 SMIC.",
+          "Jean-Luc Mélenchon maintient sa garantie d'autonomie au niveau du seuil de pauvreté, 1 337 € par mois, pour les jeunes détachés du foyer fiscal de leurs parents : environ 9,5 Md€ par an selon son plan pour le supérieur, la plus coûteuse des mesures sur la vie étudiante (note : {note:78}). Marine Le Pen veut exonérer d'impôt sur le revenu les moins de 30 ans, jusqu'à 4 SMIC (note : {note:89}).",
           "Sur l'engagement, Raphaël Glucksmann propose un service civique obligatoire de dix mois, et Jean-Luc Mélenchon un service citoyen obligatoire de neuf mois avant 25 ans, rémunéré au SMIC."
         ]
       },
       {
         "intertitre": "Ce qui manque",
         "paragraphes": [
-          "Aucun candidat ne parle directement des bourses. En dehors de Jean-Luc Mélenchon, personne ne répond aux demandes sur les APL, le repas à 1 € au Crous ni la démocratie lycéenne, et personne ne chiffre de recrutements en santé scolaire. Éric Zemmour n'a publié aucune proposition éducative vérifiable pour 2027, et le Plan Jeunesse de Fabien Roussel reste à confirmer."
+          "Aucun candidat ne reprend la hausse de 200 € des bourses ni le gel des loyers du Crous, et aucun ne chiffre les places à créer dans le supérieur. En dehors de Jean-Luc Mélenchon, personne ne répond aux demandes sur le repas à 1 €, « Bienvenue en France » et la CVEC, et personne ne chiffre de recrutements en santé scolaire. Éric Zemmour n'a publié aucune proposition éducative vérifiable pour 2027."
         ]
       }
     ],
@@ -164,7 +191,7 @@
   "grille": {
     "num": "2",
     "titre": "Les demandes des jeunes face aux programmes",
-    "intro": "Le 5 octobre, l'Union syndicale lycéenne et l'Union étudiante ont publié dix mesures d'urgence. Pour chacune, nous indiquons si un candidat la traite, en partie ou en totalité, ou s'il propose l'inverse. Traiter une demande ne veut pas dire la satisfaire.",
+    "intro": "Le 5 octobre, l'Union syndicale lycéenne et l'Union étudiante ont publié dix mesures d'urgence. Pour chacune, nous indiquons si un candidat la reprend, seulement en partie, ou s'il propose l'inverse. Traiter une demande ne veut pas dire la satisfaire.",
     "candidats": [
       "Attal",
       "Glucksmann",
@@ -179,85 +206,96 @@
       "Zemmour"
     ],
     "legende": {
-      "traite": "Traite la demande",
+      "traite": "Reprend la demande",
       "partiel": "La traite en partie",
       "inverse": "Propose l'inverse",
       "rien": "Aucune proposition"
     },
     "demandes": [
       {
-        "label": "Rénover les bâtiments et les adapter à la chaleur",
-        "reponses": {
-          "Attal": "traite",
-          "Tondelier": "traite",
-          "Villepin": "traite",
-          "Mélenchon": "traite"
-        }
-      },
-      {
-        "label": "Recruter : santé scolaire, orientation, AESH, titulaires",
+        "label": "Rénover le bâti scolaire et universitaire",
         "reponses": {
           "Attal": "traite",
           "Mélenchon": "traite",
+          "Roussel": "traite",
           "Tondelier": "traite",
-          "Villepin": "traite"
-        }
-      },
-      {
-        "label": "Rythmes scolaires, réforme du bac, pause de midi",
-        "reponses": {
-          "Attal": "traite",
-          "Philippe": "traite",
           "Villepin": "traite",
-          "Mélenchon": "traite"
+          "Glucksmann": "partiel"
         }
       },
       {
-        "label": "Des places dans le supérieur, la fin de la sélection algorithmique",
+        "label": "Recruter massivement des personnels éducatifs et de santé",
+        "note": "Seul Jean-Luc Mélenchon vise aussi les personnels de santé, sans chiffre",
         "reponses": {
-          "Attal": "traite",
           "Mélenchon": "traite",
-          "Philippe": "traite",
-          "Villepin": "traite",
+          "Attal": "partiel",
+          "Glucksmann": "partiel",
+          "Roussel": "partiel",
+          "Tondelier": "partiel",
+          "Villepin": "partiel"
+        }
+      },
+      {
+        "label": "Refondre les rythmes scolaires et revenir sur la réforme du lycée",
+        "reponses": {
+          "Attal": "partiel",
+          "Mélenchon": "partiel",
+          "Philippe": "partiel",
+          "Roussel": "partiel",
+          "Villepin": "partiel"
+        }
+      },
+      {
+        "label": "Supprimer Parcoursup et Mon Master, créer 250 000 places",
+        "note": "Aucun candidat ne chiffre les places à créer",
+        "reponses": {
+          "Mélenchon": "traite",
+          "Roussel": "traite",
+          "Attal": "partiel",
+          "Glucksmann": "partiel",
+          "Philippe": "partiel",
+          "Villepin": "partiel",
           "Retailleau": "inverse"
         }
       },
       {
-        "label": "Revaloriser les APL des étudiants",
+        "label": "Réformer la démocratie lycéenne",
         "reponses": {
-          "Mélenchon": "traite"
-        },
-        "note": "Hausse de 10 % des APL pour tous les allocataires"
+          "Mélenchon": "traite",
+          "Glucksmann": "partiel",
+          "Roussel": "partiel"
+        }
       },
       {
-        "label": "Le repas à 1 € au CROUS",
+        "label": "Augmenter les bourses de 200 € par mois et revaloriser les APL",
+        "note": "Aucun candidat ne reprend les 200 €",
+        "reponses": {
+          "Glucksmann": "partiel",
+          "Le Pen": "partiel",
+          "Mélenchon": "partiel"
+        }
+      },
+      {
+        "label": "Le repas à 1 € pour tous les étudiants",
         "note": "Mesure déjà en vigueur depuis mai 2026 ; Jean-Luc Mélenchon la reprend",
         "reponses": {
           "Mélenchon": "traite"
         }
       },
       {
-        "label": "Les frais d'inscription des étudiants étrangers",
+        "label": "Supprimer « Bienvenue en France » et la CVEC",
         "reponses": {
           "Mélenchon": "traite"
         }
       },
       {
-        "label": "Les bourses étudiantes",
-        "note": "Mesures sur les ressources des étudiants, pas sur les bourses",
+        "label": "Geler les loyers du Crous et construire des logements étudiants",
         "reponses": {
-          "Le Pen": "partiel",
           "Mélenchon": "partiel"
         }
       },
       {
-        "label": "La démocratie lycéenne",
-        "reponses": {
-          "Mélenchon": "traite"
-        }
-      },
-      {
-        "label": "La fin de la répression des mobilisations",
+        "label": "Mettre fin à la répression des mobilisations lycéennes",
         "horsPerimetre": {
           "texte": "Hors périmètre : traitée dans le dossier",
           "lien": {
@@ -267,7 +305,7 @@
         }
       }
     ],
-    "encadre": "Ce tableau décrit ce dont parlent les candidats, pas la qualité de leurs réponses. 33 des 52 propositions retenues ne répondent à aucune de ces demandes et restent au cœur du dossier : salaires des enseignants, groupes de niveau, voie professionnelle. La qualité de chaque proposition est évaluée dans nos fiches notées."
+    "encadre": "Ce tableau décrit ce dont parlent les candidats, pas la qualité de leurs réponses. Beaucoup de propositions retenues ne répondent à aucune de ces demandes et restent au cœur du dossier : salaires des enseignants, groupes de niveau, voie professionnelle. La qualité de chaque proposition est évaluée dans nos fiches notées."
   },
   "faceAFace": {
     "num": "3",
@@ -281,7 +319,8 @@
           {
             "candidat": "Gabriel Attal",
             "parti": "Renaissance",
-            "mesure": "+200 à +500 € nets par mois pour les enseignants"
+            "mesure": "+200 à +500 € nets par mois pour les enseignants",
+            "ficheId": 82
           },
           {
             "candidat": "Raphaël Glucksmann",
@@ -304,12 +343,14 @@
           {
             "candidat": "Gabriel Attal",
             "parti": "Renaissance",
-            "mesure": "Brevet obligatoire pour entrer en seconde, certificat à l'entrée en 6e, retour du redoublement"
+            "mesure": "Brevet obligatoire pour entrer en seconde, certificat à l'entrée en 6e, retour du redoublement",
+            "ficheId": 80
           },
           {
             "candidat": "Bruno Retailleau",
             "parti": "Les Républicains",
-            "mesure": "Examen d'entrée en 6e, groupes de niveau, fin du collège unique"
+            "mesure": "Examen d'entrée en 6e, groupes de niveau, fin du collège unique",
+            "ficheId": 87
           }
         ]
       },
@@ -320,12 +361,14 @@
           {
             "candidat": "David Lisnard",
             "parti": "Nouvelle Énergie",
-            "mesure": "Enseignants contractuels recrutés directement par les établissements"
+            "mesure": "Enseignants contractuels recrutés directement par les établissements",
+            "ficheId": 90
           },
           {
             "candidat": "Édouard Philippe",
             "parti": "Horizons",
-            "mesure": "Autonomie des établissements contre publication de leurs résultats"
+            "mesure": "Autonomie des établissements contre publication de leurs résultats",
+            "ficheId": 91
           }
         ]
       },
@@ -342,7 +385,8 @@
           {
             "candidat": "Dominique de Villepin",
             "parti": "La France humaniste",
-            "mesure": "Garder Parcoursup avec un accompagnement humain des élèves"
+            "mesure": "Garder Parcoursup avec un accompagnement humain des élèves",
+            "ficheId": 92
           }
         ]
       },
@@ -353,12 +397,14 @@
           {
             "candidat": "Marine Le Pen",
             "parti": "Rassemblement national",
-            "mesure": "Pas d'impôt sur le revenu avant 30 ans, jusqu'à 4 SMIC"
+            "mesure": "Pas d'impôt sur le revenu avant 30 ans, jusqu'à 4 SMIC",
+            "ficheId": 89
           },
           {
             "candidat": "Jean-Luc Mélenchon",
             "parti": "La France insoumise",
-            "mesure": "Garantie d'autonomie de 1 337 € par mois pour les jeunes détachés du foyer fiscal"
+            "mesure": "Garantie d'autonomie de 1 337 € par mois pour les jeunes détachés du foyer fiscal",
+            "ficheId": 78
           }
         ]
       }
@@ -373,8 +419,8 @@
     "etapes": [
       {
         "titre": "Les moyens de l'école",
-        "total": 16,
-        "repartition": "Mélenchon 4 · Attal 3 · Tondelier 3 · Villepin 2 · Glucksmann, Lisnard, Philippe, Retailleau 1",
+        "total": 17,
+        "repartition": "Mélenchon 4 · Attal 3 · Tondelier 3 · Villepin 2 · Glucksmann, Lisnard, Philippe, Retailleau, Roussel 1",
         "chapo": "Salaires des enseignants, effectifs par classe, bâtiments, inclusion, statut des enseignants et budget global.",
         "phares": [
           {
@@ -389,11 +435,13 @@
           },
           {
             "candidat": "Attal",
-            "mesure": "+200 à +500 € nets par mois pour les enseignants"
+            "mesure": "+200 à +500 € nets par mois pour les enseignants",
+            "ficheId": 82
           },
           {
             "candidat": "Lisnard",
-            "mesure": "Enseignants contractuels recrutés par les établissements"
+            "mesure": "Enseignants contractuels recrutés par les établissements",
+            "ficheId": 90
           },
           {
             "candidat": "Tondelier",
@@ -406,6 +454,10 @@
           {
             "candidat": "Villepin",
             "mesure": "Budget de l'école sanctuarisé, +20 % de dépense par élève en dix ans"
+          },
+          {
+            "candidat": "Roussel",
+            "mesure": "Plan Jeunesse : 90 000 enseignants recrutés, 5 Md€ pour les lycées"
           }
         ],
         "autres": [
@@ -443,15 +495,18 @@
         "phares": [
           {
             "candidat": "Attal",
-            "mesure": "Brevet pour la seconde, certificat à l'entrée en 6e, redoublement"
+            "mesure": "Brevet pour la seconde, certificat à l'entrée en 6e, redoublement",
+            "ficheId": 80
           },
           {
             "candidat": "Philippe",
-            "mesure": "Autonomie des établissements contre publication des résultats"
+            "mesure": "Autonomie des établissements contre publication des résultats",
+            "ficheId": 91
           },
           {
             "candidat": "Retailleau",
-            "mesure": "Réforme du collège : examen d'entrée en 6e, groupes de niveau"
+            "mesure": "Réforme du collège : examen d'entrée en 6e, groupes de niveau",
+            "ficheId": 87
           }
         ],
         "autres": [
@@ -546,17 +601,19 @@
           },
           {
             "candidat": "Villepin",
-            "mesure": "Parcoursup avec un accompagnement humain"
+            "mesure": "Parcoursup avec un accompagnement humain",
+            "ficheId": 92
+          },
+          {
+            "candidat": "Philippe",
+            "mesure": "Former 100 000 ingénieurs par an",
+            "ficheId": 81
           }
         ],
         "autres": [
           {
             "candidat": "Attal",
             "mesure": "Démassifier le supérieur et raccourcir les études"
-          },
-          {
-            "candidat": "Philippe",
-            "mesure": "Former 100 000 ingénieurs par an"
           },
           {
             "candidat": "Retailleau",
@@ -576,7 +633,8 @@
         "phares": [
           {
             "candidat": "Mélenchon",
-            "mesure": "Garantie d'autonomie de 1 337 € par mois"
+            "mesure": "Garantie d'autonomie de 1 337 € par mois",
+            "ficheId": 78
           }
         ],
         "autres": [
@@ -606,7 +664,8 @@
         "phares": [
           {
             "candidat": "Le Pen",
-            "mesure": "Pas d'impôt sur le revenu avant 30 ans, jusqu'à 4 SMIC"
+            "mesure": "Pas d'impôt sur le revenu avant 30 ans, jusqu'à 4 SMIC",
+            "ficheId": 89
           }
         ],
         "autres": [
@@ -653,10 +712,12 @@
         "parti": "Renaissance",
         "mesures": [
           {
-            "mesure": "+200 à +500 € pour les enseignants"
+            "mesure": "+200 à +500 € pour les enseignants",
+            "ficheId": 82
           },
           {
-            "mesure": "Examens de passage et redoublement"
+            "mesure": "Examens de passage et redoublement",
+            "ficheId": 80
           }
         ]
       },
@@ -678,7 +739,8 @@
         "parti": "Rassemblement national",
         "mesures": [
           {
-            "mesure": "Pas d'impôt avant 30 ans"
+            "mesure": "Pas d'impôt avant 30 ans",
+            "ficheId": 89
           },
           {
             "mesure": "Exclure les élèves perturbateurs"
@@ -693,7 +755,8 @@
             "mesure": "Chèque-éducation et libre choix de l'école"
           },
           {
-            "mesure": "Enseignants recrutés par les établissements"
+            "mesure": "Enseignants recrutés par les établissements",
+            "ficheId": 90
           }
         ]
       },
@@ -710,7 +773,8 @@
             "ficheId": 31
           },
           {
-            "mesure": "Garantie d'autonomie de 1 337 €"
+            "mesure": "Garantie d'autonomie de 1 337 €",
+            "ficheId": 78
           }
         ]
       },
@@ -723,7 +787,12 @@
             "ficheId": 39
           },
           {
-            "mesure": "Autonomie contre résultats publiés"
+            "mesure": "Autonomie contre résultats publiés",
+            "ficheId": 91
+          },
+          {
+            "mesure": "100 000 ingénieurs par an",
+            "ficheId": 81
           }
         ]
       },
@@ -732,7 +801,8 @@
         "parti": "Les Républicains",
         "mesures": [
           {
-            "mesure": "Réforme du collège"
+            "mesure": "Réforme du collège",
+            "ficheId": 87
           },
           {
             "mesure": "Réforme de la voie professionnelle"
@@ -742,8 +812,11 @@
       {
         "candidat": "Fabien Roussel",
         "parti": "PCF",
-        "mesures": [],
-        "vide": "Plan Jeunesse en attente de confirmation pour 2027."
+        "mesures": [
+          {
+            "mesure": "Plan Jeunesse : 90 000 enseignants, 5 Md€ pour les lycées"
+          }
+        ]
       },
       {
         "candidat": "Marine Tondelier",
@@ -765,7 +838,8 @@
             "mesure": "Budget de l'école sanctuarisé"
           },
           {
-            "mesure": "Parcoursup accompagné"
+            "mesure": "Parcoursup accompagné",
+            "ficheId": 92
           }
         ]
       },
@@ -809,10 +883,6 @@
         "texte": "n'a publié aucune proposition éducative vérifiable pour 2027."
       },
       {
-        "candidat": "Fabien Roussel",
-        "texte": "a présenté un Plan Jeunesse, dont la reprise pour 2027 reste à confirmer."
-      },
-      {
         "candidat": "Marine Tondelier",
         "texte": "reste candidate provisoire jusqu'au vote des adhérents des Écologistes, du 10 au 13 décembre."
       }
@@ -837,6 +907,18 @@
     {
       "label": "Section « Construire l'autonomie des jeunes »",
       "url": "https://melenchon2027.fr/programme/livre/mettre-en-securite-sociale/chapitre2"
+    },
+    {
+      "label": "Fabien Roussel, Plan Jeunesse (X, 6 octobre 2026)",
+      "url": "https://x.com/Fabien_Roussel/status/2107419682164674728"
+    },
+    {
+      "label": "L'Humanité, Plan Jeunesse du PCF, repris par People's World",
+      "url": "https://www.peoplesworld.org/article/french-communists-unveil-youth-plan-as-student-revolt-rocks-schools/"
+    },
+    {
+      "label": "Place publique, projet « Acte Un »",
+      "url": "https://place-publique.eu/document/6J8wjk3EW8dBCLwKxa7J96/projet-placepublique-acte1.pdf"
     }
   ]
 }
