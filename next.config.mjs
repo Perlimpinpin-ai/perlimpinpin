@@ -12,6 +12,8 @@ const nextConfig = {
     "/api/relectures/annonce/envoyer": ["./data/relectures/*.json"],
     // « Mes commentaires » : titre des anciennes fiches relues et réponses archivées.
     "/api/relectures/mes-commentaires": ["./data/relectures/*.json"],
+    // Alerte e-mail à chaque nouveau commentaire : titre et candidat des fiches en relecture.
+    "/api/relectures/comments": ["./data/relectures/*.json"],
     // Cartes des publications X : police Inter et portraits bleus lus sur disque.
     "/api/carte/[id]": ["./public/fonts/*.otf", "./public/portraits-bleus/*.png"],
   },
