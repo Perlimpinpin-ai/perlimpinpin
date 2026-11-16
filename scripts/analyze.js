@@ -580,7 +580,7 @@ function validateEtape1Local(rawAnalyse, label) {
 }
 
 // Même principe pour fiche_complete (étape 3, schéma à 5 critères).
-async function validateFicheCompleteWithRepair(rawFiche, label) {
+async function validateFicheCompleteWithRepair(rawFiche, label, reponseComplete = null) {
   const first = validateFicheCompleteStructure(rawFiche);
   if (first.valid) {
     warnNotationCoherence(first.fiche.notation_detaillee, label);
@@ -598,7 +598,7 @@ async function validateFicheCompleteWithRepair(rawFiche, label) {
     const dump = join(__dirname, "..", "logs", `fiche-invalide-${Date.now()}.json`);
     try {
       mkdirSync(dirname(dump), { recursive: true });
-      writeFileSync(dump, JSON.stringify({ label, erreurs: second.errors, brut: rawFiche, repare: repairedRaw }, null, 2));
+      writeFileSync(dump, JSON.stringify({ label, erreurs: second.errors, brut: rawFiche, repare: repairedRaw, reponseComplete }, null, 2));
       console.error(`  JSON brut sauvegardé dans ${dump}`);
     } catch {}
     throw new Error(`${label} : structure toujours invalide après tentative de réparation.\n${second.errors.join("\n")}`);
@@ -1284,10 +1284,18 @@ function loadEtape1(input) {
 // retrouver (elle ne reçoit que fiche_complete). On reprend donc celui de la
 // racine, seulement s'il manque : c'est de toute façon lui qui prime ensuite
 // (voir `parsed` dans runPipeline), comme dans scripts/import-etape3.js.
+// Même chose pour analyse_par_criteres, que le modèle place parfois à la
+// racine plutôt que dans fiche_complete (16 novembre 2026, fiches Attal
+// enseignants et Zemmour droit du sol : « expected array, received undefined »).
 export function ficheCompleteAvecVerdictRacine(arbitrage3) {
   const fiche = arbitrage3?.fiche_complete ?? {};
-  if (fiche.verdict_final !== undefined || arbitrage3?.verdict_final === undefined) return fiche;
-  return { ...fiche, verdict_final: arbitrage3.verdict_final };
+  const manquants = ["verdict_final", "analyse_par_criteres"].filter(
+    (cle) => fiche[cle] === undefined && arbitrage3?.[cle] !== undefined,
+  );
+  if (!manquants.length) return fiche;
+  const complete = { ...fiche };
+  for (const cle of manquants) complete[cle] = arbitrage3[cle];
+  return complete;
 }
 
 // Réponse d'étape 3 renvoyée après un refus de revision_relecture : le modèle
@@ -1400,7 +1408,7 @@ export async function runPipeline(etape1Input, { commentaires = null, candidatNo
   const auditArbitrage = Array.isArray(arbitrage3.auditArbitrage) ? [...arbitrage3.auditArbitrage] : [];
   let rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
   if (commentaires) rawFicheComplete = completerAvecFicheRelue(rawFicheComplete, arbitrage3, etape1);
-  const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3");
+  const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3", arbitrage3);
 
   // titre_fiche/resume_court/teaser_accueil/verdict_final sont produits à la
   // racine de la réponse d'étape 3 (rédaction finale) — verdict_final y est

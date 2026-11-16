@@ -42,6 +42,16 @@ describe("Étape 3 — verdict_final placé seulement à la racine", () => {
     assert.equal(validateFicheCompleteStructure(fiche).valid, false);
     assert.deepEqual(ficheCompleteAvecVerdictRacine({}), {});
   });
+
+  test("analyse_par_criteres seulement à la racine : repris dans fiche_complete", () => {
+    const arbitrage3 = sortieReelle();
+    arbitrage3.analyse_par_criteres = arbitrage3.fiche_complete.analyse_par_criteres;
+    delete arbitrage3.fiche_complete.analyse_par_criteres;
+    assert.equal(validateFicheCompleteStructure(arbitrage3.fiche_complete).valid, false);
+    const fiche = ficheCompleteAvecVerdictRacine(arbitrage3);
+    assert.equal(fiche.analyse_par_criteres, arbitrage3.analyse_par_criteres);
+    assert.equal(validateFicheCompleteStructure(fiche).valid, true);
+  });
 });
 
 // CAS 10 de la spec ("Mistral indisponible -> le pipeline continue") :
