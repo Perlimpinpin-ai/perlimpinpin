@@ -850,7 +850,7 @@
       "points_a_verifier": [
         "Ajouter les liens des articles sur l'annonce de candidature (LCP, Public Sénat, Ouest-France, 9 novembre 2026).",
         "Études : non renseignées.",
-        "Condamnations et rémunérations : pas encore relevées (data/condamnations.json, data/remunerations-moyens.json)."
+        "Rémunérations : pas encore relevées (data/remunerations-moyens.json)."
       ],
       "indemnites_elu": null,
       "frais_mandat": null,
