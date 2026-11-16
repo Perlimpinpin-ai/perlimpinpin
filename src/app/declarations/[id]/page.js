@@ -916,8 +916,11 @@ function VueExpertSi({ actif, children }) {
 // blocs qui écrivent en base (vote, feedback) et le lien de retour pointe vers
 // la liste des brouillons. Sur le site public, `preview` reste faux : rien ne change.
 // `edition` : { analyseId, versionAttendue, mesurePubliee } pour un éditeur (crayon
-// sur le titre, le résumé, la mesure initiale…), sinon null.
-export default async function DeclarationDetailPage({ params, preview = false, edition = null }) {
+// sur le titre, le résumé, la mesure initiale…), sinon null. Avec `correction: true`
+// (/test/publiees/[id]), seuls les champs corrigeables d'une fiche publiée ont un crayon.
+// `publiee` (avec `preview`) : /test/publiees/[id] montre la version EN LIGNE, même
+// si un brouillon plus récent existe.
+export default async function DeclarationDetailPage({ params, preview = false, publiee = false, edition = null }) {
   const { id } = await params;
   const propositionId = Number(id);
 
@@ -927,7 +930,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
 
   // Site public : dernière analyse publiée, 404 s'il n'y en a pas (brouillon
   // seul). `preview` (/test/[id]) : dernière analyse, brouillon compris.
-  const declaration = await getDeclarationDetailCached(propositionId, preview);
+  const declaration = await getDeclarationDetailCached(propositionId, preview && !publiee);
 
   if (!declaration || !declaration.analyse) {
     notFound();
@@ -1124,7 +1127,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 <span className="text-sm font-semibold text-zinc-700">perlimpinpin.ai</span>
               </div>
               <Link
-                href={preview ? "/test" : "/declarations"}
+                href={publiee ? "/test/publiees" : preview ? "/test" : "/declarations"}
                 className="text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800 print:hidden"
               >
                 ← Retour

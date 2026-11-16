@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CHAMPS_EDITABLES, lirePoints, normaliserTexte, validerTexte, valeurEnTexte } from "@/lib/test-edition";
-import { enregistrerTexte } from "./actions";
+import { MESSAGE_TROP_IMPORTANTE, estUneCoquille } from "@/lib/test-corriger";
+import { corrigerCoquille, enregistrerTexte } from "./actions";
 
 // Petit crayon de modification d'un texte de la fiche (réservé au mode édition :
 // la fiche n'utilise ce composant que pour un éditeur, jamais sur le site public).
@@ -16,6 +17,9 @@ export default function EditableBlock({
   analyseId,
   versionAttendue,
   multiligne,
+  // Correction de coquille d'une fiche publiée (/test/publiees/[id]) : autre
+  // action serveur, garde-fou « coquille » et confirmation pour les annotations.
+  correction = false,
   children,
 }) {
   const router = useRouter();
@@ -29,6 +33,8 @@ export default function EditableBlock({
   const [texte, setTexte] = useState(texteInitial);
   const [message, setMessage] = useState(null); // { type: "erreur" | "info", texte }
   const [enregistre, setEnregistre] = useState(false);
+  // Correction : message du serveur quand une annotation du Club serait décrochée.
+  const [aConfirmer, setAConfirmer] = useState(null);
   const [enCours, startTransition] = useTransition();
   const champRef = useRef(null);
 
@@ -65,8 +71,13 @@ export default function EditableBlock({
     zone.style.height = `${zone.scrollHeight}px`;
   }, [edition, multiligne, estChoix, texte]);
 
-  const controle = validerTexte(champ, texte);
+  const validation = validerTexte(champ, texte);
   const inchange = normaliserTexte(texte) === normaliserTexte(texteInitial);
+  // Même calcul que le serveur (test-corriger.js), pour prévenir avant l'envoi.
+  const coquille =
+    correction && validation.ok ? estUneCoquille(estListe ? lirePoints(texteInitial) : normaliserTexte(texteInitial), validation.valeur) : null;
+  const controle =
+    coquille && !coquille.ok ? { ok: false, message: MESSAGE_TROP_IMPORTANTE } : validation;
   const longueur = normaliserTexte(texte).length;
   const points = estListe ? lirePoints(texte) : [];
   const pointLePlusLong = Math.max(0, ...points.map((point) => point.length));
@@ -74,6 +85,7 @@ export default function EditableBlock({
   function ouvrir() {
     setTexte(texteInitial);
     setMessage(null);
+    setAConfirmer(null);
     setEnregistre(false);
     setEdition(true);
   }
@@ -82,13 +94,29 @@ export default function EditableBlock({
     if (enCours) return;
     setEdition(false);
     setMessage(null);
+    setAConfirmer(null);
   }
 
-  function enregistrer() {
+  function changerTexte(valeur) {
+    setTexte(valeur);
+    setAConfirmer(null);
+  }
+
+  function enregistrer(confirmerAnnotations = false) {
     if (enCours || !controle.ok || inchange) return;
     setMessage(null);
+    setAConfirmer(null);
     startTransition(async () => {
-      const resultat = await enregistrerTexte({ analyseId, champ, valeur: texte, versionAttendue: version });
+      const entree = { analyseId, champ, valeur: texte, versionAttendue: version };
+      const resultat = correction
+        ? await corrigerCoquille({ ...entree, confirmerAnnotations })
+        : await enregistrerTexte(entree);
+
+      // Une annotation du Club perdrait son passage : on demande confirmation.
+      if (resultat?.confirmation) {
+        setAConfirmer(resultat.message);
+        return;
+      }
 
       // Refus, conflit ou simulation : on reste dans le champ, le texte saisi est conservé.
       if (!resultat?.ok || resultat.simulation) {
@@ -176,7 +204,7 @@ export default function EditableBlock({
           id={idChamp}
           ref={champRef}
           value={texte}
-          onChange={(evenement) => setTexte(evenement.target.value)}
+          onChange={(evenement) => changerTexte(evenement.target.value)}
           disabled={enCours}
           autoFocus
           className={`${classesChamp} text-base`}
@@ -193,7 +221,7 @@ export default function EditableBlock({
           id={idChamp}
           ref={champRef}
           value={texte}
-          onChange={(evenement) => setTexte(evenement.target.value)}
+          onChange={(evenement) => changerTexte(evenement.target.value)}
           disabled={enCours}
           autoFocus
           rows={6}
@@ -205,7 +233,7 @@ export default function EditableBlock({
           ref={champRef}
           type="text"
           value={texte}
-          onChange={(evenement) => setTexte(evenement.target.value)}
+          onChange={(evenement) => changerTexte(evenement.target.value)}
           disabled={enCours}
           autoFocus
           className={`${classesChamp} text-lg font-semibold`}
@@ -257,8 +285,38 @@ export default function EditableBlock({
         <p className="text-xs text-zinc-500">Sur les cartes du site, le titre sera coupé à 80 caractères.</p>
       ) : null}
 
+      {coquille && !inchange ? (
+        <p className={`text-xs ${coquille.ok ? "text-zinc-500" : "font-semibold text-red-700"}`}>
+          Correction de coquille : {Math.min(coquille.distance, coquille.seuil + 1)}
+          {coquille.ok ? "" : "+"} caractère{coquille.distance > 1 ? "s" : ""} modifié
+          {coquille.distance > 1 ? "s" : ""} sur {coquille.seuil} au plus (gras non compté).
+        </p>
+      ) : null}
       {!controle.ok && texte.trim().length > 0 ? (
         <p className="text-xs font-semibold text-red-700">{controle.message}</p>
+      ) : null}
+      {aConfirmer ? (
+        <div role="alert" className="flex flex-col gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+          <p className="font-semibold">{aConfirmer}</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => enregistrer(true)}
+              disabled={enCours}
+              className="rounded-full bg-amber-700 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {enCours ? "Envoi…" : "Confirmer la correction"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setAConfirmer(null)}
+              disabled={enCours}
+              className="rounded-full border border-amber-300 px-4 py-1.5 text-sm font-semibold text-amber-900 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Ne pas corriger
+            </button>
+          </div>
+        </div>
       ) : null}
       {message ? (
         <p
@@ -272,7 +330,7 @@ export default function EditableBlock({
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={enregistrer}
+          onClick={() => enregistrer()}
           disabled={enCours || !controle.ok || inchange}
           className="rounded-full bg-zinc-900 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
         >

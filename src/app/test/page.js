@@ -129,6 +129,15 @@ export default async function TestPage() {
                     Revue du dimanche →
                   </Link>
                 ) : null}
+                {/* Correction des coquilles d'une fiche déjà en ligne. */}
+                {editeur ? (
+                  <Link
+                    href="/test/publiees"
+                    className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-800 transition-colors hover:bg-zinc-100"
+                  >
+                    Fiches publiées →
+                  </Link>
+                ) : null}
               </div>
             ) : null}
           </div>
