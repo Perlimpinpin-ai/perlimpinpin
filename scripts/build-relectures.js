@@ -55,10 +55,10 @@ const OUTPUT_PATH = path.join(ROOT, "public/relectures/index.html");
 
 // Paliers du score (mêmes bornes que APPRECIATION_BANDS dans scripts/lib/scoring.js).
 const TIERS = [
-  { min: 85, cls: "exemplaire", label: "Exemplaire", range: "85 à 100", flex: 16 },
-  { min: 70, cls: "solide", label: "Solide et chiffré", range: "70 à 84", flex: 15 },
-  { min: 55, cls: "plausible", label: "Plausible sous condition", range: "55 à 69", flex: 15 },
-  { min: 35, cls: "partiel", label: "Partiellement fondé", range: "35 à 54", flex: 20 },
+  { min: 80, cls: "exemplaire", label: "Exemplaire", range: "80 à 100", flex: 21 },
+  { min: 65, cls: "solide", label: "Solide et chiffré", range: "65 à 79", flex: 15 },
+  { min: 50, cls: "plausible", label: "Plausible sous condition", range: "50 à 64", flex: 15 },
+  { min: 35, cls: "partiel", label: "Partiellement fondé", range: "35 à 49", flex: 15 },
   { min: 20, cls: "fragile", label: "Fragile", range: "20 à 34", flex: 15 },
   { min: 0, cls: "irreal", label: "Irréaliste", range: "0 à 19", flex: 20 },
 ];

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getScoreBands, PLAFOND_DECLENCHEUR_LABELS } from "@/lib/score";
+import { getScoreBadge, getScoreBands, PLAFOND_DECLENCHEUR_LABELS } from "@/lib/score";
 import {
   NEUTRAL_BADGE,
   NEUTRAL_BAR,
@@ -66,10 +66,12 @@ function CritereRow({ label, note, max, badge, isSub = false }) {
 // du score total est mis en évidence (trait foncé + libellé en gras).
 function ScoreScale({ score }) {
   const bands = getScoreBands().slice().reverse();
+  // Même règle que getScoreBadge : un score décimal (ex. 79.5) reste dans son palier.
+  const actif = getScoreBadge(score).label;
   return (
     <ol className="grid grid-cols-3 gap-x-2 gap-y-4 sm:flex sm:gap-1.5">
       {bands.map((band) => {
-        const active = score >= band.min && score <= band.max;
+        const active = band.label === actif;
         return (
           <li
             key={band.label}
