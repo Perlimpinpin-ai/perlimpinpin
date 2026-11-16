@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normaliser, motsCles, creerMoteur } from "../src/lib/recherche.js";
+import { normaliser, motsCles, creerMoteur, motsDuCorps } from "../src/lib/recherche.js";
 
 // Propositions fictives, inspirées des analyses réelles (data/analyses).
 const DOCS = [
@@ -82,4 +82,31 @@ test("rien d'absurde pour une requête vide ou sans rapport", () => {
   assert.deepEqual(ids(""), []);
   assert.deepEqual(ids("de la"), []);
   assert.deepEqual(ids("xylophone"), []);
+});
+
+test("texte complet (corps) : un mot absent du titre et du résumé trouve l'analyse", () => {
+  const docs = [
+    ...DOCS,
+    {
+      id: 13, candidat: "Bruno Retailleau", theme: "Sécurité & Justice",
+      titre: "Rétablir les peines planchers", resume: "Une réponse pénale plus systématique.",
+      texte: "Instaurer des peines minimales pour les récidivistes.",
+      corps: motsDuCorps("Le parc pénitentiaire compte déjà 80 000 détenus : la mesure accroîtrait la surpopulation des prisons."),
+    },
+  ];
+  const plein = creerMoteur(docs);
+  assert.deepEqual(plein.rechercher("prison").map((doc) => doc.id), [13]);
+  assert.deepEqual(plein.rechercher("surpopulation carcerale").map((doc) => doc.id), [13]);
+});
+
+test("texte complet : passe après une mesure dont c'est le sujet", () => {
+  const docs = [
+    { ...DOCS[0], corps: "" },
+    { ...DOCS[8], corps: motsDuCorps("Effet indirect possible sur le prix du carburant pour les ménages.") },
+  ];
+  assert.deepEqual(creerMoteur(docs).rechercher("carburant").map((doc) => doc.id)[0], 1);
+});
+
+test("motsDuCorps : sans doublons, sans nombres seuls ni petits mots", () => {
+  assert.equal(motsDuCorps("Les prisons, la prison, 80 000 détenus"), "prison detenu");
 });

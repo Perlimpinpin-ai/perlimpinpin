@@ -39,8 +39,11 @@ const SYNONYMES = [
   ["chomage", "emploi"],
 ];
 
-// Champs indexés et leur poids dans le classement.
-const POIDS = { titre: 4, candidat: 3, theme: 2, motsLies: 1, resume: 1, texte: 0.7 };
+// Champs indexés et leur poids dans le classement. `corps` = mots de tout le
+// texte de l'analyse (voir motsDuCorps) : poids faible, pour qu'un mot présent
+// seulement au fond d'une analyse (« prison ») la fasse trouver, mais toujours
+// après les mesures dont c'est le sujet (titre, résumé).
+const POIDS = { titre: 4, candidat: 3, theme: 2, motsLies: 1, resume: 1, texte: 0.7, corps: 0.3 };
 
 // Nombre maximal de suggestions affichées sous la barre.
 export const LIMITE_SUGGESTIONS = 4;
@@ -72,6 +75,13 @@ export function motsCles(texte) {
   return normaliser(texte).split(" ").map(traiterMot).filter(Boolean);
 }
 
+// Mots utiles d'un long texte, sans doublons ni nombres seuls, en une chaîne
+// (« corps » d'un document). Dédoublonner garde l'index léger et évite qu'une
+// longue analyse qui répète un mot passe devant une mesure dont c'est le sujet.
+export function motsDuCorps(texte) {
+  return [...new Set(motsCles(texte).filter((mot) => !/^\d+$/.test(mot)))].join(" ");
+}
+
 const FAMILLE_DU_MOT = new Map(
   SYNONYMES.flatMap((famille) => famille.map((mot) => [mot, famille])),
 );
@@ -99,7 +109,7 @@ const OPTIONS_RECHERCHE = {
 };
 
 // Crée le moteur à partir de documents de la forme
-// { id, titre, candidat, theme, resume, texte, ...autres champs libres }.
+// { id, titre, candidat, theme, resume, texte, corps?, ...autres champs libres }.
 // `id` doit être unique (on utilise l'id de l'analyse). Les autres champs
 // (score, lien...) sont rendus tels quels avec les résultats.
 export function creerMoteur(documents) {
@@ -121,6 +131,7 @@ export function creerMoteur(documents) {
       theme: doc.theme,
       resume: doc.resume,
       texte: doc.texte,
+      corps: doc.corps ?? "",
       motsLies: motsLies([doc.titre, doc.theme, doc.resume, doc.texte]),
     })),
   );
