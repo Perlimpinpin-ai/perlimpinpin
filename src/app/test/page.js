@@ -129,6 +129,15 @@ export default async function TestPage() {
                     Revue du dimanche →
                   </Link>
                 ) : null}
+                {/* File d'attente des fiches d'étape 1 (dépôt des JSON). */}
+                {editeur ? (
+                  <Link
+                    href="/test/depot"
+                    className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-800 transition-colors hover:bg-zinc-100"
+                  >
+                    Déposer une fiche d&rsquo;étape 1 →
+                  </Link>
+                ) : null}
               </div>
             ) : null}
           </div>
