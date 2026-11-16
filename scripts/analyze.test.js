@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { callMistralQualityControl, ficheCompleteAvecVerdictRacine, fusionnerReponseCorrigee, completerAvecFicheRelue } from "./analyze.js";
+import { callMistralQualityControl, ficheCompleteAvecVerdictRacine, fusionnerReponseCorrigee, completerAvecFicheRelue, lireFluxMistral, texteContenuMistral } from "./analyze.js";
 import { validateFicheCompleteStructure } from "./lib/scoring.js";
 
 // Échec du robot de révision sur le-pen-contribution-ue-5-milliards (10 octobre
@@ -135,5 +135,36 @@ describe("Étape 3 (révision) — bloc de texte omis par le modèle", () => {
     const fiche = completerAvecFicheRelue(arbitrage3.fiche_complete, arbitrage3, sortieReelle().fiche_complete);
     assert.equal(fiche.analyse_par_criteres, undefined);
     assert.equal(fiche.notation_detaillee, undefined);
+  });
+});
+
+// Étape 2 en streaming (16 novembre 2026) : la réponse non streamée de Mistral
+// dépassait 180 s sur certaines fiches. Faux flux SSE, sans réseau.
+describe("Étape 2 — lecture du flux Mistral", () => {
+  const fauxFlux = (morceaux) => ({
+    body: new ReadableStream({
+      start(c) {
+        for (const m of morceaux) c.enqueue(new TextEncoder().encode(m));
+        c.close();
+      },
+    }),
+  });
+  const evt = (delta, extra = {}) => `data: ${JSON.stringify({ choices: [{ delta }], ...extra })}\n\n`;
+
+  test("assemble le texte, y compris coupé au milieu d'une ligne, et garde l'usage final", async () => {
+    const tout = evt({ role: "assistant", content: "" }) + evt({ content: '{"avis":' }) + evt({ content: ' "solide"}' }) +
+      evt({ content: "" }, { usage: { prompt_tokens: 10, completion_tokens: 5 } }) + "data: [DONE]\n\n";
+    const coupe = [tout.slice(0, 37), tout.slice(37, 90), tout.slice(90)];
+    const { texte, usage } = await lireFluxMistral(fauxFlux(coupe));
+    assert.equal(texte, '{"avis": "solide"}');
+    assert.deepEqual(usage, { prompt_tokens: 10, completion_tokens: 5 });
+  });
+
+  test("blocs thinking ignorés, blocs texte gardés", async () => {
+    const flux = evt({ content: [{ type: "thinking", thinking: [{ type: "text", text: "je réfléchis" }] }] }) +
+      evt({ content: [{ type: "text", text: '{"a":1}' }] }) + "data: [DONE]\n\n";
+    const { texte } = await lireFluxMistral(fauxFlux([flux]));
+    assert.equal(texte, '{"a":1}');
+    assert.equal(texteContenuMistral(null), "");
   });
 });

@@ -616,6 +616,54 @@ async function validateFicheCompleteWithRepair(rawFiche, label, reponseComplete 
 
 const MISTRAL_BASE_URL = "https://api.mistral.ai/v1";
 
+// Texte d'un contenu Mistral : chaîne, ou tableau de blocs
+// ({ type: "thinking" | "text", … }) dont seuls les blocs texte portent le JSON.
+export function texteContenuMistral(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content.filter((b) => b?.type === "text").map((b) => b.text ?? "").join("");
+  }
+  return "";
+}
+
+// Lecture d'une réponse Mistral streamée (SSE au format OpenAI : lignes
+// « data: {…} », puis « data: [DONE] »). Le délai d'inactivité s'applique
+// entre deux morceaux, pas à la durée totale : une génération longue mais
+// active n'est plus interrompue (timeouts à 60 puis 180 s en non streamé,
+// fiches Zemmour et Retailleau du 16 novembre 2026).
+export async function lireFluxMistral(response, { inactivityTimeoutMs = STREAM_INACTIVITY_TIMEOUT_MS } = {}) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let texte = "";
+  let usage = {};
+  let fini = false;
+
+  const traiterLigne = (line) => {
+    if (!line.startsWith("data:")) return;
+    const payload = line.slice("data:".length).trim();
+    if (!payload) return;
+    if (payload === "[DONE]") {
+      fini = true;
+      return;
+    }
+    const event = JSON.parse(payload);
+    texte += texteContenuMistral(event.choices?.[0]?.delta?.content);
+    if (event.usage) usage = event.usage;
+  };
+
+  while (!fini) {
+    const { done, value } = await readWithInactivityTimeout(reader, inactivityTimeoutMs);
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) traiterLigne(line.trim());
+  }
+  if (buffer.trim()) traiterLigne(buffer.trim());
+  return { texte, usage };
+}
+
 async function callMistralJson(userMessage) {
   if (!process.env.MISTRAL_API_KEY) {
     throw new Error("MISTRAL_API_KEY n'est pas défini (voir votre fichier .env).");
@@ -632,23 +680,15 @@ async function callMistralJson(userMessage) {
       messages: [{ role: "user", content: userMessage }],
       response_format: { type: "json_object" },
       temperature: 0.2,
+      stream: true,
     }),
-    // Réponse non streamée : le premier octet n'arrive qu'à la fin de la
-    // génération, qui dépasse parfois 60 s sur une fiche riche.
-  }, 180_000);
+  });
 
   if (!response.ok) {
     throw new Error(`Erreur API Mistral (${response.status}) : ${await response.text()}`);
   }
 
-  const data = await response.json();
-  // Les modèles Mistral récents peuvent renvoyer `content` sous forme de
-  // tableau de blocs ({ type: "thinking" | "text", … }) : seuls les blocs
-  // texte portent le JSON.
-  const content = data.choices?.[0]?.message?.content;
-  const raw = Array.isArray(content)
-    ? content.filter((b) => b?.type === "text").map((b) => b.text ?? "").join("")
-    : content;
+  const { texte: raw, usage } = await lireFluxMistral(response);
   if (!raw) {
     throw new Error("Réponse Mistral vide ou mal formée.");
   }
@@ -660,7 +700,7 @@ async function callMistralJson(userMessage) {
     throw new Error(`JSON Mistral invalide : ${error.message}`);
   }
 
-  return { parsed, usage: data.usage ?? {} };
+  return { parsed, usage };
 }
 
 // Message de l'étape 2. Avec des commentaires : gabarit complet (point 6),
