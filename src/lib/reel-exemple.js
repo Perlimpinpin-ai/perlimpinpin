@@ -8,8 +8,8 @@ export const SCORE_EXEMPLE = 38;
 
 export const VARIABLES_EXEMPLE = {
   accroche: {
-    voix: "Bloquer le prix du carburant à un euro soixante-dix, c'est possible ?",
-    sousTitres: "Bloquer le prix du carburant à 1,70 €, c'est possible ?",
+    voix: "Bloquer le prix du carburant à un euro soixante-dix le litre.",
+    sousTitres: "Bloquer le prix du carburant à 1,70 € le litre.",
     ecran: { titre: "Le carburant bloqué à la pompe", chiffre: "1,70 €" },
     icone: "pompe",
   },

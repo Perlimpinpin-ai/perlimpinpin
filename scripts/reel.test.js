@@ -116,7 +116,10 @@ test("réponse valide : acceptée, assemblée avec les fixes", () => {
   assert.equal(resultat.valide, true);
   const { scenes, texteVoix, texteSousTitres } = resultat.assemble;
   assert.equal(scenes.length, 9);
-  assert.ok(scenes[0].voix.startsWith(TEXTES_FIXES.accroche));
+  assert.ok(scenes[0].voix.endsWith(TEXTES_FIXES.accroche));
+  assert.ok(scenes[0].voix.startsWith("Bloquer le prix du carburant"));
+  assert.ok(scenes[0].sousTitres.endsWith(TEXTES_FIXES.accroche));
+  assert.equal(scenes[0].ecran.question, TEXTES_FIXES.accroche);
   assert.equal(
     scenes[1].voix,
     `Une promesse de Marine Le Pen, qu'elle porte depuis deux mille vingt-deux. ${TEXTES_FIXES.presentation}`,

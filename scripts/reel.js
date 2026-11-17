@@ -1,4 +1,4 @@
-// Génère le script du Reel vidéo (étape 3 quater) d'une fiche DÉJÀ PUBLIÉE (ou,
+// Génère le script du Reel vidéo d'une fiche DÉJÀ PUBLIÉE (ou,
 // avec --brouillon, de son dernier brouillon) et l'ajoute à son
 // contenuComplet, sous la clé reel. Les 9 images sont ensuite dessinées à la
 // demande par /test/reels/<id>/image (sans IA) et rassemblées sur /test/reels/<id>.
@@ -7,7 +7,7 @@
 //       → lit la fiche (lecture seule), affiche le coût estimé. AUCUN appel à
 //         Claude, rien n'est écrit.
 //   node scripts/reel.js <id>
-//       → appelle Claude (étape 3 quater, mêmes contrôles que le pipeline),
+//       → appelle Claude (mêmes contrôles que le bouton de /test/reels),
 //         affiche le script, sauvegarde la ligne actuelle dans
 //         logs/sauvegardes/, demande « oui », et écrit.
 //   … --brouillon
@@ -44,6 +44,7 @@ import ws from "ws";
 import { avertissementBase, confirmerEcriture, hoteDe } from "./lib/garde-fou-base.js";
 import { LOT_MAX } from "./lib/reseaux-lot.js";
 import { choisirFichesReel, usageEstimeReel } from "./lib/reel-lot.js";
+import { contenuAvecReel } from "../src/lib/reel-generation.js";
 import { buildCoutPipeline, fichePourReel, genererReel, messageReel } from "./analyze.js";
 import { controlerReel, formatDuree, reelPourStockage } from "../src/lib/reel.js";
 import { slugCandidat } from "../src/lib/carte.js";
@@ -133,7 +134,7 @@ function sauvegarder({ host, analyse, contenu }) {
 async function ecrireReel({ host, analyse, contenu, reel, propositionId: id, sauvegarde }) {
   const { count } = await prisma.analyse.updateMany({
     where: { id: analyse.id, updatedAt: analyse.updatedAt },
-    data: { contenuComplet: { ...contenu, reel } },
+    data: { contenuComplet: contenuAvecReel(contenu, reel) },
   });
   if (count !== 1) throw new Error("la fiche a été modifiée pendant la génération, rien n'est écrit.");
   mkdirSync(dirname(INSERTIONS_LOG_PATH), { recursive: true });
@@ -189,13 +190,13 @@ async function mainFiche(host) {
   console.log(`Fiche ${propositionId}, analyse #${analyse.id} (${analyse.statut}), ${candidat.nom}`);
   console.log(`  Titre : ${proposition.titre ?? contenu.titre_fiche}`);
   console.log(`  Score : ${analyse.scoreFaisabilite}/100`);
-  console.log(`  Reel existant : ${contenu.reel ? `oui (généré le ${contenu.reel.genereLe ?? "?"}), il sera REMPLACÉ` : "non"}`);
+  console.log(`  Reel existant : ${contenu.reel ? `oui (généré le ${contenu.reel.genereLe ?? "?"}), il sera REMPLACÉ (l'ancien gardé sous reelPrecedent)` : "non"}`);
   if (!portraitExiste(candidat)) console.log(`  ⚠ Portrait bleu manquant (public/portraits-bleus/${slugCandidat(candidat)}.png) : scène 2 avec le nom seul.`);
 
   if (!values.depuis) {
     const cout = estimation(contenu);
     console.log(
-      `\nCoût estimé de l'étape 3 quater : ~$${cout.min} (premier essai accepté) à ~$${cout.max} (second essai)` +
+      `\nCoût estimé du Reel : ~$${cout.min} (premier essai accepté) à ~$${cout.max} (second essai)` +
         ` · environ ${cout.tokens} tokens en entrée (${cout.caracteres} caractères), ~1 500 en sortie.`,
     );
   }
@@ -213,7 +214,7 @@ async function mainFiche(host) {
     ({ reel, avertissements } = relireFichier(values.depuis, { analyse, contenu, candidatNom: candidat.nom }));
     console.log(`\nReel repris de ${values.depuis} (aucun appel à Claude).`);
   } else {
-    console.log("\nÉtape 3 quater : script du Reel (Claude)…");
+    console.log("\nScript du Reel (Claude)…");
     const resultat = await genererReel(contenu, { candidatNom: candidat.nom, score: analyse.scoreFaisabilite });
     const { usage, errors, derniere } = resultat;
     console.log(`Coût réel : ~$${coutDe(usage)} (${usage.input_tokens ?? 0} tokens en entrée, ${usage.output_tokens ?? 0} en sortie)`);
@@ -236,7 +237,7 @@ async function mainFiche(host) {
 
   afficher(reel, avertissements);
 
-  console.log(`\ncontenuComplet.reel : ${contenu.reel ? "REMPLACÉE" : "ajoutée"}`);
+  console.log(`\ncontenuComplet.reel : ${contenu.reel ? "REMPLACÉE (ancienne gardée sous reelPrecedent)" : "ajoutée"}`);
   const sauvegarde = sauvegarder({ host, analyse, contenu });
   console.log(`✓ Sauvegarde : ${sauvegarde}`);
 
@@ -312,7 +313,7 @@ async function mainLot(host) {
     console.log(`    ~$${cout.min} à ~$${cout.max}`);
     if (!portraitExiste(proposition.candidat)) console.log("    ⚠ portrait bleu manquant : scène 2 avec le nom seul");
   }
-  console.log(`\nCoût estimé de l'étape 3 quater : entre ~$${totalMin.toFixed(2)} et ~$${totalMax.toFixed(2)}.`);
+  console.log(`\nCoût estimé du Reel : entre ~$${totalMin.toFixed(2)} et ~$${totalMax.toFixed(2)}.`);
 
   if (simulation) {
     console.log("Simulation (--simulation) : aucun appel à Claude, rien n'a été écrit.");

@@ -16,7 +16,7 @@ import { estTraitee } from "@/lib/versions-core";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Revue du dimanche — Perlimpinpin", robots: { index: false, follow: false } };
 
-const IGNORER = new Set(["notation_detaillee", "version_basique", "reseaux", "reel", "revision"]);
+const IGNORER = new Set(["notation_detaillee", "version_basique", "reseaux", "reel", "reelPrecedent", "revision"]);
 const dateFr = (d) =>
   new Date(d).toLocaleString("fr-FR", { timeZone: "Europe/Paris", dateStyle: "short", timeStyle: "short" });
 

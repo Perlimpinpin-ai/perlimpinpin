@@ -5,9 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { formatScore, getScoreBadge } from "@/lib/score";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import EditorBar from "../EditorBar";
+import BoutonGenererReel from "./BoutonGenererReel";
 
 // Toujours recalculée à chaque visite (comme les autres pages /test).
 export const dynamic = "force-dynamic";
+
+// Les actions du bouton « Générer le Reel » appellent Claude (30 s à 2 min,
+// deux essais au plus) : durée maximale portée à 300 s, comme /api/live/analyze.
+export const maxDuration = 300;
 
 // Page de travail, pas une page du site public.
 export const metadata = {
@@ -99,13 +104,7 @@ function Ligne({ analyse, aUnReel }) {
             Voir le Reel →
           </Link>
         ) : (
-          <span className="flex flex-col text-xs text-zinc-400 sm:items-end">
-            Pas encore de Reel
-            <code className="font-mono text-zinc-500">
-              node scripts/reel.js {proposition.id}
-              {brouillon ? " --brouillon" : ""}
-            </code>
-          </span>
+          <BoutonGenererReel propositionId={proposition.id} brouillon={brouillon} />
         )}
       </div>
     </li>
