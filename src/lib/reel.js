@@ -288,6 +288,16 @@ export function assemblerReel(variables, { candidatNom, score, variantes = null,
   };
 }
 
+// Question de couverture d'un Reel rangé (celle affichée, même pour un Reel
+// généré avant la couverture).
+export function questionCouvertureDuReel(reel) {
+  if (!reel) return null;
+  if (reel.couverture?.question) return reel.couverture.question;
+  const accroche = Array.isArray(reel.scenes) ? reel.scenes.find((s) => s?.id === "accroche") : null;
+  const titre = texte(reel.couverture?.titre) || texte(accroche?.ecran?.titre) || texte(reel.candidatNom) || "ce candidat";
+  return questionCouvertureParDefaut(titre);
+}
+
 // Reel rangé (contenuComplet.reel) → assemblage, avec ses variantes et sa couverture.
 export function assemblerDepuisReel(reel, { candidatNom, score, portrait = false }) {
   const variables = variablesDuReel(reel);
@@ -307,7 +317,12 @@ export function assemblerDepuisReel(reel, { candidatNom, score, portrait = false
 // Options en plus : variantes (tirées avant l'appel), precedent (dernier Reel
 // généré : variabilité et question de couverture), alea (tirage de la question
 // de couverture si besoin).
-export function controlerReel(raw, { ficheFinale, candidatNom, score, variantes = null, precedent = null, alea = Math.random }) {
+// questionsExclues : questions de couverture à éviter en plus de celle de
+// `precedent` (ancien Reel de la fiche et dernier Reel généré).
+export function controlerReel(
+  raw,
+  { ficheFinale, candidatNom, score, variantes = null, precedent = null, questionsExclues = [], alea = Math.random },
+) {
   const { variables, erreurs: erreursStructure, couverture: couvertureBrute } = lireReponseReel(raw);
   if (!variables) return { valide: false, erreurs: erreursStructure, avertissements: [], variables: null, assemble: null };
 
@@ -373,9 +388,10 @@ export function controlerReel(raw, { ficheFinale, candidatNom, score, variantes 
     erreurs.push(`Couverture : le nombre « ${nombre} » n'apparaît pas dans la fiche.`);
   }
   const precedente = precedent?.couverture?.question ?? null;
-  const { question: questionRetenue } = questionCouverture(couvertureBrute.question, { precedente, alea });
-  if (couvertureBrute.question && couvertureBrute.question === precedente) {
-    avertissements.push(`Couverture : « ${precedente} » déjà prise par le Reel précédent, remplacée par « ${questionRetenue} ».`);
+  const exclues = questionsExclues.filter(Boolean);
+  const { question: questionRetenue } = questionCouverture(couvertureBrute.question, { precedente, exclues, alea });
+  if (couvertureBrute.question && (couvertureBrute.question === precedente || exclues.includes(couvertureBrute.question))) {
+    avertissements.push(`Couverture : « ${couvertureBrute.question} » déjà prise par un Reel précédent, remplacée par « ${questionRetenue} ».`);
   }
   const couverture = { titre: couvertureBrute.titre || null, question: questionRetenue };
 

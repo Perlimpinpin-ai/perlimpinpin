@@ -106,21 +106,34 @@ export function textesVariantes(variantes = {}) {
   };
 }
 
-// Tirage d'un index au hasard dans [0, n[, en évitant `exclus`.
+// Tirage d'un index au hasard dans [0, n[, en évitant `exclus` (un index
+// ou une liste). Si tout est exclu, tout redevient possible.
 function tirer(n, exclus, alea) {
-  const possibles = Array.from({ length: n }, (_, i) => i).filter((i) => i !== exclus);
+  const interdits = new Set([exclus].flat());
+  const tous = Array.from({ length: n }, (_, i) => i);
+  const permis = tous.filter((i) => !interdits.has(i));
+  const possibles = permis.length > 0 ? permis : tous;
   return possibles[Math.min(possibles.length - 1, Math.floor(alea() * possibles.length))];
 }
 
-// Variantes tirées au hasard à chaque génération, en évitant celles du
-// dernier Reel généré (`precedentes` : son objet variantes, ou rien).
+// Variantes tirées au hasard à chaque génération, en évitant celles des
+// Reels précédents (`precedentes` : un objet variantes, une liste de ces
+// objets, ou rien) : l'ancien Reel de la fiche et le dernier Reel généré.
 export function choisirVariantes(precedentes = null, alea = Math.random) {
+  const liste = [precedentes].flat().filter(Boolean);
   return Object.fromEntries(
     Object.keys(VARIANTES).map((cle) => {
-      const avant = precedentes?.[cle];
-      return [cle, tirer(VARIANTES[cle].length, Number.isInteger(avant) ? avant : -1, alea)];
+      const avant = liste.map((v) => v[cle]).filter(Number.isInteger);
+      return [cle, tirer(VARIANTES[cle].length, avant, alea)];
     }),
   );
+}
+
+// Variantes d'un Reel rangé : celles tirées à sa génération, ou la variante 0
+// (texte d'origine) pour un Reel plus ancien.
+export function variantesDuReelRange(reel) {
+  if (!reel) return null;
+  return reel.variantes ?? Object.fromEntries(Object.keys(VARIANTES).map((cle) => [cle, 0]));
 }
 
 // --- Petits outils ------------------------------------------------------------------
@@ -201,10 +214,12 @@ export function consignesAntiRepetition({ relances = [], questionCouverture = nu
 // Question de couverture : celle du modèle si elle est dans la liste et
 // différente du Reel précédent ; sinon une autre, tirée au hasard.
 // Renvoie { question, remplacee }.
-export function questionCouverture(proposee, { precedente = null, alea = Math.random } = {}) {
+// `exclues` : autres questions à éviter (ancien Reel de la fiche, dernier Reel).
+export function questionCouverture(proposee, { precedente = null, exclues = [], alea = Math.random } = {}) {
   const valeur = texte(proposee);
-  if (valeur && QUESTIONS_COUVERTURE.includes(valeur) && valeur !== precedente) return { question: valeur, remplacee: false };
-  const exclus = QUESTIONS_COUVERTURE.indexOf(precedente);
+  const interdites = [precedente, ...exclues].filter(Boolean);
+  if (valeur && QUESTIONS_COUVERTURE.includes(valeur) && !interdites.includes(valeur)) return { question: valeur, remplacee: false };
+  const exclus = interdites.map((q) => QUESTIONS_COUVERTURE.indexOf(q)).filter((i) => i >= 0);
   return { question: QUESTIONS_COUVERTURE[tirer(QUESTIONS_COUVERTURE.length, exclus, alea)], remplacee: Boolean(valeur) };
 }
 

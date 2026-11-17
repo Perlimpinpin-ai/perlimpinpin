@@ -1,5 +1,5 @@
-import { controlerReel, reelPourStockage } from "./reel.js";
-import { choisirVariantes, consignesAntiRepetition, relancesUtilisees } from "./reel-montage.js";
+import { controlerReel, questionCouvertureDuReel, reelPourStockage } from "./reel.js";
+import { choisirVariantes, consignesAntiRepetition, relancesUtilisees, variantesDuReelRange } from "./reel-montage.js";
 
 // Génération du script d'un Reel, partagée par le bouton « Générer le Reel »
 // de /test/reels (src/app/test/reels/actions.js) et par la ligne de commande
@@ -85,6 +85,20 @@ export function fichePourReel(ficheFinale) {
   return fiche;
 }
 
+// Reels à ne pas imiter, le plus important d'abord : l'ancien Reel de la
+// fiche (quand on génère à nouveau), puis les derniers Reels générés sur le
+// site (sans doublon).
+export function precedentsPourFiche(reelDeLaFiche, derniers = []) {
+  const liste = [reelDeLaFiche, ...(derniers ?? [])].filter(Boolean);
+  const vus = new Set();
+  return liste.filter((reel) => {
+    const cle = reel.genereLe ?? JSON.stringify(reel.scenes ?? null);
+    if (vus.has(cle)) return false;
+    vus.add(cle);
+    return true;
+  });
+}
+
 // Consignes « à ne pas reprendre », tirées des derniers Reels générés
 // (`precedents` : objets contenuComplet.reel, le plus récent d'abord) :
 // relances des 3 derniers, question de couverture du dernier.
@@ -92,7 +106,7 @@ export function consignesDepuisPrecedents(precedents = []) {
   const derniers = (precedents ?? []).filter(Boolean).slice(0, 3);
   return consignesAntiRepetition({
     relances: relancesUtilisees(derniers),
-    questionCouverture: derniers[0]?.couverture?.question ?? null,
+    questionCouverture: questionCouvertureDuReel(derniers[0]),
   });
 }
 
@@ -179,9 +193,14 @@ export async function genererReelCore({
 }) {
   const fiche = fichePourReel(ficheFinale);
   const basePrompt = construireMessageReel(prompt, ficheFinale, precedents);
-  const precedent = (precedents ?? []).find(Boolean) ?? null;
-  // Variantes des phrases fixes : tirées une fois, différentes du dernier Reel.
-  const variantes = choisirVariantes(precedent?.variantes ?? null, alea);
+  const liste = (precedents ?? []).filter(Boolean);
+  // Le premier : l'ancien Reel de la fiche s'il existe, sinon le dernier généré
+  // (référence de la mesure de variabilité).
+  const precedent = liste[0] ?? null;
+  // Variantes des phrases fixes et question de couverture : différentes des
+  // deux premiers (ancien Reel de la fiche et dernier Reel généré).
+  const variantes = choisirVariantes(liste.slice(0, 2).map(variantesDuReelRange), alea);
+  const questionsExclues = liste.slice(0, 2).map(questionCouvertureDuReel);
   let usage = {};
   let errors = [];
   let derniere = null;
@@ -203,7 +222,7 @@ ${JSON.stringify(derniere, null, 2)}`;
       const reponse = await appeler(message);
       usage = additionnerUsage(usage, reponse?.usage);
       const raw = analyser(reponse);
-      const controle = controlerReel(raw, { ficheFinale: fiche, candidatNom, score, variantes, precedent, alea });
+      const controle = controlerReel(raw, { ficheFinale: fiche, candidatNom, score, variantes, precedent, questionsExclues, alea });
       derniere = raw;
       derniereAssemblee = controle.assemble;
       errors = controle.erreurs;
