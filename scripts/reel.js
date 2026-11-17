@@ -45,6 +45,7 @@ import { avertissementBase, confirmerEcriture, hoteDe } from "./lib/garde-fou-ba
 import { LOT_MAX } from "./lib/reseaux-lot.js";
 import { choisirFichesReel, usageEstimeReel } from "./lib/reel-lot.js";
 import { contenuAvecReel } from "../src/lib/reel-generation.js";
+import { derniersReels } from "../src/lib/reel-action-core.js";
 import { buildCoutPipeline, fichePourReel, genererReel, messageReel } from "./analyze.js";
 import { controlerReel, formatDuree, reelPourStockage } from "../src/lib/reel.js";
 import { slugCandidat } from "../src/lib/carte.js";
@@ -92,8 +93,8 @@ const coutDe = (usage) =>
   buildCoutPipeline({ usage2: null, usage3: {}, usage3bis: {}, usage3quater: usage }).coutEstimeParEtape.etape3quater;
 
 // Coût estimé sans appel, à partir de la taille réelle du message.
-function estimation(contenu) {
-  const caracteres = messageReel(contenu).length;
+function estimation(contenu, precedents = []) {
+  const caracteres = messageReel(contenu, precedents).length;
   const { min, max } = usageEstimeReel(caracteres);
   return { caracteres, tokens: min.input_tokens, min: coutDe(min), max: coutDe(max) };
 }
@@ -164,7 +165,11 @@ function relireFichier(chemin, { analyse, contenu, candidatNom }) {
     fail(`fichier illisible (${error.message}).`);
   }
   if (donnees.analyseId !== analyse.id) fail(`ce fichier concerne l'analyse #${donnees.analyseId}, pas l'analyse #${analyse.id}.`);
-  const controle = controlerReel({ scenes: donnees.reel?.scenes }, { ficheFinale: fichePourReel(contenu), candidatNom, score: analyse.scoreFaisabilite });
+  // Couverture et variantes reprises telles quelles (déjà tirées à la génération).
+  const controle = controlerReel(
+    { scenes: donnees.reel?.scenes, couverture: donnees.reel?.couverture },
+    { ficheFinale: fichePourReel(contenu), candidatNom, score: analyse.scoreFaisabilite, variantes: donnees.reel?.variantes ?? null },
+  );
   if (!controle.valide) fail(`Reel refusé par le contrôle :\n  - ${controle.erreurs.join("\n  - ")}`);
   return {
     reel: { ...reelPourStockage(controle, { candidatNom, score: analyse.scoreFaisabilite }), genereLe: donnees.reel.genereLe },
@@ -193,8 +198,18 @@ async function mainFiche(host) {
   console.log(`  Reel existant : ${contenu.reel ? `oui (généré le ${contenu.reel.genereLe ?? "?"}), il sera REMPLACÉ (l'ancien gardé sous reelPrecedent)` : "non"}`);
   if (!portraitExiste(candidat)) console.log(`  ⚠ Portrait bleu manquant (public/portraits-bleus/${slugCandidat(candidat)}.png) : scène 2 avec le nom seul.`);
 
+  // Derniers Reels générés (lecture seule) : variantes, relances et question
+  // de couverture à ne pas reprendre.
+  const precedents = values.depuis ? [] : await derniersReels(prisma);
   if (!values.depuis) {
-    const cout = estimation(contenu);
+    const precedent = precedents[0];
+    console.log(
+      `  Derniers Reels générés : ${precedents.length}${precedent ? ` (le plus récent le ${precedent.genereLe ?? "?"}, question de couverture « ${precedent.couverture?.question ?? "aucune"} »)` : ""}`,
+    );
+  }
+
+  if (!values.depuis) {
+    const cout = estimation(contenu, precedents);
     console.log(
       `\nCoût estimé du Reel : ~$${cout.min} (premier essai accepté) à ~$${cout.max} (second essai)` +
         ` · environ ${cout.tokens} tokens en entrée (${cout.caracteres} caractères), ~1 500 en sortie.`,
@@ -215,7 +230,7 @@ async function mainFiche(host) {
     console.log(`\nReel repris de ${values.depuis} (aucun appel à Claude).`);
   } else {
     console.log("\nScript du Reel (Claude)…");
-    const resultat = await genererReel(contenu, { candidatNom: candidat.nom, score: analyse.scoreFaisabilite });
+    const resultat = await genererReel(contenu, { candidatNom: candidat.nom, score: analyse.scoreFaisabilite, precedents });
     const { usage, errors, derniere } = resultat;
     console.log(`Coût réel : ~$${coutDe(usage)} (${usage.input_tokens ?? 0} tokens en entrée, ${usage.output_tokens ?? 0} en sortie)`);
     if (!resultat.reel) {
@@ -342,7 +357,9 @@ async function mainLot(host) {
       const contenu = analyse.contenuComplet ?? {};
       if (contenu.reel) throw new Error("un Reel a été ajouté entre-temps, fiche non touchée.");
 
-      const { reel, usage, errors, avertissements } = await genererReel(contenu, { candidatNom, score: analyse.scoreFaisabilite });
+      // Relu à chaque fiche : le Reel de la fiche précédente du lot compte.
+      const precedents = await derniersReels(prisma);
+      const { reel, usage, errors, avertissements } = await genererReel(contenu, { candidatNom, score: analyse.scoreFaisabilite, precedents });
       resultat.cout = coutDe(usage);
       if (!reel) throw new Error(`refusé après deux tentatives : ${errors[0] ?? "raison inconnue"}${errors.length > 1 ? ` (+${errors.length - 1} autre(s))` : ""}`);
       afficher(reel, avertissements);

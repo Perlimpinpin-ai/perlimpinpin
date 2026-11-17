@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element -- petites icônes SVG en data URI. */
 import Link from "next/link";
 import { NOMS_ICONES, dataUriIcone } from "@/lib/icones-pixel";
-import { SCENES_REEL, assemblerReel, cheminImageReel } from "@/lib/reel";
-import { CANDIDAT_EXEMPLE, SCORE_EXEMPLE, VARIABLES_EXEMPLE } from "@/lib/reel-exemple";
-import { fichiersTexteReel, nomArchiveReel, nomImageScene } from "@/lib/reel-paquet";
+import { assemblerReel, cheminImageReel, formatDuree } from "@/lib/reel";
+import { CANDIDAT_EXEMPLE, COUVERTURE_EXEMPLE, SCORE_EXEMPLE, VARIABLES_EXEMPLE, VARIANTES_EXEMPLE } from "@/lib/reel-exemple";
+import { donneesPartageReel } from "@/lib/reel-paquet";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import EditorBar from "../../EditorBar";
 import ReelPartage from "../ReelPartage";
@@ -48,34 +48,30 @@ function Planche({ theme }) {
 export default async function IconesReelPage() {
   const configuree = editionConfiguree();
   const editeur = configuree && (await isEditor());
-  const assemble = assemblerReel(VARIABLES_EXEMPLE, { candidatNom: CANDIDAT_EXEMPLE, score: SCORE_EXEMPLE });
-  const { scenes } = assemble;
-  // Zip de l'aperçu (fictif) : même contenu qu'une vraie fiche.
-  const paquet = {
-    nomsImages: scenes.map(nomImageScene),
-    archive: {
-      sombre: nomArchiveReel({ propositionId: 0, slug: "exemple-fictif", theme: "sombre" }),
-      clair: nomArchiveReel({ propositionId: 0, slug: "exemple-fictif", theme: "clair" }),
+  const assemble = assemblerReel(VARIABLES_EXEMPLE, {
+    candidatNom: CANDIDAT_EXEMPLE,
+    score: SCORE_EXEMPLE,
+    variantes: VARIANTES_EXEMPLE,
+    couverture: COUVERTURE_EXEMPLE,
+  });
+  // Même page et même zip qu'une vraie fiche (contenu fictif).
+  const donnees = donneesPartageReel({
+    assemble,
+    duree: formatDuree(assemble.dureeEstimee),
+    prefixeFichier: "reel-exemple",
+    slug: "exemple-fictif",
+    propositionId: 0,
+    url: ({ scene, theme, calque }) => `${cheminImageReel({ propositionId: 0, scene, theme, calque })}&exemple=1`,
+    infos: {
+      candidatNom: `${CANDIDAT_EXEMPLE} (FICTIF)`,
+      titre: "Exemple fictif, ne jamais publier",
+      score: SCORE_EXEMPLE,
+      palier: assemble.palier.label,
+      propositionId: 0,
+      brouillon: true,
+      genereLe: null,
     },
-    fichiersTexte: fichiersTexteReel({
-      ...assemble,
-      infos: {
-        candidatNom: `${CANDIDAT_EXEMPLE} (FICTIF)`,
-        titre: "Exemple fictif, ne jamais publier",
-        score: SCORE_EXEMPLE,
-        palier: assemble.palier.label,
-        propositionId: 0,
-        brouillon: true,
-        genereLe: null,
-      },
-    }),
-  };
-  const images = Object.fromEntries(
-    ["sombre", "clair"].map((theme) => [
-      theme,
-      SCENES_REEL.map(({ numero }) => `${cheminImageReel({ propositionId: 0, scene: numero, theme })}&exemple=1`),
-    ]),
-  );
+  });
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-8 text-zinc-900 sm:px-8">
@@ -111,13 +107,7 @@ export default async function IconesReelPage() {
                 Reel <strong>fictif</strong> (mesure, chiffres et candidat inventés), pour juger la mise en page. Ne jamais publier
                 ces images.
               </p>
-              <ReelPartage
-                script={false}
-                scenes={scenes.map(({ numero, nom }) => ({ numero, nom }))}
-                images={images}
-                prefixeFichier="reel-exemple"
-                paquet={paquet}
-              />
+              <ReelPartage {...donnees} script={false} />
             </section>
           </>
         )}

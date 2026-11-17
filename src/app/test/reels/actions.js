@@ -30,11 +30,12 @@ export async function genererReelAction(propositionId, brouillon = false) {
       prisma,
       dryRun: process.env.TEST_DRY_RUN === "1",
       cleConfiguree: cleApiConfiguree(),
-      generer: async (contenu, { candidatNom, score }) =>
+      generer: async (contenu, { candidatNom, score, precedents }) =>
         genererReelCore({
           ficheFinale: contenu,
           candidatNom,
           score,
+          precedents,
           prompt: await lirePromptReel(),
           appeler: appelerClaudeReel,
           analyser: (reponse) => cleanContenu(jsonDepuisTexte(reponse.texte)),
