@@ -132,9 +132,7 @@ function Chiffre({ p, valeur, legende }) {
 function Accroche({ scene, p, icone }) {
   return (
     <Colonne>
-      <div style={{ display: "flex", fontWeight: 700, fontSize: 56, lineHeight: 1.15, color: p.secondaire, marginBottom: 56 }}>
-        {scene.ecran.surtitre}
-      </div>
+      {/* D'abord la mesure, puis la question (même ordre que la voix). */}
       <Icone src={icone} taille={200} />
       <Titre p={p} texte={scene.ecran.titre} />
       {scene.ecran.chiffre ? (
@@ -142,6 +140,9 @@ function Accroche({ scene, p, icone }) {
           <Chiffre p={p} valeur={scene.ecran.chiffre} />
         </div>
       ) : null}
+      <div style={{ display: "flex", fontWeight: 700, fontSize: 56, lineHeight: 1.15, color: p.secondaire, marginTop: 64 }}>
+        {scene.ecran.question}
+      </div>
     </Colonne>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { creerZip } from "@/lib/zip-simple";
 
 // Contenu interactif de /test/reels/[id] : boutons « Copier », interrupteur
 // sombre / clair des images, téléchargement de chaque image. Rien n'est écrit
@@ -65,16 +66,76 @@ function Vignette({ src, alt, fichier }) {
   );
 }
 
+// « Tout télécharger (.zip) » : l'archive est assemblée ici, dans le
+// navigateur (src/lib/zip-simple.js), avec les 9 images du thème choisi et
+// les 4 fichiers texte préparés par la page. Côté serveur, une archive
+// d'environ 14 Mo dépasserait la taille de réponse permise par Vercel.
+function ToutTelecharger({ paquet, urls, theme }) {
+  const [etat, setEtat] = useState("repos"); // repos | preparation | erreur
+  const [erreur, setErreur] = useState("");
+
+  async function telecharger() {
+    if (etat === "preparation") return;
+    setEtat("preparation");
+    setErreur("");
+    try {
+      const images = await Promise.all(
+        urls.map(async (url, i) => {
+          const reponse = await fetch(url);
+          if (!reponse.ok) throw new Error(`image ${i + 1} indisponible (${reponse.status})`);
+          return { nom: paquet.nomsImages[i], donnees: new Uint8Array(await reponse.arrayBuffer()) };
+        }),
+      );
+      const archive = creerZip([...images, ...paquet.fichiersTexte]);
+      const lien = document.createElement("a");
+      lien.href = URL.createObjectURL(new Blob([archive], { type: "application/zip" }));
+      lien.download = paquet.archive[theme];
+      document.body.appendChild(lien);
+      lien.click();
+      lien.remove();
+      setTimeout(() => URL.revokeObjectURL(lien.href), 10_000);
+      setEtat("repos");
+    } catch (error) {
+      setErreur(`Archive impossible : ${error.message}`);
+      setEtat("erreur");
+    }
+  }
+
+  return (
+    <span className="flex flex-col gap-1">
+      <button
+        type="button"
+        onClick={telecharger}
+        disabled={etat === "preparation"}
+        className="rounded-full border border-zinc-900 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-80 disabled:cursor-wait disabled:opacity-60"
+      >
+        {etat === "preparation" ? "Préparation de l’archive…" : "Tout télécharger (.zip)"}
+      </button>
+      {erreur ? <span role="status" className="text-xs text-red-700">{erreur}</span> : null}
+    </span>
+  );
+}
+
 // Props : { texteVoix, texteSousTitres, nbMots, duree, scenes: [{ numero, nom,
 // voix, sousTitres }], images: { sombre: [url…], clair: [url…] },
-// prefixeFichier, script (false : images seules, pour l'aperçu du style) }.
-export default function ReelPartage({ texteVoix, texteSousTitres, nbMots, duree, scenes, images, prefixeFichier, script = true }) {
+// prefixeFichier, paquet (zip, voir la page), script (false : images seules,
+// pour l'aperçu du style) }.
+export default function ReelPartage({ texteVoix, texteSousTitres, nbMots, duree, scenes, images, prefixeFichier, paquet, script = true }) {
   const [theme, setTheme] = useState("sombre");
   const urls = images[theme];
   const fichier = (numero) => `${prefixeFichier}-scene-${numero}-${theme}.png`;
 
   return (
     <div className="flex flex-col gap-10">
+      {paquet ? (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3">
+          <ToutTelecharger paquet={paquet} urls={urls} theme={theme} />
+          <Interrupteur theme={theme} setTheme={setTheme} />
+          <span className="text-xs text-zinc-500">
+            9 images ({theme}), script, sous-titres, plan de montage et infos, dans {paquet.archive[theme]}.
+          </span>
+        </div>
+      ) : null}
       {script ? (
         <section className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center justify-between gap-3">

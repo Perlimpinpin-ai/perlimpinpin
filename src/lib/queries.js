@@ -46,7 +46,7 @@ function displayTitle(proposition) {
 
 // Clés du contenuComplet ignorées par la recherche plein texte : sources
 // (titres et liens de documents, trop de faux positifs) et textes des réseaux.
-const CLES_HORS_RECHERCHE = new Set(["sources_utilisees", "sources", "url", "reseaux", "reel"]);
+const CLES_HORS_RECHERCHE = new Set(["sources_utilisees", "sources", "url", "reseaux", "reel", "reelPrecedent"]);
 
 // Tout le texte lisible d'une valeur JSON (chaînes, listes, objets imbriqués),
 // sans les liens.

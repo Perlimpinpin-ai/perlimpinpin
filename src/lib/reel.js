@@ -188,9 +188,9 @@ export function assemblerReel(variables, { candidatNom, score }) {
       case "accroche":
         return {
           ...base,
-          voix: joindre(TEXTES_FIXES.accroche, v(id).voix),
-          sousTitres: joindre(TEXTES_FIXES.accroche, v(id).sousTitres),
-          ecran: { surtitre: TEXTES_FIXES.accroche, ...v(id).ecran },
+          voix: joindre(v(id).voix, TEXTES_FIXES.accroche),
+          sousTitres: joindre(v(id).sousTitres, TEXTES_FIXES.accroche),
+          ecran: { ...v(id).ecran, question: TEXTES_FIXES.accroche },
           icone: v(id).icone,
         };
       case "presentation":

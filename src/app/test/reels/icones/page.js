@@ -3,6 +3,7 @@ import Link from "next/link";
 import { NOMS_ICONES, dataUriIcone } from "@/lib/icones-pixel";
 import { SCENES_REEL, assemblerReel, cheminImageReel } from "@/lib/reel";
 import { CANDIDAT_EXEMPLE, SCORE_EXEMPLE, VARIABLES_EXEMPLE } from "@/lib/reel-exemple";
+import { fichiersTexteReel, nomArchiveReel, nomImageScene } from "@/lib/reel-paquet";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import EditorBar from "../../EditorBar";
 import ReelPartage from "../ReelPartage";
@@ -47,7 +48,28 @@ function Planche({ theme }) {
 export default async function IconesReelPage() {
   const configuree = editionConfiguree();
   const editeur = configuree && (await isEditor());
-  const { scenes } = assemblerReel(VARIABLES_EXEMPLE, { candidatNom: CANDIDAT_EXEMPLE, score: SCORE_EXEMPLE });
+  const assemble = assemblerReel(VARIABLES_EXEMPLE, { candidatNom: CANDIDAT_EXEMPLE, score: SCORE_EXEMPLE });
+  const { scenes } = assemble;
+  // Zip de l'aperçu (fictif) : même contenu qu'une vraie fiche.
+  const paquet = {
+    nomsImages: scenes.map(nomImageScene),
+    archive: {
+      sombre: nomArchiveReel({ propositionId: 0, slug: "exemple-fictif", theme: "sombre" }),
+      clair: nomArchiveReel({ propositionId: 0, slug: "exemple-fictif", theme: "clair" }),
+    },
+    fichiersTexte: fichiersTexteReel({
+      ...assemble,
+      infos: {
+        candidatNom: `${CANDIDAT_EXEMPLE} (FICTIF)`,
+        titre: "Exemple fictif, ne jamais publier",
+        score: SCORE_EXEMPLE,
+        palier: assemble.palier.label,
+        propositionId: 0,
+        brouillon: true,
+        genereLe: null,
+      },
+    }),
+  };
   const images = Object.fromEntries(
     ["sombre", "clair"].map((theme) => [
       theme,
@@ -94,6 +116,7 @@ export default async function IconesReelPage() {
                 scenes={scenes.map(({ numero, nom }) => ({ numero, nom }))}
                 images={images}
                 prefixeFichier="reel-exemple"
+                paquet={paquet}
               />
             </section>
           </>

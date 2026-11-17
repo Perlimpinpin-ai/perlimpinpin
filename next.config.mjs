@@ -16,6 +16,12 @@ const nextConfig = {
     "/api/relectures/comments": ["./data/relectures/*.json"],
     // Cartes des publications X : police Inter et portraits bleus lus sur disque.
     "/api/carte/[id]": ["./public/fonts/*.otf", "./public/portraits-bleus/*.png"],
+    // Images des Reels : polices Geist, fonds et portraits bleus lus sur disque.
+    "/test/reels/[id]/image": ["./public/fonts/*.ttf", "./public/reel/*.png", "./public/portraits-bleus/*.png"],
+    // Bouton « Générer le Reel » (Server Actions de ces pages) : prompt lu à
+    // l'exécution ; la page d'une fiche vérifie aussi la présence du portrait.
+    "/test/reels": ["./data/prompt-reel.md"],
+    "/test/reels/[id]": ["./data/prompt-reel.md", "./public/portraits-bleus/*.png"],
   },
   // Next.js ne résout pas automatiquement /relectures vers
   // public/relectures/index.html (pas de fallback "clean URL" sur les

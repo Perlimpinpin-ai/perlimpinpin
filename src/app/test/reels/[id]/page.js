@@ -6,12 +6,18 @@ import { prisma } from "@/lib/prisma";
 import { formatScore } from "@/lib/score";
 import { slugCandidat } from "@/lib/carte";
 import { SCENES_REEL, assemblerReel, cheminImageReel, formatDuree, variablesDuReel, versionReel } from "@/lib/reel";
+import { fichiersTexteReel, nomArchiveReel, nomImageScene } from "@/lib/reel-paquet";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import EditorBar from "../../EditorBar";
 import ReelPartage from "../ReelPartage";
+import BoutonGenererReel from "../BoutonGenererReel";
 
 // Toujours recalculée à chaque visite (comme les autres pages /test).
 export const dynamic = "force-dynamic";
+
+// Les actions du bouton « Générer le Reel » / « Régénérer » appellent Claude
+// (30 s à 2 min, deux essais au plus) : durée maximale portée à 300 s.
+export const maxDuration = 300;
 
 // Page de travail, pas une page du site public.
 export const metadata = {
@@ -80,6 +86,27 @@ export default async function ReelPage({ params, searchParams }) {
       scenes: assemble.scenes.map(({ numero, nom, voix, sousTitres }) => ({ numero, nom, voix, sousTitres })),
       images,
       prefixeFichier: `reel-${propositionId}`,
+      // « Tout télécharger (.zip) » : textes préparés ici, images ajoutées
+      // par le navigateur dans le thème choisi.
+      paquet: {
+        nomsImages: assemble.scenes.map(nomImageScene),
+        archive: {
+          sombre: nomArchiveReel({ propositionId, slug: candidatNom, theme: "sombre" }),
+          clair: nomArchiveReel({ propositionId, slug: candidatNom, theme: "clair" }),
+        },
+        fichiersTexte: fichiersTexteReel({
+          ...assemble,
+          infos: {
+            candidatNom,
+            titre: proposition.titre ?? `Fiche ${propositionId}`,
+            score: formatScore(score),
+            palier: assemble.palier.label,
+            propositionId,
+            brouillon: estBrouillon,
+            genereLe: reel.genereLe,
+          },
+        }),
+      },
     };
     avertissements = [
       ...(Number(reel.score) !== Number(score)
@@ -129,14 +156,20 @@ export default async function ReelPage({ params, searchParams }) {
               ) : null}
             </header>
 
+            <div className="flex flex-wrap items-start gap-3">
+              <BoutonGenererReel propositionId={proposition.id} brouillon={estBrouillon} aDejaUnReel={Boolean(donnees)} discret={Boolean(donnees)} />
+            </div>
+
             {!donnees ? (
               <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-4 text-sm">
                 <p className="font-semibold">Cette fiche n’a pas encore de Reel.</p>
-                <p className="text-zinc-600">Pour le générer, lancez dans le terminal (le script demande « oui » avant d’écrire) :</p>
-                <code className="rounded-lg bg-zinc-100 px-3 py-2 font-mono text-zinc-800">
-                  node scripts/reel.js {proposition.id}
-                  {estBrouillon ? " --brouillon" : ""}
-                </code>
+                <p className="text-zinc-600">
+                  Cliquez sur « Générer le Reel » ci-dessus. En ligne de commande :{" "}
+                  <code className="font-mono text-zinc-800">
+                    node scripts/reel.js {proposition.id}
+                    {estBrouillon ? " --brouillon" : ""}
+                  </code>
+                </p>
               </div>
             ) : (
               <>
