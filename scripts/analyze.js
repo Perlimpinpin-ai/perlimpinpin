@@ -1174,17 +1174,19 @@ export const fichePourReel = fichePourReelCore;
 
 // Message du premier essai : le prompt, puis la fiche. Exporté pour
 // l'estimation de coût sans appel (scripts/reel.js --simulation).
-export function messageReel(ficheFinale) {
-  return construireMessageReel(lirePromptReel(), ficheFinale);
+export function messageReel(ficheFinale, precedents = []) {
+  return construireMessageReel(lirePromptReel(), ficheFinale, precedents);
 }
 
 // Retourne { reel, usage, errors, avertissements, derniere } (voir
 // genererReelCore). `candidatNom` et `score` ne sont pas envoyés au modèle.
-export async function genererReel(ficheFinale, { candidatNom, score }) {
+// `precedents` : derniers Reels générés (variantes et relances à éviter).
+export async function genererReel(ficheFinale, { candidatNom, score, precedents = [] }) {
   return genererReelCore({
     ficheFinale,
     candidatNom,
     score,
+    precedents,
     prompt: lirePromptReel(),
     appeler: (message) => envoyerMessageClaude(requeteReel(message), "Reel"),
     analyser: (data) => cleanContenu(extractJson(data)),

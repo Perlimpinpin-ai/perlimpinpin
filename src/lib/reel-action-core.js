@@ -5,6 +5,19 @@ import { construireMessageReel, contenuAvecReel, coutClaude, estimationCoutReel 
 // tester sans base ni appel payant (scripts/reel-action.test.js) ; branchées
 // par src/app/test/reels/actions.js.
 
+// Les n derniers Reels générés, toutes fiches confondues (le plus récent
+// d'abord), pour varier les phrases d'un Reel à l'autre. Lecture seule ;
+// Postgres ne renvoie que la clé reel.
+export async function derniersReels(prisma, n = 3) {
+  const lignes = await prisma.$queryRaw`
+    SELECT "contenuComplet"->'reel' AS reel FROM "Analyse"
+    WHERE jsonb_exists("contenuComplet", 'reel')
+    ORDER BY "contenuComplet"->'reel'->>'genereLe' DESC NULLS LAST
+    LIMIT ${n}
+  `;
+  return lignes.map((ligne) => ligne.reel).filter(Boolean);
+}
+
 // Analyse visée : avec brouillon, le dernier brouillon ; sinon la dernière
 // publiée, à défaut le dernier brouillon. Même règle que /test/reels/<id>.
 export async function analyseVisee(prisma, propositionId, { brouillon = false } = {}) {
@@ -31,12 +44,12 @@ function verifierId(propositionId) {
 
 // Coût estimé avant confirmation, sans appel payant.
 // Renvoie { ok, min, max, aDejaUnReel } ou { ok: false, erreur }.
-export async function estimerReelCore(propositionId, { brouillon, isEditor, prisma, lirePrompt }) {
+export async function estimerReelCore(propositionId, { brouillon, isEditor, prisma, lirePrompt, precedents = null }) {
   if (!(await isEditor())) return { ok: false, erreur: "Mode édition requis : déverrouillez /test." };
   if (!verifierId(propositionId)) return { ok: false, erreur: "Fiche introuvable." };
   const cible = await analyseVisee(prisma, propositionId, { brouillon });
   if (!cible) return { ok: false, erreur: "Aucune analyse pour cette fiche." };
-  const message = construireMessageReel(await lirePrompt(), cible.analyse.contenuComplet ?? {});
+  const message = construireMessageReel(await lirePrompt(), cible.analyse.contenuComplet ?? {}, precedents ?? (await derniersReels(prisma)));
   const { min, max } = estimationCoutReel(message.length);
   return { ok: true, min, max, aDejaUnReel: Boolean(cible.analyse.contenuComplet?.reel) };
 }
@@ -67,7 +80,8 @@ export async function genererReelPourFicheCore(propositionId, { brouillon, isEdi
   }
 
   const contenu = analyse.contenuComplet ?? {};
-  const resultat = await generer(contenu, { candidatNom: proposition.candidat.nom, score: analyse.scoreFaisabilite });
+  const precedents = await derniersReels(prisma);
+  const resultat = await generer(contenu, { candidatNom: proposition.candidat.nom, score: analyse.scoreFaisabilite, precedents });
   const cout = coutClaude(resultat.usage);
   if (!resultat.reel) {
     const raisons = resultat.errors?.length ? resultat.errors.join(" ; ") : "raison inconnue";

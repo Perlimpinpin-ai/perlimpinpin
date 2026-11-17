@@ -14,6 +14,8 @@ function fausseBase({ contenuPublie = { titre_fiche: "Publiée" }, contenuBrouil
   ];
   return {
     ecritures,
+    // Derniers Reels générés (lecture seule) : un seul, fictif.
+    $queryRaw: async () => [{ reel: { texteVoix: "Sauf que voilà.", couverture: { question: "Qui paie ?" }, variantes: { signature: 1 } } }],
     proposition: {
       findUnique: async ({ where, select }) => {
         if (where.id !== 93) return null;
@@ -98,7 +100,9 @@ test("génération : vise la publiée (ou le brouillon), écrit seulement reel, 
   assert.equal(r.ok, true);
   assert.equal(r.message, "Reel généré.");
   assert.equal(r.cout, 0.035);
-  assert.deepEqual(vus[0].ctx, { candidatNom: "Teddy Riner", score: 38 });
+  assert.deepEqual(vus[0].ctx.candidatNom, "Teddy Riner");
+  assert.equal(vus[0].ctx.score, 38);
+  assert.equal(vus[0].ctx.precedents[0].couverture.question, "Qui paie ?");
   assert.equal(vus[0].contenu.titre_fiche, "Publiée");
   assert.deepEqual(prisma.ecritures, [
     { where: { id: 10, updatedAt: MAJ }, data: { contenuComplet: { titre_fiche: "Publiée", reel: REEL } } },

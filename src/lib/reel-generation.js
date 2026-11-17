@@ -1,4 +1,5 @@
 import { controlerReel, reelPourStockage } from "./reel.js";
+import { choisirVariantes, consignesAntiRepetition, relancesUtilisees } from "./reel-montage.js";
 
 // Génération du script d'un Reel, partagée par le bouton « Générer le Reel »
 // de /test/reels (src/app/test/reels/actions.js) et par la ligne de commande
@@ -84,10 +85,23 @@ export function fichePourReel(ficheFinale) {
   return fiche;
 }
 
-// Message du premier essai : le prompt (data/prompt-reel.md), puis la fiche.
-export function construireMessageReel(prompt, ficheFinale) {
+// Consignes « à ne pas reprendre », tirées des derniers Reels générés
+// (`precedents` : objets contenuComplet.reel, le plus récent d'abord) :
+// relances des 3 derniers, question de couverture du dernier.
+export function consignesDepuisPrecedents(precedents = []) {
+  const derniers = (precedents ?? []).filter(Boolean).slice(0, 3);
+  return consignesAntiRepetition({
+    relances: relancesUtilisees(derniers),
+    questionCouverture: derniers[0]?.couverture?.question ?? null,
+  });
+}
+
+// Message du premier essai : le prompt (data/prompt-reel.md), les consignes
+// « à ne pas reprendre » (s'il y en a), puis la fiche.
+export function construireMessageReel(prompt, ficheFinale, precedents = []) {
   const texte = String(prompt ?? "").replace(/\r\n/g, "\n").trim();
-  return `${texte}\n\nFICHE FINALE :\n${JSON.stringify(fichePourReel(ficheFinale), null, 2)}`;
+  const consignes = consignesDepuisPrecedents(precedents);
+  return `${texte}${consignes ? `\n\n${consignes}` : ""}\n\nFICHE FINALE :\n${JSON.stringify(fichePourReel(ficheFinale), null, 2)}`;
 }
 
 // Le plus grand objet JSON à accolades équilibrées du texte (si le modèle a
@@ -142,6 +156,9 @@ export function additionnerUsage(total = {}, usage = {}) {
 
 // Génère le Reel d'une fiche en deux essais au plus. Le second renvoie au
 // modèle sa réponse refusée et les raisons du refus.
+//   precedents : derniers Reels générés (le plus récent d'abord), pour varier
+//     les phrases fixes, les relances et la question de couverture ;
+//   alea : tirage au hasard (Math.random par défaut, injectable pour les tests).
 //   appeler(message) → réponse brute de l'API (avec `usage`)
 //   analyser(reponse) → objet JSON proposé par le modèle
 //   journal : { warn, error } (console par défaut)
@@ -149,9 +166,22 @@ export function additionnerUsage(total = {}, usage = {}) {
 // rangé dans contenuComplet.reel) vaut null si les deux essais ont échoué ;
 // errors donne alors la cause du dernier échec, derniere le Reel assemblé de
 // la dernière réponse refusée.
-export async function genererReelCore({ ficheFinale, candidatNom, score, prompt, appeler, analyser, journal = console }) {
+export async function genererReelCore({
+  ficheFinale,
+  candidatNom,
+  score,
+  prompt,
+  appeler,
+  analyser,
+  precedents = [],
+  alea = Math.random,
+  journal = console,
+}) {
   const fiche = fichePourReel(ficheFinale);
-  const basePrompt = construireMessageReel(prompt, ficheFinale);
+  const basePrompt = construireMessageReel(prompt, ficheFinale, precedents);
+  const precedent = (precedents ?? []).find(Boolean) ?? null;
+  // Variantes des phrases fixes : tirées une fois, différentes du dernier Reel.
+  const variantes = choisirVariantes(precedent?.variantes ?? null, alea);
   let usage = {};
   let errors = [];
   let derniere = null;
@@ -173,7 +203,7 @@ ${JSON.stringify(derniere, null, 2)}`;
       const reponse = await appeler(message);
       usage = additionnerUsage(usage, reponse?.usage);
       const raw = analyser(reponse);
-      const controle = controlerReel(raw, { ficheFinale: fiche, candidatNom, score });
+      const controle = controlerReel(raw, { ficheFinale: fiche, candidatNom, score, variantes, precedent, alea });
       derniere = raw;
       derniereAssemblee = controle.assemble;
       errors = controle.erreurs;
