@@ -10,6 +10,13 @@ import { cleanContenu } from "./lib/clean-text.js";
 import { MODE_LOT, envoyerEnLot, sanitizeContentBlocks } from "./lib/claude-lot.js";
 import { PARTIES_PAR_TWEET, ecrirePartie, lirePartie } from "../src/lib/reseaux.js";
 import {
+  TARIF_CLAUDE_SONNET,
+  construireMessageReel,
+  fichePourReel as fichePourReelCore,
+  genererReelCore,
+  requeteReel,
+} from "../src/lib/reel-generation.js";
+import {
   validateEtape1Structure,
   validateFicheCompleteStructure,
   checkNotationCoherence,
@@ -1051,7 +1058,7 @@ async function callReseaux(userMessage) {
 // Fiche envoyée au modèle : la fiche finale, sans les ajouts des étapes
 // suivantes (version basique, anciennes publications, révision).
 export function fichePourReseaux(ficheFinale) {
-  const { version_basique: _basique, reseaux: _reseaux, revision: _revision, ...fiche } = ficheFinale ?? {};
+  const { version_basique: _basique, reseaux: _reseaux, reel: _reel, reelPrecedent: _reelPrecedent, revision: _revision, ...fiche } = ficheFinale ?? {};
   return fiche;
 }
 
@@ -1203,6 +1210,43 @@ ${JSON.stringify(derniere, (cle, valeur) => (CHAMPS_DU_CODE.has(cle) ? undefined
   return { reseaux: null, usage, errors, derniere: derniereAssemblee };
 }
 
+// --- Reel vidéo, à la demande (Claude) -----------------------------------------
+// Script de voix off d'un Reel vertical (9 scènes, environ 1 min 30), écrit à
+// partir de la fiche finale avec le prompt data/prompt-reel.md. Ne fait PLUS
+// partie du pipeline automatique : il est généré à la demande, par le bouton
+// « Générer le Reel » de /test/reels ou par scripts/reel.js. La logique
+// (deux essais, contrôle controlerReel) est partagée avec le site :
+// src/lib/reel-generation.js.
+const PROMPT_REEL_PATH = join(__dirname, "..", "data", "prompt-reel.md");
+
+function lirePromptReel() {
+  return readFileSync(PROMPT_REEL_PATH, "utf-8");
+}
+
+// Fiche envoyée au modèle (et référence du contrôle des chiffres).
+export const fichePourReel = fichePourReelCore;
+
+// Message du premier essai : le prompt, puis la fiche. Exporté pour
+// l'estimation de coût sans appel (scripts/reel.js --simulation).
+export function messageReel(ficheFinale, precedents = []) {
+  return construireMessageReel(lirePromptReel(), ficheFinale, precedents);
+}
+
+// Retourne { reel, usage, errors, avertissements, derniere } (voir
+// genererReelCore). `candidatNom` et `score` ne sont pas envoyés au modèle.
+// `precedents` : derniers Reels générés (variantes et relances à éviter).
+export async function genererReel(ficheFinale, { candidatNom, score, precedents = [] }) {
+  return genererReelCore({
+    ficheFinale,
+    candidatNom,
+    score,
+    precedents,
+    prompt: lirePromptReel(),
+    appeler: (message) => envoyerMessageClaude(requeteReel(message), "Reel"),
+    analyser: (data) => cleanContenu(extractJson(data)),
+  });
+}
+
 // --- Estimation de coût -----------------------------------------------------
 
 // Tarifs approximatifs (USD / million de tokens), à ajuster si Anthropic ou
@@ -1212,7 +1256,7 @@ ${JSON.stringify(derniere, (cle, valeur) => (CHAMPS_DU_CODE.has(cle) ? undefined
 // Jusqu'au 21/10/2026, 3 $ / 15 $ (tarif Sonnet 4.6) : les coûts enregistrés
 // avant surestiment la part Claude de moitié.
 const PRICING = {
-  claudeSonnet: { input: 2, cacheWrite: 2.5, cacheRead: 0.2, output: 10 },
+  claudeSonnet: TARIF_CLAUDE_SONNET,
   mistralLarge: { input: 2, output: 6 },
 };
 
@@ -1270,12 +1314,15 @@ function estimateMistralCost(usage) {
 // l'étape 3) ; absent, le coût garde exactement sa forme habituelle.
 // usage3ter (publications X) : absent, le coût garde sa forme d'avant l'étape 3 ter.
 // modeLot : seulement avec CLAUDE_LOT=1 ; sans, le coût garde sa forme habituelle.
-export function buildCoutPipeline({ usage2, usage3, usage3bis, usage3ter, recherchesWeb }) {
+// usage3quater (Reel, scripts/reel.js seulement) : absent, le coût garde sa forme habituelle.
+export function buildCoutPipeline({ usage2, usage3, usage3bis, usage3ter, usage3quater, recherchesWeb }) {
   const coutEtape2 = estimateMistralCost(usage2);
   const coutEtape3 = estimateClaudeCost(usage3);
   const coutEtape3bis = estimateClaudeCost(usage3bis);
   const avecReseaux = usage3ter !== undefined;
   const coutEtape3ter = avecReseaux ? estimateClaudeCost(usage3ter) : 0;
+  const avecReel = usage3quater !== undefined;
+  const coutEtape3quater = avecReel ? estimateClaudeCost(usage3quater) : 0;
   const avecRecherche = recherchesWeb !== undefined;
   const coutRecherches = avecRecherche ? recherchesWeb * COUT_RECHERCHE_WEB : 0;
   // Absent quand le cache n'a pas servi : coutPipeline garde sa forme d'avant.
@@ -1288,6 +1335,7 @@ export function buildCoutPipeline({ usage2, usage3, usage3bis, usage3ter, recher
     tokensEtape3: usage3,
     tokensEtape3bis: usage3bis,
     ...(avecReseaux ? { tokensEtape3ter: usage3ter } : {}),
+    ...(avecReel ? { tokensEtape3quater: usage3quater } : {}),
     ...(avecRecherche ? { recherchesWeb } : {}),
     ...(cacheEtape3 ? { cacheEtape3 } : {}),
     coutEstimeParEtape: {
@@ -1295,9 +1343,10 @@ export function buildCoutPipeline({ usage2, usage3, usage3bis, usage3ter, recher
       etape3: Number(coutEtape3.toFixed(4)),
       etape3bis: Number(coutEtape3bis.toFixed(4)),
       ...(avecReseaux ? { etape3ter: Number(coutEtape3ter.toFixed(4)) } : {}),
+      ...(avecReel ? { etape3quater: Number(coutEtape3quater.toFixed(4)) } : {}),
       ...(avecRecherche ? { recherchesWeb: Number(coutRecherches.toFixed(4)) } : {}),
     },
-    coutEstimeTotal: Number((coutEtape2 + coutEtape3 + coutEtape3bis + coutEtape3ter + coutRecherches).toFixed(4)),
+    coutEstimeTotal: Number((coutEtape2 + coutEtape3 + coutEtape3bis + coutEtape3ter + coutEtape3quater + coutRecherches).toFixed(4)),
     note: "tokensEtape1 non disponible : étape 1 réalisée manuellement, hors pipeline automatisé.",
   };
 }
@@ -2029,6 +2078,10 @@ function printCoutPipeline(coutPipeline) {
   if (coutPipeline.tokensEtape3ter !== undefined) {
     console.log(`  Étape 3 ter (Claude, publications X) : ~$${coutPipeline.coutEstimeParEtape.etape3ter}`);
     printUsage(coutPipeline.tokensEtape3ter ?? {});
+  }
+  if (coutPipeline.tokensEtape3quater !== undefined) {
+    console.log(`  Reel (Claude, script) : ~$${coutPipeline.coutEstimeParEtape.etape3quater}`);
+    printUsage(coutPipeline.tokensEtape3quater ?? {});
   }
   console.log(`  Coût total estimé (toutes étapes automatisées) : ~$${coutPipeline.coutEstimeTotal}`);
   console.log(`  Note : ${coutPipeline.note}`);

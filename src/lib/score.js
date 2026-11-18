@@ -7,7 +7,7 @@
 // cette table, recalculés à l'affichage.
 const SCORE_BANDS = [
   {
-    min: 85,
+    min: 80,
     max: 100,
     label: "Exemplaire",
     // Version courte de la description (colonne de la page d'accueil).
@@ -17,8 +17,8 @@ const SCORE_BANDS = [
       "La mesure est à la fois pertinente, bien conçue, documentée et facilement applicable.",
   },
   {
-    min: 70,
-    max: 84,
+    min: 65,
+    max: 79,
     label: "Solide et chiffré",
     courte: "Étayée par des données solides et réaliste.",
     color: "green",
@@ -26,8 +26,8 @@ const SCORE_BANDS = [
       "La mesure est étayée par des données robustes et réaliste dans le cadre actuel.",
   },
   {
-    min: 55,
-    max: 69,
+    min: 50,
+    max: 64,
     label: "Plausible sous condition",
     courte: "Cohérente, mais dépend de conditions incertaines.",
     color: "amber",
@@ -36,7 +36,7 @@ const SCORE_BANDS = [
   },
   {
     min: 35,
-    max: 54,
+    max: 49,
     label: "Partiellement fondé",
     courte: "Des bases solides, mais des points fragiles.",
     color: "orange",

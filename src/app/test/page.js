@@ -120,6 +120,15 @@ export default async function TestPage() {
                     Publications réseaux sociaux →
                   </Link>
                 ) : null}
+                {/* Script et images des Reels vidéo (étape 3 quater). */}
+                {editeur ? (
+                  <Link
+                    href="/test/reels"
+                    className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-800 transition-colors hover:bg-zinc-100"
+                  >
+                    Reels vidéo →
+                  </Link>
+                ) : null}
                 {/* Revue du dimanche du Club (annotations, révisions à valider). */}
                 {editeur ? (
                   <Link
@@ -136,6 +145,15 @@ export default async function TestPage() {
                     className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-800 transition-colors hover:bg-zinc-100"
                   >
                     Déposer une fiche d&rsquo;étape 1 →
+                  </Link>
+                ) : null}
+                {/* Correction des coquilles d'une fiche déjà en ligne. */}
+                {editeur ? (
+                  <Link
+                    href="/test/publiees"
+                    className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-800 transition-colors hover:bg-zinc-100"
+                  >
+                    Fiches publiées →
                   </Link>
                 ) : null}
               </div>
@@ -198,7 +216,13 @@ export default async function TestPage() {
                       {/* Hors du lien (un bouton ne peut pas être dans un <a>) :
                           posé dans le bas de la carte, en mode édition seulement. */}
                       {editeur ? (
-                        <div className="absolute bottom-3 right-5">
+                        <div className="absolute bottom-3 right-5 flex items-center gap-4">
+                          <Link
+                            href={`/test/reels/${proposition.id}?brouillon=1`}
+                            className="text-xs font-semibold text-zinc-700 underline underline-offset-2 hover:opacity-70"
+                          >
+                            Reel
+                          </Link>
                           <CorbeilleBouton
                             analyseId={analyse.id}
                             titre={displayTitle(proposition)}

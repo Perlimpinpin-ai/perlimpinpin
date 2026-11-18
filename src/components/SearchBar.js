@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerMoteur, LIMITE_SUGGESTIONS } from "@/lib/recherche";
@@ -11,6 +11,9 @@ import { creerMoteur, LIMITE_SUGGESTIONS } from "@/lib/recherche";
 //   suggestions instantanées pendant la frappe, calculées dans le navigateur
 //   (src/lib/recherche.js), sans aucun appel réseau. 4 lignes maximum : un
 //   raccourci « Thème » ou « Candidat » éventuel, puis les propositions.
+//   Si cet index léger (titres, résumés) trouve moins de 4 propositions, on
+//   complète par /api/recherche, qui cherche aussi dans le texte complet des
+//   analyses (un seul appel, 300 ms après la dernière frappe).
 // - Sans `documents` (page /declarations) : simple champ de recherche.
 // Dans les deux cas, « Entrée » sans suggestion choisie envoie vers
 // /declarations?q=... (fonctionne aussi sans JavaScript).
@@ -59,10 +62,48 @@ export default function SearchBar({
     [documents],
   );
 
-  // Lignes affichées sous la barre (4 maximum), recalculées à chaque frappe.
+  // Suggestions de l'index du navigateur, recalculées à chaque frappe.
+  const locales = useMemo(() => {
+    if (!moteur || requete.trim().length < 2) return null;
+    return moteur.suggestions(requete, LIMITE_SUGGESTIONS);
+  }, [moteur, requete]);
+
+  // Compléments trouvés dans le texte complet des analyses (/api/recherche),
+  // gardés avec la requête qui les a produits pour ne jamais afficher ceux
+  // d'une ancienne frappe.
+  const [complements, setComplements] = useState({ requete: "", propositions: [] });
+  const placesLibres = locales
+    ? LIMITE_SUGGESTIONS - (locales.raccourci ? 1 : 0) - locales.propositions.length
+    : 0;
+  const requeteServeur = placesLibres > 0 && requete.trim().length >= 3 ? requete.trim() : "";
+
+  useEffect(() => {
+    if (!requeteServeur) return undefined;
+    const controleur = new AbortController();
+    const minuteur = setTimeout(async () => {
+      try {
+        const reponse = await fetch(
+          `/api/recherche?q=${encodeURIComponent(requeteServeur)}`,
+          { signal: controleur.signal },
+        );
+        if (!reponse.ok) return;
+        const { propositions } = await reponse.json();
+        setComplements({ requete: requeteServeur, propositions: propositions ?? [] });
+      } catch {
+        // Abandon (nouvelle frappe) ou réseau indisponible : on garde
+        // simplement les suggestions locales.
+      }
+    }, 300);
+    return () => {
+      clearTimeout(minuteur);
+      controleur.abort();
+    };
+  }, [requeteServeur]);
+
+  // Lignes affichées sous la barre (4 maximum).
   const lignes = useMemo(() => {
-    if (!moteur || requete.trim().length < 2) return [];
-    const { raccourci, propositions } = moteur.suggestions(requete, LIMITE_SUGGESTIONS);
+    if (!locales) return [];
+    const { raccourci, propositions } = locales;
     const resultat = [];
     if (raccourci) {
       resultat.push({
@@ -73,7 +114,13 @@ export default function SearchBar({
         href: lienRaccourci(raccourci),
       });
     }
-    for (const doc of propositions) {
+    const vus = new Set(propositions.map((doc) => doc.id));
+    const enPlus =
+      complements.requete === requeteServeur
+        ? complements.propositions.filter((doc) => !vus.has(doc.id))
+        : [];
+    for (const doc of [...propositions, ...enPlus]) {
+      if (resultat.length >= LIMITE_SUGGESTIONS) break;
       resultat.push({
         cle: `proposition:${doc.id}`,
         type: "proposition",
@@ -83,7 +130,10 @@ export default function SearchBar({
       });
     }
     return resultat;
-  }, [moteur, requete]);
+  }, [locales, complements, requeteServeur]);
+
+  const rechercheEnCours =
+    requeteServeur !== "" && complements.requete !== requeteServeur;
 
   const panneauVisible = ouvert && moteur !== null && requete.trim().length >= 2;
 
@@ -175,7 +225,9 @@ export default function SearchBar({
           >
             {lignes.length === 0 ? (
               <p className="px-4 py-3 font-mono text-xs text-slate-500">
-                Aucune proposition analysée ne correspond pour le moment.
+                {rechercheEnCours
+                  ? "Recherche dans le texte des analyses…"
+                  : "Aucune proposition analysée ne correspond pour le moment."}
               </p>
             ) : (
               <ul id={`${idListe}-liste`} role="listbox" className="divide-y divide-zinc-100">

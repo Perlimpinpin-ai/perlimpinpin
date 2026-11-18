@@ -38,7 +38,7 @@ function makeNotation(overrides = {}) {
     alignement_logique: 8,
     qualification_alignement: "SOLIDE",
     score_total: 80,
-    appreciation: "solide et chiffré",
+    appreciation: "exemplaire",
     ...overrides,
   };
 }
@@ -132,18 +132,18 @@ function makeFicheComplete({ champs = {}, criteres, ...overrides } = {}) {
 // --- computeAppreciation ----------------------------------------------------
 
 describe("computeAppreciation", () => {
-  test("suit le barème 0-19/20-34/.../85-100", () => {
+  test("suit le barème 0-19/20-34/.../80-100", () => {
     assert.equal(computeAppreciation(0), "irréaliste");
     assert.equal(computeAppreciation(19), "irréaliste");
     assert.equal(computeAppreciation(20), "fragile");
     assert.equal(computeAppreciation(34), "fragile");
     assert.equal(computeAppreciation(35), "partiellement fondé");
-    assert.equal(computeAppreciation(54), "partiellement fondé");
-    assert.equal(computeAppreciation(55), "plausible sous condition");
-    assert.equal(computeAppreciation(69), "plausible sous condition");
-    assert.equal(computeAppreciation(70), "solide et chiffré");
-    assert.equal(computeAppreciation(84), "solide et chiffré");
-    assert.equal(computeAppreciation(85), "exemplaire");
+    assert.equal(computeAppreciation(49), "partiellement fondé");
+    assert.equal(computeAppreciation(50), "plausible sous condition");
+    assert.equal(computeAppreciation(64), "plausible sous condition");
+    assert.equal(computeAppreciation(65), "solide et chiffré");
+    assert.equal(computeAppreciation(79), "solide et chiffré");
+    assert.equal(computeAppreciation(80), "exemplaire");
     assert.equal(computeAppreciation(100), "exemplaire");
   });
 });
@@ -174,7 +174,7 @@ describe("checkNotationCoherence", () => {
       plafond_applique: true,
       plafond_declencheur: "juridique",
       score_total: 66, // 10 + 24 + 16 + 8 + 8
-      appreciation: "plausible sous condition",
+      appreciation: "solide et chiffré",
     });
     const errors = checkNotationCoherence(notation);
     assert.deepEqual(errors, []);
@@ -199,7 +199,7 @@ describe("checkNotationCoherence", () => {
       plafond_applique: true,
       plafond_declencheur: "budgetaire",
       score_total: 66,
-      appreciation: "plausible sous condition",
+      appreciation: "solide et chiffré",
     });
     const errors = checkNotationCoherence(notation);
     assert.deepEqual(errors, []);
@@ -219,7 +219,7 @@ describe("checkNotationCoherence", () => {
   });
 
   test("appreciation incohérente avec score_total -> erreur signalée", () => {
-    const errors = checkNotationCoherence(makeNotation({ appreciation: "exemplaire" }));
+    const errors = checkNotationCoherence(makeNotation({ appreciation: "solide et chiffré" }));
     assert.ok(errors.some((e) => e.includes("appreciation")));
   });
 

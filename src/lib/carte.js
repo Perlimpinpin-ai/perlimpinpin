@@ -128,7 +128,7 @@ export function slugCandidat({ nom, photoUrl } = {}) {
 
 // Empreinte courte (FNV-1a 32 bits, 8 caractères hexadécimaux) : pas de
 // node:crypto, pour rester utilisable côté navigateur.
-function empreinte(texte) {
+export function empreinte(texte) {
   let h = 0x811c9dc5;
   for (const caractere of texte) {
     h ^= caractere.codePointAt(0);

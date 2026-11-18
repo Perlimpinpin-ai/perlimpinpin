@@ -14,6 +14,8 @@ import {
   secretUtilisable,
 } from "@/lib/test-auth-core";
 import { enregistrerTexteCore } from "@/lib/test-enregistrer";
+import { corrigerCoquilleCore, dossiersDeLaFiche } from "@/lib/test-corriger";
+import { getHorsSeries } from "@/lib/hors-series";
 import { fusionnerRevisionCore, publierBrouillonCore } from "@/lib/test-publier";
 import { mettreALaCorbeilleCore, restaurerDepuisCorbeilleCore } from "@/lib/test-corbeille";
 import { fusionnerRevision, verifierRevisionFusionnable } from "@/lib/github";
@@ -154,6 +156,56 @@ export async function enregistrerTexte(entree) {
 
   revalidatePath("/test");
   revalidatePath(`/test/${resultat.propositionId}`);
+
+  return { ok: true, versionSuivante: resultat.versionSuivante };
+}
+
+// Corrige une coquille d'une fiche DÉJÀ PUBLIÉE, sur place, sans nouvelle version
+// (/test/publiees/[id]). Les règles (accès, fiche publiée, champs exclus, garde-fou
+// « coquille », annotations du Club, concurrence, trace) sont dans
+// src/lib/test-corriger.js.
+export async function corrigerCoquille(entree) {
+  const resultat = await corrigerCoquilleCore(entree, {
+    isEditor,
+    prisma,
+    dryRun: process.env.TEST_DRY_RUN === "1",
+  });
+
+  if (!resultat.ok) {
+    if (resultat.message === "Non autorisé.") {
+      console.warn("[test] correction de coquille refusée (non autorisé)");
+    }
+    return resultat;
+  }
+  if (resultat.simulation) return resultat;
+
+  // Ligne d'audit JSON pour les logs Vercel (la trace est aussi dans
+  // contenuComplet.corrections_coquilles).
+  console.log(
+    JSON.stringify({
+      evenement: "test_correction_coquille",
+      date: new Date().toISOString(),
+      analyseId: resultat.analyseId,
+      champ: resultat.champ,
+      avant: resultat.avant,
+      apres: resultat.apres,
+      annotationsDecrochees: resultat.annotationsDecrochees,
+    }),
+  );
+
+  // La correction est en ligne : les pages publiques en cache doivent la voir.
+  const chemins = [
+    `/declarations/${resultat.propositionId}`,
+    "/",
+    "/declarations",
+    "/test/publiees",
+    `/test/publiees/${resultat.propositionId}`,
+  ];
+  if (resultat.candidatId) chemins.push(`/candidats/${resultat.candidatId}`);
+  for (const slug of dossiersDeLaFiche(getHorsSeries(), resultat.propositionId)) {
+    chemins.push(`/dossiers/${slug}`);
+  }
+  for (const chemin of chemins) revalidatePath(chemin);
 
   return { ok: true, versionSuivante: resultat.versionSuivante };
 }

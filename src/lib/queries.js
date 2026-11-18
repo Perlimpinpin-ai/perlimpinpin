@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { creerMoteur } from "@/lib/recherche";
+import { creerMoteur, motsDuCorps } from "@/lib/recherche";
 import { resolveTheme, themeLabel } from "@/lib/themes";
 import { STATUTS_VERSION, numeroVersion } from "@/lib/versions-core";
 
@@ -44,11 +44,50 @@ function displayTitle(proposition) {
   return text.length > 80 ? `${text.slice(0, 79).trimEnd()}…` : text;
 }
 
+// Clés du contenuComplet ignorées par la recherche plein texte : sources
+// (titres et liens de documents, trop de faux positifs) et textes des réseaux.
+const CLES_HORS_RECHERCHE = new Set(["sources_utilisees", "sources", "url", "reseaux", "reel", "reelPrecedent"]);
+
+// Tout le texte lisible d'une valeur JSON (chaînes, listes, objets imbriqués),
+// sans les liens.
+function textesJson(valeur, sortie = []) {
+  if (typeof valeur === "string") {
+    if (!/^https?:\/\//.test(valeur)) sortie.push(valeur);
+  } else if (Array.isArray(valeur)) {
+    for (const element of valeur) textesJson(element, sortie);
+  } else if (valeur && typeof valeur === "object") {
+    for (const [cle, element] of Object.entries(valeur)) {
+      if (!CLES_HORS_RECHERCHE.has(cle)) textesJson(element, sortie);
+    }
+  }
+  return sortie;
+}
+
+// Mots de tout le texte d'une analyse (sections de la fiche + champs
+// publiés), pour que la recherche trouve aussi un mot qui n'apparaît ni dans
+// le titre ni dans le résumé (ex. « prison »).
+function corpsAnalyse(analyse) {
+  return motsDuCorps(
+    textesJson([
+      analyse.teaser,
+      analyse.verdict,
+      analyse.cequiEstEtabli,
+      analyse.cequiEstProbable,
+      analyse.cequiEstDiscutable,
+      analyse.cequiEstInconnu,
+      analyse.contenuComplet,
+    ]).join(" "),
+  );
+}
+
 // Document indexé par le moteur de recherche (src/lib/recherche.js) pour une
 // analyse publiée (avec sa proposition et son candidat). id = id de
 // l'analyse (unique), propositionId = lien vers /declarations/[id].
+// `corps` (texte complet) seulement si l'analyse a été chargée avec son
+// contenuComplet : jamais pour l'index envoyé au navigateur (trop lourd).
 function documentRecherche(analyse) {
   return {
+    ...(analyse.contenuComplet !== undefined ? { corps: corpsAnalyse(analyse) } : {}),
     id: analyse.id,
     propositionId: analyse.proposition.id,
     titre: displayTitle(analyse.proposition),
@@ -83,6 +122,52 @@ export async function getIndexRecherche() {
     },
   });
   return analyses.map(documentRecherche);
+}
+
+// Moteur plein texte (titre, résumé ET texte complet des analyses) pour
+// /api/recherche : complète les suggestions de la page d'accueil quand l'index
+// léger du navigateur trouve peu de choses. Construit au plus une fois toutes
+// les 5 minutes par instance du serveur, pour ne pas relire toutes les
+// analyses en base à chaque frappe.
+const DUREE_MOTEUR_COMPLET_MS = 5 * 60 * 1000;
+let moteurComplet = null;
+
+export async function getMoteurRechercheComplet() {
+  if (moteurComplet && Date.now() - moteurComplet.date < DUREE_MOTEUR_COMPLET_MS) {
+    return moteurComplet.promesse;
+  }
+  const promesse = prisma.analyse
+    .findMany({
+      where: { statut: "publie" },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        resumeAccueil: true,
+        verdict: true,
+        teaser: true,
+        cequiEstEtabli: true,
+        cequiEstProbable: true,
+        cequiEstDiscutable: true,
+        cequiEstInconnu: true,
+        contenuComplet: true,
+        proposition: {
+          select: {
+            id: true,
+            titre: true,
+            texteOriginal: true,
+            theme: true,
+            candidat: { select: { nom: true } },
+          },
+        },
+      },
+    })
+    .then((analyses) => creerMoteur(analyses.map(documentRecherche)));
+  moteurComplet = { date: Date.now(), promesse };
+  // En cas d'échec (base indisponible), on réessaiera au prochain appel.
+  promesse.catch(() => {
+    if (moteurComplet?.promesse === promesse) moteurComplet = null;
+  });
+  return promesse;
 }
 
 // Le champ `theme` des propositions contient le slug d'un des 12 thèmes de

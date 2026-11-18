@@ -21,6 +21,7 @@ const candidatesData = [
   { nom: "Dominique de Villepin", parti: "La France humaniste" },
   { nom: "David Lisnard", parti: "Nouvelle Énergie" },
   { nom: "Fabien Roussel", parti: "Parti Communiste Français" },
+  { nom: "Teddy Riner", parti: "Sans étiquette" },
 ];
 
 async function main() {

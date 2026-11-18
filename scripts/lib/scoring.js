@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { nombresHorsFiche } from "../../src/lib/nombres-fiche.js";
 import {
   LONGUEUR_X_MAX,
   MARQUEURS_PAR_TWEET,
@@ -38,10 +39,10 @@ import {
 // barème, deux consommateurs différents : ce fichier valide côté pipeline
 // d'analyse, score.js affiche côté site).
 export const APPRECIATION_BANDS = [
-  { min: 85, max: 100, label: "exemplaire" },
-  { min: 70, max: 84, label: "solide et chiffré" },
-  { min: 55, max: 69, label: "plausible sous condition" },
-  { min: 35, max: 54, label: "partiellement fondé" },
+  { min: 80, max: 100, label: "exemplaire" },
+  { min: 65, max: 79, label: "solide et chiffré" },
+  { min: 50, max: 64, label: "plausible sous condition" },
+  { min: 35, max: 49, label: "partiellement fondé" },
   { min: 20, max: 34, label: "fragile" },
   { min: 0, max: 19, label: "irréaliste" },
 ];
@@ -525,30 +526,9 @@ export function validateVersionBasique(raw, sourcesUtilisees) {
   return { valid: true, errors: [], versionBasique: zodResult.data };
 }
 
-// Contrôle de fidélité : tout nombre écrit dans la version basique doit
-// figurer dans la fiche finale. Les espaces (y compris insécables et fines)
-// servant de séparateurs de milliers sont retirés des deux côtés avant
-// comparaison ; la virgule décimale est conservée telle quelle. Ne contrôle
-// pas les arrondis en toutes lettres (« plus d'un tiers »), laissés au prompt
-// et à la relecture.
-// Le même découpage est appliqué aux deux textes : « fin 2021 560 000 »
-// donne bien « 2021 » et « 560000 », jamais « 2021560000 ». Comparer des
-// nombres entiers (et non des sous-chaînes) évite aussi de trouver « 200 »
-// dans « 2000 » ou « 1,8 » dans « 1,85 ».
-const NOMBRE_REGEX = /\d{1,3}(?:[   ]\d{3})+(?:,\d+)?|\d+(?:,\d+)?/g;
-
-function extraireNombres(text) {
-  return [...text.matchAll(NOMBRE_REGEX)].map((match) => match[0].replace(/[   ]/g, ""));
-}
-
-// Nombres des textes absents de la fiche finale (même règle pour la version
-// basique et les publications X).
-function nombresHorsFiche(textes, ficheFinale) {
-  const nombres = new Set(textes.filter((texte) => typeof texte === "string").flatMap(extraireNombres));
-  const reference = new Set(extraireNombres(JSON.stringify(ficheFinale)));
-  return [...nombres].filter((nombre) => !reference.has(nombre));
-}
-
+// Contrôle de fidélité des chiffres : extraireNombres et nombresHorsFiche
+// (src/lib/nombres-fiche.js), même règle pour la version basique, les
+// publications X et le Reel.
 export function checkChiffresVersionBasique(versionBasique, ficheFinale) {
   return nombresHorsFiche(
     [
