@@ -50,6 +50,28 @@ export function fichePourModele(contenu) {
   return fiche;
 }
 
+// Entrée des Étapes 2 et 3 quand une note change. Le pipeline (runPipeline)
+// attend une fiche au FORMAT ÉTAPE 1, alors que la fiche publiée est au
+// format final (étape 3) : analyse_par_criteres y est un tableau de 5 objets
+// et phrase_teasing n'existe plus. Sans cette conversion, la révision
+// échouait (« Étape 1 : structure invalide », fiche 65, 18/11/2026).
+export function entreeEtapes23(contenu) {
+  const fiche = fichePourModele(contenu);
+  const criteres = fiche.analyse_par_criteres;
+  if (Array.isArray(criteres)) {
+    fiche.analyse_par_criteres = criteres
+      .map((c) => {
+        const note = Number.isInteger(c?.note) ? ` (${c.note}/${c.note_max})` : "";
+        return `### ${c?.titre ?? c?.critere ?? "Critère"}${note}\n${String(c?.texte ?? "").trim()}`;
+      })
+      .join("\n\n");
+  }
+  if (typeof fiche.phrase_teasing !== "string" || !fiche.phrase_teasing.trim()) {
+    fiche.phrase_teasing = [fiche.teaser_accueil, fiche.resume_court].find((t) => typeof t === "string" && t.trim()) ?? "";
+  }
+  return fiche;
+}
+
 // Annotation telle que vue par le modèle : ni nom ni e-mail.
 export function annotationPourModele(a) {
   return { commentaire_id: a.id, section: a.sectionLabel ?? a.sectionId, passage_cite: a.quotedText ?? null, annotation: a.body };
