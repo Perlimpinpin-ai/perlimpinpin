@@ -1,6 +1,6 @@
-import { construireMessageReel, contenuAvecReel, coutClaude, estimationCoutReel } from "./reel-generation.js";
+import { construireMessageReel, contenuAvecReel, coutClaude, estimationCoutReel, precedentsPourFiche } from "./reel-generation.js";
 
-// Logique du bouton « Générer le Reel » / « Régénérer » de /test/reels.
+// Logique du bouton « Générer le Reel » / « Générer à nouveau » de /test/reels.
 // Dépendances injectées (isEditor, prisma, generer, lirePrompt) pour pouvoir
 // tester sans base ni appel payant (scripts/reel-action.test.js) ; branchées
 // par src/app/test/reels/actions.js.
@@ -49,7 +49,9 @@ export async function estimerReelCore(propositionId, { brouillon, isEditor, pris
   if (!verifierId(propositionId)) return { ok: false, erreur: "Fiche introuvable." };
   const cible = await analyseVisee(prisma, propositionId, { brouillon });
   if (!cible) return { ok: false, erreur: "Aucune analyse pour cette fiche." };
-  const message = construireMessageReel(await lirePrompt(), cible.analyse.contenuComplet ?? {}, precedents ?? (await derniersReels(prisma)));
+  const contenu = cible.analyse.contenuComplet ?? {};
+  const liste = precedents ?? precedentsPourFiche(contenu.reel, await derniersReels(prisma));
+  const message = construireMessageReel(await lirePrompt(), contenu, liste);
   const { min, max } = estimationCoutReel(message.length);
   return { ok: true, min, max, aDejaUnReel: Boolean(cible.analyse.contenuComplet?.reel) };
 }
@@ -80,7 +82,9 @@ export async function genererReelPourFicheCore(propositionId, { brouillon, isEdi
   }
 
   const contenu = analyse.contenuComplet ?? {};
-  const precedents = await derniersReels(prisma);
+  // Générer à nouveau : l'ancien Reel de la fiche passe en premier (variantes,
+  // question de couverture et variabilité mesurées face à lui).
+  const precedents = precedentsPourFiche(contenu.reel, await derniersReels(prisma));
   const resultat = await generer(contenu, { candidatNom: proposition.candidat.nom, score: analyse.scoreFaisabilite, precedents });
   const cout = coutClaude(resultat.usage);
   if (!resultat.reel) {
@@ -97,7 +101,7 @@ export async function genererReelPourFicheCore(propositionId, { brouillon, isEdi
   }
   return {
     ok: true,
-    message: contenu.reel ? "Reel régénéré (l’ancien est gardé sous reelPrecedent)." : "Reel généré.",
+    message: contenu.reel ? "Nouveau Reel généré (l’ancien est gardé sous reelPrecedent)." : "Reel généré.",
     cout,
     avertissements: resultat.avertissements ?? [],
   };

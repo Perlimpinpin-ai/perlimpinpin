@@ -260,7 +260,7 @@ test("contrôle : couverture (question hors liste refusée, titre long averti, m
 
   const meme = controlerReel(reponse(), { ...CONTEXTE, precedent: { couverture: { question: "Ça tient ?" } }, alea: alea(0) });
   assert.notEqual(meme.couverture.question, "Ça tient ?");
-  assert.ok(meme.avertissements.some((a) => /déjà prise par le Reel précédent/.test(a)));
+  assert.ok(meme.avertissements.some((a) => /déjà prise par un Reel précédent/.test(a)));
 
   const transitionInconnue = reponse();
   transitionInconnue.scenes[2].animation.transition = "fondu";
@@ -324,4 +324,51 @@ test("génération : consignes « à ne pas reprendre » et variantes différent
   assert.ok(r.reel);
   for (const cle of ["signature", "presentation", "verdict", "appel"]) assert.notEqual(r.reel.variantes[cle], 0);
   assert.notEqual(r.reel.couverture.question, "Ça tient ?");
+});
+
+// --- Générer à nouveau ------------------------------------------------------------
+
+test("générer à nouveau : variantes et question différentes de l'ancien Reel de la fiche ET du dernier Reel", async () => {
+  // Ancien Reel de la fiche, généré avant les variantes et la couverture :
+  // variante 0 partout, question par défaut tirée de son titre.
+  const ancienDeLaFiche = {
+    genereLe: "2026-11-17T10:00:00Z",
+    texteVoix: "Ancien texte.",
+    scenes: [{ id: "accroche", ecran: { titre: "Le carburant bloqué à la pompe" } }],
+  };
+  const questionAncienne = questionCouvertureParDefaut("Le carburant bloqué à la pompe");
+  const dernierDuSite = {
+    genereLe: "2026-11-17T14:00:00Z",
+    texteVoix: "Autre fiche.",
+    couverture: { question: QUESTIONS_COUVERTURE.find((q) => q !== questionAncienne) },
+    variantes: { signature: 1, presentation: 1, verdict: 1, appel: 1 },
+  };
+  for (const valeur of [0, 0.5, 0.99]) {
+    const r = await genererReelCore({
+      ficheFinale: FICHE,
+      candidatNom: "Candidat",
+      score: 38,
+      prompt: "PROMPT",
+      precedents: [ancienDeLaFiche, dernierDuSite],
+      alea: alea(valeur),
+      appeler: async () => ({ texte: JSON.stringify({ ...reponse(), couverture: { titre: "Le carburant à 1,70 €" } }), usage: {} }),
+      analyser: (rep) => JSON.parse(rep.texte),
+      journal: { warn() {}, error() {} },
+    });
+    assert.ok(r.reel, `alea ${valeur}`);
+    for (const cle of ["signature", "presentation", "verdict", "appel"]) {
+      assert.ok(![0, 1].includes(r.reel.variantes[cle]), `${cle} = ${r.reel.variantes[cle]} (alea ${valeur})`);
+    }
+    assert.notEqual(r.reel.couverture.question, questionAncienne);
+    assert.notEqual(r.reel.couverture.question, dernierDuSite.couverture.question);
+  }
+});
+
+test("Reels à ne pas imiter : l'ancien de la fiche d'abord, sans doublon", async () => {
+  const { precedentsPourFiche } = await import("../src/lib/reel-generation.js");
+  const a = { genereLe: "1" };
+  const b = { genereLe: "2" };
+  assert.deepEqual(precedentsPourFiche(a, [a, b]), [a, b]);
+  assert.deepEqual(precedentsPourFiche(null, [b]), [b]);
+  assert.deepEqual(precedentsPourFiche(undefined, undefined), []);
 });

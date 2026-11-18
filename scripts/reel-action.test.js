@@ -117,8 +117,54 @@ test("régénérer : l'ancien Reel est gardé sous reelPrecedent", async () => {
   const ancien = { scenes: [], texteVoix: "ancien" };
   const prisma = fausseBase({ contenuPublie: { titre_fiche: "Publiée", reel: ancien } });
   const r = await genererReelPourFicheCore(93, { isEditor: editeur, prisma, dryRun: false, cleConfiguree: true, generer: genererOk });
-  assert.match(r.message, /régénéré/);
+  assert.match(r.message, /Nouveau Reel généré/);
+  // Seule la clé reel change ; l'ancien passe sous reelPrecedent.
   assert.deepEqual(prisma.ecritures[0].data.contenuComplet, { titre_fiche: "Publiée", reelPrecedent: ancien, reel: REEL });
+});
+
+test("générer à nouveau : l'ancien Reel de la fiche passe en premier dans les Reels à ne pas imiter", async () => {
+  const ancien = { scenes: [], texteVoix: "ancien", genereLe: "2026-11-17T10:00:00Z", couverture: { question: "Vraiment ?" } };
+  const prisma = fausseBase({ contenuPublie: { titre_fiche: "Publiée", reel: ancien } });
+  const vus = [];
+  await genererReelPourFicheCore(93, {
+    isEditor: editeur,
+    prisma,
+    dryRun: false,
+    cleConfiguree: true,
+    generer: async (_contenu, ctx) => {
+      vus.push(ctx.precedents);
+      return genererOk();
+    },
+  });
+  assert.equal(vus[0][0], ancien);
+  assert.equal(vus[0][1].couverture.question, "Qui paie ?"); // dernier Reel du site, ensuite
+});
+
+test("générer à nouveau en Preview (TEST_DRY_RUN) : aucun appel, l'ancien Reel reste", async () => {
+  const prisma = fausseBase({ contenuPublie: { titre_fiche: "Publiée", reel: { scenes: [] } } });
+  let appels = 0;
+  const r = await genererReelPourFicheCore(93, {
+    isEditor: editeur,
+    prisma,
+    dryRun: true,
+    cleConfiguree: true,
+    generer: async () => {
+      appels++;
+      return genererOk();
+    },
+  });
+  assert.equal(r.simulation, true);
+  assert.equal(appels, 0);
+  assert.equal(prisma.ecritures.length, 0);
+});
+
+test("liste /test/reels : « Générer à nouveau » à côté de « Voir le Reel → »", () => {
+  const liste = readFileSync(new URL("../src/app/test/reels/page.js", import.meta.url), "utf8");
+  assert.match(liste, /Voir le Reel →\s*<\/Link>\s*<BoutonGenererReel[^>]*aDejaUnReel/);
+  const bouton = readFileSync(new URL("../src/app/test/reels/BoutonGenererReel.js", import.meta.url), "utf8");
+  assert.match(bouton, /"Générer à nouveau"/);
+  assert.match(bouton, /if \(verrou\.current\) return;/);
+  assert.match(bouton, /disabled=\{occupe\}/);
 });
 
 test("fiche modifiée pendant la génération : rien n'est écrit, erreur claire", async () => {

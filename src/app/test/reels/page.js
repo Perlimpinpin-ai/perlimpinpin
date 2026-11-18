@@ -97,12 +97,15 @@ function Ligne({ analyse, aUnReel }) {
           <span className="text-xs font-semibold text-zinc-400">/100</span>
         </span>
         {aUnReel ? (
-          <Link
-            href={`/test/reels/${proposition.id}${brouillon ? "?brouillon=1" : ""}`}
-            className="text-sm font-semibold text-zinc-800 underline underline-offset-2 hover:opacity-70"
-          >
-            Voir le Reel →
-          </Link>
+          <>
+            <Link
+              href={`/test/reels/${proposition.id}${brouillon ? "?brouillon=1" : ""}`}
+              className="text-sm font-semibold text-zinc-800 underline underline-offset-2 hover:opacity-70"
+            >
+              Voir le Reel →
+            </Link>
+            <BoutonGenererReel propositionId={proposition.id} brouillon={brouillon} aDejaUnReel discret />
+          </>
         ) : (
           <BoutonGenererReel propositionId={proposition.id} brouillon={brouillon} />
         )}

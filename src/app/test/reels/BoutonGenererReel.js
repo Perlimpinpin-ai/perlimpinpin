@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { estimerReelAction, genererReelAction } from "./actions";
 
-// Bouton « Générer le Reel » / « Régénérer » : confirmation avec le coût
+// Bouton « Générer le Reel » / « Générer à nouveau » : confirmation avec le coût
 // estimé, puis génération (30 s à 2 min). Le bouton reste désactivé pendant
 // tout ce temps, et un verrou empêche un second envoi (pas de double paiement).
 // À la fin, la page est rechargée (le Reel s'affiche) ou l'erreur est écrite
@@ -31,11 +31,11 @@ export default function BoutonGenererReel({ propositionId, brouillon = false, aD
         setRetour({ type: "erreur", texte: estimation.erreur });
         return;
       }
-      const verbe = estimation.aDejaUnReel ? "Régénérer" : "Générer";
-      const remplace = estimation.aDejaUnReel ? "\nL’ancien Reel sera gardé (reelPrecedent)." : "";
-      const confirme = window.confirm(
-        `${verbe} le Reel de cette fiche ?\nCoût estimé ≈ ${dollars(estimation.min)} à ${dollars(estimation.max)} $.${remplace}`,
-      );
+      const question = estimation.aDejaUnReel ? "Générer à nouveau le Reel de cette fiche ?" : "Générer le Reel de cette fiche ?";
+      const remplace = estimation.aDejaUnReel
+        ? "\nL’ancien Reel sera gardé (reelPrecedent). Le nouveau changera de variantes de phrases et de question de couverture."
+        : "";
+      const confirme = window.confirm(`${question}\nCoût estimé ≈ ${dollars(estimation.min)} à ${dollars(estimation.max)} $.${remplace}`);
       if (!confirme) return;
 
       setEtat("generation");
@@ -66,7 +66,7 @@ export default function BoutonGenererReel({ propositionId, brouillon = false, aD
       : etat === "estimation"
         ? "Calcul du coût…"
         : aDejaUnReel
-          ? "Régénérer"
+          ? "Générer à nouveau"
           : "Générer le Reel";
 
   return (

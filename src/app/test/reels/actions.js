@@ -7,7 +7,7 @@ import { appelerClaudeReel, cleApiConfiguree, lirePromptReel } from "@/lib/claud
 import { genererReelCore, jsonDepuisTexte } from "@/lib/reel-generation";
 import { estimerReelCore, genererReelPourFicheCore } from "@/lib/reel-action-core";
 
-// Actions du bouton « Générer le Reel » / « Régénérer » de /test/reels.
+// Actions du bouton « Générer le Reel » / « Générer à nouveau » de /test/reels.
 // Chaque action revérifie elle-même le mode édition (isEditor) : masquer un
 // bouton ne protège rien. TEST_DRY_RUN=1 (Preview) : aucun appel payant.
 // La durée maximale (300 s) est réglée sur les pages qui appellent ces

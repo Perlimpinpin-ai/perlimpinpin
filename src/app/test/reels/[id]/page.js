@@ -15,7 +15,7 @@ import BoutonGenererReel from "../BoutonGenererReel";
 // Toujours recalculée à chaque visite (comme les autres pages /test).
 export const dynamic = "force-dynamic";
 
-// Les actions du bouton « Générer le Reel » / « Régénérer » appellent Claude
+// Les actions du bouton « Générer le Reel » / « Générer à nouveau » appellent Claude
 // (30 s à 2 min, deux essais au plus) : durée maximale portée à 300 s.
 export const maxDuration = 300;
 

@@ -44,10 +44,10 @@ import ws from "ws";
 import { avertissementBase, confirmerEcriture, hoteDe } from "./lib/garde-fou-base.js";
 import { LOT_MAX } from "./lib/reseaux-lot.js";
 import { choisirFichesReel, usageEstimeReel } from "./lib/reel-lot.js";
-import { contenuAvecReel } from "../src/lib/reel-generation.js";
+import { contenuAvecReel, precedentsPourFiche } from "../src/lib/reel-generation.js";
 import { derniersReels } from "../src/lib/reel-action-core.js";
 import { buildCoutPipeline, fichePourReel, genererReel, messageReel } from "./analyze.js";
-import { controlerReel, formatDuree, reelPourStockage } from "../src/lib/reel.js";
+import { controlerReel, formatDuree, questionCouvertureDuReel, reelPourStockage } from "../src/lib/reel.js";
 import { slugCandidat } from "../src/lib/carte.js";
 
 neonConfig.webSocketConstructor = ws;
@@ -200,11 +200,11 @@ async function mainFiche(host) {
 
   // Derniers Reels générés (lecture seule) : variantes, relances et question
   // de couverture à ne pas reprendre.
-  const precedents = values.depuis ? [] : await derniersReels(prisma);
+  const precedents = values.depuis ? [] : precedentsPourFiche(contenu.reel, await derniersReels(prisma));
   if (!values.depuis) {
     const precedent = precedents[0];
     console.log(
-      `  Derniers Reels générés : ${precedents.length}${precedent ? ` (le plus récent le ${precedent.genereLe ?? "?"}, question de couverture « ${precedent.couverture?.question ?? "aucune"} »)` : ""}`,
+      `  Reels à ne pas imiter : ${precedents.length}${precedent ? ` (${contenu.reel ? "d'abord l'ancien Reel de cette fiche" : "le plus récent"}, généré le ${precedent.genereLe ?? "?"}, question de couverture « ${questionCouvertureDuReel(precedent)} »)` : ""}`,
     );
   }
 
