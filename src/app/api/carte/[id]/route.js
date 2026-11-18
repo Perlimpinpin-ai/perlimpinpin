@@ -4,7 +4,8 @@ import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/test-auth";
 import { formatScore } from "@/lib/score";
-import { FORMATS_CARTE, appreciationCarte, cacheControlCarte, slugCandidat, titreCarte, versionCarte } from "@/lib/carte";
+import { polices, portraitBleu } from "@/lib/og-ressources";
+import { FORMATS_CARTE, appreciationCarte, cacheControlCarte, titreCarte, versionCarte } from "@/lib/carte";
 import { TAILLE, elementCarte } from "./cartes";
 
 // Cartes 1200×1200 des publications X : ?format=score|chiffre|tient.
@@ -13,33 +14,6 @@ import { TAILLE, elementCarte } from "./cartes";
 // aux personnes déverrouillées sur /test, jamais en cache partagé.
 // Aucune IA ici : les textes de « chiffre » et « tient » viennent de
 // contenuComplet.reseaux (étape 3 ter du pipeline) ; sans eux, 404.
-
-let policesEnCache = null;
-function polices() {
-  policesEnCache ??= Promise.all(
-    [
-      ["Inter-ExtraBold.otf", 800],
-      ["Inter-Medium.otf", 500],
-    ].map(async ([fichier, weight]) => ({
-      name: "Inter",
-      data: await readFile(join(process.cwd(), "public", "fonts", fichier)),
-      weight,
-      style: "normal",
-    })),
-  );
-  return policesEnCache;
-}
-
-// Portrait bleu détouré (public/portraits-bleus/<slug>.png), en data URI.
-// Fichier absent : la carte s'affiche sans portrait.
-async function portrait(candidat) {
-  try {
-    const png = await readFile(join(process.cwd(), "public", "portraits-bleus", `${slugCandidat(candidat)}.png`));
-    return `data:image/png;base64,${png.toString("base64")}`;
-  } catch {
-    return null;
-  }
-}
 
 function introuvable() {
   return new Response("Carte introuvable.", { status: 404, headers: { "Cache-Control": "no-store" } });
@@ -83,7 +57,7 @@ export async function GET(request, { params }) {
     titre,
     reseaux,
     candidat: proposition.candidat,
-    photo: await portrait(proposition.candidat),
+    photo: await portraitBleu(proposition.candidat),
     score: formatScore(analyse.scoreFaisabilite),
     appreciation: appreciationCarte(analyse.scoreFaisabilite),
   });
