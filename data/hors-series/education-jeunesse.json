@@ -1,14 +1,21 @@
 {
   "slug": "education-jeunesse",
   "visible": true,
-  "note": "Dossier n°3, publié le 13 novembre 2026 : inscrit au registre (src/lib/hors-series.js), listé sur /dossiers et dans le sitemap. Hors du carrousel de l'accueil tant que `accueil.afficher` vaut false : le passer à true une fois l'illustration (`photo`) ajoutée.",
+  "note": "Dossier n°3, publié le 13 novembre 2026 : inscrit au registre (src/lib/hors-series.js), listé sur /dossiers, dans le sitemap et dans le carrousel de l'accueil (illustration ajoutée le 18 novembre 2026).",
   "numero": 3,
   "etiquette": "Éducation et jeunesse · novembre 2026",
   "datePublication": "2026-11-13",
   "motItalique": "promettent",
   "description": "Salaires des enseignants, examens de passage, Parcoursup, revenu des jeunes : nous avons recensé les propositions des onze candidats sur l'éducation et la jeunesse, et analysons leurs mesures phares une à une.",
+  "photo": {
+    "src": "/photos/dossiers/education-jeunesse.jpg",
+    "alt": "Illustration « Les dossiers » : une lycéenne qui travaille sur un cahier et une tablette, et des graphiques",
+    "credit": "Illustration Perlimpinpin",
+    "srcVertical": "/photos/dossiers/education-jeunesse-vertical.jpg",
+    "fondVertical": "#f8b444"
+  },
   "accueil": {
-    "afficher": false,
+    "afficher": true,
     "enTete": false,
     "titre": "École, études, premier emploi : que promettent les candidats ?",
     "accroche": "Salaires des enseignants, examens de passage, Parcoursup, revenu des jeunes : les propositions des onze candidats, analysées une à une.",
