@@ -33,7 +33,8 @@ export default function EncartAnalyseOuverte({ retour, vue = "expert" }) {
       <p className="font-semibold text-zinc-900">Cette analyse est ouverte à la critique.</p>
       <p className="mt-1">
         Un chiffre vous semble faux, une source manque, un biais ou une erreur a été repéré ? Sélectionnez un passage
-        pour l’annoter et l’envoyer au comité éditorial.
+        pour l’annoter et le commenter. Chaque commentaire reçoit une réponse et, s’il est sourcé et pertinent,
+        l’analyse est modifiée en conséquence.
       </p>
       {vue === "basique" ? (
         <LienVersExpert

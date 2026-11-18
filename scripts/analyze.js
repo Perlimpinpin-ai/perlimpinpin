@@ -587,7 +587,7 @@ function validateEtape1Local(rawAnalyse, label) {
 }
 
 // Même principe pour fiche_complete (étape 3, schéma à 5 critères).
-async function validateFicheCompleteWithRepair(rawFiche, label) {
+async function validateFicheCompleteWithRepair(rawFiche, label, reponseComplete = null) {
   const first = validateFicheCompleteStructure(rawFiche);
   if (first.valid) {
     warnNotationCoherence(first.fiche.notation_detaillee, label);
@@ -602,6 +602,12 @@ async function validateFicheCompleteWithRepair(rawFiche, label) {
   const second = validateFicheCompleteStructure(repairedRaw);
 
   if (!second.valid) {
+    const dump = join(__dirname, "..", "logs", `fiche-invalide-${Date.now()}.json`);
+    try {
+      mkdirSync(dirname(dump), { recursive: true });
+      writeFileSync(dump, JSON.stringify({ label, erreurs: second.errors, brut: rawFiche, repare: repairedRaw, reponseComplete }, null, 2));
+      console.error(`  JSON brut sauvegardé dans ${dump}`);
+    } catch {}
     throw new Error(`${label} : structure toujours invalide après tentative de réparation.\n${second.errors.join("\n")}`);
   }
 
@@ -616,6 +622,54 @@ async function validateFicheCompleteWithRepair(rawFiche, label) {
 // {{reponse_etape_1}} interpolé avec le JSON complet de l'étape 1.
 
 const MISTRAL_BASE_URL = "https://api.mistral.ai/v1";
+
+// Texte d'un contenu Mistral : chaîne, ou tableau de blocs
+// ({ type: "thinking" | "text", … }) dont seuls les blocs texte portent le JSON.
+export function texteContenuMistral(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content.filter((b) => b?.type === "text").map((b) => b.text ?? "").join("");
+  }
+  return "";
+}
+
+// Lecture d'une réponse Mistral streamée (SSE au format OpenAI : lignes
+// « data: {…} », puis « data: [DONE] »). Le délai d'inactivité s'applique
+// entre deux morceaux, pas à la durée totale : une génération longue mais
+// active n'est plus interrompue (timeouts à 60 puis 180 s en non streamé,
+// fiches Zemmour et Retailleau du 16 novembre 2026).
+export async function lireFluxMistral(response, { inactivityTimeoutMs = STREAM_INACTIVITY_TIMEOUT_MS } = {}) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let texte = "";
+  let usage = {};
+  let fini = false;
+
+  const traiterLigne = (line) => {
+    if (!line.startsWith("data:")) return;
+    const payload = line.slice("data:".length).trim();
+    if (!payload) return;
+    if (payload === "[DONE]") {
+      fini = true;
+      return;
+    }
+    const event = JSON.parse(payload);
+    texte += texteContenuMistral(event.choices?.[0]?.delta?.content);
+    if (event.usage) usage = event.usage;
+  };
+
+  while (!fini) {
+    const { done, value } = await readWithInactivityTimeout(reader, inactivityTimeoutMs);
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) traiterLigne(line.trim());
+  }
+  if (buffer.trim()) traiterLigne(buffer.trim());
+  return { texte, usage };
+}
 
 async function callMistralJson(userMessage) {
   if (!process.env.MISTRAL_API_KEY) {
@@ -633,6 +687,7 @@ async function callMistralJson(userMessage) {
       messages: [{ role: "user", content: userMessage }],
       response_format: { type: "json_object" },
       temperature: 0.2,
+      stream: true,
     }),
   });
 
@@ -640,8 +695,7 @@ async function callMistralJson(userMessage) {
     throw new Error(`Erreur API Mistral (${response.status}) : ${await response.text()}`);
   }
 
-  const data = await response.json();
-  const raw = data.choices?.[0]?.message?.content;
+  const { texte: raw, usage } = await lireFluxMistral(response);
   if (!raw) {
     throw new Error("Réponse Mistral vide ou mal formée.");
   }
@@ -653,7 +707,7 @@ async function callMistralJson(userMessage) {
     throw new Error(`JSON Mistral invalide : ${error.message}`);
   }
 
-  return { parsed, usage: data.usage ?? {} };
+  return { parsed, usage };
 }
 
 // Message de l'étape 2. Avec des commentaires : gabarit complet (point 6),
@@ -1319,10 +1373,18 @@ function loadEtape1(input) {
 // retrouver (elle ne reçoit que fiche_complete). On reprend donc celui de la
 // racine, seulement s'il manque : c'est de toute façon lui qui prime ensuite
 // (voir `parsed` dans runPipeline), comme dans scripts/import-etape3.js.
+// Même chose pour analyse_par_criteres, que le modèle place parfois à la
+// racine plutôt que dans fiche_complete (16 novembre 2026, fiches Attal
+// enseignants et Zemmour droit du sol : « expected array, received undefined »).
 export function ficheCompleteAvecVerdictRacine(arbitrage3) {
   const fiche = arbitrage3?.fiche_complete ?? {};
-  if (fiche.verdict_final !== undefined || arbitrage3?.verdict_final === undefined) return fiche;
-  return { ...fiche, verdict_final: arbitrage3.verdict_final };
+  const manquants = ["verdict_final", "analyse_par_criteres"].filter(
+    (cle) => fiche[cle] === undefined && arbitrage3?.[cle] !== undefined,
+  );
+  if (!manquants.length) return fiche;
+  const complete = { ...fiche };
+  for (const cle of manquants) complete[cle] = arbitrage3[cle];
+  return complete;
 }
 
 // Réponse d'étape 3 renvoyée après un refus de revision_relecture : le modèle
@@ -1435,7 +1497,7 @@ export async function runPipeline(etape1Input, { commentaires = null, candidatNo
   const auditArbitrage = Array.isArray(arbitrage3.auditArbitrage) ? [...arbitrage3.auditArbitrage] : [];
   let rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
   if (commentaires) rawFicheComplete = completerAvecFicheRelue(rawFicheComplete, arbitrage3, etape1);
-  const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3");
+  const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3", arbitrage3);
 
   // titre_fiche/resume_court/teaser_accueil/verdict_final sont produits à la
   // racine de la réponse d'étape 3 (rédaction finale) — verdict_final y est

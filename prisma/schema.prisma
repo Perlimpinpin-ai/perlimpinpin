@@ -677,3 +677,35 @@ model TentativeConnexion {
   @@index([cleEmail, createdAt])
   @@index([cleIp, createdAt])
 }
+
+// File d'attente des fiches d'étape 1 (nov. 2026) : analyses d'étape 1 faites
+// dans Claude, en attente des étapes 2 et 3. Alimentée par la page /test/depot
+// (source "depot"), par une insertion SQL faite par Claude (source "claude")
+// ou par `npm run file-attente:import` (source "import"). Traitée par
+// `npm run file-attente` (scripts/traiter-file-attente.js), qui refait le
+// contrôle (src/lib/controle-fiche-etape1.js) avant tout appel payant et crée
+// la fiche finale en brouillon sur /test. Aucune ligne n'est supprimée par le
+// code : « Retirer » passe la fiche en "ignoree".
+// Les noms de colonnes sont fixés : Claude y écrit directement en SQL.
+model FicheEtape1 {
+  id           Int       @id @default(autoincrement())
+  // Nom de la fiche : minuscules, chiffres, tirets
+  slug         String    @unique
+  // Fiche d'étape 1 complète, bloc `relecture` compris
+  contenu      Json
+  // "en_attente" | "en_cours" | "traitee" | "erreur" | "ignoree"
+  statut       String    @default("en_attente")
+  // "depot" | "claude" | "import"
+  source       String
+  deposePar    String?
+  // Liste des erreurs de contrôle ou de pipeline (tableau de textes)
+  erreurs      Json?
+  // Analyse créée en brouillon sur /test
+  analyseId    Int?
+  // Coût réel des étapes 2 et 3 (même format que Analyse.coutPipeline)
+  coutPipeline Json?
+  createdAt    DateTime  @default(now())
+  traiteeAt    DateTime?
+
+  @@index([statut, createdAt])
+}
