@@ -39,6 +39,7 @@ import ws from "ws";
 import { confirmerEcriture, estProduction, hoteDe } from "./lib/garde-fou-base.js";
 import { attendreLot, lireResultats, soumettreLot, texteFinal } from "./lib/lot-multiple.js";
 import {
+  entreeEtapes23,
   extraireJson,
   ficheRevisable,
   notesChangees,
@@ -270,7 +271,7 @@ try {
           runPipeline ??= (await import("./analyze.js")).runPipeline;
           const commentaires = args.map((a) => ({ id: a.id, sectionLabel: a.sectionLabel ?? a.sectionId, body: a.body, quotedText: a.quotedText ?? null }));
           await etape(lot.id, "etapes_2_3", { propositionId: fiche });
-          const resultat = await runPipeline(JSON.stringify(proposition.contenu), {
+          const resultat = await runPipeline(JSON.stringify(entreeEtapes23(proposition.contenu)), {
             commentaires,
             candidatNom: source.proposition?.candidat?.nom ?? null,
           });
