@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- image générée par /api/carte, déjà au bon format. */
 import { cheminCarte, slugCandidat, titreCarte } from "@/lib/carte";
 import { LONGUEUR_X_MAX, avertissementsReseaux, tweetsReseaux, valeursReseaux } from "@/lib/reseaux";
+import EncadreARelire from "./EncadreARelire";
 import TweetModifiable from "./TweetModifiable";
 
 // « Publications X » d'une fiche : pour chaque format, l'image (route
@@ -86,22 +87,11 @@ export default function PublicationsX({ proposition, analyse, brouillon = false,
   // du tweet, version courte sans sujet, nombres côte à côte…
   const avertissements = avertissementsReseaux(reseaux, {
     valeurs: valeursReseaux({ candidatNom, score: analyse.scoreFaisabilite, propositionId: proposition.id }),
-  }).sort((a, b) => Number(Boolean(b.fort)) - Number(Boolean(a.fort)));
+  });
 
   return (
     <div className="flex flex-col gap-8">
-      {avertissements.length > 0 ? (
-        <div role="note" className="rounded-xl border border-orange-300 bg-orange-50 p-4 text-sm text-orange-900">
-          <p className="font-semibold">À relire avant de publier</p>
-          <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
-            {avertissements.map(({ cle, message, fort }, i) => (
-              <li key={i} className={fort ? "font-semibold text-red-700" : undefined}>
-                <span className={`font-mono text-xs ${fort ? "text-red-700" : "text-orange-700"}`}>{cle}</span> : {message}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <EncadreARelire avertissements={avertissements} />
 
       {reseaux ? null : (
         <p className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
