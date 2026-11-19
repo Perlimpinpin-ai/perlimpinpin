@@ -176,7 +176,9 @@ export async function publierRevisionCore({
       if (actuelle?.id !== source.id) {
         throw new Error("Une autre version de cette fiche a été publiée depuis : relancez la revue de la fiche (« Traiter maintenant »).");
       }
-      const nouvelle = await tx.analyse.create({ data: donnees, select: { id: true } });
+      // publieLe : date de publication de la nouvelle version (moment du clic),
+      // pour qu'elle repasse en tête des dernières publications.
+      const nouvelle = await tx.analyse.create({ data: { ...donnees, publieLe: maintenant }, select: { id: true } });
       // Seule mise à jour (voir l'en-tête) : statut et date de changement, rien d'autre.
       const { count } = await tx.analyse.updateMany({
         where: { id: source.id, statut: "publie" },

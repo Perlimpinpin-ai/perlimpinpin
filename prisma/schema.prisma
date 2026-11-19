@@ -143,6 +143,13 @@ model Analyse {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Date de mise en ligne : moment exact du clic « Publier » (/test, /test/revue,
+  // scripts/publish.js). Ordre des listes de « dernières publications » et date
+  // « Analyse réalisée le … ». Nul tant que l'analyse n'a jamais été publiée.
+  // Rien à voir avec Proposition.dateDeclaration (date de la déclaration du
+  // candidat), qui n'est jamais modifiée par la publication.
+  publieLe DateTime?
+
   feedbacks Feedback[]
   // Annotations du Club posées sur cette version de la fiche publiée
   // (RelectureComment.analyseId). Relation inverse, sans colonne ici.

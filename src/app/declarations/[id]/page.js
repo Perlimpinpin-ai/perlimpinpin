@@ -15,6 +15,7 @@ import EncartDon from "@/components/EncartDon";
 import Editable from "@/app/test/Editable";
 import { CRITERES_ANALYSE } from "@/lib/test-edition";
 import { getDeclarationDetail, getNumeroVersion } from "@/lib/queries";
+import { datePublication } from "@/lib/date-publication";
 import HistoriqueVersions from "@/components/HistoriqueVersions";
 import { getScoreBadge, PLAFOND_DECLENCHEUR_LABELS } from "@/lib/score";
 import { vignettePhoto } from "@/lib/photo-vignette";
@@ -78,7 +79,9 @@ function buildClaimReviewJsonLd(declaration) {
   return {
     "@context": "https://schema.org",
     "@type": "ClaimReview",
-    datePublished: analyse.createdAt.toISOString(),
+    // Date de publication de l'analyse (clic « Publier ») ; la date de la
+    // déclaration du candidat est celle de itemReviewed ci-dessous.
+    datePublished: datePublication(analyse).toISOString(),
     url: `https://perlimpinpin.ai/declarations/${declaration.id}`,
     claimReviewed: declaration.texteOriginal,
     itemReviewed: {

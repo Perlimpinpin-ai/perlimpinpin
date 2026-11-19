@@ -88,12 +88,21 @@ export async function publierBrouillon(analyseId) {
 
   // Ligne d'audit pour les logs Vercel.
   console.log(
-    `[test] analyse #${resultat.analyseId} publiée (mesure #${resultat.propositionId}, ${resultat.candidatNom}) le ${new Date().toISOString()}` +
+    `[test] analyse #${resultat.analyseId} publiée (mesure #${resultat.propositionId}, ${resultat.candidatNom}) le ${resultat.publieLe}` +
       (resultat.revision ? ` ; révision « ${resultat.revision.slug} » ${resultat.revision.fusionnee ? "fusionnée" : "NON fusionnée"}` : ""),
   );
 
-  // Les pages publiques mises en cache doivent voir la nouvelle analyse.
-  for (const chemin of ["/", "/declarations", "/candidats", "/themes"]) {
+  // Les pages publiques mises en cache (ISR, 5 min) doivent voir la nouvelle
+  // analyse tout de suite, en tête des dernières publications : accueil, listes,
+  // page de la fiche et page du candidat.
+  for (const chemin of [
+    "/",
+    "/declarations",
+    `/declarations/${resultat.propositionId}`,
+    "/candidats",
+    `/candidats/${resultat.candidatId}`,
+    "/themes",
+  ]) {
     revalidatePath(chemin);
   }
 

@@ -4,6 +4,7 @@ import MonoTag from "@/components/MonoTag";
 import { prisma } from "@/lib/prisma";
 import { formatScore, getScoreBadge } from "@/lib/score";
 import { themeLabel } from "@/lib/themes";
+import { ORDRE_DERNIERES_PUBLICATIONS, datePublication } from "@/lib/date-publication";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import EditorBar from "../EditorBar";
 
@@ -39,16 +40,18 @@ const sansAccents = (texte) =>
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase();
 
-// Les fiches en ligne (statut "publie"), les plus récentes d'abord. Champs utiles
-// à la liste seulement (pas le gros JSON complet).
+// Les fiches en ligne (statut "publie"), les plus récemment publiées d'abord
+// (même ordre que le site public). Champs utiles à la liste seulement (pas le
+// gros JSON complet).
 async function getPubliees() {
   return prisma.analyse.findMany({
     where: { statut: "publie" },
-    orderBy: { createdAt: "desc" },
+    orderBy: ORDRE_DERNIERES_PUBLICATIONS,
     select: {
       id: true,
       scoreFaisabilite: true,
       createdAt: true,
+      publieLe: true,
       proposition: {
         select: {
           id: true,
@@ -175,7 +178,7 @@ export default async function FichesPublieesPage({ searchParams }) {
                             </p>
                             <p className="mt-1 text-base font-semibold text-zinc-900">{displayTitle(proposition)}</p>
                             <p className="mt-1 font-mono text-xs text-zinc-400">
-                              Analyse #{analyse.id} · Mesure #{proposition.id} · {formatDate(analyse.createdAt)}
+                              Analyse #{analyse.id} · Mesure #{proposition.id} · {formatDate(datePublication(analyse))}
                             </p>
                           </div>
                           <div className="shrink-0 sm:text-right">
