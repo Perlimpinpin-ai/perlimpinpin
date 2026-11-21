@@ -1,8 +1,10 @@
 import { formatScore, getScoreBadge } from "./score.js";
-import { empreinte, slugCandidat, sousTitreCarte } from "./carte.js";
+import { couperTitre, empreinte, slugCandidat, sousTitreCarte } from "./carte.js";
 import { handleX } from "./handles-x.js";
 import { nombreDeMots, pastille, remplirTweet } from "./reseaux.js";
 import { handleInstagram, hashtagCandidat, hashtagTheme } from "./handles-instagram.js";
+import { themeCandidat } from "./couleurs-candidats.js";
+import { resolveTheme } from "./themes.js";
 
 // Carrousel Instagram d'une fiche (6 slides 1080 × 1350 et leur légende),
 // assemblé par le code à partir des textes déjà présents dans la fiche :
@@ -26,15 +28,14 @@ export const TYPES_SLIDES = {
   note: { fichier: "la-note", libelle: "La note" },
   chiffre: { fichier: "le-chiffre", libelle: "Le chiffre" },
   tient: { fichier: "tient-tient-pas", libelle: "Tient / tient pas" },
-  conditions: { fichier: "ce-qui-la-ferait-tenir", libelle: "Ce qui la ferait tenir" },
-  appel: { fichier: "appel-a-l-action", libelle: "Appel à l’action" },
+  fin: { fichier: "fin", libelle: "Fin" },
 };
 
 // --- Textes repris de la fiche -------------------------------------------------
 
 // Texte repris tel quel, nettoyé : gras Markdown retiré, espaces simples, et
 // tiret cadratin remplacé par une virgule (signalé dans `avertissements`).
-function texteRepris(texte, cle, avertissements) {
+export function texteRepris(texte, cle, avertissements) {
   let t = String(texte ?? "").replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
   if (t.includes("—")) {
     avertissements.push({ cle, message: `Tiret cadratin remplacé par une virgule : « ${t} ».` });
@@ -171,7 +172,7 @@ function texteCondition(condition) {
 // 6. Ce qui la ferait tenir : les 3 conditions de ce_qui_la_ferait_tenir,
 // chacune réduite à sa première phrase ; au-delà de 35 mots en tout, au
 // titre de la condition (avant « : »), puis coupée.
-function slideConditions(liste, avertissements) {
+export function slideConditions(liste, avertissements) {
   const conditions = (Array.isArray(liste) ? liste : [])
     .map(texteCondition)
     .map((texte, i) => texteRepris(texte, `slide « Ce qui la ferait tenir » (condition ${i + 1})`, avertissements))
@@ -193,12 +194,42 @@ function slideConditions(liste, avertissements) {
   return { type: "conditions", conditions: finales, raccourci: mots };
 }
 
+// --- Éléments communs aux deux carrousels -----------------------------------------
+
+// Sujet court du pied de page (« Fabien Roussel · Smic ») : le début du titre,
+// avant le premier mot de liaison (couperTitre, src/lib/carte.js), 4 mots au plus.
+export function sujetCourt(titre) {
+  const { noir } = couperTitre(titre);
+  return noir.replace(/[\s,:;.]+$/, "").split(/\s+/).slice(0, 4).join(" ");
+}
+
+// Condition la plus forte (la première de ce_qui_la_ferait_tenir), réduite à
+// son titre (avant « : ») ou à sa première phrase. null si la fiche n'en a pas.
+export function conditionPrincipale(liste, avertissements) {
+  const premiere = Array.isArray(liste) ? liste.find(Boolean) : null;
+  if (!premiere) return null;
+  const t = texteRepris(typeof premiere === "string" ? premiere : [premiere.titre, premiere.texte].filter(Boolean).join(" : "), "condition la plus forte", avertissements);
+  const avant = t.split(/\s:\s/)[0].replace(/[.\s]+$/, "");
+  return avant && avant !== t ? avant : phrases(t)[0] ?? t;
+}
+
+// Sources principales de la dernière slide : les 3 premières de
+// sources_utilisees, sans leur adresse, raccourcies.
+export function sourcesPrincipales(contenu) {
+  const liste = Array.isArray(contenu?.sources_utilisees) ? contenu.sources_utilisees : [];
+  return liste
+    .slice(0, 3)
+    .map((source) => String(typeof source === "string" ? source : (source?.titre ?? source?.nom ?? "")).replace(/\s*:?\s*https?:\/\/\S+/g, "").trim())
+    .filter(Boolean)
+    .map((source) => (source.length > 70 ? `${source.slice(0, 69).replace(/[\s,;:]+\S*$/, "")}…` : source));
+}
+
 // --- La légende --------------------------------------------------------------------
 
 // Accroche du tweet 1 (« 🔵 <la mesure en une ligne> : <premier verdict>. »),
 // sans pastille ni compte X ; seule la partie après « : » est reprise, le
 // titre de la mesure ouvrant déjà la ligne.
-function accrocheDuFil(reseaux, candidatNom) {
+export function accrocheDuFil(reseaux, candidatNom) {
   const premierBloc = String(reseaux?.fil?.[0] ?? "").split(/\n\s*\n/)[0] ?? "";
   let texte = remplirTweet(premierBloc.replace(/^🔵\s*/u, ""), { CANDIDAT: candidatNom, NOM: candidatNom });
   const compteX = handleX(candidatNom);
@@ -208,7 +239,7 @@ function accrocheDuFil(reseaux, candidatNom) {
   return (apres ?? texte).trim();
 }
 
-function scoreAffiche(score) {
+export function scoreAffiche(score) {
   return String(formatScore(Number(score))).replace(".", ",");
 }
 
@@ -229,6 +260,41 @@ function legendeInstagram({ titre, candidatNom, score, theme, mention, accroche,
   return blocs.filter(Boolean).join("\n\n");
 }
 
+// Légende et couleur du candidat, communes aux deux carrousels (6 slides et
+// récit), avec leurs avertissements : compte Instagram, hashtag du thème,
+// longueur, couleur absente. Renvoie { legende, couleur }.
+export function legendeEtCouleur(
+  { titre, candidatNom, score, theme, accroche, tient, handlesInstagram, couleursCandidats },
+  avertissements,
+) {
+  const compte = handleInstagram(candidatNom, handlesInstagram);
+  if (!compte) {
+    avertissements.push({
+      cle: "légende",
+      message: `Pas de compte Instagram connu pour ${candidatNom} (src/lib/handles-instagram.js) : nom écrit sans @.`,
+    });
+  }
+  if (!hashtagTheme(theme)) {
+    avertissements.push({ cle: "légende", message: `Thème « ${theme ?? ""} » sans hashtag (src/lib/handles-instagram.js) : hashtag thème omis.` });
+  }
+  const legende = legendeInstagram({ titre, candidatNom, score, theme, mention: compte ?? candidatNom, accroche, tient });
+  if (legende.length > LEGENDE_MAX) {
+    avertissements.push({
+      cle: "légende",
+      fort: true,
+      message: `${legende.length} caractères (${LEGENDE_MAX} au plus sur Instagram) : à raccourcir avant de publier.`,
+    });
+  }
+  const couleur = themeCandidat({ candidatNom, score, ...(couleursCandidats ? { table: couleursCandidats } : {}) });
+  if (!couleur) {
+    avertissements.push({
+      cle: "couleur",
+      message: `Pas de couleur définie pour ${candidatNom} (src/lib/couleurs-candidats.js) : style neutre.`,
+    });
+  }
+  return { legende, couleur };
+}
+
 // --- Assemblage et contrôles -----------------------------------------------------
 
 // Carrousel complet d'une fiche, avec ses avertissements (jamais bloquants).
@@ -237,8 +303,9 @@ function legendeInstagram({ titre, candidatNom, score, theme, mention, accroche,
 //   theme (Proposition.theme), score (Analyse.scoreFaisabilite),
 //   contenu (Analyse.contenuComplet), resumeBasique (version_basique.resume
 //   ou null), mesureInitiale (Proposition.texteOriginal),
-//   handlesInstagram (facultatif, pour les tests).
-// Renvoie { slides, legende, avertissements, version }. Chaque slide :
+//   handlesInstagram, couleursCandidats (facultatifs, pour les tests).
+// Renvoie { slides, legende, avertissements, version, couleur } ; `couleur` :
+// thème du candidat (themeCandidat, src/lib/couleurs-candidats.js) ou null. Chaque slide :
 //   { type, numero, total, fichier, libelle, ...contenu }.
 export function controlerCarrousel(donnees) {
   const { propositionId, analyseId, candidatNom, photoUrl, theme, score, contenu, resumeBasique, mesureInitiale } = donnees;
@@ -248,12 +315,18 @@ export function controlerCarrousel(donnees) {
 
   const sautees = [];
   const brutes = [
-    { type: "couverture", titre, sousTitre: sousTitreCarte(candidatNom).replace(/\.$/, "") },
+    { type: "couverture", titre, sousTitre: sousTitreCarte(candidatNom).replace(/\.$/, ""), theme: resolveTheme(theme) },
     slideMesure({ resumeBasique, mesureInitiale }, avertissements),
     { type: "note", score: Number(score), scoreAffiche: scoreAffiche(score), palier: getScoreBadge(Number(score)).label },
     slideChiffre(reseaux?.chiffre, avertissements) ?? (sautees.push("chiffre"), null),
-    slideTient(reseaux?.tient, avertissements) ?? (sautees.push("tient"), null),
-    slideConditions(contenu?.ce_qui_la_ferait_tenir, avertissements) ?? { type: "appel" },
+    (() => {
+      const tient = slideTient(reseaux?.tient, avertissements);
+      if (!tient) return sautees.push("tient"), null;
+      // La condition la plus forte de ce_qui_la_ferait_tenir, en petit.
+      return { ...tient, condition: conditionPrincipale(contenu?.ce_qui_la_ferait_tenir, avertissements) };
+    })(),
+    // Fin commune aux deux carrousels (même slide que la 8 du récit).
+    { type: "fin", sources: sourcesPrincipales(contenu) },
   ].filter(Boolean);
 
   const total = brutes.length;
@@ -282,37 +355,21 @@ export function controlerCarrousel(donnees) {
     });
   }
 
-  // Légende.
-  const compte = handleInstagram(candidatNom, donnees.handlesInstagram);
-  if (!compte) {
-    avertissements.push({
-      cle: "légende",
-      message: `Pas de compte Instagram connu pour ${candidatNom} (src/lib/handles-instagram.js) : nom écrit sans @.`,
-    });
-  }
+  // Légende et couleur du candidat.
   const accroche = reseaux?.fil?.[0] ? texteRepris(accrocheDuFil(reseaux, candidatNom), "légende (accroche du tweet 1)", avertissements) : "";
   if (!accroche) {
     avertissements.push({ cle: "légende", message: "Pas d’accroche (tweet 1 absent) : la première ligne ne porte que le titre." });
   }
   const slideTientRetenue = slides.find((slide) => slide.type === "tient");
   const tient = slideTientRetenue ? { oui: slideTientRetenue.tient[0], non: slideTientRetenue.tientPas[0] } : null;
-  if (!hashtagTheme(theme)) {
-    avertissements.push({ cle: "légende", message: `Thème « ${theme ?? ""} » sans hashtag (src/lib/handles-instagram.js) : hashtag thème omis.` });
-  }
-  const legende = legendeInstagram({ titre, candidatNom, score, theme, mention: compte ?? candidatNom, accroche, tient });
-  if (legende.length > LEGENDE_MAX) {
-    avertissements.push({
-      cle: "légende",
-      fort: true,
-      message: `${legende.length} caractères (${LEGENDE_MAX} au plus sur Instagram) : à raccourcir avant de publier.`,
-    });
-  }
+  const { legende, couleur } = legendeEtCouleur({ ...donnees, titre, accroche, tient }, avertissements);
 
   // Version des images, dans l'URL (comme les cartes X) : identifiant de
   // l'analyse + empreinte de tout ce que les slides affichent.
-  const version = `${analyseId}-${empreinte(JSON.stringify([candidatNom, slugCandidat({ nom: candidatNom, photoUrl }), slides]))}`;
+  const sujet = sujetCourt(titre);
+  const version = `${analyseId}-${empreinte(JSON.stringify([candidatNom, slugCandidat({ nom: candidatNom, photoUrl }), couleur, sujet, slides]))}`;
 
-  return { slides, legende, avertissements, version };
+  return { slides, legende, avertissements, version, couleur, sujet };
 }
 
 // Contrôle seul de la longueur d'une légende modifiée à la main (compteur de
@@ -322,8 +379,9 @@ export function legendeTropLongue(texte) {
 }
 
 // URL d'une slide (route src/app/api/carrousel/[id]/route.js).
-export function cheminSlide({ propositionId, numero, version, brouillon = false }) {
-  const params = new URLSearchParams({ slide: String(numero), v: version });
+// `recit` : carrousel récit en 10 slides (?version=recit).
+export function cheminSlide({ propositionId, numero, version, brouillon = false, recit = false }) {
+  const params = new URLSearchParams({ ...(recit ? { version: "recit" } : {}), slide: String(numero), v: version });
   if (brouillon) params.set("brouillon", "1");
   return `/api/carrousel/${propositionId}?${params}`;
 }

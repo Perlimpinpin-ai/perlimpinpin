@@ -9,6 +9,10 @@ import PublicationsX from "../../PublicationsX";
 // Toujours recalculée à chaque visite (comme les autres pages /test).
 export const dynamic = "force-dynamic";
 
+// Le bouton « Générer le récit » appelle Claude (30 s à 2 min, deux essais au
+// plus) : durée maximale portée à 300 s, comme /test/reels.
+export const maxDuration = 300;
+
 // Page de travail, pas une page du site public.
 export const metadata = {
   title: "Publications X — Perlimpinpin",
@@ -95,7 +99,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
                 ) : null}
               </p>
               <p className="rounded-xl border border-zinc-200 bg-white p-3 text-sm">
-                Calendrier conseillé : carte et carrousel Instagram le jour J, chiffre à J+2, tient / tient pas à J+4.
+                Calendrier conseillé : carte, carrousel et tweet long le jour J, chiffre à J+2, tient / tient pas à J+4.
               </p>
             </header>
 

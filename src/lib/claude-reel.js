@@ -75,6 +75,19 @@ export async function lireFluxClaude(corps) {
 
 // Un appel : message → { texte, usage }. Lève une erreur lisible sinon.
 export async function appelerClaudeReel(message) {
+  return appelerClaude(requeteReel(message));
+}
+
+// Prompt du récit (data/prompt-recit.md), embarqué dans la fonction de
+// /test/reseaux/[id] (outputFileTracingIncludes, next.config.mjs).
+export async function lirePromptRecit() {
+  return readFile(join(process.cwd(), "data", "prompt-recit.md"), "utf-8");
+}
+
+// Un appel avec un corps de requête déjà construit (requeteReel, requeteRecit…)
+// → { texte, usage, stop_reason }. Lève une erreur lisible sinon. Utilisable
+// aussi depuis un script Node (scripts/recit.js).
+export async function appelerClaude(corps) {
   const reponse = await fetch(URL_API, {
     method: "POST",
     headers: {
@@ -82,7 +95,7 @@ export async function appelerClaudeReel(message) {
       "x-api-key": process.env.ANTHROPIC_API_KEY,
       "anthropic-version": "2023-06-01",
     },
-    body: JSON.stringify(requeteReel(message)),
+    body: JSON.stringify(corps),
   });
   if (!reponse.ok) {
     const detail = (await reponse.text()).slice(0, 300);

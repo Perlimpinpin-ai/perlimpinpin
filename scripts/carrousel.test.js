@@ -61,7 +61,7 @@ test("fiche complète : 6 slides, dans l'ordre, pagination 1/6 à 6/6", () => {
   const { slides } = controlerCarrousel(ficheComplete());
   assert.deepEqual(
     slides.map((s) => s.type),
-    ["couverture", "mesure", "note", "chiffre", "tient", "conditions"],
+    ["couverture", "mesure", "note", "chiffre", "tient", "fin"],
   );
   assert.deepEqual(slides.map((s) => `${s.numero}/${s.total}`), ["1/6", "2/6", "3/6", "4/6", "5/6", "6/6"]);
   assert.deepEqual(slides.map((s) => s.fichier), [
@@ -70,7 +70,7 @@ test("fiche complète : 6 slides, dans l'ordre, pagination 1/6 à 6/6", () => {
     "03-la-note.png",
     "04-le-chiffre.png",
     "05-tient-tient-pas.png",
-    "06-ce-qui-la-ferait-tenir.png",
+    "06-fin.png",
   ]);
 });
 
@@ -80,7 +80,6 @@ test("aucune slide ne dépasse 35 mots", () => {
     mesure: (s) => [s.texte],
     chiffre: (s) => [s.valeur, s.explication],
     tient: (s) => [...s.tient, ...s.tientPas],
-    conditions: (s) => s.conditions,
   };
   for (const slide of slides) {
     const morceaux = textes[slide.type]?.(slide) ?? [];
@@ -98,23 +97,23 @@ test("slide 2 : une ou deux phrases du résumé de la vue basique, sinon la mesu
   assert.equal(sans.texte, "Je propose de porter le Smic à 2 200 euros brut par mois dès le début du quinquennat.");
 });
 
-test("slide 6 : conditions réduites au titre quand les premières phrases dépassent 35 mots", () => {
-  const { slides, avertissements } = controlerCarrousel(ficheComplete());
-  assert.deepEqual(slides[5].conditions, [
-    "Étaler la hausse sur le quinquennat",
-    "Chiffrer le coût par taille d'entreprise",
-    "Prévoir une compensation ciblée",
-  ]);
-  assert.ok(avertissements.some((a) => a.cle.startsWith("slide 6") && /raccourci, l’analyse le garde/.test(a.message)));
+test("slide 5 : la condition la plus forte, réduite à son titre ; slide 6 : fin commune et sources", () => {
+  const fiche = ficheComplete();
+  fiche.contenu.sources_utilisees = ["Ministère du Travail, Smic 2026 : https://travail.gouv.fr", "Insee, salaires"];
+  const { slides, sujet } = controlerCarrousel(fiche);
+  assert.equal(slides[4].condition, "Étaler la hausse sur le quinquennat");
+  assert.equal(slides[5].type, "fin");
+  assert.deepEqual(slides[5].sources, ["Ministère du Travail, Smic 2026", "Insee, salaires"]);
+  assert.equal(sujet, "Smic");
 });
 
-test("fiche sans ce_qui_la_ferait_tenir : slide 6 « appel à l'action »", () => {
+test("fiche sans ce_qui_la_ferait_tenir : pas de condition, 6 slides quand même", () => {
   const fiche = ficheComplete();
   delete fiche.contenu.ce_qui_la_ferait_tenir;
   const { slides } = controlerCarrousel(fiche);
   assert.equal(slides.length, 6);
-  assert.equal(slides[5].type, "appel");
-  assert.equal(slides[5].fichier, "06-appel-a-l-action.png");
+  assert.equal(slides[4].condition, null);
+  assert.equal(slides[5].fichier, "06-fin.png");
 });
 
 test("fiche sans chiffre : 5 slides, pagination 1/5 à 5/5, avertissement", () => {
@@ -123,7 +122,7 @@ test("fiche sans chiffre : 5 slides, pagination 1/5 à 5/5, avertissement", () =
   const { slides, avertissements } = controlerCarrousel(fiche);
   assert.equal(slides.length, 5);
   assert.deepEqual(slides.map((s) => `${s.numero}/${s.total}`), ["1/5", "2/5", "3/5", "4/5", "5/5"]);
-  assert.deepEqual(slides.map((s) => s.type), ["couverture", "mesure", "note", "tient", "conditions"]);
+  assert.deepEqual(slides.map((s) => s.type), ["couverture", "mesure", "note", "tient", "fin"]);
   assert.equal(slides[3].fichier, "04-tient-tient-pas.png");
   assert.ok(avertissements.some((a) => /Slide sautée : pas de chiffre/.test(a.message)));
 });
@@ -133,7 +132,7 @@ test("fiche sans reseaux (ancienne fiche) : 4 slides, deux avertissements de sli
   delete fiche.contenu.reseaux;
   delete fiche.contenu.ce_qui_la_ferait_tenir;
   const { slides, avertissements, legende } = controlerCarrousel(fiche);
-  assert.deepEqual(slides.map((s) => s.type), ["couverture", "mesure", "note", "appel"]);
+  assert.deepEqual(slides.map((s) => s.type), ["couverture", "mesure", "note", "fin"]);
   assert.equal(avertissements.filter((a) => /Slide sautée/.test(a.message)).length, 2);
   assert.ok(!legende.includes("✅"));
 });
