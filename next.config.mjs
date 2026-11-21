@@ -16,6 +16,30 @@ const nextConfig = {
     "/api/relectures/comments": ["./data/relectures/*.json"],
     // Cartes des publications X : police Inter et portraits bleus lus sur disque.
     "/api/carte/[id]": ["./public/fonts/*.otf", "./public/portraits-bleus/*.png"],
+    // Slides des carrousels Instagram : polices Source Serif 4 et Geist Mono
+    // (.ttf), Inter (.otf), portraits bleus (repli),
+    // et les illustrations des candidats (celles des vignettes du site, prises
+    // en pleine taille dans public/photos/ ; dossier des vignettes embarqué aussi),
+    // et la couverture en collage : portraits noir et blanc, photos et
+    // stickers des thèmes (scripts/images-couverture.js).
+    "/api/carrousel/[id]": [
+      "./public/fonts/*.ttf",
+      "./public/fonts/*.otf",
+      "./public/portraits-bleus/*.png",
+      "./public/portraits-nb/*.png",
+      "./public/carrousel/themes/*",
+      "./public/photos/*.jpg",
+      "./public/photos/vignettes/*.webp",
+    ],
+    // Bouton « Générer le récit » (Server Action de la page) : prompt lu à
+    // l'exécution ; la page vérifie aussi la présence des images du candidat.
+    "/test/reseaux/[id]": [
+      "./data/prompt-recit.md",
+      "./public/photos/*.jpg",
+      "./public/portraits-bleus/*.png",
+      "./public/portraits-nb/*.png",
+      "./public/carrousel/themes/*",
+    ],
     // Images des Reels : polices Geist, fonds et portraits bleus lus sur disque.
     "/test/reels/[id]/image": ["./public/fonts/*.ttf", "./public/reel/*.png", "./public/portraits-bleus/*.png"],
     // Bouton « Générer le Reel » (Server Actions de ces pages) : prompt lu à
