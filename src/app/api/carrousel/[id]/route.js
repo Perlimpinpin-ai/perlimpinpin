@@ -4,34 +4,30 @@ import { isEditor } from "@/lib/test-auth";
 import { cacheControlCarte } from "@/lib/carte";
 import { HAUTEUR_SLIDE, LARGEUR_SLIDE } from "@/lib/carrousel";
 import { carrouselDe, recitDe } from "@/lib/carrousel-serveur";
-import { illustrationCandidat, imageTheme, policesCarrousel, portraitBleu, portraitCadre, portraitNoirBlanc, stickerTheme } from "@/lib/og-ressources";
+import { lireDemo } from "@/lib/carrousel-demo";
+import { illustrationCandidat, policesCarrousel, portraitBleu, portraitCadre, portraitNoirBlanc, stickerTheme } from "@/lib/og-ressources";
+import { illustrationTraitee, teinteIllustration } from "@/lib/traitement-illustration";
 import { elementSlide } from "./slides";
 
 // Slides 1080 × 1350 des carrousels Instagram :
 //  - ?slide=1..6 : carrousel 6 slides (position dans le carrousel, qui passe
 //    à 5 slides quand une slide est sautée), sans IA, à partir des textes de
 //    la fiche (src/lib/carrousel.js) ;
-//  - ?version=recit&slide=1..8 : carrousel récit (7 sans précédent étranger), à partir de
-//    contenuComplet.reseaux_recit (src/lib/carrousel-recit.js) ; 404 tant
-//    que le récit n'a pas été généré. Aucun appel à l'IA ici.
-// Comme /api/carte : fiche publiée ouverte à tous, image mise en cache
-// longtemps (URL versionnée, ?v=) ; brouillon (?brouillon=1) réservé aux
-// personnes déverrouillées sur /test, jamais en cache partagé.
+//  - ?version=recit&slide=1..8 : carrousel détaillé (7 sans précédent
+//    étranger), à partir de contenuComplet.reseaux_recit
+//    (src/lib/carrousel-recit.js) ; 404 tant qu'il n'a pas été généré ;
+//  - ?version=recit-precedent : sa version précédente (comparaison).
+// Aucun appel à l'IA ici. Comme /api/carte : fiche publiée ouverte à tous,
+// image mise en cache longtemps (URL versionnée, ?v=) ; brouillon
+// (?brouillon=1) réservé aux personnes déverrouillées sur /test, jamais en
+// cache partagé. /api/carrousel/demo : démonstration locale
+// (src/lib/carrousel-demo.js), hors production, réservée au mode édition.
 
 function introuvable() {
   return new Response("Slide introuvable.", { status: 404, headers: { "Cache-Control": "no-store" } });
 }
 
-export async function GET(request, { params }) {
-  const { id } = await params;
-  const propositionId = Number(id);
-  const recherche = new URL(request.url).searchParams;
-  const numero = Number(recherche.get("slide") ?? "1");
-  if (!Number.isInteger(propositionId) || !Number.isInteger(numero) || numero < 1) return introuvable();
-
-  const brouillon = recherche.get("brouillon") === "1";
-  if (brouillon && !(await isEditor())) return introuvable();
-
+async function lireFiche(propositionId, brouillon) {
   const proposition = await prisma.proposition.findUnique({
     where: { id: propositionId },
     select: {
@@ -49,20 +45,44 @@ export async function GET(request, { params }) {
     },
   });
   const analyse = proposition?.analyses[0];
-  if (!analyse) return introuvable();
+  return analyse ? { proposition, analyse } : null;
+}
 
-  const carrousel = recherche.get("version") === "recit" ? recitDe(proposition, analyse) : carrouselDe(proposition, analyse);
+export async function GET(request, { params }) {
+  const { id } = await params;
+  const demo = id === "demo";
+  const propositionId = Number(id);
+  const recherche = new URL(request.url).searchParams;
+  const numero = Number(recherche.get("slide") ?? "1");
+  if ((!demo && !Number.isInteger(propositionId)) || !Number.isInteger(numero) || numero < 1) return introuvable();
+
+  const brouillon = demo || recherche.get("brouillon") === "1";
+  if (brouillon && !(await isEditor())) return introuvable();
+
+  const fiche = demo ? await lireDemo() : await lireFiche(propositionId, brouillon);
+  if (!fiche) return introuvable();
+  const { proposition, analyse } = fiche;
+
+  const version = recherche.get("version");
+  const carrousel =
+    version === "recit" || version === "recit-precedent" ? recitDe(proposition, analyse, { precedent: version === "recit-precedent" }) : carrouselDe(proposition, analyse);
   if (!carrousel) return introuvable();
-  const { slides, version, couleur, sujet } = carrousel;
+  const { slides, couleur, sujet } = carrousel;
   const slide = slides.find((s) => s.numero === numero);
   if (!slide) return introuvable();
 
-  // Couverture en collage : portrait détouré noir et blanc, photo et sticker
-  // du thème (scripts/images-couverture.js). Replis du portrait : la vignette
-  // du site, puis le portrait bleu.
+  // Couverture en collage : portrait détouré noir et blanc, image de thème de
+  // la bibliothèque (bichromie et trame, src/lib/traitement-illustration.js),
+  // sticker du thème. Replis du portrait : la vignette du site, puis le portrait bleu.
   const couverture = slide.type === "couverture";
   const portrait = couverture ? await portraitNoirBlanc(proposition.candidat) : null;
-  const [fondTheme, sticker] = couverture ? await Promise.all([imageTheme(slide.theme), stickerTheme(slide.theme)]) : [null, null];
+  const fondCouverture = couleur?.couleur ?? null;
+  const [fondTheme, sticker] = couverture
+    ? await Promise.all([
+        slide.illustration ? illustrationTraitee(slide.illustration.fichier, { teinte: teinteIllustration(fondCouverture), couleurCandidat: fondCouverture ?? "#1b2a4a" }) : null,
+        stickerTheme(slide.theme),
+      ])
+    : [null, null];
   const cadre = couverture && !portrait ? await portraitCadre(proposition.candidat) : null;
   const illustration = couverture && !portrait && !cadre ? await illustrationCandidat(proposition.candidat) : null;
   const photo = couverture && !portrait && !illustration ? await portraitBleu(proposition.candidat) : null;
@@ -74,11 +94,13 @@ export async function GET(request, { params }) {
       height: HAUTEUR_SLIDE,
       fonts: await policesCarrousel(),
       headers: {
-        "Cache-Control": cacheControlCarte({
-          publie: analyse.statut === "publie",
-          versionDemandee: recherche.get("v"),
-          versionCourante: version,
-        }),
+        "Cache-Control": demo
+          ? "no-store"
+          : cacheControlCarte({
+              publie: analyse.statut === "publie",
+              versionDemandee: recherche.get("v"),
+              versionCourante: carrousel.version,
+            }),
       },
     },
   );

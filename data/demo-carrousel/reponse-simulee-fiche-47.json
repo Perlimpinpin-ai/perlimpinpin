@@ -1,0 +1,87 @@
+{
+  "_note": "Réponse SIMULÉE du modèle pour la démonstration locale (/test/reseaux/demo), écrite à la main à partir de la fiche data/analyses finales/Melenchon/melenchon_gel_dette_bce_etape1_v2.json. Aucun appel à Claude. « remarques » : ce que le modèle simulé renvoie pour une remarque visant une slide (ici la slide 2, « trop chargée »).",
+  "reponse": {
+    "couverture": {
+      "mesure": "geler la dette détenue par la Banque de France",
+      "question": "Est-ce finançable ?",
+      "mot_cle": "finançable"
+    },
+    "concretement": {
+      "titre": "Concrètement, qu'est-ce qui est proposé ?",
+      "texte": "{NOM} veut **geler** la dette française détenue par la Banque de France : plus de remboursement, plus d'intérêts. Cette dette deviendrait **perpétuelle à taux zéro**, une variante parle même d'annulation.",
+      "tuiles": {
+        "aujourdhui": { "valeur": "488 milliards d'euros", "detail": "détenus par la Banque de France au 30 juin 2026" },
+        "propose": { "valeur": "près de 600 milliards d'euros", "detail": "montant mis en avant dans le débat" },
+        "ecart": { "valeur": "3,3 milliards d'euros", "detail": "d'intérêts par an, qui reviennent déjà en grande partie à l'État" },
+        "concernes": { "valeur": "l'État", "detail": "actionnaire unique de la Banque de France, qui porterait les pertes" }
+      },
+      "conclusion": "Le gain affiché est **largement surestimé** : cet argent revient déjà en grande partie à l'État.",
+      "sources": "Banque de France, communiqué du 12 septembre 2026 ; Insee"
+    },
+    "note": {
+      "titre": "Une idée ancienne, mais un gain très surestimé.",
+      "explication": "Les traités l'interdisent et l'argent dû à la Banque de France revient déjà en grande partie à l'État.",
+      "criteres": {
+        "operationnalite_moyens": "Contraire aux traités actuels : il faudrait l'accord des 27.",
+        "efficacite": "Le gain réel serait **bien plus faible** que le montant annoncé.",
+        "effets_rebonds_externalites": "Risque de hausse des taux sur le reste de la dette.",
+        "degre_preparation": "Aucun chiffrage publié du gain réel.",
+        "alignement_logique": "Cohérent avec ce que {NOM} défend depuis 2020."
+      }
+    },
+    "court_terme": {
+      "titre": "Dans les deux premières années, ce sont surtout les taux qui bougent.",
+      "cartes": [
+        { "titre": "Pour l'État", "texte": "Moins d'intérêts à verser à la Banque de France, mais ils lui revenaient déjà en grande partie.", "pastille": "incertain" },
+        { "titre": "Pour les ménages", "texte": "Une hausse de la prime de risque se transmettrait aux **crédits immobiliers**.", "pastille": "risque" },
+        { "titre": "Pour les banques", "texte": "Une remontée des taux réduirait la valeur des titres de dette qu'elles détiennent.", "pastille": "négatif" }
+      ]
+    },
+    "long_terme": {
+      "titre": "Sur plusieurs années, les comptes de la Banque de France en portent le poids.",
+      "cartes": [
+        { "titre": "Pour la Banque de France", "texte": "Des pertes durables ; ses fonds propres deviendraient **fortement négatifs** en cas d'annulation.", "pastille": "coûteux" },
+        { "titre": "Pour les finances publiques", "texte": "Au mieux une douzaine de milliards d'euros par an à terme, selon l'estimation de la fiche.", "pastille": "possible" },
+        { "titre": "Pour l'Europe", "texte": "Il faudrait réviser les traités à l'unanimité des 27, sans soutien identifié.", "pastille": "débattu" }
+      ]
+    },
+    "ailleurs": null,
+    "tient": {
+      "tient": [
+        "Une mesure cohérente avec ce que {NOM} défend depuis 2020.",
+        "Une part importante de la dette est bien détenue par la Banque de France."
+      ],
+      "coince": [
+        "Le montant annoncé dépasse le stock officiel de 488 milliards, en baisse rapide.",
+        "L'argent dû revient déjà en grande partie à l'État.",
+        "La mesure est contraire aux traités européens actuels."
+      ]
+    },
+    "illustration_mots_cles": [],
+    "legende_accroche": "Une dette qu'on se doit à soi-même peut-elle simplement disparaître ?",
+    "tweet": {
+      "accroche": "Et si l'État cessait de rembourser une partie de sa dette ? L'idée paraît simple. Regardons ce qu'elle changerait vraiment pour vous.",
+      "promesse": "{CANDIDAT} propose de geler la dette française détenue par la Banque de France : plus de remboursement, plus d'intérêts, une dette perpétuelle à taux zéro.",
+      "exemple": "Prenons le montant annoncé, près de 600 milliards d'euros. Le stock officiel est en réalité de 488 milliards au 30 juin 2026, et il baisse d'environ 58 milliards par semestre.",
+      "hic": "Sauf que les intérêts versés à la Banque de France reviennent déjà en grande partie à l'État, son unique actionnaire. Et la mesure est contraire aux traités européens actuels : il faudrait l'accord des 27.",
+      "tient": "Ce qui tient : une idée cohérente avec ce que le candidat défend depuis 2020. Ce qui coince : un gain réel bien plus faible qu'annoncé, et un risque de hausse des taux sur le reste de la dette.",
+      "appel": "Selon vous, faut-il rouvrir les traités européens pour en débattre ?"
+    }
+  },
+  "remarques": {
+    "concretement": {
+      "concretement": {
+        "titre": "Concrètement, qu'est-ce qui est proposé ?",
+        "texte": "{NOM} veut **geler** la dette détenue par la Banque de France : ni remboursement, ni intérêts.",
+        "tuiles": {
+          "aujourdhui": { "valeur": "488 Md€", "detail": "détenus au 30 juin 2026" },
+          "propose": { "valeur": "~600 Md€", "detail": "montant annoncé" },
+          "ecart": { "valeur": "3,3 Md€", "detail": "d'intérêts par an" },
+          "concernes": { "valeur": "l'État", "detail": "actionnaire unique de la Banque" }
+        },
+        "conclusion": "Le gain est **surestimé** : cet argent revient déjà en grande partie à l'État.",
+        "sources": "Banque de France, 12 septembre 2026 ; Insee"
+      }
+    }
+  }
+}

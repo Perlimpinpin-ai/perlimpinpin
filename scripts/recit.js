@@ -26,6 +26,11 @@
 //       → simulation sur une fiche locale (JSON de fiche finale), sans base :
 //         message envoyé et coût estimé.
 //
+//   node scripts/recit.js --demo --fichier <fiche.json> --reponse <réponse.json> --candidat "Nom" [--id 47] [--titre "…"] [--theme economie]
+//       → démonstration locale (/test/reseaux/demo) : la réponse simulée du
+//         modèle passe le vrai contrôle, puis data/demo-carrousel/demo.json
+//         est écrit. Aucun appel, aucune base.
+//
 // Écriture ciblée : seule la clé contenuComplet.reseaux_recit est ajoutée ou
 // remplacée (l'ancien récit gardé dedans, sous `precedent` ; le lot ne touche
 // jamais une fiche qui en a déjà un). Aucun score, aucun statut, aucune autre
@@ -42,8 +47,9 @@ import { LOT_MAX, choisirFiches, recapitulatif } from "./lib/reseaux-lot.js";
 import { cleanContenu } from "./lib/clean-text.js";
 import { appelerClaude } from "../src/lib/claude-reel.js";
 import { jsonDepuisTexte } from "../src/lib/reel-generation.js";
-import { construireMessageRecit, estimationCoutRecit, genererRecitCore, MODELE_RECIT, requeteRecit } from "../src/lib/recit-generation.js";
-import { contenuAvecRecit } from "../src/lib/recit.js";
+import { construireMessageRecit, estimationCoutRecit, fichePourRecit, genererRecitCore, MODELE_RECIT, requeteRecit } from "../src/lib/recit-generation.js";
+import { contenuAvecRecit, controlerRecit, recitPourStockage } from "../src/lib/recit.js";
+import { motsClesDisponibles } from "../src/lib/illustrations.js";
 import { remplirTweet, valeursReseaux, longueurX } from "../src/lib/reseaux.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -55,7 +61,8 @@ const INSERTIONS_LOG_PATH = join(ROOT, "logs", "insertions.jsonl");
 const USAGE =
   "Usage : node scripts/recit.js <id de la fiche (/declarations/<id>)> [--brouillon] [--simulation]\n" +
   "   ou : node scripts/recit.js --dernieres <n> [--simulation]\n" +
-  '   ou : node scripts/recit.js --simulation --fichier <fiche.json> [--candidat "Nom"]';
+  '   ou : node scripts/recit.js --simulation --fichier <fiche.json> [--candidat "Nom"]\n' +
+  '   ou : node scripts/recit.js --demo --fichier <fiche.json> --reponse <réponse simulée.json> --candidat "Nom" [--id <n>] [--titre "…"] [--theme <thème>]';
 
 function fail(message) {
   console.error(`Erreur : ${message}`);
@@ -70,13 +77,20 @@ const { values, positionals } = parseArgs({
     dernieres: { type: "string" },
     fichier: { type: "string" },
     candidat: { type: "string" },
+    demo: { type: "boolean", default: false },
+    reponse: { type: "string" },
+    id: { type: "string" },
+    titre: { type: "string" },
+    theme: { type: "string" },
   },
 });
-const simulation = values.simulation;
+const demo = values.demo;
+const simulation = values.simulation || demo;
 const enLot = values.dernieres !== undefined;
 const taille = Number(values.dernieres);
 const depuisFichier = values.fichier !== undefined;
-if (depuisFichier && (!simulation || enLot || positionals.length > 0)) fail(`--fichier ne s'utilise qu'avec --simulation, sans id ni --dernieres.\n${USAGE}`);
+if (demo && !depuisFichier) fail(`--demo s'utilise avec --fichier.\n${USAGE}`);
+if (depuisFichier && (!simulation || enLot || positionals.length > 0)) fail(`--fichier ne s'utilise qu'avec --simulation ou --demo, sans id ni --dernieres.\n${USAGE}`);
 if (enLot && (!Number.isInteger(taille) || taille < 1 || taille > LOT_MAX)) fail(`--dernieres attend un nombre entier de 1 à ${LOT_MAX}.\n${USAGE}`);
 if (enLot && (positionals.length > 0 || values.brouillon)) fail(`--dernieres ne se combine ni avec un id ni avec --brouillon.\n${USAGE}`);
 const propositionId = Number(positionals[0]);
@@ -125,18 +139,20 @@ function simuler(contenu, nom) {
 function afficher(recit, { candidatNom, score, propositionId: id }) {
   const nom = (t) => remplirTweet(t, { NOM: candidatNom, CANDIDAT: candidatNom });
   const cartes = (liste) => liste.map((c) => `\n       [${c.pastille}] ${nom(c.titre)} : ${nom(c.texte)}`).join("");
-  console.log("\n=== Carrousel récit ===");
-  console.log(`  1. Couverture : ${candidatNom} veut ${nom(recit.couverture.mesure)} [${recit.couverture.chiffre_cle}] ${recit.couverture.question}`);
+  console.log("\n=== Carrousel détaillé ===");
+  console.log(`  1. Couverture : ${candidatNom} veut ${nom(recit.couverture.mesure)}. ${recit.couverture.question} [surligné : ${recit.couverture.mot_cle}]`);
+  console.log(`     Mots-clés d'illustration : ${recit.illustration_mots_cles?.join(", ") || "(aucun)"}`);
   console.log(`  2. ${nom(recit.concretement.titre)} ${nom(recit.concretement.texte)}`);
   for (const [cle, { valeur, detail }] of Object.entries(recit.concretement.tuiles)) console.log(`       ${cle} : ${valeur} (${detail})`);
+  console.log(`     Conclusion : ${nom(recit.concretement.conclusion ?? "")}`);
   console.log(`  3. La note : ${nom(recit.note.titre)} ${nom(recit.note.explication)}`);
   for (const [cle, ligne] of Object.entries(recit.note.criteres)) console.log(`       ${cle} : ${nom(ligne)}`);
   console.log(`  4. Court terme : ${nom(recit.court_terme.titre)}${cartes(recit.court_terme.cartes)}`);
   console.log(`  5. Long terme : ${nom(recit.long_terme.titre)}${cartes(recit.long_terme.cartes)}`);
   console.log(
     recit.ailleurs
-      ? `  6. Ailleurs : ${nom(recit.ailleurs.titre)}${recit.ailleurs.precedents.map((p) => `\n       [${p.pastille}] ${p.pays} ${p.annee} : ${nom(p.fait)} ${nom(p.resultat)}`).join("")}`
-      : "  6. Ailleurs : aucun précédent dans la fiche, slide sautée",
+      ? `  6. À l'étranger : ${nom(recit.ailleurs.titre)}${recit.ailleurs.precedents.map((p) => `\n       [${p.pastille}] ${p.pays} ${p.annee} : ${nom(p.fait)} ${nom(p.resultat)}`).join("")}`
+      : "  6. À l'étranger : aucun précédent dans la fiche, slide sautée",
   );
   console.log(`  7. Tient : ${recit.tient.tient.map(nom).join(" / ")}\n     Coince : ${recit.tient.coince.map(nom).join(" / ")}`);
   console.log("  8. Fin : (code)");
@@ -167,13 +183,14 @@ async function ecrire({ host, analyse, contenu, recit, propositionId: id, sauveg
   );
 }
 
-async function generer(contenu, { candidatNom, score, propositionId: id }) {
+async function generer(contenu, { candidatNom, score, propositionId: id, theme = null }) {
   return genererRecitCore({
     ficheFinale: contenu,
     candidatNom,
     score,
     propositionId: id,
     prompt: prompt(),
+    motsClesIllustration: motsClesDisponibles(theme),
     appeler: (message) => appelerClaude(requeteRecit(message)),
     analyser: (reponse) => cleanContenu(jsonDepuisTexte(reponse.texte)),
   });
@@ -192,8 +209,50 @@ function mainFichier() {
   const { relecture: _relecture, ...fiche } = contenu.fiche_complete ?? contenu;
   console.log(`Fiche locale : ${values.fichier}${values.candidat ? ` (${values.candidat})` : ""}`);
   console.log(`  ce_qui_la_ferait_tenir : ${Array.isArray(fiche.ce_qui_la_ferait_tenir) ? "oui (condition la plus forte sur la slide 7)" : "non"}`);
+  if (demo) return preparerDemo(fiche);
   simuler(fiche, "fichier");
   console.log("\nSimulation (--simulation) : aucun appel à Claude, rien n'a été lu ni écrit en base.");
+}
+
+// --demo : démonstration locale (/test/reseaux/demo) à partir d'une réponse
+// simulée (--reponse <fichier.json> : { reponse, remarques }), passée par le
+// vrai contrôle. Écrit data/demo-carrousel/demo.json. Aucun appel, aucune base.
+function preparerDemo(fiche) {
+  if (!values.reponse) fail("--demo attend --reponse <fichier.json> (réponse simulée du modèle).");
+  const simulationModele = JSON.parse(readFileSync(values.reponse, "utf-8"));
+  const candidatNom = values.candidat ?? "Candidat";
+  const id = Number(values.id ?? 1);
+  const score = fiche.notation_detaillee?.score_total ?? 0;
+  const theme = values.theme ?? null;
+  const motsClesIllustration = motsClesDisponibles(theme);
+  const controle = controlerRecit(simulationModele.reponse, {
+    ficheFinale: fichePourRecit(fiche),
+    candidatNom,
+    valeurs: valeursReseaux({ candidatNom, score, propositionId: id }),
+    motsClesIllustration,
+  });
+  if (!controle.valide) {
+    controle.erreurs.forEach((e) => console.error(`  ✗ ${e}`));
+    fail("la réponse simulée est refusée par le contrôle (voir ci-dessus).");
+  }
+  afficher(controle.recit, { candidatNom, score, propositionId: id });
+  controle.avertissements.forEach((a) => console.log(`  ⚠ ${a}`));
+  const demoFiche = {
+    source: values.fichier,
+    proposition: { id, titre: values.titre ?? fiche.mesure_reformulee?.synthese ?? "Fiche locale", texteOriginal: fiche.mesure_reformulee?.synthese ?? "", theme, candidat: { nom: candidatNom, photoUrl: null } },
+    analyse: {
+      id: 0,
+      statut: "brouillon",
+      scoreFaisabilite: score,
+      updatedAt: "demo-0",
+      contenuComplet: { ...fiche, reseaux_recit: recitPourStockage(controle.recit, { modele: "simulation" }) },
+    },
+    simulation: simulationModele,
+  };
+  mkdirSync(join(ROOT, "data", "demo-carrousel"), { recursive: true });
+  const cible = join(ROOT, "data", "demo-carrousel", "demo.json");
+  writeFileSync(cible, `${JSON.stringify(demoFiche, null, 2)}\n`, "utf-8");
+  console.log(`\nDémonstration écrite dans ${cible} : ouvrez /test/reseaux/demo (serveur local). Aucun appel à Claude, rien n'a été lu ni écrit en base.`);
 }
 
 // --- Une fiche --------------------------------------------------------------------
@@ -222,7 +281,7 @@ async function mainFiche(host) {
   }
 
   console.log("\nRécit (Claude)…");
-  const resultat = await generer(contenu, { candidatNom, score, propositionId });
+  const resultat = await generer(contenu, { candidatNom, score, propositionId, theme: proposition.theme });
   console.log(`Coût : ${dollars(resultat.cout)} (${resultat.usage.input_tokens ?? 0} tokens en entrée, ${resultat.usage.output_tokens ?? 0} en sortie)`);
   if (!resultat.recit) {
     if (resultat.derniere) console.log(`\nDernière réponse refusée :\n${JSON.stringify(resultat.derniere, null, 2)}`);
@@ -265,7 +324,7 @@ async function mainLot(host) {
     db.analyse.findMany({
       where: { statut: "publie" },
       orderBy: { createdAt: "desc" },
-      select: { id: true, scoreFaisabilite: true, createdAt: true, proposition: { select: { id: true, titre: true, texteOriginal: true, candidat: { select: { nom: true } } } } },
+      select: { id: true, scoreFaisabilite: true, createdAt: true, proposition: { select: { id: true, titre: true, texteOriginal: true, theme: true, candidat: { select: { nom: true } } } } },
     }),
     db.$queryRaw`SELECT id FROM "Analyse" WHERE jsonb_exists("contenuComplet", 'reseaux_recit')`.then((lignes) => new Set(lignes.map((l) => Number(l.id)))),
   ]);
@@ -314,7 +373,7 @@ async function mainLot(host) {
       if (!analyse || analyse.statut !== "publie") throw new Error("l'analyse n'est plus publiée, fiche non touchée.");
       const contenu = analyse.contenuComplet ?? {};
       if (contenu.reseaux_recit) throw new Error("un récit a été ajouté entre-temps, fiche non touchée.");
-      const genere = await generer(contenu, { candidatNom, score: analyse.scoreFaisabilite, propositionId: id });
+      const genere = await generer(contenu, { candidatNom, score: analyse.scoreFaisabilite, propositionId: id, theme: fiche.proposition.theme });
       resultat.cout = genere.cout;
       if (!genere.recit) throw new Error(`refusé après deux tentatives : ${genere.errors[0] ?? "raison inconnue"}`);
       afficher(genere.recit, { candidatNom, score: analyse.scoreFaisabilite, propositionId: id });

@@ -5,6 +5,7 @@ import { nombreDeMots, pastille, remplirTweet } from "./reseaux.js";
 import { handleInstagram, hashtagCandidat, hashtagTheme } from "./handles-instagram.js";
 import { themeCandidat } from "./couleurs-candidats.js";
 import { resolveTheme } from "./themes.js";
+import { aleaFiche, choisirIllustration, creditLegende, creditVisible, ILLUSTRATIONS } from "./illustrations.js";
 
 // Carrousel Instagram d'une fiche (6 slides 1080 × 1350 et leur légende),
 // assemblé par le code à partir des textes déjà présents dans la fiche :
@@ -249,13 +250,14 @@ export function hashtagsLegende({ candidatNom, theme }) {
     .slice(0, HASHTAGS_MAX);
 }
 
-function legendeInstagram({ titre, candidatNom, score, theme, mention, accroche, tient }) {
+function legendeInstagram({ titre, candidatNom, score, theme, mention, accroche, tient, credit }) {
   const blocs = [
     [`${pastille(score)} ${titre}${accroche ? ` : ${accroche}` : ""}`, sousTitreCarte(mention)].join("\n"),
     `Note Perlimpinpin : ${scoreAffiche(score)}/100, ${getScoreBadge(Number(score)).label}.`,
     tient ? [`✅ ${tient.oui}`, `❌ ${tient.non}`].join("\n") : null,
     "Analyse complète, sources et méthode : lien en bio.\nEt vous, ça tient ? Dites-le en commentaire.",
     hashtagsLegende({ candidatNom, theme }).join(" "),
+    credit ?? null,
   ];
   return blocs.filter(Boolean).join("\n\n");
 }
@@ -264,7 +266,7 @@ function legendeInstagram({ titre, candidatNom, score, theme, mention, accroche,
 // récit), avec leurs avertissements : compte Instagram, hashtag du thème,
 // longueur, couleur absente. Renvoie { legende, couleur }.
 export function legendeEtCouleur(
-  { titre, candidatNom, score, theme, accroche, tient, handlesInstagram, couleursCandidats },
+  { titre, candidatNom, score, theme, accroche, tient, credit, handlesInstagram, couleursCandidats },
   avertissements,
 ) {
   const compte = handleInstagram(candidatNom, handlesInstagram);
@@ -277,7 +279,7 @@ export function legendeEtCouleur(
   if (!hashtagTheme(theme)) {
     avertissements.push({ cle: "légende", message: `Thème « ${theme ?? ""} » sans hashtag (src/lib/handles-instagram.js) : hashtag thème omis.` });
   }
-  const legende = legendeInstagram({ titre, candidatNom, score, theme, mention: compte ?? candidatNom, accroche, tient });
+  const legende = legendeInstagram({ titre, candidatNom, score, theme, mention: compte ?? candidatNom, accroche, tient, credit });
   if (legende.length > LEGENDE_MAX) {
     avertissements.push({
       cle: "légende",
@@ -293,6 +295,24 @@ export function legendeEtCouleur(
     });
   }
   return { legende, couleur };
+}
+
+// Image de thème de la couverture (bibliothèque src/lib/illustrations.js),
+// commune aux deux carrousels : celle retenue à la génération du carrousel
+// détaillé (contenuComplet.reseaux_recit.illustration) si elle est toujours
+// dans la bibliothèque, sinon un tirage stable pour la fiche dans le thème
+// (orienté par les mots-clés du modèle s'il y en a). Thème sans image : null
+// et un avertissement. Renvoie l'illustration (avec son crédit visible
+// éventuel) ou null.
+export function illustrationCouverture({ theme, contenu, propositionId, liste = ILLUSTRATIONS }, avertissements) {
+  const retenue = contenu?.reseaux_recit?.illustration;
+  const deja = retenue ? liste.find((ill) => ill.fichier === retenue) : null;
+  const { illustration, avertissement } = deja
+    ? { illustration: deja, avertissement: null }
+    : choisirIllustration({ theme, motsCles: contenu?.reseaux_recit?.illustration_mots_cles ?? [], alea: aleaFiche(`illustration-${propositionId}`), liste });
+  if (avertissement) avertissements.push({ cle: "image de thème", message: avertissement });
+  if (retenue && !deja) avertissements.push({ cle: "image de thème", message: `L’image retenue à la génération (${retenue}) n’est plus dans la bibliothèque : nouveau tirage.` });
+  return illustration ? { ...illustration, creditVisible: creditVisible(illustration) } : null;
 }
 
 // --- Assemblage et contrôles -----------------------------------------------------
@@ -314,8 +334,9 @@ export function controlerCarrousel(donnees) {
   const titre = texteRepris(donnees.titre, "titre de la mesure", avertissements);
 
   const sautees = [];
+  const illustration = illustrationCouverture({ theme, contenu, propositionId, liste: donnees.illustrations }, avertissements);
   const brutes = [
-    { type: "couverture", titre, sousTitre: sousTitreCarte(candidatNom).replace(/\.$/, ""), theme: resolveTheme(theme) },
+    { type: "couverture", titre, sousTitre: sousTitreCarte(candidatNom).replace(/\.$/, ""), theme: resolveTheme(theme), illustration },
     slideMesure({ resumeBasique, mesureInitiale }, avertissements),
     { type: "note", score: Number(score), scoreAffiche: scoreAffiche(score), palier: getScoreBadge(Number(score)).label },
     slideChiffre(reseaux?.chiffre, avertissements) ?? (sautees.push("chiffre"), null),
@@ -326,7 +347,7 @@ export function controlerCarrousel(donnees) {
       return { ...tient, condition: conditionPrincipale(contenu?.ce_qui_la_ferait_tenir, avertissements) };
     })(),
     // Fin commune aux deux carrousels (même slide que la 8 du récit).
-    { type: "fin", sources: sourcesPrincipales(contenu) },
+    { type: "fin", sources: sourcesPrincipales(contenu), credit: illustration?.creditVisible ?? null },
   ].filter(Boolean);
 
   const total = brutes.length;
@@ -362,7 +383,7 @@ export function controlerCarrousel(donnees) {
   }
   const slideTientRetenue = slides.find((slide) => slide.type === "tient");
   const tient = slideTientRetenue ? { oui: slideTientRetenue.tient[0], non: slideTientRetenue.tientPas[0] } : null;
-  const { legende, couleur } = legendeEtCouleur({ ...donnees, titre, accroche, tient }, avertissements);
+  const { legende, couleur } = legendeEtCouleur({ ...donnees, titre, accroche, tient, credit: creditLegende(illustration) }, avertissements);
 
   // Version des images, dans l'URL (comme les cartes X) : identifiant de
   // l'analyse + empreinte de tout ce que les slides affichent.
@@ -379,9 +400,10 @@ export function legendeTropLongue(texte) {
 }
 
 // URL d'une slide (route src/app/api/carrousel/[id]/route.js).
-// `recit` : carrousel récit en 10 slides (?version=recit).
-export function cheminSlide({ propositionId, numero, version, brouillon = false, recit = false }) {
-  const params = new URLSearchParams({ ...(recit ? { version: "recit" } : {}), slide: String(numero), v: version });
+// `recit` : carrousel détaillé en 8 slides (?version=recit) ; avec
+// `precedent`, sa version précédente (?version=recit-precedent), à comparer.
+export function cheminSlide({ propositionId, numero, version, brouillon = false, recit = false, precedent = false }) {
+  const params = new URLSearchParams({ ...(recit ? { version: precedent ? "recit-precedent" : "recit" } : {}), slide: String(numero), v: version });
   if (brouillon) params.set("brouillon", "1");
   return `/api/carrousel/${propositionId}?${params}`;
 }

@@ -1,6 +1,24 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { assemblerTweetRecit, contenuAvecRecit, controlerRecit, QUESTIONS_COUVERTURE } from "../src/lib/recit.js";
+import {
+  assemblerTweetRecit,
+  cibleValide,
+  consigneRemarques,
+  contenuAvecRecit,
+  contenuAvecRetour,
+  contenuRevenuAuPrecedent,
+  controlerRecit,
+  COULEURS_PASTILLES,
+  entreeRetour,
+  fusionnerRecit,
+  PASTILLES,
+  QUESTIONS_COUVERTURE,
+  valeurCourte,
+} from "../src/lib/recit.js";
+import { morceauxGras, motsGras, nombreGras, sansGras } from "../src/lib/texte-gras.js";
+import { aleaFiche, choisirIllustration, creditLegende, creditVisible, motsClesDisponibles, themesBibliotheque } from "../src/lib/illustrations.js";
+import { candidatesDepuisPexels, candidatesSimulees, entreesBibliotheque, reecrireListe, REPERE_DEBUT, REPERE_FIN } from "./lib/illustrations-pexels.js";
+import { libelleCible, listeRetours, remarquesFrequentes } from "../src/lib/retours-recit.js";
 import {
   construireMessageRecit,
   estimationCoutRecit,
@@ -8,7 +26,7 @@ import {
   genererRecitCore,
   requeteRecit,
 } from "../src/lib/recit-generation.js";
-import { carrouselRecit, nomArchiveRecit } from "../src/lib/carrousel-recit.js";
+import { carrouselRecit, ciblesRemarques, nomArchiveRecit, slideDeCible } from "../src/lib/carrousel-recit.js";
 import { valeursReseaux } from "../src/lib/reseaux.js";
 import { getScoreBadge } from "../src/lib/score.js";
 import { contraste, couleurCandidat, couleursProches, texteSur, themeCandidat } from "../src/lib/couleurs-candidats.js";
@@ -142,26 +160,104 @@ test("refus : pays ou année d'un précédent absents de la fiche", () => {
   assert.equal(controlerRecit(annee, CONTEXTE).valide, false);
 });
 
-test("avertissements seulement : question hors liste, chiffre clé absent de la mesure, carte trop longue, pastille inconnue, plus de 3 cartes", () => {
+test("avertissements seulement : question trop longue, mot clé absent, carte trop longue, plus de 3 cartes, trop de gras", () => {
   const r = reponse();
-  r.couverture.question = "Vraiment ?";
-  r.couverture.chiffre_cle = "2 200 €";
+  r.couverture.question = "Est-ce que cette mesure est vraiment tenable ?";
   r.court_terme.cartes = [
     carte("A", Array.from({ length: 40 }, () => "mot").join(" "), "positif"),
-    carte("B", "b", "joyeux"),
+    carte("B", "**un** **deux** **trois** **quatre**", "possible"),
     carte("C", "c", "positif"),
     carte("D", "d", "positif"),
   ];
   const { valide, avertissements, recit } = controlerRecit(r, CONTEXTE);
   assert.ok(valide);
   const texte = avertissements.join("\n");
-  assert.match(texte, /question « Vraiment \? » hors liste/);
+  assert.match(texte, /question « Est-ce que cette mesure est vraiment tenable \? »/);
   assert.equal(recit.couverture.question, QUESTIONS_COUVERTURE[0]);
-  assert.match(texte, /chiffre clé « 2 200 € » n’apparaît pas/);
+  assert.equal(recit.couverture.mot_cle, "tenable");
   assert.match(texte, /40 mots \(35 au plus\)/);
-  assert.match(texte, /pastille « joyeux » hors liste/);
+  assert.match(texte, /court_terme : 4 passages en gras \(3 au plus par slide\)/);
   assert.equal(recit.court_terme.cartes.length, 3);
-  assert.equal(recit.court_terme.cartes[1].pastille, "incertain");
+
+  const motAbsent = reponse();
+  motAbsent.couverture = { mesure: "un Smic à 2 200 euros brut", question: "Et les PME ?", mot_cle: "entreprises" };
+  assert.match(controlerRecit(motAbsent, CONTEXTE).avertissements.join("\n"), /mot clé « entreprises » n’apparaît pas tel quel/);
+});
+
+test("couverture : question libre courte et mot clé surligné ; mesure sans point final", () => {
+  const r = reponse();
+  r.couverture = { mesure: "un Smic à 2 200 euros brut.", question: "Et les PME ?", mot_cle: "PME" };
+  const { valide, recit } = controlerRecit(r, CONTEXTE);
+  assert.ok(valide);
+  assert.equal(recit.couverture.mesure, "un Smic à 2 200 euros brut");
+  assert.equal(recit.couverture.question, "Et les PME ?");
+  assert.equal(recit.couverture.mot_cle, "PME");
+  // Question type sans mot clé : le dernier mot avant « ? ».
+  const type = reponse();
+  type.couverture = { mesure: "x", question: "Est-ce finançable ?" };
+  assert.equal(controlerRecit(type, CONTEXTE).recit.couverture.mot_cle, "finançable");
+});
+
+test("refus : pastille hors liste ; liste élargie acceptée avec ses couleurs", () => {
+  const r = reponse();
+  r.court_terme.cartes[1].pastille = "joyeux";
+  assert.match(controlerRecit(r, CONTEXTE).erreurs.join(" "), /pastille « joyeux » hors liste/);
+  const orange = reponse();
+  orange.long_terme.cartes[0].pastille = "orange";
+  assert.equal(controlerRecit(orange, CONTEXTE).valide, false);
+  for (const pastille of PASTILLES) {
+    const ok = reponse();
+    ok.long_terme.cartes[0].pastille = pastille;
+    assert.ok(controlerRecit(ok, CONTEXTE).valide, pastille);
+  }
+  assert.deepEqual([...new Set(Object.values(COULEURS_PASTILLES))].sort(), ["jaune", "rouge", "vert"]);
+});
+
+test("refus : mot-clé d'illustration hors de la liste fermée du thème", () => {
+  const r = reponse({ illustration_mots_cles: ["caisse", "fusee"] });
+  const { valide, erreurs } = controlerRecit(r, { ...CONTEXTE, motsClesIllustration: ["billets", "caisse"] });
+  assert.equal(valide, false);
+  assert.match(erreurs.join(" "), /mot-clé « fusee » hors de la liste/);
+  const ok = controlerRecit(reponse({ illustration_mots_cles: ["Caisse"] }), { ...CONTEXTE, motsClesIllustration: ["billets", "caisse"] });
+  assert.ok(ok.valide);
+  assert.deepEqual(ok.recit.illustration_mots_cles, ["caisse"]);
+  // Relecture d'un récit stocké (liste null) : pas de contrôle.
+  assert.ok(controlerRecit(r, CONTEXTE).valide);
+});
+
+test("tuiles : format court, la nuance « près de » gardée dans la petite ligne", () => {
+  assert.equal(valeurCourte("près de 600 milliards d'euros"), "~600 Md€");
+  assert.equal(valeurCourte("488 milliards d’euros"), "488 Md€");
+  assert.equal(valeurCourte("3 millions"), "3 M");
+  assert.equal(valeurCourte("1 830 euros"), "1 830 €");
+  assert.equal(valeurCourte("+20 %"), "+20 %");
+  assert.equal(valeurCourte("non chiffré"), "non chiffré");
+  const r = reponse();
+  r.concretement.tuiles.propose = { valeur: "près de 2 200 euros", detail: "brut par mois" };
+  r.concretement.tuiles.aujourdhui = { valeur: "1 830 euros", detail: "brut par mois" };
+  const { valide, recit } = controlerRecit(r, CONTEXTE);
+  assert.ok(valide);
+  assert.deepEqual(recit.concretement.tuiles.propose, { valeur: "~2 200 €", detail: "près de 2 200 euros · brut par mois" });
+  assert.deepEqual(recit.concretement.tuiles.aujourdhui, { valeur: "1 830 €", detail: "brut par mois" });
+  const longue = reponse();
+  longue.concretement.tuiles.concernes = { valeur: "tous les salariés du privé", detail: "" };
+  assert.match(controlerRecit(longue, CONTEXTE).avertissements.join("\n"), /trop long pour la tuile/);
+});
+
+test("gras : balisage **…** découpé en mots, 3 passages au plus, ponctuation collée", () => {
+  assert.deepEqual(morceauxGras("a **b c** d"), [
+    { texte: "a ", gras: false },
+    { texte: "b c", gras: true },
+    { texte: " d", gras: false },
+  ]);
+  assert.equal(sansGras("le **coût** non **chiffré**"), "le coût non chiffré");
+  assert.equal(nombreGras("**a** **b** c"), 2);
+  assert.deepEqual(motsGras("x **600 Md€**."), [[{ texte: "x", gras: false }], [{ texte: "600", gras: true }], [{ texte: "Md€", gras: true }, { texte: ".", gras: false }]]);
+  assert.deepEqual(
+    motsGras("**a** **b** **c** **d**").map((m) => m[0].gras),
+    [true, true, true, false],
+  );
+  assert.deepEqual(morceauxGras("un ** seul"), [{ texte: "un  seul", gras: false }]);
 });
 
 test("stockage : seule reseaux_recit change, l'ancien gardé sous precedent", () => {
@@ -172,9 +268,10 @@ test("stockage : seule reseaux_recit change, l'ancien gardé sous precedent", ()
   assert.deepEqual(apres.reseaux_recit.precedent, { couverture: "ancien" });
 });
 
-test("message : prompt puis fiche, sans les ajouts des étapes suivantes", () => {
-  const message = construireMessageRecit("PROMPT", { ...FICHE, reseaux_recit: { x: 1 }, version_basique: { resume: "r" } });
-  assert.match(message, /^PROMPT\n\nFICHE FINALE :\n/);
+test("message : prompt, mots-clés d'illustration, puis fiche, sans les ajouts des étapes suivantes", () => {
+  const message = construireMessageRecit("PROMPT", { ...FICHE, reseaux_recit: { x: 1 }, version_basique: { resume: "r" } }, { motsClesIllustration: ["billets", "caisse"] });
+  assert.match(message, /^PROMPT\n\nMOTS-CLÉS D'ILLUSTRATION DISPONIBLES POUR CE THÈME : billets, caisse\n\nFICHE FINALE :\n/);
+  assert.match(construireMessageRecit("P", FICHE), /DISPONIBLES POUR CE THÈME : \(aucun : mets illustration_mots_cles à \[\]\)/);
   assert.ok(!message.includes("version_basique"));
   assert.ok(!message.includes("reseaux_recit"));
   assert.deepEqual(Object.keys(fichePourRecit({ a: 1, reseaux: 2, reel: 3 })), ["a"]);
@@ -283,9 +380,157 @@ test("carrousel récit sans précédent étranger : 7 slides, avertissement", ()
   assert.ok(avertissements.some((a) => /Slide sautée : la fiche ne cite aucun précédent/.test(a.message)));
 });
 
-test("pas de récit : null ; archive récit", () => {
+test("pas de carrousel détaillé : null ; archive carrousel-detaille-<id>-<slug>.zip", () => {
   assert.equal(carrouselRecit(donneesRecit({ contenu: FICHE })), null);
-  assert.equal(nomArchiveRecit({ propositionId: 42, candidatNom: "Fabien Roussel" }), "carrousel-recit-42-fabien-roussel.zip");
+  assert.equal(nomArchiveRecit({ propositionId: 42, candidatNom: "Fabien Roussel" }), "carrousel-detaille-42-fabien-roussel.zip");
+});
+
+test("carrousel détaillé : numéro de fiche sur les slides 3 à 7, mot clé, conclusion, slide « À l’étranger »", () => {
+  const { slides } = carrouselRecit(donneesRecit());
+  assert.deepEqual(slides.map((s) => s.numeroFiche ?? null), [null, null, "#42", "#42", "#42", "#42", "#42", null]);
+  assert.equal(slides[0].motCle, "tenable");
+  assert.equal(slides[5].libelle, "À l’étranger");
+  assert.equal(slides[5].fichier, "06-a-l-etranger.png");
+});
+
+// --- Image de thème ---------------------------------------------------------------
+
+const BIBLIO = [
+  { fichier: "illustrations/economie/caisse.jpg", theme: "economie", motsCles: ["caisse"], source: "Pexels", auteur: "A", licence: "Licence Pexels", lien: "https://pexels.com/1" },
+  { fichier: "illustrations/economie/billets.jpg", theme: "economie", motsCles: ["billets"], source: "Pexels", auteur: "B", licence: "Licence Pexels", lien: "https://pexels.com/2" },
+  { fichier: "illustrations/fiscalite/formulaire.jpg", theme: "fiscalite", motsCles: ["formulaire"], source: "Wikimedia", auteur: "C", licence: "CC BY 4.0", lien: "https://w/3" },
+  { fichier: "illustrations/retraites/banc.jpg", theme: "retraites", motsCles: ["banc"], source: "Pexels", auteur: "D", licence: "Licence Pexels", lien: "https://pexels.com/4" },
+];
+
+test("image de thème : thème de la fiche, mots-clés du modèle, dernière image évitée, thème vide signalé", () => {
+  assert.deepEqual(themesBibliotheque("economie"), ["economie", "fiscalite"]);
+  assert.deepEqual(motsClesDisponibles("economie", BIBLIO), ["billets", "caisse", "formulaire"]);
+  assert.equal(choisirIllustration({ theme: "economie", motsCles: ["billets"], liste: BIBLIO }).illustration.fichier, "illustrations/economie/billets.jpg");
+  // Tirage : alea 0 → la première ; en évitant la dernière utilisée.
+  assert.equal(choisirIllustration({ theme: "retraites", alea: 0.5, liste: BIBLIO }).illustration.auteur, "D");
+  assert.notEqual(choisirIllustration({ theme: "economie", alea: 0, derniere: "illustrations/economie/caisse.jpg", liste: BIBLIO }).illustration.fichier, "illustrations/economie/caisse.jpg");
+  const vide = choisirIllustration({ theme: "sante", liste: BIBLIO });
+  assert.equal(vide.illustration, null);
+  assert.match(vide.avertissement, /Pas d'image de thème pour « sante »/);
+  assert.equal(aleaFiche("x"), aleaFiche("x"));
+  // Crédit visible seulement si la licence le demande ; toujours dans legende.txt.
+  assert.equal(creditVisible(BIBLIO[0]), null);
+  assert.equal(creditVisible(BIBLIO[2]), "Photo : C / Wikimedia");
+  assert.match(creditLegende(BIBLIO[0]), /^Photo de couverture : A \/ Pexels \(Licence Pexels\)/);
+});
+
+test("image de thème : bibliothèque vide → couverture sans illustration et avertissement ; sinon image et crédit dans la légende", () => {
+  const vide = carrouselRecit(donneesRecit({ illustrations: [] }));
+  assert.equal(vide.slides[0].illustration, null);
+  assert.ok(vide.avertissements.some((a) => a.cle === "image de thème" && /bibliothèque est vide/.test(a.message)));
+  const plein = carrouselRecit(donneesRecit({ illustrations: BIBLIO }));
+  assert.ok(plein.slides[0].illustration.fichier.startsWith("illustrations/"));
+  assert.match(plein.legende, /Photo de couverture : /);
+  // Carrousel 6 slides : même image (même tirage stable pour la fiche).
+  const six = controlerCarrousel({ ...donneesRecit({ illustrations: BIBLIO }), contenu: { ...FICHE, reseaux_recit: undefined } });
+  assert.equal(six.slides[0].illustration.fichier, choisirIllustration({ theme: "economie", alea: aleaFiche("illustration-42"), liste: BIBLIO }).illustration.fichier);
+});
+
+test("bibliothèque : candidates Pexels (20 au plus, sans doublon), entrées et réécriture de la liste", () => {
+  const photo = (id) => ({ id, url: `https://pexels.com/photo/${id}`, photographer: `P${id}`, alt: "", src: { medium: "m", large2x: "l" } });
+  const reponses = [{ photos: [photo(1), photo(2), photo(3), photo(4)] }, { photos: [photo(2), photo(5)] }];
+  const candidates = candidatesDepuisPexels("economie", reponses);
+  assert.deepEqual(candidates.map((c) => c.id), ["pexels-1", "pexels-2", "pexels-5", "pexels-3", "pexels-4"]);
+  assert.equal(candidates[0].motCle, "caisse");
+  assert.equal(candidatesSimulees("retraites").length, 20);
+  const entrees = entreesBibliotheque("economie", [{ ...candidates[0] }, { ...candidates[1], motCle: "Caisse" }, candidatesSimulees("economie")[0]], BIBLIO);
+  assert.deepEqual(entrees.map((e) => e.fichier), ["illustrations/economie/caisse-2.jpg", "illustrations/economie/caisse-3.jpg"]);
+  const source = `avant\n${REPERE_DEBUT}\nexport const ILLUSTRATIONS = [];\n${REPERE_FIN}\naprès`;
+  const reecrit = reecrireListe(source, entrees);
+  assert.match(reecrit, /^avant\n\/\/ DEBUT LISTE ILLUSTRATIONS\nexport const ILLUSTRATIONS = \[\n {2}\{"fichier":"illustrations\/economie\/caisse-2\.jpg"/);
+  assert.ok(!reecrit.includes("telechargement"));
+  assert.match(reecrit, /\/\/ FIN LISTE ILLUSTRATIONS\naprès$/);
+});
+
+// --- Remarques et régénération ciblée -------------------------------------------------
+
+test("remarques : seule la slide visée change, le reste est repris tel quel", () => {
+  const { recit: precedent } = controlerRecit(reponse(), CONTEXTE);
+  const nouveau = { ...reponse(), concretement: { ...reponse().concretement, texte: "Plus court." }, note: { ...reponse().note, titre: "Changé sans qu'on le demande." } };
+  const fusion = fusionnerRecit(precedent, nouveau, "concretement");
+  assert.equal(fusion.concretement.texte, "Plus court.");
+  assert.equal(fusion.note.titre, precedent.note.titre);
+  assert.deepEqual(fusion.tweet, precedent.tweet);
+  assert.equal(fusionnerRecit(precedent, nouveau, "toutes").note.titre, "Changé sans qu'on le demande.");
+  assert.equal(fusionnerRecit(precedent, { ...reponse(), ailleurs: null }, "ailleurs").ailleurs, null);
+  const consigne = consigneRemarques({ precedent, remarque: "la slide 2 est trop chargée", cible: "concretement", libelleCible: "la slide 2 (« Concrètement »)" });
+  assert.match(consigne, /ne passent JAMAIS avant les règles/);
+  assert.match(consigne, /Ne réécris que la slide 2 \(« Concrètement »\) \(clé\(s\) JSON : concretement\)/);
+  assert.ok(cibleValide("tweet") && cibleValide("toutes") && !cibleValide("fin"));
+});
+
+test("remarques : menu des slides (sans la fin), slide visée selon la présence d'un précédent étranger", () => {
+  const { recit } = controlerRecit(reponse(), CONTEXTE);
+  assert.deepEqual(ciblesRemarques(recit).map((c) => c.valeur), ["toutes", "couverture", "concretement", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "tientCoince", "tweet"]);
+  assert.deepEqual(slideDeCible(recit, "tientCoince"), { numero: 7, libelle: "Ce qui tient… et ce qui coince" });
+  assert.deepEqual(slideDeCible({ ...recit, ailleurs: null }, "tientCoince"), { numero: 6, libelle: "Ce qui tient… et ce qui coince" });
+  assert.equal(slideDeCible(recit, "tweet"), null);
+});
+
+test("génération avec remarques : mêmes refus (chiffre absent de la fiche), fusion sur la slide visée", async () => {
+  const { recit: precedent } = controlerRecit(reponse(), CONTEXTE);
+  const messages = [];
+  const tentatives = [
+    { ...reponse(), concretement: { ...reponse().concretement, texte: "Le Smic passerait à 9 999 euros." } },
+    { ...reponse(), concretement: { ...reponse().concretement, texte: "Plus court." }, note: { ...reponse().note, titre: "Autre." } },
+  ];
+  const resultat = await genererRecitCore({
+    ficheFinale: FICHE,
+    candidatNom: "Fabien Roussel",
+    score: 51,
+    prompt: "PROMPT",
+    remarques: { precedent, remarque: "trop chargée", cible: "concretement", libelleCible: "la slide 2" },
+    appeler: async (message) => {
+      messages.push(message);
+      return { donnees: tentatives[messages.length - 1], usage: { input_tokens: 10_000, output_tokens: 1_000 } };
+    },
+    analyser: (r) => r.donnees,
+    journal: { error() {} },
+  });
+  assert.match(messages[0], /RÉGÉNÉRATION AVEC REMARQUES/);
+  assert.match(messages[1], /Nombre\(s\) absent\(s\) de la fiche : 9999/);
+  assert.equal(resultat.recit.concretement.texte, "Plus court.");
+  assert.equal(resultat.recit.note.titre, precedent.note.titre);
+});
+
+test("journal des remarques et retour arrière : seule reseaux_recit change, l'historique est gardé", () => {
+  const contenu = { verdict_final: "x", reseaux_recit: { couverture: "v1", retours: [{ remarque: "a" }] } };
+  const retour = entreeRetour({ remarque: "trop chargée", cible: "concretement", slide: { numero: 2, libelle: "Concrètement" }, resultat: "acceptée", cout: 0.04567, date: "2026-11-21T10:00:00.000Z" });
+  assert.deepEqual(retour, { date: "2026-11-21T10:00:00.000Z", remarque: "trop chargée", cible: "concretement", slide: { numero: 2, libelle: "Concrètement" }, resultat: "acceptée", cout: 0.0457 });
+  const apres = contenuAvecRecit(contenu, { couverture: "v2" }, retour);
+  assert.deepEqual(Object.keys(apres).sort(), ["reseaux_recit", "verdict_final"]);
+  assert.deepEqual(apres.reseaux_recit.precedent, { couverture: "v1" });
+  assert.equal(apres.reseaux_recit.retours.length, 2);
+  // Refus : seul le journal change.
+  const refus = contenuAvecRetour(contenu, { ...retour, resultat: "refusée" });
+  assert.equal(refus.reseaux_recit.couverture, "v1");
+  assert.equal(refus.reseaux_recit.retours.at(-1).resultat, "refusée");
+  // Retour arrière : échange des deux versions, journal conservé, on peut revenir encore.
+  const revenu = contenuRevenuAuPrecedent(apres, entreeRetour({ remarque: "", cible: "toutes", resultat: "retour à la version précédente" }));
+  assert.equal(revenu.reseaux_recit.couverture, "v1");
+  assert.equal(revenu.reseaux_recit.precedent.couverture, "v2");
+  assert.equal(revenu.reseaux_recit.retours.length, 3);
+  assert.equal(contenuRevenuAuPrecedent(revenu).reseaux_recit.couverture, "v2");
+  assert.equal(contenuRevenuAuPrecedent(contenu), null);
+});
+
+test("page des retours : toutes fiches, plus récentes d'abord, remarques fréquentes regroupées", () => {
+  const lignes = [
+    { propositionId: 1, titre: "A", candidat: "X", statut: "publie", retours: [{ date: "2026-11-01", remarque: "La slide 2 est trop chargée", cible: "concretement", slide: { numero: 2, libelle: "Concrètement" }, resultat: "acceptée" }, { date: "2026-11-03", remarque: "", resultat: "retour à la version précédente" }] },
+    { propositionId: 2, titre: "B", candidat: "Y", statut: "publie", retours: [{ date: "2026-11-02", remarque: "la slide 2 est trop chargée !", cible: "concretement", slide: { numero: 2, libelle: "Concrètement" }, resultat: "refusée" }] },
+  ];
+  const retours = listeRetours(lignes);
+  assert.deepEqual(retours.map((r) => r.propositionId), [2, 1]);
+  assert.equal(libelleCible(retours[0]), "Slide 2 · Concrètement");
+  const frequentes = remarquesFrequentes(retours);
+  assert.equal(frequentes.length, 1);
+  assert.equal(frequentes[0].nombre, 2);
+  assert.deepEqual(frequentes[0].fiches.sort(), [1, 2]);
 });
 
 test("assemblerTweetRecit : ordre fixe", () => {
@@ -333,7 +578,7 @@ test("carrousel 6 slides : couleur absente → style neutre et avertissement ; p
 
 // --- Bouton « Générer le récit » (base et appel simulés) ---------------------------
 
-import { estimerRecitCore, genererRecitPourFicheCore } from "../src/lib/recit-action-core.js";
+import { estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "../src/lib/recit-action-core.js";
 
 function fausseBase(contenu, { modifiee = false } = {}) {
   const ecritures = [];
@@ -435,4 +680,63 @@ test("action : estimation du coût sans appel", async () => {
   assert.ok(r.ok);
   assert.ok(r.min > 0 && r.max > r.min);
   assert.equal(r.aDejaUnRecit, false);
+});
+
+test("action remarques : slide visée réécrite seule, journal, ancienne version gardée ; refus noté au journal sans toucher au carrousel", async () => {
+  const { recit } = controlerRecit(reponse(), CONTEXTE);
+  const contenu = { ...FICHE, reseaux_recit: recit };
+  const db = fausseBase(contenu);
+  const options = { isEditor: async () => true, prisma: db, cleConfiguree: true, sauvegarder: async () => "s.json" };
+  let recu = null;
+  const r = await regenererAvecRemarquesCore(42, {
+    ...options,
+    remarque: "  la slide 2 est trop chargée ",
+    cible: "concretement",
+    generer: async (_c, opts) => {
+      recu = opts.remarques;
+      return { recit: { ...recit, concretement: { ...recit.concretement, texte: "Plus court." } }, cout: 0.05, avertissements: [] };
+    },
+  });
+  assert.ok(r.ok, r.erreur);
+  assert.equal(recu.remarque, "la slide 2 est trop chargée");
+  assert.equal(recu.libelleCible, "la slide 2 (« Concrètement »)");
+  const ecrit = db.ecritures[0].data.contenuComplet.reseaux_recit;
+  assert.equal(ecrit.concretement.texte, "Plus court.");
+  assert.equal(ecrit.precedent.concretement.texte, recit.concretement.texte);
+  assert.equal(ecrit.retours[0].resultat, "acceptée");
+  assert.deepEqual(ecrit.retours[0].slide, { numero: 2, libelle: "Concrètement" });
+
+  const db2 = fausseBase(contenu);
+  const refus = await regenererAvecRemarquesCore(42, { ...options, prisma: db2, remarque: "mets la note", cible: "noteRecit", generer: async () => ({ recit: null, cout: 0.08, errors: ["note (titre) : score ou pastille de note écrits par le modèle"] }) });
+  assert.equal(refus.ok, false);
+  const apresRefus = db2.ecritures[0].data.contenuComplet.reseaux_recit;
+  assert.equal(apresRefus.note.titre, recit.note.titre);
+  assert.equal(apresRefus.precedent, undefined);
+  assert.equal(apresRefus.retours[0].resultat, "refusée");
+  assert.match(apresRefus.retours[0].details[0], /score ou pastille/);
+
+  assert.match((await regenererAvecRemarquesCore(42, { ...options, remarque: " ", cible: "toutes", generer: () => assert.fail() })).erreur, /Écrivez/);
+  assert.match((await regenererAvecRemarquesCore(42, { ...options, remarque: "x", cible: "fin", generer: () => assert.fail() })).erreur, /inconnue/);
+  const dry = await regenererAvecRemarquesCore(42, { ...options, dryRun: true, remarque: "x", cible: "toutes", generer: () => assert.fail() });
+  assert.ok(dry.simulation);
+});
+
+test("action retour arrière : échange des versions sans appel, refusé sans version précédente", async () => {
+  const db = fausseBase({ ...FICHE, reseaux_recit: { couverture: "v2", precedent: { couverture: "v1" } } });
+  const r = await revenirAuPrecedentCore(42, { isEditor: async () => true, prisma: db, sauvegarder: async () => null });
+  assert.ok(r.ok);
+  const ecrit = db.ecritures[0].data.contenuComplet.reseaux_recit;
+  assert.equal(ecrit.couverture, "v1");
+  assert.equal(ecrit.precedent.couverture, "v2");
+  assert.equal(ecrit.retours[0].resultat, "retour à la version précédente");
+  const sans = await revenirAuPrecedentCore(42, { isEditor: async () => true, prisma: fausseBase(FICHE), sauvegarder: async () => null });
+  assert.match(sans.erreur, /Pas de version précédente/);
+});
+
+test("action : estimation d'une régénération avec remarques plus chère (message avec la version précédente)", async () => {
+  const { recit } = controlerRecit(reponse(), CONTEXTE);
+  const base = { isEditor: async () => true, prisma: fausseBase({ ...FICHE, reseaux_recit: recit }), lirePrompt: async () => "PROMPT" };
+  const simple = await estimerRecitCore(42, base);
+  const avec = await estimerRecitCore(42, { ...base, remarque: "trop chargée", cible: "concretement" });
+  assert.ok(avec.min > simple.min);
 });

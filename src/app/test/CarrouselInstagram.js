@@ -1,34 +1,40 @@
 import { slugCandidat } from "@/lib/carte";
 import { cheminSlide, nomArchiveCarrousel } from "@/lib/carrousel";
-import { nomArchiveRecit } from "@/lib/carrousel-recit";
+import { ciblesRemarques, nomArchiveRecit } from "@/lib/carrousel-recit";
 import { carrouselDe, recitDe } from "@/lib/carrousel-serveur";
 import CarrouselPartage from "./CarrouselPartage";
 import EncadreARelire from "./EncadreARelire";
+import BarreRemarques from "./reseaux/BarreRemarques";
 import BoutonGenererRecit from "./reseaux/BoutonGenererRecit";
 import TweetLong from "./reseaux/TweetLong";
 
 // Sections Instagram et tweet long de la page de partage (/test/reseaux/[id]) :
 //  - « Carrousel Instagram » : le carrousel 6 slides, assemblé par le code
-//    sans IA (src/lib/carrousel.js), et à côté le carrousel « récit » en 10
-//    slides (src/lib/carrousel-recit.js), écrit par Claude à la demande
-//    (bouton « Générer le récit ») ;
-//  - « Tweet long (récit) », issu du même appel.
+//    sans IA (src/lib/carrousel.js), et à côté le « Carrousel détaillé
+//    (8 slides) » (src/lib/carrousel-recit.js), écrit par Claude à la demande
+//    (bouton « Générer le carrousel détaillé »), avec sa barre de remarques ;
+//  - « Tweet long », issu du même appel.
 // Images : route /api/carrousel/[id]. La légende et le tweet modifiés ne
-// vivent que dans la page ; seul le bouton écrit en base (reseaux_recit).
-export default function CarrouselInstagram({ proposition, analyse, brouillon = false, numero = 4 }) {
+// vivent que dans la page ; seuls les boutons écrivent en base
+// (contenuComplet.reseaux_recit). `demo` : démonstration locale
+// (/test/reseaux/demo, fichier local, modèle simulé).
+export default function CarrouselInstagram({ proposition, analyse, brouillon = false, numero = 4, demo = false }) {
   const slug = slugCandidat(proposition.candidat);
+  const idSlides = demo ? "demo" : proposition.id;
   const archive = { propositionId: proposition.id, candidatNom: proposition.candidat.nom, photoUrl: proposition.candidat.photoUrl };
-  const vignettes = (slides, version, recit = false) =>
+  const vignettes = (slides, version, recit = false, precedent = false) =>
     slides.map((slide) => ({
       numero: slide.numero,
       total: slide.total,
       libelle: slide.libelle,
       fichier: slide.fichier,
-      url: cheminSlide({ propositionId: proposition.id, numero: slide.numero, version, brouillon, recit }),
+      url: cheminSlide({ propositionId: idSlides, numero: slide.numero, version, brouillon: brouillon && !demo, recit, precedent }),
     }));
 
   const six = carrouselDe(proposition, analyse);
   const recit = recitDe(proposition, analyse);
+  const precedent = recit ? recitDe(proposition, analyse, { precedent: true }) : null;
+  const stocke = analyse.contenuComplet?.reseaux_recit;
 
   return (
     <>
@@ -47,13 +53,13 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
         <div className="mt-4 flex flex-col gap-4 rounded-xl border border-zinc-200 bg-zinc-100/60 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex flex-col gap-1">
-              <h4 className="text-sm font-semibold text-zinc-900">Carrousel « récit » (8 slides)</h4>
+              <h4 className="text-sm font-semibold text-zinc-900">Carrousel détaillé (8 slides)</h4>
               <p className="max-w-2xl text-xs text-zinc-600">
-                La mesure racontée comme une petite histoire. Écrit par Claude à la demande, avec le tweet long, en un
-                seul appel (environ 0,05 $). Le verdict, la note et le lien restent écrits par le code.
+                La mesure expliquée en détail : concrètement, la note, court et long terme, à l’étranger, ce qui tient et ce qui coince. Écrit par Claude à la
+                demande, avec le tweet long, en un seul appel (environ 0,05 $). La note, le niveau, l’image de thème et le lien restent écrits par le code.
               </p>
             </div>
-            <BoutonGenererRecit propositionId={proposition.id} brouillon={brouillon} aDejaUnRecit={Boolean(recit)} />
+            <BoutonGenererRecit propositionId={demo ? "demo" : proposition.id} brouillon={brouillon} aDejaUnRecit={Boolean(recit)} demo={demo} />
           </div>
           {recit ? (
             <>
@@ -62,12 +68,20 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
                 vignettes={vignettes(recit.slides, recit.version, true)}
                 legendeInitiale={recit.legende}
                 archive={nomArchiveRecit(archive)}
-                prefixeFichier={`carrousel-recit-${proposition.id}-${slug}`}
+                prefixeFichier={`carrousel-detaille-${proposition.id}-${slug}`}
+              />
+              <BarreRemarques
+                propositionId={demo ? "demo" : proposition.id}
+                brouillon={brouillon}
+                cibles={ciblesRemarques(stocke)}
+                vignettesPrecedentes={precedent?.slides.length ? vignettes(precedent.slides, precedent.version, true, true) : null}
+                retours={stocke?.retours ?? []}
+                demo={demo}
               />
             </>
           ) : (
             <p className="text-sm text-zinc-600">
-              Pas encore de récit pour cette fiche. En ligne de commande :{" "}
+              Pas encore de carrousel détaillé pour cette fiche. En ligne de commande :{" "}
               <code>
                 node scripts/recit.js {proposition.id}
                 {brouillon ? " --brouillon" : ""} --simulation
@@ -80,12 +94,12 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
 
       <section className="flex flex-col gap-4 border-t border-zinc-200 pt-8">
         <h3 className="text-base font-semibold text-zinc-900">
-          {numero + 1}. Tweet long (récit) <span className="font-normal text-zinc-500">(jour J, image conseillée : la carte score)</span>
+          {numero + 1}. Tweet long <span className="font-normal text-zinc-500">(jour J, image conseillée : la carte score)</span>
         </h3>
         {recit?.tweet ? (
           <TweetLong texteInitial={recit.tweet} />
         ) : (
-          <p className="text-sm text-zinc-600">Généré avec le carrousel récit : utilisez le bouton « Générer le récit » ci-dessus.</p>
+          <p className="text-sm text-zinc-600">Généré avec le carrousel détaillé : utilisez le bouton « Générer le carrousel détaillé » ci-dessus.</p>
         )}
       </section>
     </>

@@ -62,3 +62,8 @@ dev.db
 
 # Filet de secours de extractJson (scripts/analyze.js) : réponse brute à vérifier
 recovered-analysis-*.txt
+
+# Démonstration locale du carrousel détaillé et fichiers de travail des illustrations
+/data/demo-carrousel/demo.json
+/data/illustrations/candidates/
+/data/illustrations/selection/

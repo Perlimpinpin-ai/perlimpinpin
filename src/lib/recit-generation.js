@@ -1,9 +1,10 @@
 import { additionnerUsage, CARACTERES_PAR_TOKEN, coutClaude, MODELE_REEL } from "./reel-generation.js";
 import { valeursReseaux } from "./reseaux.js";
-import { controlerRecit, recitPourStockage } from "./recit.js";
+import { consigneRemarques, controlerRecit, fusionnerRecit, recitPourStockage } from "./recit.js";
 
-// Génération du carrousel récit et du tweet long d'une fiche, partagée par le
-// bouton « Générer le récit » de /test/reseaux/<id> et par scripts/recit.js.
+// Génération du carrousel détaillé (ex-« récit ») et du tweet long d'une
+// fiche, partagée par le bouton « Générer le carrousel détaillé » de
+// /test/reseaux/<id> (et la régénération avec remarques) et par scripts/recit.js.
 // Fonctions PURES : l'appel à Claude (`appeler`) et la lecture de sa réponse
 // (`analyser`) sont fournis par l'appelant. Testées par scripts/recit.test.js.
 
@@ -42,9 +43,14 @@ export function fichePourRecit(ficheFinale) {
 }
 
 // Message du premier essai : le prompt (data/prompt-recit.md), puis la fiche.
-export function construireMessageRecit(prompt, ficheFinale) {
+// Avec la liste fermée des mots-clés d'illustration du thème avant la fiche ;
+// en régénération, la consigne des remarques (version précédente, remarque,
+// partie à réécrire) à la fin.
+export function construireMessageRecit(prompt, ficheFinale, { motsClesIllustration = [], remarques = null } = {}) {
   const texte = String(prompt ?? "").replace(/\r\n/g, "\n").trim();
-  return `${texte}\n\nFICHE FINALE :\n${JSON.stringify(fichePourRecit(ficheFinale), null, 2)}`;
+  const mots = `MOTS-CLÉS D'ILLUSTRATION DISPONIBLES POUR CE THÈME : ${motsClesIllustration.length ? motsClesIllustration.join(", ") : "(aucun : mets illustration_mots_cles à [])"}`;
+  const base = `${texte}\n\n${mots}\n\nFICHE FINALE :\n${JSON.stringify(fichePourRecit(ficheFinale), null, 2)}`;
+  return remarques ? `${base}\n\n${consigneRemarques(remarques)}` : base;
 }
 
 // Usage estimé du meilleur cas (premier essai accepté) et du pire cas (second
@@ -69,10 +75,15 @@ export function estimationCoutRecit(caracteresMessage) {
 // Renvoie { recit, usage, cout, errors, avertissements, derniere } : recit
 // (objet rangé dans contenuComplet.reseaux_recit) vaut null si les deux essais
 // ont échoué ; derniere : la dernière réponse refusée, normalisée si possible.
-export async function genererRecitCore({ ficheFinale, candidatNom, score, propositionId = 0, prompt, appeler, analyser, journal = console }) {
+//   motsClesIllustration : liste fermée du thème (src/lib/illustrations.js) ;
+//   remarques : { precedent, remarque, cible, libelleCible } pour une
+//     régénération avec remarques : seule la partie visée est reprise de la
+//     réponse (fusionnerRecit), le reste vient de la version précédente, puis
+//     le tout passe les mêmes contrôles.
+export async function genererRecitCore({ ficheFinale, candidatNom, score, propositionId = 0, prompt, appeler, analyser, motsClesIllustration = [], remarques = null, journal = console }) {
   const fiche = fichePourRecit(ficheFinale);
-  const contexte = { ficheFinale: fiche, candidatNom, valeurs: valeursReseaux({ candidatNom, score, propositionId }) };
-  const base = construireMessageRecit(prompt, ficheFinale);
+  const contexte = { ficheFinale: fiche, candidatNom, valeurs: valeursReseaux({ candidatNom, score, propositionId }), motsClesIllustration };
+  const base = construireMessageRecit(prompt, ficheFinale, { motsClesIllustration, remarques });
   let usage = {};
   let errors = [];
   let derniere = null;
@@ -92,7 +103,8 @@ ${JSON.stringify(derniere, null, 2)}`;
     try {
       const reponse = await appeler(message);
       usage = additionnerUsage(usage, reponse?.usage);
-      const raw = analyser(reponse);
+      const brut = analyser(reponse);
+      const raw = remarques ? fusionnerRecit(remarques.precedent, brut, remarques.cible) : brut;
       const controle = controlerRecit(raw, contexte);
       derniere = controle.recit ?? raw;
       errors = controle.erreurs;
@@ -109,12 +121,12 @@ ${JSON.stringify(derniere, null, 2)}`;
       errors = [error.message];
     }
     if (tentative < TENTATIVES_RECIT) {
-      journal.error("  ⚠️  Récit : réponse refusée, nouvelle tentative :");
+      journal.error("  ⚠️  Carrousel détaillé : réponse refusée, nouvelle tentative :");
       for (const error of errors) journal.error(`     - ${error}`);
     }
   }
 
-  journal.error(`  ⚠️  Récit : ÉCHEC après ${TENTATIVES_RECIT} tentatives, rien n'est enregistré.`);
+  journal.error(`  ⚠️  Carrousel détaillé : ÉCHEC après ${TENTATIVES_RECIT} tentatives, rien n'est enregistré.`);
   for (const error of errors) journal.error(`     - ${error}`);
   return { recit: null, usage, cout: coutClaude(usage), errors, avertissements: [], derniere };
 }
