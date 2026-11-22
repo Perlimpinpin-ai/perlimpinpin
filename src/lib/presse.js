@@ -16,7 +16,8 @@ const presse = [
   {
     nom: "France Inter",
     logo: "/presse/france-inter.svg",
-    url: "",
+    url: "https://www.instagram.com/reel/DdlxFJkguzK/",
+    ariaLabel: "Vidéo de France Inter sur Perlimpinpin",
   },
   {
     nom: "Sydo",
