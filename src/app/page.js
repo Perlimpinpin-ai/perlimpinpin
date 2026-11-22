@@ -107,44 +107,49 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="w-full px-6 pb-12 sm:px-8 sm:pb-14">
-        <div className="mx-auto flex w-full max-w-[1280px] flex-col items-start justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-6 sm:flex-row sm:items-center sm:p-8">
-          <div className="flex items-start gap-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              className="mt-0.5 h-6 w-6 shrink-0 text-zinc-400"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
-              />
-            </svg>
-            <div>
-              <p className="text-sm font-bold text-zinc-900">
-                {t["transparence.titre"]}
-              </p>
-              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-500">
-                {t["transparence.texte"]}
-              </p>
+      {/* Encart « Transparence et indépendance », avec « Ils parlent de
+          nous » juste à côté sur grand écran (mêmes colonnes que la ligne
+          du dessus). */}
+      <section className="w-full px-6 pb-16 sm:px-8 sm:pb-20">
+        <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+          <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-6 sm:flex-row sm:items-center sm:p-8">
+            <div className="flex items-start gap-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                className="mt-0.5 h-6 w-6 shrink-0 text-zinc-400"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"
+                />
+              </svg>
+              <div>
+                <p className="text-sm font-bold text-zinc-900">
+                  {t["transparence.titre"]}
+                </p>
+                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-500">
+                  {t["transparence.texte"]}
+                </p>
+              </div>
             </div>
+
+            <Link
+              href="/a-propos"
+              className="shrink-0 whitespace-nowrap text-sm font-semibold text-zinc-500 transition-colors hover:text-zinc-900"
+            >
+              {t["transparence.lien"]}
+            </Link>
           </div>
 
-          <Link
-            href="/a-propos"
-            className="shrink-0 whitespace-nowrap text-sm font-semibold text-zinc-500 transition-colors hover:text-zinc-900"
-          >
-            {t["transparence.lien"]}
-          </Link>
+          <IlsParlentDeNous titre={t["presse.titre"]} />
         </div>
       </section>
-
-      <IlsParlentDeNous titre={t["presse.titre"]} />
     </div>
   );
 }
