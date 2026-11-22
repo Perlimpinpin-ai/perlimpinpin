@@ -8,6 +8,7 @@ import ThemeTags from "@/components/ThemeTags";
 import BottomColumns from "@/components/BottomColumns";
 import SupportBanner from "@/components/SupportBanner";
 import EncartDonCompteARebours from "@/components/EncartDonCompteARebours";
+import IlsParlentDeNous from "@/components/IlsParlentDeNous";
 import { enLignes } from "@/lib/textes-site";
 import { lireTextes } from "@/lib/textes-site-serveur";
 import {
@@ -106,7 +107,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="w-full px-6 pb-16 sm:px-8 sm:pb-20">
+      <section className="w-full px-6 pb-12 sm:px-8 sm:pb-14">
         <div className="mx-auto flex w-full max-w-[1280px] flex-col items-start justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-6 sm:flex-row sm:items-center sm:p-8">
           <div className="flex items-start gap-3">
             <svg
@@ -142,6 +143,8 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      <IlsParlentDeNous titre={t["presse.titre"]} />
     </div>
   );
 }

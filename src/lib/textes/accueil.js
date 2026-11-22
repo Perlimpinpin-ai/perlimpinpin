@@ -125,6 +125,9 @@ const page = {
         "Perlimpinpin est un projet éditorial indépendant. Nos analyses sont gratuites, sans publicité et sans influence politique.",
     },
     { cle: "transparence.lien", groupe: "Encadré du bas", libelle: "Lien", defaut: "En savoir plus sur nous →" },
+
+    // Logos des médias (src/components/IlsParlentDeNous.js, liste dans src/lib/presse.js)
+    { cle: "presse.titre", groupe: "Ils parlent de nous", libelle: "Titre au-dessus des logos", defaut: "Ils parlent de nous" },
   ],
 };
 
