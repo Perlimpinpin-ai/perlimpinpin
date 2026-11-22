@@ -44,8 +44,26 @@ const nextConfig = {
     "/test/reels/[id]/image": ["./public/fonts/*.ttf", "./public/reel/*.png", "./public/portraits-bleus/*.png"],
     // Bouton « Générer le Reel » (Server Actions de ces pages) : prompt lu à
     // l'exécution ; la page d'une fiche vérifie aussi la présence du portrait.
-    "/test/reels": ["./data/prompt-reel.md"],
-    "/test/reels/[id]": ["./data/prompt-reel.md", "./public/portraits-bleus/*.png"],
+    "/test/reels": ["./data/prompt-reel.md", "./public/reel/cartes/*.json"],
+    // Storyboard v4 : la page contrôle le storyboard (cartes disponibles,
+    // photos tramées, crédits, simulations de data/reel-demo/) ; la route des
+    // images lit en plus les polices et les fonds (scripts/reel-ressources.js).
+    "/test/reels/[id]": [
+      "./data/prompt-reel.md",
+      "./data/reel-demo/**/*",
+      "./public/portraits-bleus/*.png",
+      "./public/reel/cartes/*.json",
+      "./public/reel/photos/**/*.png",
+      "./public/illustrations/credits.json",
+    ],
+    "/test/reels/[id]/storyboard": [
+      "./data/reel-demo/**/*",
+      "./public/fonts/reel/*",
+      "./public/reel/v4/*.png",
+      "./public/reel/cartes/*.json",
+      "./public/reel/photos/**/*.png",
+      "./public/illustrations/credits.json",
+    ],
   },
   // Next.js ne résout pas automatiquement /relectures vers
   // public/relectures/index.html (pas de fallback "clean URL" sur les
