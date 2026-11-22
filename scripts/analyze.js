@@ -1212,12 +1212,13 @@ ${JSON.stringify(derniere, (cle, valeur) => (CHAMPS_DU_CODE.has(cle) ? undefined
 
 // --- Reel vidéo, à la demande (Claude) -----------------------------------------
 // Script de voix off d'un Reel vertical (9 scènes, environ 1 min 30), écrit à
-// partir de la fiche finale avec le prompt data/prompt-reel.md. Ne fait PLUS
-// partie du pipeline automatique : il est généré à la demande, par le bouton
-// « Générer le Reel » de /test/reels ou par scripts/reel.js. La logique
+// partir de la fiche finale avec le prompt data/prompt-reel-v3.md (format v3,
+// 9 scènes fixes ; le storyboard v4 de /test/reels utilise data/prompt-reel.md).
+// Ne fait PLUS partie du pipeline automatique : il est généré à la demande
+// par scripts/reel.js (le bouton de /test/reels produit le storyboard v4). La logique
 // (deux essais, contrôle controlerReel) est partagée avec le site :
 // src/lib/reel-generation.js.
-const PROMPT_REEL_PATH = join(__dirname, "..", "data", "prompt-reel.md");
+const PROMPT_REEL_PATH = join(__dirname, "..", "data", "prompt-reel-v3.md");
 
 function lirePromptReel() {
   return readFileSync(PROMPT_REEL_PATH, "utf-8");

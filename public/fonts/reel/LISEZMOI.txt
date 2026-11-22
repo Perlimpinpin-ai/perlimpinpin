@@ -1,0 +1,11 @@
+Polices des Reels (storyboard v4), sous licence SIL Open Font License 1.1 :
+
+- InterDisplay-Medium.otf, -Bold.otf, -Black.otf : Inter Display, The Inter Project Authors
+  (https://github.com/rsms/inter). Licence : ../OFL.txt.
+- JetBrainsMono-Medium.ttf : JetBrains Mono, The JetBrains Mono Project Authors
+  (https://github.com/JetBrains/JetBrainsMono).
+- Silkscreen-Regular.ttf : Silkscreen, Jason Kottke (https://github.com/googlefonts/silkscreen).
+
+Fichiers tirés du gabarit du kit Reel (polices embarquées en woff2), décompressés
+en OTF/TTF : le moteur de next/og (Satori) ne lit pas le woff2. Sous-ensembles
+latins : accents français compris.

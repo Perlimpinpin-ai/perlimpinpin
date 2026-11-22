@@ -1,0 +1,234 @@
+{
+  "couverture": {
+    "titre": "Ses retraites tiennent-elles la route ?",
+    "question": "Qui paie ?"
+  },
+  "scenes": [
+    {
+      "type": "accroche",
+      "titre": "Teddy Riner veut placer",
+      "surligne": "vos retraites en Bourse ?",
+      "icone": "piece",
+      "voix": [
+        "Teddy Riner veut mettre **vos retraites** en Bourse.",
+        "Il garde la répartition, et ajoute **de la capitalisation**.",
+        "On a regardé si ça **tient la route**."
+      ],
+      "mouvement": [
+        "La fenêtre de la photo d’illustration s’ouvre en glitch, image en gros pixels.",
+        "L’image se charge en 3 paliers ; la fenêtre du candidat arrive par la droite, posée de travers.",
+        "Le titre claque mot à mot, la fin se surligne, deux pièces pixel tombent."
+      ],
+      "son": {
+        "nom": "glitch",
+        "moment": "entree"
+      }
+    },
+    {
+      "type": "chiffres",
+      "etiquette": "le constat",
+      "titre": "Nos retraites sont",
+      "rouge": "dans le rouge.",
+      "icone": "fleche-bas",
+      "barres": [
+        {
+          "label": "2025",
+          "valeur": "5,1 Md€",
+          "h": 220
+        },
+        {
+          "label": "2030",
+          "valeur": "6,8 Md€",
+          "h": 300
+        },
+        {
+          "label": "2070",
+          "valeur": "2,4 % PIB",
+          "h": 360,
+          "fantome": true
+        }
+      ],
+      "voix": [
+        "D’abord, le constat est juste : le système est **dans le rouge**.",
+        "Il y a de moins en moins d’**actifs** par retraité.",
+        "Le trou attendu : **6,8 milliards** en 2030."
+      ],
+      "mouvement": [
+        "Titre posé, la fin vire au rouge ; la flèche pixel descend en rebondissant.",
+        "Les barres montent bloc par bloc, le compteur de chaque valeur défile.",
+        "La dernière barre arrive en fantôme avec son étiquette."
+      ]
+    },
+    {
+      "type": "proposition",
+      "blocs": [
+        "Répartition",
+        "Capitalisation"
+      ],
+      "tampons": [
+        "combien ?",
+        "qui paie ?"
+      ],
+      "voix": [
+        "Sa réponse : garder **la répartition**,",
+        "et y ajouter une part d’**épargne placée**.",
+        "Mais il ne dit ni **combien**, ni **qui paie**."
+      ],
+      "mouvement": [
+        "Fenêtre du candidat en grosse mosaïque, qui se précise en 3 paliers.",
+        "Deux blocs glissent de part et d’autre et s’emboîtent avec un « + » qui pulse.",
+        "Les tampons s’abattent avec une secousse d’écran."
+      ]
+    },
+    {
+      "type": "note",
+      "score": 56,
+      "verdict": "plausible sous condition",
+      "voix": [
+        "Notre note : **56 sur 100**.",
+        "Notre note : **56 sur 100**.",
+        "C’est plausible, mais **sous condition** : il manque encore le mode d’emploi."
+      ],
+      "mouvement": [
+        "Compteur qui démarre à 0, les cases s’allument une à une.",
+        "La jauge accélère, petit son 8-bit à chaque palier.",
+        "Arrêt net sur 56, flash, puis tampon du verdict."
+      ]
+    },
+    {
+      "type": "cartes",
+      "etiquette": "court terme · 0 à 2 ans",
+      "titre": "Son plan ne bouche pas le trou.",
+      "cartes": [
+        {
+          "icone": "portefeuille",
+          "signe": "−",
+          "texte": "Salaire net"
+        },
+        {
+          "icone": "usine",
+          "signe": "+",
+          "texte": "Coût du travail"
+        },
+        {
+          "icone": "banque",
+          "signe": "+",
+          "texte": "Dette"
+        }
+      ],
+      "voix": [
+        "Tout de suite, une cotisation en plus, c’est moins de **salaire net**,",
+        "ou des **salariés plus chers**,",
+        "ou alors plus de **dette**."
+      ],
+      "mouvement": [
+        "Première carte qui tombe et rebondit, le signe clignote.",
+        "Deuxième carte : même entrée, calée sur le rythme de la voix.",
+        "Troisième carte : les trois cartes tremblent ensemble à la fin."
+      ]
+    },
+    {
+      "type": "compteur",
+      "etiquette": "long terme",
+      "titre": "Son pari peut payer… un jour.",
+      "icone": "sablier",
+      "etapes": [
+        "0",
+        "30",
+        "30-40"
+      ],
+      "unite": "ans",
+      "voix": [
+        "Sur le long terme, le pari **peut payer**.",
+        "Mais votre pension suivrait **en partie la Bourse**,",
+        "et il faut attendre **30 à 40 ans**."
+      ],
+      "mouvement": [
+        "Sablier pixel debout, compteur à 0.",
+        "Le sablier pivote par crans de 90°, les années défilent.",
+        "Arrivée sur la valeur finale surlignée, une courbe pixel zigzague dessous."
+      ],
+      "son": {
+        "nom": "blip",
+        "moment": "image3"
+      }
+    },
+    {
+      "type": "pays",
+      "etiquette": "ailleurs",
+      "titre": "Ce que propose Riner existe déjà.",
+      "titre3": "Deux exemples, deux bilans.",
+      "groupes": [
+        {
+          "pays": [
+            "nl",
+            "dk"
+          ],
+          "noms": [
+            "pays-bas",
+            "danemark"
+          ],
+          "ok": true,
+          "bilan": "Pays-Bas, Danemark",
+          "texte": "Épargne en plus : **ça marche.**",
+          "carte2": "Répartition + épargne collective"
+        },
+        {
+          "pays": [
+            "cl"
+          ],
+          "noms": [
+            "chili"
+          ],
+          "ok": false,
+          "bilan": "Chili, 1981",
+          "texte": "Cotisations détournées : **3,25 % du PIB par an.**"
+        }
+      ],
+      "voix": [
+        "Ce modèle **existe déjà** aux Pays-Bas et au Danemark.",
+        "L’épargne s’y ajoute à la répartition : **ça marche**.",
+        "Le Chili, lui, a pris sur les cotisations, et l’a **payé cher**."
+      ],
+      "mouvement": [
+        "Les cartes pixel des Pays-Bas et du Danemark se dessinent case par case, en vert.",
+        "Les cartes se resserrent vers le haut ; la carte « ça marche » glisse avec une coche.",
+        "Le Chili descend en rouge ; les deux bilans s’empilent."
+      ]
+    },
+    {
+      "type": "avis",
+      "debutTitre": "Riner a raison sur le fond",
+      "finTitre": "mais sa copie est",
+      "surligne": "incomplète",
+      "tient": "Vrai constat.\nModèle qui marche.",
+      "coince": "Qui paie ?\nRien pour 2030.",
+      "voix": [
+        "Notre avis : il a raison **sur le fond**,",
+        "mais sa copie est **incomplète**.",
+        "Rien sur le **financement**, ni sur 2030."
+      ],
+      "mouvement": [
+        "Titre en grand, suspendu sur « … ».",
+        "Le titre se réduit, le mot clé se surligne ; la colonne « tient » apparaît.",
+        "La colonne « coince » glisse à côté, les deux colonnes se calent."
+      ]
+    },
+    {
+      "type": "fin",
+      "question": "Et vous, qu’en pensez-vous ?",
+      "url": "perlimpinpin.ai",
+      "mention": "analyse de l’IA Perlimpinpin · lien en bio",
+      "voix": [
+        "Analyse réalisée par **l’IA Perlimpinpin**.",
+        "Une erreur ? **Corrigez-la** sur notre site.",
+        "**Lien en bio.**"
+      ],
+      "mouvement": [
+        "Grosse bulle pixel au centre, les trois points « tapent ».",
+        "La bulle monte en haut à gauche, la question apparaît.",
+        "L’adresse du site se tape lettre à lettre, curseur qui clignote."
+      ]
+    }
+  ]
+}
