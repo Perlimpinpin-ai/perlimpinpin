@@ -1,0 +1,357 @@
+{
+  "proposition": {
+    "id": 105,
+    "titre": "Suspendre les 3 % de déficit pour tous les Etats membres de l'UE",
+    "texteOriginal": "Suspendre pour tous les États membres de l'Union européenne les règles budgétaires des 3 % de déficit, comme pendant la crise du Covid-19, en s'appuyant sur une coalition d'États.",
+    "theme": "Perspectives économiques, pouvoir d'achat, inflation & fiscalité",
+    "candidat": {
+      "nom": "Jean-Luc Mélenchon",
+      "photoUrl": "/photos/jean-luc-melenchon.jpg"
+    }
+  },
+  "analyse": {
+    "id": 107,
+    "statut": "publie",
+    "scoreFaisabilite": 40,
+    "contenuComplet": {
+      "limites": {
+        "texte": "Le programme ne détaille pas la mesure : **la fiche retient l'activation d'un dispositif comparable à celui de 2020**, sur la base de la référence au Covid faite par le candidat. Une autre lecture, par exemple une réécriture durable des règles, changerait l'analyse juridique.\n\nL'objectif de référence du domaine repose sur le pacte de stabilité européen, que le candidat conteste précisément ; cette contestation est recevable, et l'analyse de soutenabilité de la dette repose sur des hypothèses débattues. L'ancrage national correspondant, l'objectif d'équilibre des comptes de l'article 34 de la Constitution, a donc été mentionné en complément.\n\nLes critères d'éligibilité de l'instrument de la BCE datent de 2022 et peuvent être ajustés par la BCE. Aucune estimation publique de la réaction des marchés à une suspension générale n'a été trouvée : le scénario d'une hausse de 0,5 point est illustratif.",
+        "synthese": "L'analyse repose sur une interprétation de la mesure et sur un objectif de référence d'origine européenne, lui-même débattu."
+      },
+      "reseaux": {
+        "fil": [
+          "🔵 Suspendre les 3 % de déficit pour tous : objectif cohérent, bénéfice quasi nul.\n\nPerlimpinpin.ai analyse la proposition de {CANDIDAT}\n\nNote : {PASTILLE} {SCORE}/100 {APPRECIATION}\n\nL'outil n'existe qu'en récession : la zone euro croît de 1,3 % sur un an ↓",
+          "2/ {NOM} veut obtenir d'une coalition d'États la suspension pour tous de la règle des 3 % de déficit, sur le modèle de la clause activée de 2020 à 2023. La décision ne se prend pas à Paris : elle dépend du Conseil de l'Union européenne.",
+          "3/ Le précédent cité par {NOM} ne remplit pas ses conditions : la clause exige une grave récession dans la zone euro ou l'Union, alors que la croissance atteint 1,3 % sur un an selon Eurostat.",
+          "4/ L’angle mort de la proposition de {NOM} : la suspension retire le repère de déficit sans le remplacer ; en 2020, son succès reposait sur une BCE acheteuse de dette, absente aujourd'hui.\n\nPoint solide : la mesure reste cohérente avec le programme européen de {NOM}.\n\nAnalyse complète 👇 {LIEN}"
+        ],
+        "tient": {
+          "tient": [
+            "La mesure s'aligne avec le reste du programme européen du candidat, dette et semestre européen compris."
+          ],
+          "titre": "Suspendre les 3 % de déficit pour tous",
+          "tweet": "Suspendre les 3 % de déficit pour tous, la proposition de {CANDIDAT} : ce qui tient, ce qui ne tient pas.\n\n✅ Cohérente avec le reste du programme européen\n❌ La condition de grave récession n'est pas remplie\n\n{PASTILLE} {SCORE}/100 · Analyse complète 👇 {LIEN}",
+          "tient_pas": [
+            "La condition légale de grave récession n'est pas remplie : la zone euro croît de 1,3 % sur un an.",
+            "Le vrai frein français est le coût de l'emprunt, au dessus de 5 % à 10 ans, qu'une suspension ne desserre pas."
+          ],
+          "tient_court": [
+            "Cohérente avec le reste du programme européen"
+          ],
+          "titre_source": "fiche",
+          "points_retires": 1,
+          "tient_pas_court": [
+            "La condition de grave récession n'est pas remplie",
+            "Le coût de l'emprunt, pas la règle, est le vrai frein"
+          ]
+        },
+        "chiffre": {
+          "tweet": "5,1 %. Le déficit public français a atteint ce niveau en 2025, déjà au dessus du seuil de 3 % que la mesure veut suspendre pour tous.\n\n{CANDIDAT} propose de suspendre pour tous la règle des 3 % de déficit. Notre analyse : {PASTILLE} {SCORE}/100 👇 {LIEN}",
+          "valeur": "5,1 %",
+          "explication": "Le déficit public français a atteint ce niveau en 2025, déjà au dessus du seuil de 3 % que la mesure veut suspendre pour tous."
+        }
+      },
+      "titre_fiche": "Suspendre les 3 % de déficit pour tous les Etats membres de l'UE",
+      "angles_morts": {
+        "texte": "**Aucun ancrage de remplacement n'est proposé** : la suspension enlève le repère de déficit sans dire comment la soutenabilité de la dette serait suivie pendant ce temps. Le précédent de 2020 a fonctionné parce que la BCE achetait massivement de la dette ; le programme le demande aussi, mais ces deux demandes sont indépendantes, et **la mesure perd une grande part de son intérêt si la BCE continue de resserrer**.\n\nLa stratégie de désobéissance prévue en parallèle rend la coalition moins nécessaire pour la France, mais elle exposerait le pays à la perte du filet de sécurité de la BCE. Pour éviter une double pénalisation, le fait que la règle ne soit plus le frein réel pour la France est retenu dans le critère Efficacité, et le risque de hausse des taux dans le critère Effets rebonds & Externalités.",
+        "synthese": "La mesure retire un repère sans en proposer d'autre, et son succès de 2020 reposait sur une BCE acheteuse."
+      },
+      "resume_court": "Jean-Luc Mélenchon veut obtenir, avec d'autres pays européens, que la limite de 3 % de déficit public soit suspendue pour tous les États, comme pendant le Covid. Le but : libérer les budgets nationaux de ce que son programme appelle des politiques « austéritaires ».\n\nLe dispositif existe déjà dans les textes, mais il est réservé aux graves récessions européennes, ce qui n'est pas le cas aujourd'hui. Et pour la France, déjà à 5,1 % de déficit, la règle n'est plus le vrai frein : c'est le coût de l'emprunt, qu'une suspension ne fait pas baisser.\n\nReste une inconnue majeure, la réaction des marchés et de la BCE, que personne ne peut chiffrer à l'avance.",
+      "reseaux_recit": {
+        "avis": {
+          "avis": "L'objectif est cohérent avec son programme, mais sa condition légale n'est pas remplie et son gain pour la France reste faible.",
+          "tient": [
+            "Le dispositif existe déjà dans les textes et a fonctionné une fois, de 2020 à fin 2023.",
+            "La mesure est cohérente avec les autres propositions européennes du programme.",
+            "Le seuil de 3 % n'a pas de fondement économique universel, ce qui légitime la demande."
+          ],
+          "coince": [
+            "La condition légale d'une grave récession n'est pas remplie avec 1,3 % de croissance en zone euro.",
+            "Le vrai frein pour la France, le coût de l'emprunt, ne serait pas desserré par cette suspension.",
+            "Aucune durée, aucune condition ni aucun chiffrage ne sont précisés dans le programme."
+          ]
+        },
+        "note": {
+          "titre": "{NOM} vise une vraie faille européenne, mais pas le frein qui bloque la France.",
+          "criteres": {
+            "efficacite": "Le vrai verrou pour la France est le coût de l'emprunt, pas la règle des 3 % ; une suspension ne le fait pas baisser.",
+            "degre_preparation": "La mesure tient en une ligne du programme, sans durée, sans conditions ni chiffrage.",
+            "alignement_logique": "Elle s'accorde avec le reste du programme européen de {NOM}, malgré son vote favorable à Maastricht en 1992.",
+            "operationnalite_moyens": "La suspension exige légalement une grave récession, condition non remplie, même si la décision technique peut se prendre vite.",
+            "effets_rebonds_externalites": "Sans respect du cadre budgétaire, la France perdrait l'accès au filet de sécurité de la BCE contre ses taux."
+          },
+          "explication": "Le dispositif existe déjà et a servi en 2020, mais seulement en cas de grave récession. Or la France souffre surtout du coût de sa dette, que cette suspension ne changerait pas."
+        },
+        "tweet": {
+          "hic": "Sauf que la zone euro croît aujourd'hui de 1,3 %, loin d'une grave récession, condition légale obligatoire pour activer cette suspension. Et pour la France, déjà à 5,1 % de déficit sans sanction, le vrai frein n'est pas cette règle : c'est le coût de l'emprunt, au-dessus de 5 % à 10 ans.",
+          "appel": "Suspendre une règle qu'on dépasse déjà, est-ce vraiment un levier, ou juste un symbole politique ?",
+          "tient": "L'idée reste cohérente avec le reste du programme européen du candidat, et le dispositif existe bel et bien dans les textes.",
+          "exemple": "Prenons le précédent de 2020 : la clause avait été activée en trois jours, mais parce que l'Europe entière était en récession, et que la BCE rachetait massivement de la dette publique en parallèle.",
+          "accroche": "Imaginez que la France obtienne demain la suspension de la règle des 3 % de déficit pour toute l'Europe. Est-ce que ça changerait grand-chose pour vos impôts ou vos emprunts ?",
+          "promesse": "{CANDIDAT} veut obtenir, avec d'autres pays européens, que cette limite soit suspendue pour tous les États, comme pendant le Covid."
+        },
+        "format": 6,
+        "modele": "claude-sonnet-5",
+        "constat": {
+          "titre": "La France dépasse déjà la limite de déficit fixée par l'Union européenne.",
+          "sources": "Insee, Direction générale du Trésor, Agence France Trésor, Cour des comptes, Eurostat.",
+          "chiffres": [
+            {
+              "jaune": true,
+              "detail": "de déficit public français en 2025",
+              "valeur": "5,1 %"
+            },
+            {
+              "jaune": false,
+              "detail": "d'intérêts de la dette prévus en 2026",
+              "valeur": "77 Md€"
+            },
+            {
+              "jaune": false,
+              "detail": "de taux d'emprunt à 10 ans depuis octobre 2026",
+              "valeur": "+5 %"
+            },
+            {
+              "jaune": false,
+              "detail": "de croissance de la zone euro sur un an",
+              "valeur": "1,3 %"
+            }
+          ],
+          "explication": "Les 3 % de déficit encadrent les budgets nationaux depuis le traité de Maastricht. La France les dépasse largement et emprunte de plus en plus cher.",
+          "proposition": "La proposition de {NOM} : obtenir avec d'autres pays européens que la limite de 3 % soit suspendue pour tous les États, comme pendant le Covid.",
+          "imprecisions": "Elle ne précise ni la durée, ni ce qui remplacerait la règle, ni les marges visées pour la France."
+        },
+        "legende": {
+          "avis": "L'idée est cohérente avec son programme, mais elle ne s'attaque pas au vrai problème français : le coût de l'emprunt.",
+          "effet": "Même suspendue, la règle ne changerait rien au taux auquel la France emprunte, aujourd'hui au-dessus de 5 %.",
+          "question": "Jean-Luc Mélenchon veut suspendre la règle des 3 % de déficit pour tous les pays de l'Union européenne, comme pendant le Covid."
+        },
+        "ailleurs": {
+          "titre": "Le même outil a déjà servi, mais dans une situation très différente.",
+          "mesures": [
+            {
+              "fait": "La clause dérogatoire générale a suspendu les règles budgétaires pour tous les États pendant le Covid, jusqu'à fin 2023.",
+              "lieu": "Union européenne",
+              "annee": "2020",
+              "pastille": "complémentaire",
+              "resultat": "Elle a fonctionné parce que la BCE achetait massivement de la dette publique en parallèle."
+            },
+            {
+              "fait": "Seize États ont obtenu une clause dérogatoire nationale, réservée aux seules dépenses de défense.",
+              "lieu": "Union européenne",
+              "annee": "2025",
+              "pastille": "débattu",
+              "resultat": "Un accord collectif est possible, mais pour une dépense ciblée, pas une suspension générale."
+            }
+          ],
+          "sources": "Conseil de l'Union européenne, GRIP, Agence Europe."
+        },
+        "genereLe": "2026-11-23T12:13:47.041Z",
+        "couverture": {
+          "question": "Mélenchon veut-il suspendre la règle des ==3 % de déficit== pour toute l'Europe ?"
+        },
+        "long_terme": {
+          "titre": "Sur plusieurs années, tout dépendrait surtout de la réaction de la BCE.",
+          "effets": [
+            {
+              "texte": "Le déficit s'ajouterait à la dette, et **une hausse durable des taux coûterait de plus en plus cher**.",
+              "acteur": "Pour les finances publiques",
+              "pastille": "coûteux"
+            },
+            {
+              "texte": "Si la BCE répondait par des taux plus élevés, les crédits des ménages **deviendraient plus chers**.",
+              "acteur": "Pour les ménages",
+              "pastille": "négatif"
+            },
+            {
+              "texte": "Des marges pourraient financer l'investissement climatique, mais la mesure **ne fléche aucune dépense** en ce sens.",
+              "acteur": "Pour la transition écologique",
+              "pastille": "incertain"
+            }
+          ]
+        },
+        "court_terme": {
+          "titre": "Dans l'immédiat, tout dépendrait d'un accord obtenu à plusieurs, à Bruxelles.",
+          "effets": [
+            {
+              "texte": "Son statut juridique changerait, mais sa capacité à emprunter à bon prix **resterait inchangée**.",
+              "acteur": "Pour l'État français",
+              "pastille": "incertain"
+            },
+            {
+              "texte": "Une suspension sans récession ni rachats massifs de la BCE **pourrait inquiéter les investisseurs**.",
+              "acteur": "Pour les marchés financiers",
+              "pastille": "risque"
+            },
+            {
+              "texte": "Certains, comme l'Allemagne, préféreraient sans doute des flexibilités ciblées à une suspension générale.",
+              "acteur": "Pour les autres États membres",
+              "pastille": "débattu"
+            }
+          ]
+        },
+        "illustration": "illustrations/economie/caisse.jpg",
+        "tweet_assemble": "Imaginez que la France obtienne demain la suspension de la règle des 3 % de déficit pour toute l'Europe. Est-ce que ça changerait grand-chose pour vos impôts ou vos emprunts ?\n\n{CANDIDAT} veut obtenir, avec d'autres pays européens, que cette limite soit suspendue pour tous les États, comme pendant le Covid.\n\nPrenons le précédent de 2020 : la clause avait été activée en trois jours, mais parce que l'Europe entière était en récession, et que la BCE rachetait massivement de la dette publique en parallèle.\n\nSauf que la zone euro croît aujourd'hui de 1,3 %, loin d'une grave récession, condition légale obligatoire pour activer cette suspension. Et pour la France, déjà à 5,1 % de déficit sans sanction, le vrai frein n'est pas cette règle : c'est le coût de l'emprunt, au-dessus de 5 % à 10 ans.\n\nL'idée reste cohérente avec le reste du programme européen du candidat, et le dispositif existe bel et bien dans les textes.\n\nNote : {PASTILLE} {SCORE}/100 {APPRECIATION}\n\nSuspendre une règle qu'on dépasse déjà, est-ce vraiment un levier, ou juste un symbole politique ?\n\nAnalyse complète 👇 {LIEN}",
+        "illustration_mots_cles": [
+          "billets",
+          "caisse"
+        ]
+      },
+      "verdict_final": "La suspension pour tous des règles de déficit n'a rien d'imaginaire : l'Union l'a fait de 2020 à 2023, et le dispositif existe toujours dans les textes. La mesure est aussi cohérente avec le reste du programme et avec l'évolution assumée du candidat depuis 1992.\n\nMais la décision ne se prend pas à Paris, et sa condition légale, une grave récession européenne, n'est pas remplie avec une croissance de 1,3 % dans la zone euro. Surtout, la France dépasse déjà les 3 % : son vrai frein est le coût de l'emprunt, au-dessus de 5 % à 10 ans, qu'une suspension ne desserre pas et pourrait même aggraver.\n\nSans durée, sans conditions ni chiffrage, la mesure reste une orientation de négociation plutôt qu'un levier budgétaire préparé.",
+      "teaser_accueil": "L'outil existe depuis le Covid, mais il ne s'active qu'en grave récession. Or la zone euro croît de 1,3 % : la vraie contrainte de la France reste le prix de sa dette.",
+      "version_basique": {
+        "resume": "Jean-Luc Mélenchon veut obtenir, avec d'autres pays européens, que la limite de 3 % de déficit soit suspendue pour tous, comme pendant le Covid. Cette suspension existe dans les textes, mais seulement en cas de grave récession, ce qui n'est pas le cas aujourd'hui. Pour la France, déjà au-delà de 3 %, le vrai problème est le coût de l'emprunt, qui resterait inchangé.",
+        "analyse": "Cette suspension a déjà existé, de 2020 à 2023, pendant le Covid. Mais elle n'est permise par les textes qu'en cas de grave récession dans toute la zone euro, et la croissance y est de 1,3 % sur un an aujourd'hui. Pour la France, dépasser 3 % n'est déjà plus puni financièrement. Le frein réel reste le coût élevé de l'emprunt, qu'une suspension de la règle ne changerait pas.",
+        "contexte": "La France a eu un déficit public de 5,1 % en 2025, bien au-dessus de la limite européenne de 3 %. Elle est sous surveillance de l'Union européenne depuis juillet 2024. Son vrai souci aujourd'hui, c'est le prix auquel elle emprunte, qui a dépassé 5 % en octobre 2026.",
+        "faisabilite": "La mesure dépend d'un accord entre plusieurs pays européens, pas d'une décision française seule. Le droit européen ne permet cette suspension qu'en cas de grave récession, condition non remplie en 2026. Le candidat ne précise ni la durée de la suspension, ni les règles qui s'appliqueraient entre-temps, ni le montant des marges budgétaires visées.",
+        "points_forts": [
+          "L'outil existe déjà et a servi une fois, en 2020",
+          "Décision rapide possible, prise en trois jours en 2020",
+          "Cohérente avec le reste du programme européen du candidat"
+        ],
+        "points_faibles": [
+          "La condition légale, une grave récession, n'est pas remplie",
+          "Ne règle pas le vrai problème, le coût de l'emprunt français",
+          "La décision ne dépend pas de la France mais de l'Union européenne",
+          "Aucune durée, condition ou chiffrage n'est précisé",
+          "Pourrait priver la France d'une protection de la Banque centrale contre la hausse des taux"
+        ],
+        "sources_principales": [
+          2,
+          4,
+          8
+        ]
+      },
+      "ce_qui_est_etabli": {
+        "texte": "La clause dérogatoire générale existe (article 25 du règlement de 2024) et a été activée de 2020 à 2023. **Elle exige une grave récession dans la zone euro ou l'Union, alors que la zone euro croît de 1,3 % sur un an.** La France est à 5,1 % de déficit et sous procédure européenne depuis juillet 2024. Le filet de sécurité de la BCE contre les écarts de taux est conditionné au respect du cadre budgétaire européen. Selon l'Agence France Trésor, un point de taux en plus de façon durable coûte 3,2 milliards d'euros à un an et 33,5 milliards à neuf ans.",
+        "synthese": "L'outil existe et a servi une fois, mais seulement en grave récession, ce qui n'est pas la situation actuelle."
+      },
+      "contexte_national": {
+        "texte": "**Le déficit public de la France a atteint 5,1 % du PIB en 2025 (152,5 milliards d'euros), après 5,8 % en 2024**, et la dette 115,6 % du PIB fin 2025, selon l'Insee. Selon notre estimation, un point de PIB de déficit représente donc environ 30 milliards d'euros par an. Le budget 2026 vise 5,0 %. La France est sous procédure pour déficit excessif depuis juillet 2024, avec un objectif de retour sous 3 % en 2029.\n\nCette procédure n'a pas empêché le déficit de rester au-dessus de 3 % : la Commission s'est jusqu'ici abstenue de proposer des sanctions financières. **La contrainte qui pèse réellement sur le budget est le coût de l'emprunt** : la charge d'intérêts atteindrait environ 77 milliards d'euros en 2026, près de 12 milliards de plus qu'en 2025, selon la Cour des comptes, et le taux d'emprunt de l'État à 10 ans a franchi 5 % le 22 octobre 2026, contre environ 3,5 % en début d'année.\n\nEn droit français, l'ancrage correspondant est l'article 34 de la Constitution, qui inscrit les orientations pluriannuelles des finances publiques dans « l'objectif d'équilibre des comptes des administrations publiques ». Cet objectif ne dépend pas des règles européennes et ne serait pas touché par leur suspension.",
+        "synthese": "La France dépasse déjà largement les 3 % et emprunte désormais cher : son verrou est surtout financier, pas juridique."
+      },
+      "mesure_reformulee": {
+        "texte": "Jean-Luc Mélenchon propose que l'Union européenne suspende, pour tous les États membres, la règle qui limite le déficit public à 3 % du PIB (la richesse produite en un an). Il prend explicitement pour modèle la crise du Covid-19, quand les règles budgétaires avaient été mises entre parenthèses de 2020 à 2023.\n\n**La mesure ne se décide pas à Paris : elle figure parmi les changements que la France chercherait à obtenir en formant une coalition d'États**, notamment au sud de l'Europe. Elle est distincte d'une autre proposition du même chapitre, le « moratoire » voté par le Parlement français sur le semestre européen (le calendrier de surveillance budgétaire), qui serait, lui, unilatéral.\n\nLa fiche analyse la suspension pour tous. Le programme ne précisant ni durée ni modalités, elle retient comme hypothèse de l'analyste l'activation d'un dispositif comparable à celui de 2020, puisque c'est la référence donnée par le candidat.",
+        "synthese": "Obtenir avec d'autres pays européens que la limite de 3 % de déficit soit suspendue pour tous, comme en 2020."
+      },
+      "sources_utilisees": [
+        "Jean-Luc Mélenchon, L'Avenir en commun 2027, partie 6, chapitre 1 « Se libérer du libéralisme en Europe », mis à jour le 7 novembre 2026 : https://melenchon2027.fr/programme/livre/un-monde-ordonne/chapitre1",
+        "GRIP (Maïté Bol), « Comment les dépenses de défense échappent aux règles européennes sur le déficit public », Éclairage, 20 novembre 2025 (historique des clauses dérogatoires, article 25 du règlement (UE) 2024/1263) : https://www.grip.org/wp-content/uploads/2026/02/EC-2025-11-20-MB-PSC-defense.pdf",
+        "Conseil de l'Union européenne, document ST 7672 2025 (clause dérogatoire générale : condition de grave récession non remplie en 2025) : https://data.consilium.europa.eu/doc/document/ST-7672-2025-INIT/ro/pdf",
+        "Recommandation du Conseil de 2020 sur l'activation de la clause dérogatoire générale (copie publiée par le Parlement bulgare) : https://old.parliament.bg/pub/ECD/3890371_FR_ACT_part1_v3.pdf",
+        "Direction générale du Trésor, Rapport d'avancement annuel 2026, annexe 3 (déficit 2025, dette, trajectoire de retour sous 3 % en 2029) : https://www.tresor.economie.gouv.fr/Articles/b16f3103-ed47-4c37-9362-11ff01e12ae5/files/1d29351b-0187-4837-a3cd-e4ea7b0e4ce1",
+        "Ministère de l'Économie, « Finances publiques : un déficit public en amélioration en 2025 », mars 2026 (cible 2026 à 5,0 %) : https://www.economie.gouv.fr/actualites/finances-publiques-un-deficit-public-en-amelioration-en-2025",
+        "Dettedelafrance.fr, « L'Europe et la dette française » (date d'ouverture de la procédure pour déficit excessif, source secondaire) : https://dettedelafrance.fr/europe-et-dette-francaise",
+        "Sénat, rapport sur le projet de loi de finances pour 2026, mission Engagements financiers de l'État (sensibilité de la charge de la dette, estimations de l'Agence France Trésor) : https://www.senat.fr/rap/l25-139-312/l25-139-312-syn.pdf",
+        "Vie-publique.fr, « Taux de la dette française : niveaux inédits depuis près de 20 ans », octobre 2026 (taux à 10 ans au-dessus de 5 %, sensibilité selon la Cour des comptes) : https://www.vie-publique.fr/en-bref/304370-taux-de-la-dette-francaise-niveaux-inedits-depuis-pres-de-20-ans",
+        "Public Sénat, « La dette consomme toutes nos marges de manœuvre budgétaires », 2026 (charge d'intérêts de 77 milliards d'euros en 2026 selon la Cour des comptes) : https://www.publicsenat.fr/actualites/economie/la-dette-consomme-toutes-nos-marges-de-manoeuvre-budgetaires-salarme-la-cour-des-comptes-avant-les-arbitrages-du-prochain-budget",
+        "Assemblée nationale, document européen E 20048 (proposition de la Commission, 2025 : absence de proposition de sanctions financières) : https://www.assemblee-nationale.fr/dyn/17/eurodoc/l17e20048_document-europeen-art88-4",
+        "BCE, communiqué du 21 juillet 2022 sur l'instrument de protection de la transmission, traduction Banque de France (critères d'éligibilité) : https://www.banque-france.fr/system/files/2024-02/CP-BCE-L_instrument_de_protection_de_la_transmission.pdf",
+        "Agence Europe, « La croissance du PIB à nouveau estimée à 0,4 % dans la zone euro au troisième trimestre 2026 », 16 novembre 2026 (données Eurostat) : https://agenceurope.eu/fr/bulletin/article/13982/21/la-croissance-du-pib-a-nouveau-estimee-a-04-dans-la-zone-euro-au-troisieme-trimestre-2026",
+        "Slate, « Seul Dupont-Aignan a célébré les vingt ans de Maastricht », 2012 (vote de 1992 et regret exprimé par Jean-Luc Mélenchon) : https://www.slate.fr/france/49637/france-presidentielle-2012-maastricht-dupont-aignan-melenchon-sarkozy"
+      ],
+      "analyse_longevites": {
+        "texte": "À court terme (0 à 2 ans), la mesure suppose d'abord une décision européenne ; si elle était obtenue, elle desserrerait l'obligation de suivre la trajectoire de dépenses fixée par le Conseil. À moyen terme (2 à 7 ans), la fin de la suspension ramènerait les règles : **la clause de 2020 a pris fin fin 2023, et la procédure contre la France a été ouverte dès juillet 2024**. À long terme (plus de 7 ans), le déficit supplémentaire s'ajoute au stock de dette, et toute hausse des taux se diffuse lentement : selon l'Agence France Trésor, un point de taux en plus de façon durable coûterait 3,2 milliards d'euros la première année mais 33,5 milliards au bout de neuf ans. Le programme renvoie la solution durable à une renégociation des traités, dont ni le contenu ni le calendrier ne sont garantis.",
+        "synthese": "Une suspension est temporaire : sans réforme durable des règles, son effet s'arrête avec elle, mais la dette reste."
+      },
+      "ce_qui_est_inconnu": {
+        "texte": "Le programme ne dit pas combien de temps durerait la suspension, quelle règle s'appliquerait pendant ce temps, ni quelles marges la France entend en tirer. **L'ampleur d'une réaction des marchés ne peut pas être chiffrée** : elle dépendrait de l'usage des marges et du comportement de la BCE. On ignore aussi comment la BCE appliquerait son critère de « respect du cadre budgétaire » si ce cadre était lui-même suspendu pour tous.",
+        "synthese": "On ignore la durée, les conditions de la suspension, et la réaction des marchés et de la BCE."
+      },
+      "contexte_programme": {
+        "texte": "La proposition figure dans le chapitre « Se libérer du libéralisme en Europe » de L'Avenir en commun, édition 2027, mis en ligne le 7 novembre 2026. Elle est rangée parmi les objectifs d'un « bloc de bifurcation » d'États, à côté de la fin du resserrement monétaire de la Banque centrale européenne (BCE) et de la reprise de ses achats de dettes publiques.\n\nLe même chapitre prévoit un moratoire voté par le Parlement français sur le semestre européen, la « désobéissance aux règles bloquantes » et, à terme, de nouveaux traités consacrant la « souveraineté budgétaire des parlements nationaux ». **Le programme annonce que la France appliquera son programme « même si cela n'est pas permis par les traités »** : la suspension pour tous n'est donc pas une condition préalable, mais un moyen de réduire la confrontation avec les institutions européennes.\n\nSur le passé, le candidat a appelé à voter oui au traité de Maastricht en 1992, qui a créé la règle des 3 %, puis a déclaré regretter ce vote. Les éditions précédentes de son programme contestaient déjà ces règles sous la forme d'une stratégie « plan A / plan B » ; **l'édition 2027 abandonne cette formule au profit d'une négociation en coalition et d'une désobéissance ciblée**, sans sortie de l'Union ni de l'euro.",
+        "synthese": "La mesure s'inscrit dans une stratégie à deux voies : négocier en coalition, et désobéir en parallèle si nécessaire."
+      },
+      "nature_et_existant": "Mesure européenne, budgétaire et institutionnelle, qui relève du Conseil de l'Union européenne sur recommandation de la Commission, et non d'une décision française. Le seuil de 3 % figure dans les traités (article 126 du traité sur le fonctionnement de l'Union européenne et son protocole n° 12) ; sa mise en œuvre passe par le pacte de stabilité et de croissance, réformé en avril 2024. Une suspension pour tous existe déjà dans le droit : c'est la « clause dérogatoire générale », désormais inscrite à l'article 25 du règlement (UE) 2024/1263. Elle permet à tous les États de s'écarter de leur trajectoire budgétaire, mais seulement en cas de grave récession dans la zone euro ou dans l'ensemble de l'Union, et à condition de ne pas mettre en péril la viabilité budgétaire à moyen terme. Elle n'a été activée qu'une fois, de mars 2020 à fin 2023, et elle ne suspend ni les procédures ni la valeur de 3 % inscrite dans le traité : elle autorise un écart temporaire. Modifier la valeur elle-même relèverait d'une révision du protocole à l'unanimité (article 126, paragraphe 14). Depuis 2025, une clause dérogatoire nationale a aussi été activée pour seize États, mais pour les seules dépenses de défense. La mesure est donc un retour à un dispositif existant, demandé hors de la situation de crise que les textes exigent, et non une innovation.",
+      "notation_detaillee": {
+        "efficacite": 7,
+        "score_total": 40,
+        "appreciation": "partiellement fondé",
+        "plafond_applique": false,
+        "degre_preparation": 2,
+        "alignement_logique": 7,
+        "plafond_declencheur": null,
+        "qualification_juridique": "INCERTAIN",
+        "qualification_alignement": "INCERTAIN",
+        "qualification_budgetaire": "INCERTAIN",
+        "qualification_efficacite": "FRAGILE",
+        "operationnalite_juridique": 4,
+        "qualification_preparation": "FRAGILE",
+        "operationnalite_budgetaire": 3,
+        "effets_rebonds_externalites": 8,
+        "operationnalite_moyens_total": 16,
+        "qualification_effets_rebonds": "INCERTAIN",
+        "qualification_moyens_humains": "SOLIDE",
+        "operationnalite_moyens_humains": 9
+      },
+      "verdict_conclusion": "Un objectif de négociation cohérent avec le programme, mais une condition légale non remplie et un bénéfice quasi nul pour le vrai problème français : le coût de l'emprunt.",
+      "ce_qui_est_probable": {
+        "texte": "La France dépasse déjà le seuil sans sanction financière : **une suspension changerait surtout son statut juridique, pas sa capacité à emprunter à bon prix**. Il est probable que les investisseurs regardent la trajectoire réelle de la dette plutôt que le statut de la règle. Il est également probable que d'autres États, dont l'Allemagne, préfèrent les flexibilités ciblées déjà obtenues pour la défense à une suspension générale.",
+        "synthese": "Pour la France, le vrai frein resterait le coût de l'emprunt, qu'une suspension juridique ne fait pas baisser."
+      },
+      "niveau_de_confiance": "Élevé sur le cadre juridique (existence et condition de la clause dérogatoire générale), sur la situation budgétaire française et sur la sensibilité de la charge de la dette aux taux, tous établis par des sources primaires ou institutionnelles. Moyen sur l'efficacité réelle et les effets de bord, qui dépendent de la réaction des marchés et de la BCE, impossible à chiffrer à l'avance, et d'une interprétation de la mesure que le candidat n'a pas précisée.",
+      "analyse_par_criteres": [
+        {
+          "note": 16,
+          "texte": "**La suspension pour tous n'est juridiquement prévue qu'en cas de grave récession dans la zone euro ou l'Union**, condition non remplie avec une croissance de 1,3 % sur un an : il faudrait attendre une crise ou réécrire le règlement de 2024 à la majorité qualifiée. Côté budgétaire, la mesure autorise plus de déficit sans aucune limite fixée, dans un pays qui paie déjà environ 77 milliards d'euros d'intérêts en 2026 ; le sens de l'effet est connu, pas son ampleur. Les moyens administratifs, eux, ne posent aucun problème : **en 2020, la décision avait été prise en trois jours**.",
+          "titre": "Opérationnalité & Moyens",
+          "critere": "operationnalite_moyens",
+          "note_max": 30,
+          "plafond_applique": false,
+          "plafond_declencheur": null
+        },
+        {
+          "note": 7,
+          "texte": "Le levier ne vise pas le vrai verrou : **la France dépasse déjà les 3 % (5,1 % en 2025) sans sanction financière**, et ce qui limite ses marges, c'est le coût de l'emprunt, avec un taux à 10 ans au-dessus de 5 % depuis octobre 2026. Une suspension juridique ne change rien à ce chiffre. Le précédent de 2020 a fonctionné en récession et avec une BCE acheteuse de dette ; **ces deux conditions manquent en 2026**. La note reste au-dessus du plancher car le « pour tous » desserrerait réellement la contrainte des États proches du seuil.",
+          "titre": "Efficacité",
+          "critere": "efficacite",
+          "note_max": 30
+        },
+        {
+          "note": 8,
+          "texte": "Les risques identifiés pèsent face à un bénéfice presque nul pour la France. **Le filet de sécurité de la BCE contre les envolées de taux est réservé aux États qui respectent le cadre budgétaire européen**, et la stratégie de désobéissance prévue en parallèle par le programme en priverait la France. Une hausse durable de 0,5 point des taux coûterait environ 1,5 milliard d'euros la première année et 5,6 milliards la troisième, selon la sensibilité documentée par la Cour des comptes. Seule l'ampleur réelle d'une telle réaction des marchés manque, ce qui maintient la note en zone incertaine plutôt qu'au plancher.",
+          "titre": "Effets rebonds & Externalités",
+          "critere": "effets_rebonds_externalites",
+          "note_max": 20
+        },
+        {
+          "note": 2,
+          "texte": "**Une ligne dans une liste, sans durée, sans conditions ni chiffrage.** Le renvoi explicite au précédent du Covid désigne un dispositif connu, ce qui évite la note minimale. Mais le programme ne précise ni la base juridique à utiliser hors récession, ni ce qui remplacerait la règle pendant la suspension, ni le montant des marges que la France entend en tirer.",
+          "titre": "Degré de préparation",
+          "critere": "degre_preparation",
+          "note_max": 10
+        },
+        {
+          "note": 7,
+          "texte": "La mesure est cohérente avec le reste du programme : elle accompagne la demande de rachats de dette par la BCE, le moratoire sur le semestre européen et la « souveraineté budgétaire des parlements nationaux ». **Le candidat a appelé à voter oui à Maastricht en 1992, traité qui a créé la règle des 3 %, avant de dire regretter ce vote** ; ce changement ancien et assumé, comme l'abandon du « plan A / plan B », place la note en haut de la zone incertaine plutôt qu'en zone solide.",
+          "titre": "Alignement & Logique globale",
+          "critere": "alignement_logique",
+          "note_max": 10
+        }
+      ],
+      "impact_environnement": {
+        "texte": "La suspension d'une règle budgétaire n'a, en elle-même, **aucun effet direct sur les émissions ou sur les engagements climatiques** de la France. Le programme associe ces marges à la « bifurcation écologique », ce qui pourrait financer de l'investissement climatique, mais la mesure ne fléchit aucune dépense. À court terme (0 à 2 ans) comme à moyen terme (2 à 7 ans), l'effet dépend entièrement des choix budgétaires ultérieurs ; à long terme (plus de 7 ans), une charge d'intérêts plus lourde pourrait au contraire réduire les moyens disponibles pour la transition.",
+        "synthese": "Aucun effet direct ; un effet indirect dépendrait de l'usage des marges, que la mesure ne précise pas."
+      },
+      "mesure_vers_objectif": {
+        "lien_causal": "indirect",
+        "objectif_vise": "Libérer les États membres, et d'abord la France, de ce que le programme appelle des politiques budgétaires « austéritaires », pour dégager des marges de dépense et d'investissement public.",
+        "objectif_court": "Desserrer la contrainte budgétaire européenne",
+        "mecanisme_propose": "Obtenir du Conseil de l'Union européenne, avec une coalition d'États, la suspension pour tous de la règle des 3 % de déficit, sur le modèle de la clause dérogatoire générale activée de 2020 à 2023.",
+        "categorie_objectif": "Dette et finances publiques"
+      },
+      "ce_qui_est_discutable": {
+        "texte": "Le seuil de 3 % n'a pas de fondement économique universel, et le cadre réformé en 2024 a lui-même déplacé l'évaluation vers une analyse de soutenabilité de la dette, dont **les hypothèses de modélisation sont contestées par plusieurs économistes**. On peut donc défendre que le seuil est inadapté, sans que cela prouve qu'une suspension générale soit la bonne réponse. La possibilité de former une coalition d'États favorables relève d'un arbitrage politique, pas d'un fait établi.",
+        "synthese": "La pertinence économique du seuil de 3 % est débattue, ce qui donne une part de légitimité à la demande."
+      },
+      "contexte_international": {
+        "texte": "En mars 2020, la Commission a proposé d'activer la clause dérogatoire générale et les ministres des finances l'ont acceptée trois jours plus tard ; elle est restée en vigueur jusqu'à fin 2023. Le programme du candidat le rappelle lui-même : la suspension était alors à la fois budgétaire et monétaire, la BCE rachetant massivement des dettes publiques.\n\nLa situation de 2026 est différente. **Le PIB de la zone euro a progressé de 0,4 % au troisième trimestre et de 1,3 % sur un an**, selon Eurostat ; seules la France (-0,1 %) et la Lituanie ont reculé sur le trimestre. Dès 2025, le Conseil relevait que la condition d'une grave récession dans la zone euro ou l'Union n'était pas remplie. L'inflation reste persistante et la BCE a relevé ses taux.\n\nL'Union a pourtant montré qu'elle pouvait assouplir collectivement ses règles hors crise économique : seize États ont obtenu en 2025 une clause dérogatoire nationale pour leurs dépenses de défense. Ce précédent montre qu'une majorité d'États peut s'entendre, mais pour une dépense ciblée, pas pour une suspension générale. Enfin, **l'instrument de la BCE qui protège un pays contre une envolée injustifiée de ses taux est réservé aux États qui respectent le cadre budgétaire européen**. Transposabilité : le précédent de 2020 portait sur un choc commun à tous les pays, ce qui n'est pas le cas aujourd'hui.",
+        "synthese": "La suspension de 2020 a marché en récession, avec une BCE acheteuse ; aucune de ces conditions n'existe en 2026."
+      },
+      "impact_temporel_et_sectoriel": {
+        "texte": "Inflation et pouvoir d'achat : dans une zone euro où l'inflation reste persistante, une relance budgétaire coordonnée de plusieurs États ajouterait de la demande ; **la BCE pourrait y répondre par des taux plus élevés**, ce qui renchérirait les crédits des ménages à moyen terme. L'ampleur dépend de l'usage des marges, que la mesure ne fixe pas.\n\nConsommation des ménages : si les marges financent des transferts ou de l'investissement public, l'effet serait positif à court terme (0 à 2 ans), puis atténué par la hausse des taux à moyen terme.\n\nStabilité bancaire : les banques détiennent des titres de dette publique, dont la valeur baisse quand les taux montent. Le mécanisme est connu, mais sources insuffisantes pour trancher ici sur l'ampleur d'un tel effet pour les banques françaises.",
+        "synthese": "Effets macroéconomiques plausibles mais non chiffrables : un peu de soutien à court terme, des taux plus élevés ensuite."
+      }
+    }
+  }
+}

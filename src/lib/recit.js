@@ -1,7 +1,7 @@
 import { getScoreBands } from "./score.js";
 import { nombresHorsFiche } from "./nombres-fiche.js";
 import { longueurX, mentionneCandidat, nombreDeMots, remplirTweet } from "./reseaux.js";
-import { GRAS_MAX_PAR_SLIDE, grasDesequilibre, nombreGras, sansGras } from "./texte-gras.js";
+import { grasDesequilibre, MOTS_GRAS_MAX_PAR_SLIDE, nombreGras, nombreMotsGras, sansGras } from "./texte-gras.js";
 import { motCleNormalise } from "./illustrations.js";
 
 // Carrousel détaillé (8 slides) et tweet long d'une fiche, écrits par Claude
@@ -289,6 +289,7 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     note: {
       titre: texte(n.titre),
       explication: texte(n.explication),
+      // Lignes par critère : facultatives (anciennes versions), plus affichées.
       criteres: Object.fromEntries(CLES_CRITERES.map((cle) => [cle, texte(n.criteres?.[cle])])),
     },
     court_terme: { titre: texte(raw.court_terme?.titre), effets: effets(raw.court_terme?.effets, "court terme, effet", avertissements, erreurs) },
@@ -300,6 +301,7 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
       coince: (Array.isArray(a.coince) ? a.coince : []).map(texte).filter(Boolean),
     },
     illustration_mots_cles: (Array.isArray(raw.illustration_mots_cles) ? raw.illustration_mots_cles : []).map(motCleNormalise).filter(Boolean),
+    illustration_sujet: motCleNormalise(raw.illustration_sujet ?? ""),
     legende: Object.fromEntries(PARTIES_LEGENDE.map((partie) => [partie, texte(raw.legende?.[partie])])),
     tweet: Object.fromEntries(PARTIES_TWEET.map((partie) => [partie, texte(raw.tweet?.[partie])])),
   };
@@ -329,7 +331,6 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     ["constat.proposition", recit.constat.proposition],
     ["note.titre", recit.note.titre],
     ["note.explication", recit.note.explication],
-    ...CLES_CRITERES.map((cle) => [`note.criteres.${cle}`, recit.note.criteres[cle]]),
     ["court_terme.titre", recit.court_terme.titre],
     ["court_terme.effets", recit.court_terme.effets.length ? "ok" : ""],
     ["long_terme.titre", recit.long_terme.titre],
@@ -371,7 +372,6 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     ["slide 2 (sources)", recit.constat.sources, "constat", false],
     ["slide 3 (titre)", recit.note.titre, "note", true],
     ["slide 3 (explication)", recit.note.explication, "note", true],
-    ...CLES_CRITERES.map((cle) => [`slide 3 (critère ${cle})`, recit.note.criteres[cle], "note", true]),
     ...[
       ["court_terme", "slide 4"],
       ["long_terme", "slide 5"],
@@ -436,11 +436,13 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     if (!ficheTexte.includes(sansAccents(m.lieu))) erreurs.push(`ailleurs ou avant ${i + 1} : lieu « ${m.lieu} » absent de la fiche (jamais de mesure ajoutée).`);
     if (m.annee && !ficheTexte.includes(sansAccents(m.annee))) erreurs.push(`ailleurs ou avant ${i + 1} : année « ${m.annee} » absente de la fiche.`);
   }
-  // Mots-clés d'illustration : 2 au plus, dans la liste fermée du thème.
+  // Mots-clés d'illustration : 2 au plus, dans la liste fermée de la
+  // bibliothèque ; `illustration_sujet` : le sujet concret de la mesure.
   if (motsClesIllustration) {
     for (const mot of recit.illustration_mots_cles) {
-      if (!motsClesIllustration.includes(mot)) erreurs.push(`illustration : mot-clé « ${mot} » hors de la liste du thème (${motsClesIllustration.join(", ") || "liste vide"}).`);
+      if (!motsClesIllustration.includes(mot)) erreurs.push(`illustration : mot-clé « ${mot} » hors de la liste de la bibliothèque (${motsClesIllustration.join(", ") || "liste vide"}).`);
     }
+    if (!recit.illustration_sujet) avertissements.push("illustration : sujet de la mesure (illustration_sujet) absent.");
   }
   if (recit.illustration_mots_cles.length > 2) {
     avertissements.push(`illustration : ${recit.illustration_mots_cles.length} mots-clés, seuls les 2 premiers sont gardés.`);
@@ -502,12 +504,12 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
   }
   // Gras par slide.
   const grasParSlide = {};
-  for (const [, t2, slide] of textes) grasParSlide[slide] = (grasParSlide[slide] ?? 0) + nombreGras(t2);
+  for (const [, t2, slide] of textes) grasParSlide[slide] = (grasParSlide[slide] ?? 0) + (["tweet", "legende"].includes(slide) ? nombreGras(t2) : nombreMotsGras(t2));
   for (const [slide, nombre] of Object.entries(grasParSlide)) {
     if (["tweet", "legende"].includes(slide)) {
       if (nombre > 0) avertissements.push(`${slide === "tweet" ? "tweet long" : "légende"} : balisage ** inutile hors des slides (X et Instagram ne l’affichent pas).`);
-    } else if (nombre > GRAS_MAX_PAR_SLIDE) {
-      avertissements.push(`${slide} : ${nombre} passages en gras (${GRAS_MAX_PAR_SLIDE} au plus par slide), les suivants seront en texte normal.`);
+    } else if (nombre > MOTS_GRAS_MAX_PAR_SLIDE) {
+      avertissements.push(`${slide} : ${nombre} mots en gras (${MOTS_GRAS_MAX_PAR_SLIDE} au plus par slide), les passages en trop seront en texte normal.`);
     }
   }
   if (!mentionneCandidat(recit.tweet.promesse, candidatNom)) avertissements.push("tweet long (promesse) : le candidat n’est pas nommé.");
@@ -531,7 +533,7 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
 // son type, src/lib/carrousel-recit.js), le tweet long, ou « toutes ».
 // La slide de fin est écrite par le code : elle ne se régénère pas.
 export const PARTIES_PAR_CIBLE = {
-  couverture: ["couverture", "illustration_mots_cles"],
+  couverture: ["couverture", "illustration_mots_cles", "illustration_sujet"],
   constat: ["constat"],
   noteRecit: ["note"],
   effetsCourt: ["court_terme"],
@@ -541,7 +543,7 @@ export const PARTIES_PAR_CIBLE = {
   legende: ["legende"],
   tweet: ["tweet"],
 };
-const PARTIES_REPONSE = ["couverture", "constat", "note", "court_terme", "long_terme", "ailleurs", "avis", "illustration_mots_cles", "legende", "tweet"];
+const PARTIES_REPONSE = ["couverture", "constat", "note", "court_terme", "long_terme", "ailleurs", "avis", "illustration_mots_cles", "illustration_sujet", "legende", "tweet"];
 
 export function cibleValide(cible) {
   return cible === "toutes" || Object.hasOwn(PARTIES_PAR_CIBLE, cible);
@@ -579,11 +581,21 @@ export function consigneRemarques({ precedent, remarque, cible, libelleCible }) 
 // Consigne de la relance quand un texte déborde de sa slide au rendu : les
 // champs à raccourcir, le reste recopié à l'identique. On ne réduit jamais la
 // police : on raccourcit le texte.
+// Hauteur d'une ligne de texte courant (38 px, interligne 1,32), pour dire
+// au modèle combien de lignes gagner.
+const LIGNE_COURANTE = 38 * 1.32;
+
 export function consigneRaccourcir(precedent, debordements) {
+  const detail = (d) => {
+    const lignes = d.manque ? Math.max(1, Math.ceil(d.manque / LIGNE_COURANTE)) : null;
+    const gain = lignes ? ` Il faut gagner au moins ${lignes} ligne(s) de texte (${d.manque} px).` : "";
+    const champs = d.champs?.length ? ` Raccourcis un ou plusieurs de ces champs : ${d.champs.join(", ")}.` : "";
+    return `- slide ${d.numero} (${d.libelle}) : ${d.bloc}.${gain}${champs}`;
+  };
   return [
     "TEXTE TROP LONG POUR LA SLIDE.",
-    "Voici ta réponse (acceptée), mais certains textes débordent de leur slide au rendu :",
-    ...debordements.map((d) => `- slide ${d.numero} (${d.libelle}) : ${d.bloc}`),
+    "Voici ta réponse (acceptée), mais certains textes débordent de leur slide au rendu (on ne réduit jamais la police) :",
+    ...debordements.map(detail),
     "",
     "Raccourcis UNIQUEMENT ces textes (phrases plus courtes, même sens, mêmes chiffres), sans changer les autres. Recopie toutes les autres clés à l'identique. Réponds avec le JSON complet.",
     JSON.stringify(reponseDepuisRecit(precedent), null, 2),

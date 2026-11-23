@@ -63,6 +63,7 @@ async function imagesRetenues({ proposition, recit, imagesRecentes }) {
   const { illustration } = choisirIllustration({
     theme: proposition.theme,
     motsCles: recit.illustration_mots_cles ?? [],
+    sujet: recit.illustration_sujet ?? "",
     recentes: recentes?.illustrations ?? [],
     alea: aleaFiche(graine),
   });

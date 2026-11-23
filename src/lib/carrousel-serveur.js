@@ -102,6 +102,12 @@ export function recitDe(proposition, analyse, { precedent = false, photo = null,
   recit.avertissements.push(...avertissementsImagesRecit(proposition.candidat, recit.illustration, recit.photo));
   recit.debordements = debordementsCarrousel(recit.slides, mesureurCarrousel());
   for (const d of recit.debordements) recit.avertissements.push({ cle: `slide ${d.numero}`, fort: true, message: messageDebordement(d) });
+  // Un texte qui entre dans une zone réservée (pied de page, bande, collage)
+  // bloque l'archive : on ne publie pas une slide où le texte chevauche.
+  if (recit.debordements.length && !recit.blocageArchive) {
+    const slides = [...new Set(recit.debordements.map((d) => d.numero))].join(", ");
+    recit.blocageArchive = `Texte trop long sur la slide ${slides} : pas d’archive. Régénérez ces slides (ou toutes) pour que le modèle raccourcisse les textes.`;
+  }
   return recit;
 }
 

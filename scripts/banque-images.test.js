@@ -66,15 +66,28 @@ test("dossier de secours : thème sans image ou inconnu → images de « general
   assert.match(vide.avertissement, /npm run banque-images:themes/);
 });
 
-test("mots-clés du modèle : préférés tant qu'une de leurs images est libre", () => {
-  assert.equal(choisirIllustration({ theme: "sante", motsCles: ["c"], liste: BIBLIO }).illustration.fichier, f("c"));
-  const r = choisirIllustration({ theme: "sante", motsCles: ["c"], recentes: [f("c")], liste: BIBLIO });
-  assert.notEqual(r.illustration.fichier, f("c"));
+test("mots-clés de la mesure : images de toute la bibliothèque qui les portent, jamais une image hors sujet", () => {
+  // Une fiche « santé » sur le tabac : l'image du mot-clé, même rangée ailleurs.
+  const tabac = [...BIBLIO, { ...ill("tabac", "cendrier"), motsCles: ["cendrier"] }, { ...ill("tabac", "paquet"), motsCles: ["paquet"] }];
+  assert.equal(choisirIllustration({ theme: "sante", motsCles: ["cendrier"], liste: tabac }).illustration.fichier, f("cendrier", "tabac"));
+  // Deux images pour la mesure : celle du carrousel précédent est écartée.
+  const deux = choisirIllustration({ theme: "sante", motsCles: ["cendrier", "paquet"], recentes: [f("cendrier", "tabac")], liste: tabac });
+  assert.equal(deux.illustration.fichier, f("paquet", "tabac"));
+  // Une seule image pour le mot-clé : reprise même si elle a servi.
+  assert.equal(choisirIllustration({ theme: "sante", motsCles: ["c"], recentes: [f("c")], liste: BIBLIO }).illustration.fichier, f("c"));
+  // Sujet sans mot-clé, ou mot-clé sans image : pas d'image, et l'avertissement.
+  const sansImage = choisirIllustration({ theme: "sante", sujet: "tabac", liste: BIBLIO });
+  assert.equal(sansImage.illustration, null);
+  assert.match(sansImage.avertissement, /Pas d'image pour « tabac »/);
+  assert.match(choisirIllustration({ theme: "sante", motsCles: ["carburant"], liste: BIBLIO }).avertissement, /Pas d'image pour « carburant »/);
+  // Ni sujet ni mot-clé (anciennes versions) : tirage dans le thème.
+  assert.equal(choisirIllustration({ theme: "sante", liste: BIBLIO }).illustration.theme, "sante");
 });
 
-test("« Changer d'image » : le fichier demandé est pris s'il fait partie des images de la fiche", () => {
+test("« Changer d'image » : le fichier demandé est pris s'il est dans la bibliothèque", () => {
   assert.equal(choisirIllustration({ theme: "sante", demandee: f("d"), recentes: [f("d")], liste: BIBLIO }).illustration.fichier, f("d"));
-  assert.notEqual(choisirIllustration({ theme: "sante", demandee: f("banc", "retraites"), liste: BIBLIO }).illustration.theme, "retraites");
+  assert.equal(choisirIllustration({ theme: "sante", demandee: f("banc", "retraites"), liste: BIBLIO }).illustration.theme, "retraites");
+  assert.equal(choisirIllustration({ theme: "sante", demandee: "illustrations/x/inconnue.jpg", liste: BIBLIO }).illustration.theme, "sante");
   assert.equal(cleSuivante(["a", "b", "c"], "a"), "b");
   assert.equal(cleSuivante(["a", "b", "c"], "c"), "a");
   assert.equal(cleSuivante(["a", "b", "c"], "a", ["b"]), "c");

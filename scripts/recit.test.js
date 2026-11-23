@@ -49,9 +49,13 @@ test("refus : JSON invalide, champ manquant, ancien format v5", () => {
   const sansProposition = reponse();
   delete sansProposition.constat.proposition;
   assert.match(controlerRecit(sansProposition, CONTEXTE).erreurs[0], /constat\.proposition/);
-  const sansCritere = reponse();
-  delete sansCritere.note.criteres.efficacite;
-  assert.match(controlerRecit(sansCritere, CONTEXTE).erreurs[0], /note\.criteres\.efficacite/);
+  const sansExplication = reponse();
+  delete sansExplication.note.explication;
+  assert.match(controlerRecit(sansExplication, CONTEXTE).erreurs[0], /note\.explication/);
+  // Les lignes par critère ne sont plus demandées : leur absence est acceptée.
+  const sansCriteres = reponse();
+  delete sansCriteres.note.criteres;
+  assert.equal(controlerRecit(sansCriteres, CONTEXTE).valide, true);
   assert.match(controlerRecit({ concretement: { titre: "x" }, tient: { tient: ["a"] } }, CONTEXTE).erreurs[0], /format précédent \(v5\)/);
 });
 
@@ -142,8 +146,8 @@ test("stockage : seule reseaux_recit change, l'ancien gardé sous precedent", ()
 
 test("message : prompt, mots-clés d'illustration, puis fiche, sans les ajouts des étapes suivantes", () => {
   const message = construireMessageRecit("PROMPT", { ...FICHE, reseaux_recit: { x: 1 }, version_basique: { resume: "r" } }, { motsClesIllustration: ["billets", "caisse"] });
-  assert.match(message, /^PROMPT\n\nMOTS-CLÉS D'ILLUSTRATION DISPONIBLES POUR CE THÈME : billets, caisse\n\nFICHE FINALE :\n/);
-  assert.match(construireMessageRecit("P", FICHE), /DISPONIBLES POUR CE THÈME : \(aucun : mets illustration_mots_cles à \[\]\)/);
+  assert.match(message, /^PROMPT\n\nMOTS-CLÉS D'ILLUSTRATION DISPONIBLES \(toute la bibliothèque\) : billets, caisse\n\nFICHE FINALE :\n/);
+  assert.match(construireMessageRecit("P", FICHE), /DISPONIBLES \(toute la bibliothèque\) : \(aucun : mets illustration_mots_cles à \[\]\)/);
   assert.ok(!message.includes("version_basique"));
   assert.ok(!message.includes("reseaux_recit"));
   assert.deepEqual(Object.keys(fichePourRecit({ a: 1, reseaux: 2, reel: 3 })), ["a"]);
@@ -272,7 +276,8 @@ const BIBLIO = [
 
 test("image de thème : thème de la fiche, mots-clés du modèle, dernière image évitée, thème vide signalé", () => {
   assert.deepEqual(themesBibliotheque("economie"), ["economie", "fiscalite"]);
-  assert.deepEqual(motsClesDisponibles("economie", BIBLIO), ["billets", "caisse", "formulaire"]);
+  // Mots-clés de toute la bibliothèque : le modèle choisit selon la mesure.
+  assert.deepEqual(motsClesDisponibles("economie", BIBLIO), ["banc", "billets", "caisse", "formulaire"]);
   assert.equal(choisirIllustration({ theme: "economie", motsCles: ["billets"], liste: BIBLIO }).illustration.fichier, "illustrations/economie/billets.jpg");
   // Tirage : alea 0 → la première ; en évitant la dernière utilisée.
   assert.equal(choisirIllustration({ theme: "retraites", alea: 0.5, liste: BIBLIO }).illustration.auteur, "D");

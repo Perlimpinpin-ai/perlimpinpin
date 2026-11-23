@@ -10,9 +10,14 @@ import { morceauxSurlignes } from "./recit.js";
 //  - les titres sont répartis sur des lignes équilibrées, jamais un mot seul
 //    en bout de ligne ;
 //  - tailles FIXES (texte courant 38 px, 24 px au moins pour les plus petits) :
-//    on ne réduit jamais la police. Un bloc qui ne tient pas est signalé
-//    (« texte trop long, slide N ») et la génération peut demander au modèle
-//    de raccourcir ce champ.
+//    on ne réduit jamais la police ;
+//  - chaque bloc est empilé à sa position réelle (y, hauteur), avec les mêmes
+//    écarts que le rendu. Zones RÉSERVÉES : le pied de page et la bande de
+//    hachures (slides 2 à 8), le collage de la couverture (bloc foncé, photo
+//    du candidat, papier jaune). Tout bloc de texte qui y entre est un
+//    débordement, nommé, avec les champs du modèle à raccourcir : la
+//    génération relance le modèle sur ces champs ; s'il en reste, avertissement
+//    rouge et pas d'archive (src/lib/carrousel-serveur.js).
 // Fonctions PURES : `mesurer(texte, taille, police, espacement)` est fourni
 // par l'appelant. Testées par scripts/carrousel-detaille.test.js.
 
@@ -39,7 +44,10 @@ export const STYLES = {
   petit: { taille: 24, interligne: 1.3, police: "texte500", espacement: 0 },
   etiquette: { taille: 24, interligne: 1.2, police: "mono", espacement: 1 },
   valeur: { taille: 56, interligne: 1.05, police: "texte800", espacement: -1.5 },
-  score: { taille: 150, interligne: 1, police: "texte800", espacement: -6 },
+  score: { taille: 172, interligne: 1, police: "texte800", espacement: -7 },
+  // Slide 3 (la note) : titre d'avis en taille de texte courant.
+  titreNote: { taille: 42, interligne: 1.2, police: "texte800", espacement: -0.8 },
+  critereNom: { taille: 30, interligne: 1.2, police: "texte800", espacement: 0 },
 };
 
 // Espacements verticaux (px), partagés par la mesure et le rendu.
@@ -55,10 +63,23 @@ export const ECARTS = {
   tuileGap: 16,
   paddingTuile: 12,
   onglets: 72,
-  scoreLigne: 146,
+  scoreLigne: 178,
   enteteCarte: 44,
   barre: 10,
+  // Slide 3 : critères (nom et sous-note, barre épaisse, de l'air entre eux).
+  apresScore: 24,
+  apresTitreNote: 16,
+  avantCriteres: 28,
+  critereLigne: 40,
+  critereBarreEcart: 10,
+  critereBarre: 18,
+  critereEcart: 22,
+  bordCarte: 2, // bordures haute et basse des cartes (1 px chacune)
 };
+
+// Zone réservée des slides 2 à 8 : pied de page et bande de hachures, sous la
+// zone de contenu. Aucun texte ne doit y entrer.
+export const ZONE_PIED = { nom: "le pied de page", x: 0, y: BAS_ZONE, largeur: LARGEUR, hauteur: HAUTEUR - BAS_ZONE };
 export const TITRES_LIGNES_MAX = 3;
 export const PICTO = 112;
 
@@ -75,6 +96,15 @@ export const COUVERTURE = {
   bande: 28, // bande de hachures plus fine sur la couverture
   paddingSurlignage: 10,
 };
+// Collage de la couverture (mêmes coordonnées que le rendu,
+// src/app/api/carrousel/[id]/slides-detaille.js), avec 16 px de marge : bloc
+// foncé incliné et photo du candidat à droite, papier jaune déchiré en bas à
+// gauche (avec « Glissez » et les crédits).
+const BAS_COUVERTURE = HAUTEUR - 28;
+export const ZONES_COUVERTURE = [
+  { nom: "la photo du candidat", x: 470, y: 744 - 16, largeur: LARGEUR - 470, hauteur: HAUTEUR - 744 + 16 },
+  { nom: "le papier jaune", x: 0, y: BAS_COUVERTURE - 400 - 16, largeur: 560, hauteur: 400 + 16 },
+];
 const PLACE_PICTO = PICTO + 40;
 
 // --- Coupure des lignes ------------------------------------------------------------
@@ -192,10 +222,11 @@ export function blocCouverture(question, mesurer) {
   }
   const e = espace(style, mesurer);
   // Le surlignage déborde de chaque côté de la ligne (padding) : place réservée.
-  // Colonne de 720 px comme le modèle ; toute la largeur si le titre
-  // dépasserait 4 lignes (nom long).
+  // Colonne de 720 px comme le modèle ; toute la largeur (entre les marges de
+  // la couverture) si le titre dépasserait 3 lignes : au-delà, le sous-titre
+  // descendrait sur le collage. La taille ne change jamais.
   let coupe = couperEquilibre(mots, COUVERTURE.largeurTitre - 2 * COUVERTURE.paddingSurlignage, e);
-  if (coupe.lignes.length > 4) coupe = couperEquilibre(mots, LARGEUR_UTILE - 2 * COUVERTURE.paddingSurlignage, e);
+  if (coupe.lignes.length > 3) coupe = couperEquilibre(mots, LARGEUR - 2 * COUVERTURE.marge - 2 * COUVERTURE.paddingSurlignage, e);
   const { lignes, malCoupe } = coupe;
   return { lignes, style, espace: e, hauteur: lignes.length * style.taille * style.interligne, malCoupe };
 }
@@ -204,9 +235,37 @@ export function blocCouverture(question, mesurer) {
 
 const hTexte = (b) => b.hauteur;
 
-// Débordement : liste de { bloc, raison }.
-function controleZone(hauteur, debordements, nom = "contenu", disponible = HAUTEUR_ZONE) {
-  if (hauteur > disponible) debordements.push({ bloc: nom, raison: `${Math.round(hauteur - disponible)} px de trop` });
+// Débordement : { bloc, raison, champs?, manque? } ; champs : clés du modèle
+// à raccourcir ; manque : hauteur à gagner (px).
+
+// Empilement vertical des blocs d'une slide à partir du haut de la zone de
+// contenu : [nom, hauteur, écart avant]. Renvoie { hauteur, boites } ;
+// boites : [{ nom, x, y, largeur, hauteur }] en coordonnées de la slide.
+export function empiler(elements, { haut = HAUT_ZONE, x = MARGE, largeur = LARGEUR_UTILE } = {}) {
+  const boites = [];
+  let y = haut;
+  for (const [nom, h, avant = 0] of elements) {
+    if (!h) continue;
+    y += avant;
+    boites.push({ nom, x, y, largeur, hauteur: h });
+    y += h;
+  }
+  return { hauteur: y - haut, boites };
+}
+
+// Deux rectangles se touchent-ils ?
+export function seTouchent(a, b) {
+  return a.x < b.x + b.largeur && b.x < a.x + a.largeur && a.y < b.y + b.hauteur && b.y < a.y + a.hauteur;
+}
+
+// Boîtes qui entrent dans une zone réservée → un débordement nommé, avec les
+// champs du modèle à raccourcir et la hauteur à gagner.
+function controleZones(boites, zones, champs, debordements) {
+  const touchees = boites.flatMap((b) => zones.filter((z) => seTouchent(b, z)).map((z) => ({ b, z })));
+  if (!touchees.length) return;
+  const manque = Math.max(...touchees.map(({ b, z }) => Math.ceil(b.y + b.hauteur - z.y)));
+  const noms = [...new Set(touchees.map(({ b, z }) => `« ${b.nom} » touche ${z.nom}`))];
+  debordements.push({ bloc: noms.join(" ; "), raison: `${manque} px de trop`, champs, manque });
 }
 
 function controleTitre(b, nom, debordements, max = TITRES_LIGNES_MAX) {
@@ -219,13 +278,21 @@ function miseEnPageCouverture(slide, m) {
   const titre = blocCouverture(slide.question, m);
   const sousTitre = bloc(slide.sousTitre, STYLES.sousTitre, COUVERTURE.largeurSousTitre, m, { equilibre: true, gras: false });
   controleTitre(titre, "question de couverture", debordements, 5);
-  // Le titre et le sous-titre tiennent au-dessus du collage.
+  // Chaque ligne du titre et du sous-titre, à sa place réelle, ne doit pas
+  // toucher le collage (photo du candidat, bloc foncé, papier jaune).
   const hauteur = titre.hauteur + COUVERTURE.ecartSousTitre + sousTitre.hauteur;
-  controleZone(hauteur, debordements, "question de couverture", COUVERTURE.basTexte - COUVERTURE.hautTitre);
+  const hTitre = STYLES.couverture.taille * STYLES.couverture.interligne;
+  const hSous = STYLES.sousTitre.taille * STYLES.sousTitre.interligne;
+  const pad = COUVERTURE.paddingSurlignage;
+  const boites = [
+    ...titre.lignes.map((l, i) => ({ nom: `question, ligne ${i + 1}`, x: COUVERTURE.marge - pad, y: COUVERTURE.hautTitre + i * hTitre, largeur: l.largeur + 2 * pad, hauteur: hTitre })),
+    ...sousTitre.lignes.map((l, i) => ({ nom: `sous-titre, ligne ${i + 1}`, x: COUVERTURE.marge, y: COUVERTURE.hautTitre + titre.hauteur + COUVERTURE.ecartSousTitre + i * hSous, largeur: l.largeur, hauteur: hSous })),
+  ];
+  controleZones(boites, ZONES_COUVERTURE, ["couverture.question"], debordements);
   // Crédit photo en petit, en bas : une seule ligne.
   const credits = slide.credits?.length ? bloc(slide.credits.join(" · "), STYLES.creditsCouverture, COUVERTURE.largeurCredits - 20, m, { gras: false }) : null;
   if (credits && credits.lignes.length > COUVERTURE.lignesCredits) debordements.push({ bloc: "crédits photo", raison: `${credits.lignes.length} lignes (${COUVERTURE.lignesCredits} au plus) : auteur trop long, à abréger dans src/lib/photos-candidats.js ou src/lib/illustrations.js` });
-  return { titre, sousTitre, credits, hauteur, debordements };
+  return { titre, sousTitre, credits, hauteur, boites, debordements };
 }
 
 function miseEnPageConstat(slide, m) {
@@ -247,26 +314,37 @@ function miseEnPageConstat(slide, m) {
   const proposition = bloc(slide.proposition, STYLES.courant, interieurCarte, m);
   const imprecisions = slide.imprecisions ? bloc(slide.imprecisions, STYLES.secondaire, interieurCarte, m) : null;
   const sources = slide.sources ? bloc(`Source : ${slide.sources}`, STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
-  const hauteurCarte = 2 * ECARTS.paddingCarte + hTexte(proposition) + (imprecisions ? 12 + hTexte(imprecisions) : 0);
-  const hauteur =
-    ECARTS.etiquette + ECARTS.apresEtiquette + hTexte(titre) + ECARTS.apresTitre + hTexte(explication) + ECARTS.bloc +
-    rangees * ECARTS.tuile + (rangees - 1) * ECARTS.tuileGap + ECARTS.bloc + hauteurCarte + (sources ? 16 + hTexte(sources) : 0);
-  controleZone(hauteur, d);
-  return { titre, explication, tuiles, proposition, imprecisions, sources, hauteurCarte, hauteur, debordements: d };
+  const hauteurCarte = 2 * ECARTS.paddingCarte + ECARTS.bordCarte + hTexte(proposition) + (imprecisions ? 12 + hTexte(imprecisions) : 0);
+  const { hauteur, boites } = empiler([
+    ["étiquette « Le constat »", ECARTS.etiquette],
+    ["titre", hTexte(titre), ECARTS.apresEtiquette],
+    ["explication", hTexte(explication), ECARTS.apresTitre],
+    ["chiffres clés", rangees * ECARTS.tuile + (rangees - 1) * ECARTS.tuileGap, ECARTS.bloc],
+    ["proposition", hauteurCarte, ECARTS.bloc],
+    ["Source : …", sources ? hTexte(sources) : 0, 16],
+  ]);
+  controleZones(boites, [ZONE_PIED], ["constat.explication", "constat.proposition", "constat.imprecisions", "constat.sources", "constat.titre"], d);
+  return { titre, explication, tuiles, proposition, imprecisions, sources, hauteurCarte, hauteur, boites, debordements: d };
 }
 
+// Slide 3 : score en grand, titre d'avis et explication en taille de texte
+// courant, puis les 5 critères (nom, sous-note, barre), sans phrase par critère.
+export const HAUTEUR_CRITERE = ECARTS.critereLigne + ECARTS.critereBarreEcart + ECARTS.critereBarre;
 function miseEnPageNote(slide, m) {
   const d = [];
-  const titre = bloc(slide.titre, STYLES.titreAvis, LARGEUR_UTILE, m, { equilibre: true });
+  const titre = bloc(slide.titre, STYLES.titreNote, LARGEUR_UTILE, m, { equilibre: true });
   controleTitre(titre, "titre d’avis", d);
   const explication = bloc(slide.explication, STYLES.courant, LARGEUR_UTILE, m);
-  const criteres = slide.criteres.map((c) => ({ ...c, ligne: c.ligne ? bloc(c.ligne, STYLES.critere, LARGEUR_UTILE, m) : null }));
-  const hCritere = (c) => 36 + 8 + ECARTS.barre + (c.ligne ? 8 + hTexte(c.ligne) : 0);
-  const hauteur =
-    ECARTS.etiquette + ECARTS.apresEtiquette + ECARTS.scoreLigne + 18 + hTexte(titre) + 14 + hTexte(explication) + 22 +
-    criteres.reduce((t, c, i) => t + hCritere(c) + (i ? 12 : 0), 0);
-  controleZone(hauteur, d);
-  return { titre, explication, criteres, hauteur, debordements: d };
+  const criteres = slide.criteres.map((c) => ({ label: c.label, note: c.note, max: c.max }));
+  const { hauteur, boites } = empiler([
+    ["étiquette « La note »", ECARTS.etiquette],
+    ["score", ECARTS.scoreLigne, ECARTS.apresEtiquette],
+    ["titre d’avis", hTexte(titre), ECARTS.apresScore],
+    ["explication", hTexte(explication), ECARTS.apresTitreNote],
+    ...criteres.map((c, i) => [c.label, HAUTEUR_CRITERE, i ? ECARTS.critereEcart : ECARTS.avantCriteres]),
+  ]);
+  controleZones(boites, [ZONE_PIED], ["note.explication", "note.titre"], d);
+  return { titre, explication, criteres, hauteur, boites, debordements: d };
 }
 
 function miseEnPageEffets(slide, m) {
@@ -275,10 +353,15 @@ function miseEnPageEffets(slide, m) {
   controleTitre(titre, "titre", d);
   const interieur = LARGEUR_UTILE - 2 * ECARTS.paddingCarteX;
   const effets = slide.effets.map((effet) => ({ ...effet, corps: bloc(effet.texte, STYLES.courant, interieur, m) }));
-  const hEffet = (e) => 2 * 22 + ECARTS.enteteCarte + 8 + hTexte(e.corps);
-  const hauteur = ECARTS.onglets + ECARTS.bloc + hTexte(titre) + ECARTS.apresTitre + effets.reduce((t, e, i) => t + hEffet(e) + (i ? ECARTS.carte : 0), 0);
-  controleZone(hauteur, d);
-  return { titre, effets, hEffet: effets.map(hEffet), hauteur, debordements: d };
+  const hEffet = (e) => 2 * 22 + ECARTS.bordCarte + ECARTS.enteteCarte + 8 + hTexte(e.corps);
+  const partie = slide.onglet === "long" ? "long_terme" : "court_terme";
+  const { hauteur, boites } = empiler([
+    ["onglets", ECARTS.onglets],
+    ["titre", hTexte(titre), ECARTS.bloc],
+    ...effets.map((e, i) => [`effet « ${e.acteur} »`, hEffet(e), i ? ECARTS.carte : ECARTS.apresTitre]),
+  ]);
+  controleZones(boites, [ZONE_PIED], [...effets.map((_, i) => `${partie}.effets.${i}.texte`), `${partie}.titre`], d);
+  return { titre, effets, hEffet: effets.map(hEffet), hauteur, boites, debordements: d };
 }
 
 function miseEnPageAilleurs(slide, m) {
@@ -288,15 +371,19 @@ function miseEnPageAilleurs(slide, m) {
   const interieur = LARGEUR_UTILE - 2 * ECARTS.paddingCarteX;
   const mesures = slide.mesures.map((mesure) => ({
     ...mesure,
-    faitBloc: bloc(`**${mesure.fait.replace(/\*\*/g, "")}**`, STYLES.courant, interieur, m),
+    faitBloc: bloc(mesure.fait, STYLES.courant, interieur, m),
     resultatBloc: mesure.resultat ? bloc(mesure.resultat, STYLES.courant, interieur, m) : null,
   }));
-  const hMesure = (x) => 2 * ECARTS.paddingCarte + 48 + 10 + hTexte(x.faitBloc) + (x.resultatBloc ? 8 + hTexte(x.resultatBloc) : 0);
+  const hMesure = (x) => 2 * ECARTS.paddingCarte + ECARTS.bordCarte + 48 + 10 + hTexte(x.faitBloc) + (x.resultatBloc ? 8 + hTexte(x.resultatBloc) : 0);
   const sources = slide.sources ? bloc(`Source : ${slide.sources}`, STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
-  const hauteur =
-    ECARTS.etiquette + ECARTS.apresEtiquette + hTexte(titre) + ECARTS.apresTitre + mesures.reduce((t, x, i) => t + hMesure(x) + (i ? 18 : 0), 0) + (sources ? 18 + hTexte(sources) : 0);
-  controleZone(hauteur, d);
-  return { titre, mesures, hMesure: mesures.map(hMesure), sources, hauteur, debordements: d };
+  const { hauteur, boites } = empiler([
+    ["étiquette « Ailleurs ou avant »", ECARTS.etiquette],
+    ["titre", hTexte(titre), ECARTS.apresEtiquette],
+    ...mesures.map((x, i) => [`mesure « ${x.lieu} »`, hMesure(x), i ? 18 : ECARTS.apresTitre]),
+    ["Source : …", sources ? hTexte(sources) : 0, 18],
+  ]);
+  controleZones(boites, [ZONE_PIED], [...mesures.flatMap((_, i) => [`ailleurs.mesures.${i}.fait`, `ailleurs.mesures.${i}.resultat`]), "ailleurs.sources"], d);
+  return { titre, mesures, hMesure: mesures.map(hMesure), sources, hauteur, boites, debordements: d };
 }
 
 function miseEnPageAvis(slide, m) {
@@ -307,10 +394,15 @@ function miseEnPageAvis(slide, m) {
   const points = (liste) => liste.map((p) => bloc(p, STYLES.courant, interieur, m));
   const tient = points(slide.tient);
   const coince = points(slide.coince);
-  const hCarte = (liste) => 2 * ECARTS.paddingCarte + ECARTS.enteteCarte + liste.reduce((t, p) => t + 12 + hTexte(p), 0);
-  const hauteur = ECARTS.etiquette + ECARTS.apresEtiquette + hTexte(avis) + 30 + hCarte(tient) + ECARTS.carte + hCarte(coince);
-  controleZone(hauteur, d);
-  return { avis, tient, coince, hTient: hCarte(tient), hCoince: hCarte(coince), hauteur, debordements: d };
+  const hCarte = (liste) => 2 * ECARTS.paddingCarte + ECARTS.bordCarte + ECARTS.enteteCarte + liste.reduce((t, p) => t + 12 + hTexte(p), 0);
+  const { hauteur, boites } = empiler([
+    ["étiquette « Notre avis »", ECARTS.etiquette],
+    ["notre avis", hTexte(avis), ECARTS.apresEtiquette],
+    ["ce qui tient", hCarte(tient), 30],
+    ["ce qui coince", hCarte(coince), ECARTS.carte],
+  ]);
+  controleZones(boites, [ZONE_PIED], [...slide.tient.map((_, i) => `avis.tient.${i}`), ...slide.coince.map((_, i) => `avis.coince.${i}`), "avis.avis"], d);
+  return { avis, tient, coince, hTient: hCarte(tient), hCoince: hCarte(coince), hauteur, boites, debordements: d };
 }
 
 export const TEXTES_FIN = {
@@ -329,9 +421,18 @@ function miseEnPageFin(slide, m) {
   const association = bloc(TEXTES_FIN.association, STYLES.courant, LARGEUR_UTILE, m);
   const sources = slide.sources?.length ? bloc(`Sources : ${slide.sources.join(" · ")}`, STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
   const credits = slide.credits?.length ? bloc(slide.credits.join(" · "), STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
-  const hauteur = hTexte(titre) + 30 + hTexte(texte) + 40 + 64 + 12 + 32 + 40 + hTexte(association) + 32 + 40 + (sources ? 28 + hTexte(sources) : 0) + (credits ? 10 + hTexte(credits) : 0);
-  controleZone(hauteur, d);
-  return { titre, texte, association, sources, credits, hauteur, debordements: d };
+  const { hauteur, boites } = empiler([
+    ["titre", hTexte(titre)],
+    ["texte", hTexte(texte), 30],
+    ["bouton", 64, 40],
+    ["lien", 32, 12],
+    ["association", hTexte(association), 40],
+    ["enregistrer", 40, 32],
+    ["Sources : …", sources ? hTexte(sources) : 0, 28],
+    ["crédits photo", credits ? hTexte(credits) : 0, 10],
+  ]);
+  controleZones(boites, [ZONE_PIED], [], d);
+  return { titre, texte, association, sources, credits, hauteur, boites, debordements: d };
 }
 
 const MISES_EN_PAGE = {

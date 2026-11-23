@@ -57,8 +57,9 @@ function afficher(titre, lignes, min, extra = () => []) {
   for (const l of lignes) {
     const tous = [...l.problemes, ...extra(l.slug)];
     problemes += tous.length;
-    const etat = l.manque ? `manque ${l.manque}` : "complet";
-    console.log(`  ${tous.length ? "✗" : l.manque ? "·" : "✓"} ${l.slug.padEnd(28)} ${String(l.n).padStart(2)}/${min}  ${etat}`);
+    const sujet = THEMES_ILLUSTRATIONS[l.slug]?.sujet;
+    const etat = sujet ? "sujet (pas d’objectif)" : l.manque ? `manque ${l.manque}` : "complet";
+    console.log(`  ${tous.length ? "✗" : l.manque ? "·" : "✓"} ${l.slug.padEnd(28)} ${String(l.n).padStart(2)}${sujet ? "  " : `/${min}`}  ${etat}`);
     for (const p of tous) console.log(`      - ${p}`);
   }
 }
