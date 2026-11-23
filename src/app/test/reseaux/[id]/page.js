@@ -31,7 +31,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
 
   const configuree = editionConfiguree();
   const editeur = configuree && (await isEditor());
-  const { publiee, brouillon, photo } = await searchParams;
+  const { publiee, brouillon, photo, image } = await searchParams;
 
   const proposition = editeur
     ? await prisma.proposition.findUnique({
@@ -112,6 +112,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
               brouillon={estBrouillon}
               numero={analyse.contenuComplet?.reseaux ? 4 : 2}
               photo={typeof photo === "string" ? photo : null}
+              image={typeof image === "string" ? image : null}
             />
           </>
         )}

@@ -312,10 +312,12 @@ export function legendeEtCouleur(
 // dans la bibliothèque, sinon un tirage stable pour la fiche dans le thème
 // (orienté par les mots-clés du modèle s'il y en a). Thème sans image : null
 // et un avertissement. Renvoie l'illustration (avec son crédit visible
-// éventuel) ou null.
-export function illustrationCouverture({ theme, contenu, propositionId, liste = ILLUSTRATIONS }, avertissements) {
+// éventuel) ou null. `demandee` : fichier voulu (bouton « Changer d'image »),
+// pris s'il fait partie des images de la fiche.
+export function illustrationCouverture({ theme, contenu, propositionId, demandee = null, liste = ILLUSTRATIONS }, avertissements) {
   const retenue = contenu?.reseaux_recit?.illustration;
-  const deja = retenue ? liste.find((ill) => ill.fichier === retenue) : null;
+  const voulue = demandee ? choisirIllustration({ theme, demandee, liste }).illustration : null;
+  const deja = voulue?.fichier === demandee ? voulue : retenue ? liste.find((ill) => ill.fichier === retenue) : null;
   const { illustration, avertissement } = deja
     ? { illustration: deja, avertissement: null }
     : choisirIllustration({ theme, motsCles: contenu?.reseaux_recit?.illustration_mots_cles ?? [], alea: aleaFiche(`illustration-${propositionId}`), liste });
@@ -411,11 +413,13 @@ export function legendeTropLongue(texte) {
 // URL d'une slide (route src/app/api/carrousel/[id]/route.js).
 // `recit` : carrousel détaillé en 8 slides (?version=recit) ; avec
 // `precedent`, sa version précédente (?version=recit-precedent), à comparer.
-// `photo` : numéro de la photo du candidat sur la couverture du carrousel détaillé.
-export function cheminSlide({ propositionId, numero, version, brouillon = false, recit = false, precedent = false, photo = null }) {
+// `photo` : numéro de la photo du candidat sur la couverture du carrousel détaillé ;
+// `image` : fichier de l'image de thème voulue (« Changer d'image »).
+export function cheminSlide({ propositionId, numero, version, brouillon = false, recit = false, precedent = false, photo = null, image = null }) {
   const params = new URLSearchParams({ ...(recit ? { version: precedent ? "recit-precedent" : "recit" } : {}), slide: String(numero), v: version });
   if (brouillon) params.set("brouillon", "1");
   if (photo !== null && photo !== undefined) params.set("photo", String(photo));
+  if (image) params.set("image", String(image));
   return `/api/carrousel/${propositionId}?${params}`;
 }
 

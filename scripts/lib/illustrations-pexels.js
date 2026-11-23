@@ -95,6 +95,7 @@ export function entreesBibliotheque(theme, retenues, existantes = []) {
       auteur: c.auteur,
       licence: c.licence,
       lien: c.lien,
+      ...(c.description ? { description: String(c.description).slice(0, 200) } : {}),
       telechargement: c.telechargement,
     });
   }
@@ -107,7 +108,7 @@ export function reecrireListe(source, entrees) {
   const debut = source.indexOf(REPERE_DEBUT);
   const fin = source.indexOf(REPERE_FIN);
   if (debut < 0 || fin < debut) throw new Error("Repères de la liste introuvables dans src/lib/illustrations.js.");
-  const propres = entrees.map(({ fichier, theme, motsCles, source: src, auteur, licence, lien }) => ({ fichier, theme, motsCles, source: src, auteur, licence, lien }));
+  const propres = entrees.map(({ fichier, theme, motsCles, source: src, auteur, licence, lien, description }) => ({ fichier, theme, motsCles, source: src, auteur, licence, lien, ...(description ? { description } : {}) }));
   const tableau = propres.length ? `[\n${propres.map((e) => `  ${JSON.stringify(e)},`).join("\n")}\n]` : "[]";
   return `${source.slice(0, debut)}${REPERE_DEBUT}\nexport const ILLUSTRATIONS = ${tableau};\n${source.slice(fin)}`;
 }

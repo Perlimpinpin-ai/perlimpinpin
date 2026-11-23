@@ -8,7 +8,7 @@ import { handleInstagramVerifie } from "./handles-instagram.js";
 import { CLES_CRITERES, controlerRecit, formatAncien, SOUS_TITRE_COUVERTURE } from "./recit.js";
 import { fichePourRecit } from "./recit-generation.js";
 import { couleurCarrousel, COULEUR_NEUTRE } from "./couleurs-carrousel.js";
-import { creditVisible } from "./illustrations.js";
+import { creditLegende, creditVisible, illustrationsPourFiche } from "./illustrations.js";
 import { choisirPhoto, creditsPhoto, PHOTOS_CANDIDATS, PHOTOS_MIN, photosDuCandidat } from "./photos-candidats.js";
 
 // Carrousel détaillé en 8 slides (7 sans mesure comparable), sa légende, ses
@@ -64,11 +64,12 @@ export function legendeRecit({ legende, candidatNom, theme, mention, credits }) 
 }
 
 // Crédits photo.
-//  - courts : sur la couverture, UNE seule ligne, celle de la photo Commons du
-//    candidat ; jamais de crédit Pexels sur l'image ;
-//  - fin : la même ligne, plus le crédit de l'image de thème seulement si sa
-//    licence exige un crédit visible (CC BY…), jamais pour Pexels ;
-//  - complets : tous les crédits avec leurs liens (credits.txt, légende).
+//  - courts : en tout petit en bas de la couverture : la photo Commons du
+//    candidat, plus l'image de thème si sa licence exige un crédit visible
+//    (CC BY, CC BY-SA) ; jamais pour CC0, domaine public ou Pexels ;
+//  - fin : les mêmes lignes sur la slide de fin ;
+//  - complets : tous les crédits avec leurs liens (credits.txt, fin de la
+//    légende Instagram).
 // `photo` : photo Commons du candidat (src/lib/photos-candidats.js) ou null.
 export function creditsPhotos({ illustration, photo }) {
   const courts = [];
@@ -79,10 +80,9 @@ export function creditsPhotos({ illustration, photo }) {
     complets.push(credit.complet);
   }
   const visible = creditVisible(illustration);
-  if (illustration) {
-    complets.push(`Photo d’illustration : ${illustration.auteur} / ${illustration.source} (${illustration.licence})${illustration.lien ? ` ${illustration.lien}` : ""}`);
-  }
-  return { courts, fin: visible ? [...courts, visible] : courts, complets };
+  if (visible) courts.push(visible);
+  if (illustration) complets.push(creditLegende(illustration));
+  return { courts, fin: courts, complets };
 }
 
 // Nom du candidat sur la couverture : le nom de famille (avec sa particule)
@@ -140,15 +140,16 @@ export function carrouselRecit(donnees) {
 
   // Image de thème : celle retenue à la génération de cette version, sinon tirage.
   const illustration = illustrationCouverture(
-    { theme, contenu: { reseaux_recit: { illustration: stocke.illustration, illustration_mots_cles: recit.illustration_mots_cles } }, propositionId, liste: donnees.illustrations },
+    { theme, contenu: { reseaux_recit: { illustration: stocke.illustration, illustration_mots_cles: recit.illustration_mots_cles } }, propositionId, demandee: donnees.illustrationDemandee ?? null, liste: donnees.illustrations },
     avertissements,
   );
-  // Photo du candidat (Wikimedia Commons) : celle demandée, sinon un tirage
-  // stable pour cette version ; aucune photo : vignette actuelle.
+  // Photo du candidat (Wikimedia Commons) : celle demandée, sinon celle
+  // retenue à la génération (hors des 2 derniers carrousels du candidat),
+  // sinon un tirage stable pour cette version ; aucune photo : vignette actuelle.
   const slug = slugCandidat({ nom: candidatNom, photoUrl });
   const listePhotos = donnees.photos ?? PHOTOS_CANDIDATS;
   const photosCandidat = photosDuCandidat(slug, listePhotos);
-  const photo = choisirPhoto({ slug, demandee: donnees.photoDemandee ?? null, graine: `${propositionId}-${stocke.genereLe ?? ""}`, liste: listePhotos });
+  const photo = choisirPhoto({ slug, demandee: donnees.photoDemandee ?? null, retenue: stocke.photo ?? null, graine: `${propositionId}-${stocke.genereLe ?? ""}`, liste: listePhotos });
   if (photosCandidat.length === 0) {
     avertissements.push({ cle: "photo", message: `Aucune photo de ${candidatNom} dans la bibliothèque (src/lib/photos-candidats.js) : vignette actuelle sur la couverture. Les chercher : node scripts/chercher-photos-candidats.js ${slug}, puis /test/photos-candidats.` });
   } else if (photosCandidat.length < PHOTOS_MIN) {
@@ -219,7 +220,7 @@ export function carrouselRecit(donnees) {
 
   const tweet = remplirTweet(recit.tweet_assemble, valeurs);
   const version = `${analyseId}-${precedent ? "p" : "r"}-${empreinte(JSON.stringify([candidatNom, slugCandidat({ nom: candidatNom, photoUrl }), couleur, sujet, slides]))}`;
-  return { slides, legende, credits: creditsTexte, tweet, avertissements, version, couleur, couleurAttribuee: Boolean(couleurChoisie), sujet, illustration, photo, photos: photosCandidat.map((p) => p.n), blocageArchive, controles };
+  return { slides, legende, credits: creditsTexte, tweet, avertissements, version, couleur, couleurAttribuee: Boolean(couleurChoisie), sujet, illustration, photo, photos: photosCandidat.map((p) => p.n), blocageArchive, controles, illustrations: illustrationsPourFiche(theme, donnees.illustrations ?? undefined).map((ill) => ill.fichier) };
 }
 
 // Slides d'un carrousel détaillé stocké, dans l'ordre : [{ type, numero, libelle }].

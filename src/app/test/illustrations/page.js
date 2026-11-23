@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
-import { ILLUSTRATIONS, REGLES_SELECTION, THEMES_ILLUSTRATIONS } from "@/lib/illustrations";
+import { ILLUSTRATIONS, REGLES_SELECTION, REQUETES_COMMONS, THEMES_ILLUSTRATIONS } from "@/lib/illustrations";
+import { bilanBanque, IMAGES_THEME_MAX, IMAGES_THEME_MIN, PHOTOS_CANDIDAT_MIN } from "@/lib/banque-images";
+import { CATEGORIES_COMMONS } from "@/lib/candidats-commons";
+import { cheminIllustrationTraitee } from "@/lib/images-carrousel";
 import EditorBar from "../EditorBar";
 import SelectionIllustrations from "./SelectionIllustrations";
 
@@ -14,10 +18,12 @@ export const metadata = {
 };
 
 // Validation de la bibliothèque d'images de thème des carrousels Instagram
-// (src/lib/illustrations.js). Les candidates viennent de
-// scripts/chercher-illustrations.js (API Pexels, ou recherche simulée) ; on
-// coche ici celles à garder ; le script télécharge ensuite les retenues.
-// Réservée aux personnes déverrouillées sur /test. Aucune écriture en base.
+// (src/lib/illustrations.js). Les propositions viennent de
+// npm run banque-images:themes (Wikimedia Commons) ; on coche ici celles à
+// garder et « Garder » les télécharge dans la bibliothèque (poste local
+// seulement). La page montre aussi l'état de toute la banque (thèmes et
+// photos des candidats). Réservée aux personnes déverrouillées sur /test.
+// Aucune écriture en base.
 
 async function lireJson(chemin) {
   try {
@@ -37,6 +43,15 @@ export default async function IllustrationsPage({ searchParams }) {
   const candidats = editeur ? await lireJson(join(dossier, "candidates", `${theme}.json`)) : null;
   const selection = editeur ? await lireJson(join(dossier, "selection", `${theme}.json`)) : null;
   const dansBibliotheque = (slug) => ILLUSTRATIONS.filter((i) => i.theme === slug).length;
+  const localSeulement = Boolean(process.env.VERCEL);
+  const bilan = editeur
+    ? bilanBanque({
+        themes: Object.keys(THEMES_ILLUSTRATIONS),
+        slugs: Object.keys(CATEGORIES_COMMONS),
+        existe: (chemin) => existsSync(join(process.cwd(), "public", chemin)),
+        cheminTraitee: cheminIllustrationTraitee,
+      })
+    : null;
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-8 text-zinc-900 sm:px-8">
@@ -50,9 +65,9 @@ export default async function IllustrationsPage({ searchParams }) {
         <header className="flex flex-col gap-2">
           <h1 className="text-2xl font-bold tracking-tight">Illustrations des carrousels</h1>
           <p className="max-w-3xl text-sm text-zinc-600">
-            Images de thème posées sur la couverture des carrousels, en bichromie avec une trame de points. Cochez les candidates à
-            garder : rien n’entre dans la bibliothèque sans cette validation. Pas d’image générée par IA, pas de recherche au
-            moment de la génération.
+            Images de thème posées sur la couverture des carrousels, en bichromie avec une trame de points. Cochez les propositions
+            à garder ({IMAGES_THEME_MIN} ou {IMAGES_THEME_MAX} par thème) : rien n’entre dans la bibliothèque sans cette validation. Pas
+            d’image générée par IA, pas de recherche au moment de la génération. Propositions : <code>npm run banque-images:themes</code>.
           </p>
         </header>
 
@@ -62,6 +77,19 @@ export default async function IllustrationsPage({ searchParams }) {
           </p>
         ) : (
           <>
+            {localSeulement ? (
+              <p className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                Lecture seule ici : sur Vercel, le disque n’est pas modifiable. Les boutons « Garder » ne marchent qu’en local
+                (<code>npm run dev</code>), puis on committe les images ajoutées.
+              </p>
+            ) : (
+              <p className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-xs text-sky-900">
+                « Garder » écrit sur ce poste (public/illustrations/ et src/lib/illustrations.js) : pensez à committer les images ajoutées.
+              </p>
+            )}
+
+            <EtatBanque bilan={bilan} />
+
             <section className="rounded-xl border border-zinc-200 bg-white p-4 text-sm">
               <h2 className="mb-2 font-semibold">Règles de sélection</h2>
               <ul className="list-disc space-y-1 pl-5 text-zinc-700">
@@ -86,9 +114,12 @@ export default async function IllustrationsPage({ searchParams }) {
             <section className="flex flex-col gap-1 text-sm">
               <h2 className="font-semibold">
                 {THEMES_ILLUSTRATIONS[theme].libelle}{" "}
-                <span className="font-normal text-zinc-500">· {dansBibliotheque(theme)} image(s) dans la bibliothèque (objectif : 5 à 8)</span>
+                <span className="font-normal text-zinc-500">· {dansBibliotheque(theme)} image(s) dans la bibliothèque (objectif : {IMAGES_THEME_MIN} à {IMAGES_THEME_MAX})</span>
               </h2>
-              <p className="text-xs text-zinc-500">Requêtes : {THEMES_ILLUSTRATIONS[theme].requetes.map(([r, m]) => `« ${r} » → ${m}`).join(" · ")}</p>
+              <p className="text-xs text-zinc-500">
+                Requêtes Wikimedia Commons : {(REQUETES_COMMONS[theme] ?? []).map(([r, m]) => `« ${r} » → ${m}`).join(" · ")}
+                {candidats?.source ? ` · propositions actuelles : ${candidats.source}` : ""}
+              </p>
             </section>
 
             <SelectionIllustrations
@@ -97,10 +128,65 @@ export default async function IllustrationsPage({ searchParams }) {
               candidates={candidats?.candidates ?? []}
               simulation={Boolean(candidats?.simulation)}
               dejaRetenues={(selection?.retenues ?? []).map(({ id, motCle }) => ({ id, motCle }))}
+              localSeulement={localSeulement}
+              dejaGardees={ILLUSTRATIONS.filter((i) => i.theme === theme).map((i) => i.lien)}
             />
           </>
         )}
       </div>
     </main>
+  );
+}
+
+// État de la banque : images par thème et photos par candidat, avec ce qui
+// manque (même contrôle que npm run banque-images:verifier, sans la taille
+// des fichiers).
+function EtatBanque({ bilan }) {
+  if (!bilan) return null;
+  const Ligne = ({ l, min, lien }) => (
+    <li className="flex flex-col gap-0.5">
+      <span>
+        {lien ? (
+          <Link href={lien} className="font-semibold underline underline-offset-2">
+            {l.slug}
+          </Link>
+        ) : (
+          <span className="font-semibold">{l.slug}</span>
+        )}{" "}
+        <span className={l.manque ? "text-amber-700" : "text-emerald-700"}>
+          {l.n}/{min}
+          {l.manque ? ` · manque ${l.manque}` : " ✓"}
+        </span>
+      </span>
+      {l.problemes.map((p) => (
+        <span key={p} className="text-red-700">
+          {p}
+        </span>
+      ))}
+    </li>
+  );
+  return (
+    <section className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-4 text-xs sm:grid-cols-2">
+      <div>
+        <h2 className="mb-2 text-sm font-semibold">Images de thème</h2>
+        <ul className="flex flex-col gap-1">
+          {bilan.themes.map((l) => (
+            <Ligne key={l.slug} l={l} min={IMAGES_THEME_MIN} lien={`/test/illustrations?theme=${l.slug}`} />
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold">Photos des candidats</h2>
+        <ul className="flex flex-col gap-1">
+          {bilan.candidats.map((l) => (
+            <Ligne key={l.slug} l={l} min={PHOTOS_CANDIDAT_MIN} lien={null} />
+          ))}
+        </ul>
+        <p className="mt-2 text-zinc-500">
+          Ajout : <Link href="/test/photos-candidats" className="underline">/test/photos-candidats</Link> ou dépôt manuel dans
+          data/photos-candidats/originaux/&lt;slug&gt;/ puis <code>node scripts/chercher-photos-candidats.js &lt;slug&gt; --importer</code>.
+        </p>
+      </div>
+    </section>
   );
 }

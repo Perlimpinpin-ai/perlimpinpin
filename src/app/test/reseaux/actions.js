@@ -9,7 +9,7 @@ import { appelerClaude, cleApiConfiguree, lirePromptRecit } from "@/lib/claude-r
 import { jsonDepuisTexte } from "@/lib/reel-generation";
 import { genererRecitCore, requeteRecit } from "@/lib/recit-generation";
 import { estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "@/lib/recit-action-core";
-import { resolveTheme } from "@/lib/themes";
+import { historiqueImages } from "@/lib/banque-images";
 import { DEMO_ACTIVE, genererDemo, ID_DEMO, prismaDemo } from "@/lib/carrousel-demo";
 import { debordementsDuRecit } from "@/lib/carrousel-serveur";
 
@@ -34,18 +34,23 @@ async function sauvegarder({ analyse, contenu }) {
   return cible;
 }
 
-// Image de thème du dernier carrousel détaillé du même thème (pour ne pas
-// reprendre la même), lue par Postgres sans charger les fiches.
-async function derniereIllustration({ theme, propositionId }) {
+// Images des carrousels détaillés déjà générés (src/lib/banque-images.js) :
+// fichiers d'image de thème des carrousels du même thème et numéros de photo
+// des carrousels du même candidat, le plus récent d'abord. Lecture seule, par
+// Postgres, sans charger les fiches.
+async function imagesRecentes({ theme, slug }) {
   const lignes = await prisma.$queryRaw`
-    SELECT p.theme, a."contenuComplet"->'reseaux_recit'->>'illustration' AS fichier
-    FROM "Analyse" a JOIN "Proposition" p ON p.id = a."propositionId"
-    WHERE jsonb_exists(a."contenuComplet"->'reseaux_recit', 'illustration') AND p.id <> ${propositionId}
+    SELECT p.theme, c.nom AS "candidatNom", c."photoUrl",
+      a."contenuComplet"->'reseaux_recit'->>'illustration' AS illustration,
+      a."contenuComplet"->'reseaux_recit'->>'photo' AS photo,
+      a."contenuComplet"->'reseaux_recit'->>'genereLe' AS "genereLe",
+      a."updatedAt"
+    FROM "Analyse" a JOIN "Proposition" p ON p.id = a."propositionId" JOIN "Candidat" c ON c.id = p."candidatId"
+    WHERE jsonb_exists(a."contenuComplet", 'reseaux_recit')
     ORDER BY a."updatedAt" DESC
-    LIMIT 50
+    LIMIT 200
   `;
-  const slug = resolveTheme(theme);
-  return lignes.find((ligne) => resolveTheme(ligne.theme) === slug)?.fichier ?? null;
+  return historiqueImages(lignes.map((l) => ({ ...l, updatedAt: l.updatedAt?.toISOString?.() ?? l.updatedAt })), { theme, slug });
 }
 
 function genererReel(contenu, { candidatNom, score, propositionId, motsClesIllustration, remarques, proposition }) {
@@ -69,7 +74,7 @@ function genererReel(contenu, { candidatNom, score, propositionId, motsClesIllus
 function dependances(propositionId, brouillon) {
   if (propositionId === ID_DEMO) {
     if (!DEMO_ACTIVE) return null;
-    return { id: 1, brouillon: true, prisma: prismaDemo(), dryRun: false, cleConfiguree: true, generer: genererDemo, sauvegarder: async () => null, derniereIllustration: null };
+    return { id: 1, brouillon: true, prisma: prismaDemo(), dryRun: false, cleConfiguree: true, generer: genererDemo, sauvegarder: async () => null, imagesRecentes: null };
   }
   return {
     id: Number(propositionId),
@@ -79,7 +84,7 @@ function dependances(propositionId, brouillon) {
     cleConfiguree: cleApiConfiguree(),
     generer: genererReel,
     sauvegarder,
-    derniereIllustration,
+    imagesRecentes,
   };
 }
 

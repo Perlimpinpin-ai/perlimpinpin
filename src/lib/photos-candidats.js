@@ -1,4 +1,5 @@
 import { empreinte } from "./carte.js";
+import { choisirEnRotation } from "./rotation-images.js";
 
 // Bibliothèque des photos des candidats (couverture du carrousel détaillé et
 // fenêtre du candidat dans les Reels) : photos libres de Wikimedia Commons,
@@ -19,7 +20,7 @@ import { empreinte } from "./carte.js";
 // Rien n'entre dans la bibliothèque sans cette validation. Fonctions PURES,
 // testées par scripts/carrousel-detaille.test.js.
 
-export const PHOTOS_MIN = 4;
+export const PHOTOS_MIN = 3;
 // Photo du dernier carrousel de chaque candidat, mémorisée dans le navigateur
 // (clé + slug) au téléchargement de l'archive, pour ne pas la reprendre.
 export const CLE_DERNIERE_PHOTO = "perlimpinpin.carrousel.dernierePhoto.";
@@ -37,16 +38,24 @@ export function photosDuCandidat(slug, liste = PHOTOS_CANDIDATS) {
   return liste.filter((p) => p.slug === slug).sort((a, b) => a.n - b.n);
 }
 
-// Photo de la couverture : celle demandée (numéro n, bouton « Changer de
-// photo »), sinon un tirage stable pour cette version du carrousel.
+// Photo de la couverture :
+//  - celle demandée (numéro n, bouton « Changer de photo ») ;
+//  - sinon celle retenue à la génération de cette version (numéro stocké
+//    dans contenuComplet.reseaux_recit.photo) ;
+//  - sinon un tirage stable pour cette version (graine), en écartant les
+//    photos des 2 derniers carrousels du candidat (`recentes` : numéros, le
+//    plus récent d'abord), ou la moins récemment utilisée
+//    (src/lib/rotation-images.js).
 // Renvoie la photo ou null (aucune photo : vignette actuelle).
-export function choisirPhoto({ slug, demandee = null, graine = "", liste = PHOTOS_CANDIDATS }) {
+export function choisirPhoto({ slug, demandee = null, retenue = null, recentes = [], graine = "", liste = PHOTOS_CANDIDATS }) {
   const photos = photosDuCandidat(slug, liste);
   if (photos.length === 0) return null;
-  const voulue = photos.find((p) => String(p.n) === String(demandee));
-  if (voulue) return voulue;
+  for (const n of [demandee, retenue]) {
+    const voulue = n === null || n === undefined ? null : photos.find((p) => String(p.n) === String(n));
+    if (voulue) return voulue;
+  }
   const alea = parseInt(empreinte(String(graine)).slice(0, 8), 16) / 0x100000000;
-  return photos[Math.min(photos.length - 1, Math.floor(alea * photos.length))];
+  return choisirEnRotation(photos, { cle: (p) => p.n, recentes, alea });
 }
 
 // Photo suivante pour « Changer de photo », en évitant `eviter` (celle du
@@ -62,13 +71,14 @@ export function photoSuivante(numeros, actuelle, eviter = null) {
   return liste[(depart + 1) % liste.length];
 }
 
-// Crédits d'une photo : une seule ligne sur la couverture (« Photo : auteur /
-// licence · Wikimedia Commons ») et le crédit complet, avec le lien, dans
-// credits.txt et la légende. null si l'auteur ou la licence manque.
+// Crédits d'une photo : une seule ligne sur la couverture (« Photo : auteur,
+// licence, Wikimedia Commons ») et le crédit complet, avec la modification et
+// le lien, dans credits.txt et à la fin de la légende. null si l'auteur ou la
+// licence manque.
 export function creditsPhoto(photo) {
   if (!photo?.auteur || !photo?.licence) return null;
   return {
-    court: `Photo : ${photo.auteur} / ${photo.licence} · Wikimedia Commons`,
-    complet: `Photo : ${photo.auteur}, ${photo.licence}, via Wikimedia Commons (${photo.modification ?? "photo modifiée : détourage, noir et blanc"}) ${photo.lien ?? ""}`.trim(),
+    court: `Photo : ${photo.auteur}, ${photo.licence}, Wikimedia Commons`,
+    complet: `Photo : ${photo.auteur}, ${photo.licence}, Wikimedia Commons (${photo.modification ?? "photo modifiée : détourage, noir et blanc"}) ${photo.lien ?? ""}`.trim(),
   };
 }

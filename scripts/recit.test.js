@@ -279,22 +279,22 @@ test("image de thème : thème de la fiche, mots-clés du modèle, dernière ima
   assert.notEqual(choisirIllustration({ theme: "economie", alea: 0, derniere: "illustrations/economie/caisse.jpg", liste: BIBLIO }).illustration.fichier, "illustrations/economie/caisse.jpg");
   const vide = choisirIllustration({ theme: "sante", liste: BIBLIO });
   assert.equal(vide.illustration, null);
-  assert.match(vide.avertissement, /Pas d'image de thème pour « sante »/);
+  assert.match(vide.avertissement, /Pas d'image de thème pour « sante » ni dans le dossier de secours/);
   assert.equal(aleaFiche("x"), aleaFiche("x"));
   // Crédit visible seulement si la licence le demande ; toujours dans legende.txt.
   assert.equal(creditVisible(BIBLIO[0]), null);
-  assert.equal(creditVisible(BIBLIO[2]), "Photo : C / Wikimedia");
-  assert.match(creditLegende(BIBLIO[0]), /^Photo de couverture : A \/ Pexels \(Licence Pexels\)/);
+  assert.equal(creditVisible(BIBLIO[2]), "Photo : C, CC BY 4.0, Wikimedia");
+  assert.equal(creditLegende(BIBLIO[0]), "Photo : A, Licence Pexels, Pexels https://pexels.com/1");
 });
 
 test("image de thème : bibliothèque vide → couverture sans illustration et avertissement ; sinon image et crédit dans la légende", () => {
   const vide = carrouselRecit(donneesRecit({ illustrations: [] }));
   assert.equal(vide.slides[0].illustration, null);
-  assert.ok(vide.avertissements.some((a) => a.cle === "image de thème" && /bibliothèque est vide/.test(a.message)));
+  assert.ok(vide.avertissements.some((a) => a.cle === "image de thème" && /ni dans le dossier de secours/.test(a.message)));
   const plein = carrouselRecit(donneesRecit({ illustrations: BIBLIO }));
   assert.ok(plein.slides[0].illustration.fichier.startsWith("illustrations/"));
-  assert.match(plein.legende, /Photo d’illustration : /);
-  assert.match(plein.credits, /Photo d’illustration : /);
+  assert.match(plein.legende, /Photo : [A-D], /);
+  assert.match(plein.credits, /Photo : [A-D], /);
   // Carrousel 6 slides : même image (même tirage stable pour la fiche).
   const six = controlerCarrousel({ ...donneesRecit({ illustrations: BIBLIO }), contenu: { ...FICHE, reseaux_recit: undefined } });
   assert.equal(six.slides[0].illustration.fichier, choisirIllustration({ theme: "economie", alea: aleaFiche("illustration-42"), liste: BIBLIO }).illustration.fichier);
