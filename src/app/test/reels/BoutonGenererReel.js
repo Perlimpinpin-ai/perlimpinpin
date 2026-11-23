@@ -14,7 +14,7 @@ function dollars(montant) {
   return montant.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function BoutonGenererReel({ propositionId, brouillon = false, aDejaUnReel = false, discret = false }) {
+export default function BoutonGenererReel({ propositionId, brouillon = false, aDejaUnReel = false, discret = false, libelleRepos = null }) {
   const router = useRouter();
   const verrou = useRef(false);
   const [etat, setEtat] = useState("repos"); // repos | estimation | generation
@@ -31,10 +31,10 @@ export default function BoutonGenererReel({ propositionId, brouillon = false, aD
         setRetour({ type: "erreur", texte: estimation.erreur });
         return;
       }
-      const question = estimation.aDejaUnReel ? "Générer à nouveau le Reel de cette fiche ?" : "Générer le Reel de cette fiche ?";
-      const remplace = estimation.aDejaUnReel
-        ? "\nL’ancien Reel sera gardé (reelPrecedent). Le nouveau changera de variantes de phrases et de question de couverture."
-        : "";
+      const question = estimation.aDejaUnReel
+        ? "Générer à nouveau le storyboard de cette fiche (mode A, script écrit par Claude) ?"
+        : "Générer le storyboard de cette fiche (mode A, script écrit par Claude) ?";
+      const remplace = estimation.aDejaUnReel ? "\nL’ancien Reel sera gardé (reelPrecedent)." : "";
       const confirme = window.confirm(`${question}\nCoût estimé ≈ ${dollars(estimation.min)} à ${dollars(estimation.max)} $.${remplace}`);
       if (!confirme) return;
 
@@ -50,7 +50,9 @@ export default function BoutonGenererReel({ propositionId, brouillon = false, aD
         resultat.avertissements?.length ? `${resultat.avertissements.length} avertissement(s) à relire` : null,
       ].filter(Boolean);
       setRetour({ type: "ok", texte: `${resultat.message}${details.length ? ` (${details.join(", ")})` : ""}` });
-      router.refresh();
+      // Simulation (TEST_DRY_RUN=1) : rien n'est écrit, on montre le storyboard simulé.
+      if (resultat.lien) router.push(`/test/reels/${propositionId}${resultat.lien}${brouillon ? "&brouillon=1" : ""}`);
+      else router.refresh();
     } catch (error) {
       setRetour({ type: "erreur", texte: `Erreur : ${error.message}` });
     } finally {
@@ -65,9 +67,7 @@ export default function BoutonGenererReel({ propositionId, brouillon = false, aD
       ? "Génération en cours…"
       : etat === "estimation"
         ? "Calcul du coût…"
-        : aDejaUnReel
-          ? "Générer à nouveau"
-          : "Générer le Reel";
+        : (libelleRepos ?? (aDejaUnReel ? "Générer à nouveau" : "Générer le Reel"));
 
   return (
     <span className="flex flex-col gap-1 sm:items-end">

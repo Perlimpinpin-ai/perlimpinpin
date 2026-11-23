@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { creerMoteur, motsDuCorps } from "@/lib/recherche";
 import { resolveTheme, themeLabel } from "@/lib/themes";
 import { STATUTS_VERSION, numeroVersion } from "@/lib/versions-core";
+import { ORDRE_DERNIERES_PUBLICATIONS, dateChiffres, datePublication } from "@/lib/date-publication";
 
 // Numéro de version (V1, V2…) de l'analyse affichée, parmi les versions
 // publiées de la fiche (statut « publie » ou « remplacee », Club ouvert lot 5).
@@ -20,13 +21,8 @@ const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
 });
 
-// Date courte (ex. 5/10/2026) pour la ligne « Analyse réalisée le … » de la fiche.
-const dateChiffresFormatter = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "numeric",
-  year: "numeric",
-  timeZone: "Europe/Paris",
-});
+// La date courte (19/11/2026) de la ligne « Analyse réalisée le … » de la fiche
+// vient de src/lib/date-publication.js (date de publication, heure de Paris).
 
 // Date courte (« 28 sept. 2026 ») pour la colonne « Dernières déclarations »
 // de la page d'accueil.
@@ -105,7 +101,7 @@ function documentRecherche(analyse) {
 export async function getIndexRecherche() {
   const analyses = await prisma.analyse.findMany({
     where: { statut: "publie" },
-    orderBy: { createdAt: "desc" },
+    orderBy: ORDRE_DERNIERES_PUBLICATIONS,
     select: {
       id: true,
       resumeAccueil: true,
@@ -139,7 +135,7 @@ export async function getMoteurRechercheComplet() {
   const promesse = prisma.analyse
     .findMany({
       where: { statut: "publie" },
-      orderBy: { createdAt: "desc" },
+      orderBy: ORDRE_DERNIERES_PUBLICATIONS,
       select: {
         id: true,
         resumeAccueil: true,
@@ -242,7 +238,7 @@ const DATE_MAX = 8.64e15;
 export async function getFeaturedRotation(dossiers = []) {
   const analyses = await prisma.analyse.findMany({
     where: { statut: "publie" },
-    orderBy: { createdAt: "desc" },
+    orderBy: ORDRE_DERNIERES_PUBLICATIONS,
     include: {
       proposition: { include: { candidat: true } },
     },
@@ -257,7 +253,7 @@ export async function getFeaturedRotation(dossiers = []) {
     dateLabel: dateFormatter.format(analyse.proposition.dateDeclaration),
     score: analyse.scoreFaisabilite,
     verdictDescription: analyse.resumeAccueil ?? analyse.verdict,
-    dateSort: analyse.createdAt,
+    dateSort: datePublication(analyse),
   }));
 
   for (const dossier of dossiers) {
@@ -334,7 +330,7 @@ export async function getPublishedDeclarations({ candidat, theme, sort, q } = {}
       ? [{ scoreFaisabilite: "asc" }]
       : sort === "score_desc"
         ? [{ scoreFaisabilite: "desc" }]
-        : [{ createdAt: "desc" }];
+        : ORDRE_DERNIERES_PUBLICATIONS;
 
   const [analysesCandidat, allPublished, rankRows, allCandidats] = await Promise.all([
     // Filtre thème appliqué après coup (voir cleTheme), pour accepter aussi
@@ -359,11 +355,12 @@ export async function getPublishedDeclarations({ candidat, theme, sort, q } = {}
     // (la série recommençait à 021 au lieu de 001). Calculé par Postgres via
     // ROW_NUMBER(), jamais en chargeant toutes les lignes pour les compter
     // côté JS, et indépendant du filtre/tri courant de la page (le rang
-    // d'une analyse ne doit pas changer selon la vue affichée) — sur
-    // createdAt, pas sur dateDeclaration (date de la déclaration du
-    // candidat, sans rapport avec l'ordre de publication de nos analyses).
+    // d'une analyse ne doit pas changer selon la vue affichée) — sur la
+    // date de publication (publieLe, repli createdAt), pas sur
+    // dateDeclaration (date de la déclaration du candidat, sans rapport
+    // avec l'ordre de publication de nos analyses).
     prisma.$queryRaw`
-      SELECT id, ROW_NUMBER() OVER (ORDER BY "createdAt" ASC) AS rang
+      SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE("publieLe", "createdAt") ASC, id ASC) AS rang
       FROM "Analyse"
       WHERE statut = 'publie'
     `,
@@ -590,7 +587,7 @@ export async function getCandidatAvecDeclarations(id) {
       },
     }),
     prisma.$queryRaw`
-      SELECT id, ROW_NUMBER() OVER (ORDER BY "createdAt" ASC) AS rang
+      SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE("publieLe", "createdAt") ASC, id ASC) AS rang
       FROM "Analyse"
       WHERE statut = 'publie'
     `,
@@ -944,10 +941,11 @@ export async function getDeclarationDetail(propositionId, inclureBrouillons = fa
     dateDeclaration: proposition.dateDeclaration,
     candidat: proposition.candidat,
     analyse,
-    // Date de génération affichée en haut de la fiche ("Perlimpinpin
-    // {version} · généré le ..."), à partir de analyse.createdAt — distincte
-    // de dateLabel ci-dessus, qui est la date de la déclaration elle-même.
-    generationDateLabel: analyse ? dateChiffresFormatter.format(analyse.createdAt) : null,
+    // Date « Analyse réalisée le … » de la fiche : date de PUBLICATION
+    // (publieLe = moment du clic « Publier », repli createdAt ; pour un
+    // brouillon relu sur /test, sa date de génération) — distincte de
+    // dateLabel ci-dessus, qui est la date de la déclaration elle-même.
+    generationDateLabel: analyse ? dateChiffres(datePublication(analyse)) : null,
     feedbackCounts,
     voteMesureCounts,
   };

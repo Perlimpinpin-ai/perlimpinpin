@@ -93,6 +93,8 @@ test("publication avec « oui » : nouvelle version créée, ancienne remplacée
   );
   assert.equal(ecritures[0][1].statut, "publie");
   assert.equal(ecritures[0][1].scoreFaisabilite, 51);
+  // Date de publication de la nouvelle version = moment du clic (repasse en tête).
+  assert.equal(ecritures[0][1].publieLe, maintenant);
   // Condition 1 : seuls le statut et la date de changement de l'ancienne version.
   assert.deepEqual(ecritures[1][1], { where: { id: 100, statut: "publie" }, data: { statut: "remplacee", updatedAt: maintenant } });
   // Condition 3 : création, remplacement et décision journalisés.

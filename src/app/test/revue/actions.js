@@ -17,6 +17,8 @@ function rafraichir(propositionId = null) {
     revalidatePath("/");
     revalidatePath("/declarations");
     revalidatePath("/candidats");
+    // Toutes les pages candidat (l'id du candidat n'est pas connu ici).
+    revalidatePath("/candidats/[id]", "page");
     revalidatePath("/themes");
   }
 }

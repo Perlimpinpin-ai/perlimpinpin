@@ -107,3 +107,87 @@ export async function genererReelPourFicheCore(propositionId, { brouillon, isEdi
     avertissements: resultat.avertissements ?? [],
   };
 }
+
+// --- Storyboard v4 (modes A et B) ------------------------------------------------
+// Logique du bouton « Script Claude » (mode A) et du dépôt « Script et voix
+// off de l'équipe » (mode B) de /test/reels/<id>. Mêmes garde-fous que la v3 :
+// mode édition revérifié, TEST_DRY_RUN=1 sans appel ni écriture, écriture
+// ciblée de contenuComplet.reel refusée si la fiche a bougé entre-temps.
+
+export const SCRIPT_MAX = 20_000;
+
+// Script et minutage déposés (mode B) → { script, minutage } ou { erreur }.
+// `minutageBrut` : texte du fichier minutage.json (facultatif).
+export function lireDepotEquipe({ script, minutageBrut }, lireMinutage) {
+  const texte = String(script ?? "").replace(/\r\n/g, "\n").trim();
+  if (!texte) return { erreur: "Script vide : collez le texte de la voix off ou déposez le fichier .txt." };
+  if (texte.length > SCRIPT_MAX) return { erreur: `Script trop long (${texte.length} caractères, ${SCRIPT_MAX} au plus).` };
+  if (!minutageBrut) return { script: texte, minutage: null };
+  let json;
+  try {
+    json = JSON.parse(minutageBrut);
+  } catch {
+    return { erreur: "minutage.json illisible (JSON invalide)." };
+  }
+  const minutage = lireMinutage(json);
+  if (minutage.erreur) return { erreur: minutage.erreur };
+  return { script: texte, minutage: { ...json, mots: minutage.mots, ecarts: minutage.ecarts } };
+}
+
+export async function estimerStoryboardCore(propositionId, { mode, brouillon, isEditor, prisma, construireMessage, script = "" }) {
+  if (!(await isEditor())) return { ok: false, erreur: "Mode édition requis : déverrouillez /test." };
+  if (!verifierId(propositionId)) return { ok: false, erreur: "Fiche introuvable." };
+  const cible = await analyseVisee(prisma, propositionId, { brouillon });
+  if (!cible) return { ok: false, erreur: "Aucune analyse pour cette fiche." };
+  const contenu = cible.analyse.contenuComplet ?? {};
+  const message = await construireMessage({ mode, contenu, score: cible.analyse.scoreFaisabilite, script });
+  const { min, max } = estimationCoutReel(message.length);
+  return { ok: true, min, max, aDejaUnReel: Boolean(contenu.reel) };
+}
+
+// Génère et écrit le storyboard (mode A, ou mode B avec le dépôt de l'équipe).
+//  - dryRun : aucun appel, rien n'est écrit. Mode B : le dépôt est quand même
+//    contrôlé, contre la réponse simulée (`simuler`), pour montrer le contrôle
+//    mot pour mot.
+// Renvoie { ok, simulation?, message, lien?, cout?, erreurs?, avertissements? }.
+export async function genererStoryboardPourFicheCore(
+  propositionId,
+  { mode, brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, simuler, depot = null },
+) {
+  if (!(await isEditor())) return { ok: false, erreur: "Mode édition requis : déverrouillez /test." };
+  if (!verifierId(propositionId)) return { ok: false, erreur: "Fiche introuvable." };
+  if (!["A", "B"].includes(mode)) return { ok: false, erreur: "Mode inconnu." };
+  if (mode === "B" && depot?.erreur) return { ok: false, erreur: depot.erreur };
+  const cible = await analyseVisee(prisma, propositionId, { brouillon });
+  if (!cible) return { ok: false, erreur: "Aucune analyse pour cette fiche." };
+  const { proposition, analyse } = cible;
+  const contenu = analyse.contenuComplet ?? {};
+
+  if (dryRun) {
+    const base = "Mode simulation (TEST_DRY_RUN=1) : aucun appel à Claude, rien n’est écrit.";
+    if (mode === "A") return { ok: true, simulation: true, message: `${base} Storyboard simulé :`, lien: "?simulation=A" };
+    const controle = simuler ? await simuler({ proposition, analyse, depot }) : null;
+    if (!controle) return { ok: true, simulation: true, message: `${base} Pas de réponse simulée pour cette fiche.` };
+    if (!controle.valide) return { ok: false, simulation: true, erreur: `Dépôt refusé (contrôle sur la réponse simulée) : ${controle.erreurs.join(" ; ")}` };
+    return { ok: true, simulation: true, message: `${base} Dépôt accepté par le contrôle mot pour mot. Storyboard simulé :`, lien: "?simulation=B", avertissements: controle.avertissements };
+  }
+  if (!cleConfiguree) return { ok: false, erreur: "ANTHROPIC_API_KEY n’est pas configurée sur ce serveur : génération impossible." };
+
+  const precedents = precedentsPourFiche(contenu.reel, await derniersReels(prisma));
+  const resultat = await generer({ mode, contenu, candidatNom: proposition.candidat.nom, score: analyse.scoreFaisabilite, precedents, depot });
+  const cout = coutClaude(resultat.usage);
+  if (!resultat.reel) {
+    return { ok: false, erreur: `Storyboard refusé après deux essais, rien n’est écrit. ${resultat.errors?.join(" ; ") || "raison inconnue"}`, cout };
+  }
+  const { count } = await prisma.analyse.updateMany({
+    where: { id: analyse.id, updatedAt: analyse.updatedAt },
+    data: { contenuComplet: contenuAvecReel(contenu, resultat.reel) },
+  });
+  if (count !== 1) return { ok: false, erreur: "La fiche a été modifiée pendant la génération : rien n’est écrit. Recommencez.", cout };
+  return {
+    ok: true,
+    message: `Storyboard généré (mode ${mode})${contenu.reel ? ", l’ancien Reel est gardé sous reelPrecedent" : ""}.`,
+    cout,
+    avertissements: resultat.avertissements ?? [],
+  };
+}

@@ -1,6 +1,9 @@
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { validateEtape1Structure } from "./lib/scoring.js";
 import assert from "node:assert/strict";
 import {
+  entreeEtapes23,
   extraireJson,
   ficheRevisable,
   propositionSansEtapes,
@@ -171,4 +174,20 @@ test("lot : custom_id invalide ou en double refusé avant tout appel", async () 
   await assert.rejects(soumettreLot([{ custom_id: "a", params: {} }, { custom_id: "a", params: {} }], opts));
   await assert.rejects(soumettreLot([], opts));
   assert.equal(appels.length, 0);
+});
+
+// Fiche 65, 18/11/2026 : la fiche publiée (format final) était passée telle
+// quelle aux Étapes 2 et 3, qui attendent le FORMAT ÉTAPE 1.
+test("entreeEtapes23 : une fiche publiée redevient une entrée d'Étape 1 valide", () => {
+  const e3 = JSON.parse(readFileSync(new URL("../data/analyses finales/Attal/attal_constitution_du_travail_etape3.json", import.meta.url), "utf8"));
+  const publiee = { ...e3.fiche_complete, titre_fiche: e3.titre_fiche, resume_court: e3.resume_court, teaser_accueil: e3.teaser_accueil, version_basique: {}, reseaux: {}, revision: {} };
+  assert.equal(validateEtape1Structure(publiee).valid, false);
+  const entree = entreeEtapes23(publiee);
+  assert.deepEqual(validateEtape1Structure(entree).errors, []);
+  assert.equal(typeof entree.analyse_par_criteres, "string");
+  for (const c of publiee.analyse_par_criteres) assert.ok(entree.analyse_par_criteres.includes(c.texte.trim()));
+  assert.equal(entree.phrase_teasing, e3.teaser_accueil);
+  assert.equal(entree.version_basique, undefined);
+  assert.equal(entree.reseaux, undefined);
+  assert.ok(Array.isArray(publiee.analyse_par_criteres), "la fiche d'origine n'est pas modifiée");
 });

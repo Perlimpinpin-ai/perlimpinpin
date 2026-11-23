@@ -205,10 +205,13 @@ test("estimation : coût et présence d'un Reel, sans appel", async () => {
   assert.ok(r.min > 0 && r.max > r.min);
 });
 
-test("actions.js branche isEditor, TEST_DRY_RUN et la clé API sur la logique testée", () => {
+test("actions.js branche isEditor, TEST_DRY_RUN et la clé API sur la logique testée (storyboard v4, modes A et B)", () => {
   const source = readFileSync(new URL("../src/app/test/reels/actions.js", import.meta.url), "utf8");
   assert.match(source, /^"use server";/);
-  assert.match(source, /genererReelPourFicheCore\([\s\S]*isEditor,[\s\S]*prisma,[\s\S]*dryRun: process\.env\.TEST_DRY_RUN === "1",[\s\S]*cleConfiguree: cleApiConfiguree\(\)/);
+  assert.match(source, /const dryRun = \(\) => process\.env\.TEST_DRY_RUN === "1";/);
+  const appels = source.match(/genererStoryboardPourFicheCore\([\s\S]*?\}\);/g) ?? [];
+  assert.equal(appels.length, 2, "mode A et mode B");
+  for (const appel of appels) assert.match(appel, /isEditor,[\s\S]*prisma,[\s\S]*dryRun: dryRun\(\),[\s\S]*cleConfiguree: cleApiConfiguree\(\)/);
 });
 
 test("les pages du bouton ont une durée maximale de 300 s", () => {

@@ -72,6 +72,11 @@ function fausseBase({
 const editeur = async () => true;
 const pasEditeur = async () => false;
 
+// Moment du clic « Publier » figé pour les tests : 19/11/2026 à 14:32, heure
+// de Paris (13:32 UTC, heure d'hiver).
+const CLIC = new Date("2026-11-19T13:32:00.000Z");
+const maintenant = () => CLIC;
+
 test("sans cookie valide : « Non autorisé. » et la base n'est même pas consultée", async () => {
   for (const dryRun of [false, true]) {
     const { prisma, journal } = fausseBase({ ecrituresAutorisees: true });
@@ -143,13 +148,15 @@ test("une analyse plus récente à la corbeille ne bloque pas la publication du 
 test("simulation : annonce la nouvelle moyenne et n'écrit RIEN", async () => {
   // (80 + 60 + 51) / 3 = 63,666… → 63,7
   const { prisma, journal } = fausseBase({ ecrituresAutorisees: false });
-  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: true });
+  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: true, maintenant });
   assert.equal(resultat.ok, true);
   assert.equal(resultat.simulation, true);
+  // La simulation annonce la date qui AURAIT été enregistrée (heure de Paris).
   assert.equal(
     resultat.message,
-    "[Simulation] Cette analyse serait publiée et la moyenne de David Lisnard deviendrait 63.7/100.",
+    "[Simulation] Cette analyse serait publiée le 19/11/2026 à 14:32 (heure de Paris) et la moyenne de David Lisnard deviendrait 63.7/100.",
   );
+  assert.equal(resultat.publieLe, CLIC.toISOString());
   assert.ok(!journal.includes("$transaction"));
   assert.ok(journal.every((appel) => !/update|aggregate/.test(appel)));
 });
@@ -168,14 +175,16 @@ test("publication réelle : une transaction, mêmes étapes et même ordre que s
   const update = tx.candidat.update;
   tx.candidat.update = async (args) => (appels.push(["candidat.update", args]), update(args));
 
-  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: false });
+  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: false, maintenant });
 
   assert.deepEqual(resultat, {
     ok: true,
     simulation: false,
     analyseId: 7,
     propositionId: 70,
+    candidatId: 3,
     candidatNom: "David Lisnard",
+    publieLe: CLIC.toISOString(),
   });
   // Aucune écriture hors transaction.
   assert.deepEqual(journal.filter((a) => /update|aggregate|\$transaction/.test(a)), [
@@ -184,8 +193,12 @@ test("publication réelle : une transaction, mêmes étapes et même ordre que s
     "tx.analyse.aggregate",
     "tx.candidat.update",
   ]);
-  // On ne publie que si l'analyse est ENCORE un brouillon, et on recalcule la moyenne.
-  assert.deepEqual(appels[0], ["updateMany", { where: { id: 7, statut: "brouillon" }, data: { statut: "publie" } }]);
+  // On ne publie que si l'analyse est ENCORE un brouillon, avec la date du clic
+  // (dans la même écriture que le statut), et on recalcule la moyenne.
+  assert.deepEqual(appels[0], [
+    "updateMany",
+    { where: { id: 7, statut: "brouillon" }, data: { statut: "publie", publieLe: CLIC } },
+  ]);
   assert.deepEqual(appels[1], ["candidat.update", { where: { id: 3 }, data: { scoreMoyen: 63.5 } }]);
 });
 
@@ -196,6 +209,76 @@ test("publication réelle : si quelqu'un l'a déjà publiée (count ≠ 1), on a
   assert.match(resultat.message, /rien n'a été publié/);
   assert.ok(!journal.includes("tx.candidat.update"));
   assert.ok(!journal.includes("tx.analyse.aggregate"));
+});
+
+test("date de publication : seuls le statut et publieLe sont écrits sur l'analyse ; la déclaration n'est pas touchée", async () => {
+  const { prisma, journal, tx } = fausseBase({ ecrituresAutorisees: true });
+  let donnees = null;
+  const updateMany = tx.analyse.updateMany;
+  tx.analyse.updateMany = async (args) => ((donnees = args.data), updateMany(args));
+  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: false, maintenant });
+  assert.equal(resultat.ok, true);
+  // Exactement deux champs : ni le score, ni createdAt, ni aucune date de la déclaration.
+  assert.deepEqual(Object.keys(donnees).sort(), ["publieLe", "statut"]);
+  assert.equal(donnees.publieLe, CLIC);
+  // Aucune écriture sur la Proposition (dateDeclaration) : seules les écritures
+  // attendues apparaissent dans le journal.
+  assert.ok(journal.every((appel) => !/proposition/i.test(appel)));
+});
+
+test("date de publication : prise au moment du clic, côté serveur, à chaque publication", async () => {
+  const { prisma, tx } = fausseBase({ ecrituresAutorisees: true });
+  let donnees = null;
+  const updateMany = tx.analyse.updateMany;
+  tx.analyse.updateMany = async (args) => ((donnees = args.data), updateMany(args));
+  const avant = Date.now();
+  // Sans horloge injectée : la vraie date du serveur.
+  await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: false });
+  assert.ok(donnees.publieLe instanceof Date);
+  assert.ok(donnees.publieLe.getTime() >= avant && donnees.publieLe.getTime() <= Date.now());
+});
+
+test("double clic : le second clic est refusé sans rien réécrire (la date du premier clic reste)", async () => {
+  // Premier clic : publié.
+  const premier = fausseBase({ ecrituresAutorisees: true });
+  const r1 = await publierBrouillonCore(7, { isEditor: editeur, prisma: premier.prisma, dryRun: false, maintenant });
+  assert.equal(r1.ok, true);
+  // Second clic, la base voit déjà « publie » : refus avant toute écriture.
+  const second = fausseBase({ analyse: { ...BROUILLON, statut: "publie" }, ecrituresAutorisees: false });
+  const r2 = await publierBrouillonCore(7, {
+    isEditor: editeur,
+    prisma: second.prisma,
+    dryRun: false,
+    maintenant: () => new Date("2026-11-19T13:33:00.000Z"),
+  });
+  assert.equal(r2.ok, false);
+  assert.match(r2.message, /pas un brouillon/);
+  assert.ok(!second.journal.includes("$transaction"));
+  // Deux clics simultanés (les deux lisent « brouillon ») : la condition
+  // statut = brouillon de l'écriture n'en laisse passer qu'un (count = 0).
+  const concurrent = fausseBase({ ecrituresAutorisees: true, count: 0 });
+  const r3 = await publierBrouillonCore(7, { isEditor: editeur, prisma: concurrent.prisma, dryRun: false, maintenant });
+  assert.equal(r3.ok, false);
+});
+
+test("simulation (TEST_DRY_RUN=1) : aucune écriture, mais la date qui aurait été enregistrée est renvoyée", async () => {
+  const { prisma, journal } = fausseBase({ ecrituresAutorisees: false });
+  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: true, maintenant });
+  assert.equal(resultat.publieLe, "2026-11-19T13:32:00.000Z");
+  assert.match(resultat.message, /serait publiée le 19\/11\/2026 à 14:32 \(heure de Paris\)/);
+  assert.ok(journal.every((appel) => !/update|\$transaction/.test(appel)));
+});
+
+test("réessayer la fusion : ne touche jamais à la date de publication (aucune écriture en base)", async () => {
+  const analyse = { ...BROUILLON, statut: "publie", contenuComplet: { revision: { slug: "x" } } };
+  const { prisma, journal } = fausseBase({ analyse, ecrituresAutorisees: false });
+  const github = {
+    verifier: async () => ({ ok: true, pr: { numero: 1, lien: "l" } }),
+    fusionner: async () => ({ ok: true }),
+  };
+  const resultat = await fusionnerRevisionCore(7, { isEditor: editeur, prisma, dryRun: false, github });
+  assert.equal(resultat.ok, true);
+  assert.ok(journal.every((appel) => !/update|\$transaction/.test(appel)));
 });
 
 test("publication réelle : erreur imprévue de la base → message clair, rien n'est affirmé publié", async () => {
@@ -246,8 +329,16 @@ function fauxGitHub({ verification = { ok: true, pr: PR }, fusion = { ok: true }
 test("révision : publication sans champ revision, GitHub n'est jamais appelé (comportement inchangé)", async () => {
   const { prisma } = fausseBase({ ecrituresAutorisees: true, analyse: { ...BROUILLON, contenuComplet: { titre_fiche: "x" } } });
   const interdit = { verifier: () => assert.fail("pas d'appel GitHub"), fusionner: () => assert.fail("pas d'appel GitHub") };
-  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: false, github: interdit });
-  assert.deepEqual(resultat, { ok: true, simulation: false, analyseId: 7, propositionId: 70, candidatNom: "David Lisnard" });
+  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: false, github: interdit, maintenant });
+  assert.deepEqual(resultat, {
+    ok: true,
+    simulation: false,
+    analyseId: 7,
+    propositionId: 70,
+    candidatId: 3,
+    candidatNom: "David Lisnard",
+    publieLe: CLIC.toISOString(),
+  });
 });
 
 test("révision : PR non fusionnable → refus avec la raison et le lien, rien n'est écrit ni fusionné", async () => {
