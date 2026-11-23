@@ -66,3 +66,37 @@ export function motsGras(texte, max = GRAS_MAX_PAR_SLIDE) {
   }
   return mots;
 }
+
+// Mots en gras au plus sur une slide (tous ses textes ensemble).
+export const MOTS_GRAS_MAX_PAR_SLIDE = 3;
+
+// Nombre de mots en gras d'un texte.
+export function nombreMotsGras(texte) {
+  return morceauxGras(texte)
+    .filter((m) => m.gras)
+    .reduce((total, m) => total + m.texte.split(/\s+/).filter(Boolean).length, 0);
+}
+
+// Textes d'une slide (dans l'ordre de lecture) avec 3 mots en gras au plus
+// en tout : les passages en gras sont gardés dans l'ordre tant qu'ils tiennent
+// dans le quota ; un passage qui le dépasserait passe en texte normal (on ne
+// coupe jamais un passage). Renvoie les textes réécrits (balisage ** conservé
+// pour les passages gardés).
+export function limiterMotsGras(textes, max = MOTS_GRAS_MAX_PAR_SLIDE) {
+  let reste = max;
+  return textes.map((texte) => {
+    if (texte === null || texte === undefined) return texte;
+    return morceauxGras(texte)
+      .map(({ texte: t, gras }) => {
+        if (!gras) return t;
+        const mots = t.split(/\s+/).filter(Boolean).length;
+        if (mots <= reste) {
+          reste -= mots;
+          return `**${t}**`;
+        }
+        reste = 0;
+        return t;
+      })
+      .join("");
+  });
+}

@@ -320,7 +320,7 @@ export function illustrationCouverture({ theme, contenu, propositionId, demandee
   const deja = voulue?.fichier === demandee ? voulue : retenue ? liste.find((ill) => ill.fichier === retenue) : null;
   const { illustration, avertissement } = deja
     ? { illustration: deja, avertissement: null }
-    : choisirIllustration({ theme, motsCles: contenu?.reseaux_recit?.illustration_mots_cles ?? [], alea: aleaFiche(`illustration-${propositionId}`), liste });
+    : choisirIllustration({ theme, motsCles: contenu?.reseaux_recit?.illustration_mots_cles ?? [], sujet: contenu?.reseaux_recit?.illustration_sujet ?? "", alea: aleaFiche(`illustration-${propositionId}`), liste });
   if (avertissement) avertissements.push({ cle: "image de thème", message: avertissement });
   if (retenue && !deja) avertissements.push({ cle: "image de thème", message: `L’image retenue à la génération (${retenue}) n’est plus dans la bibliothèque : nouveau tirage.` });
   return illustration ? { ...illustration, creditVisible: creditVisible(illustration) } : null;

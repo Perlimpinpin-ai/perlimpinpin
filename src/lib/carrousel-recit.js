@@ -5,10 +5,11 @@ import { resolveTheme } from "./themes.js";
 import { remplirTweet, valeursReseaux } from "./reseaux.js";
 import { hashtagsLegende, illustrationCouverture, LEGENDE_MAX, scoreAffiche, sourcesPrincipales, sujetCourt, texteRepris } from "./carrousel.js";
 import { handleInstagramVerifie } from "./handles-instagram.js";
-import { CLES_CRITERES, controlerRecit, formatAncien, SOUS_TITRE_COUVERTURE } from "./recit.js";
+import { controlerRecit, formatAncien, SOUS_TITRE_COUVERTURE } from "./recit.js";
 import { fichePourRecit } from "./recit-generation.js";
 import { couleurCarrousel, COULEUR_NEUTRE } from "./couleurs-carrousel.js";
-import { creditLegende, creditVisible, illustrationsPourFiche } from "./illustrations.js";
+import { creditLegende, creditVisible, illustrationsProposees } from "./illustrations.js";
+import { limiterMotsGras } from "./texte-gras.js";
 import { choisirPhoto, creditsPhoto, PHOTOS_CANDIDATS, PHOTOS_MIN, photosDuCandidat } from "./photos-candidats.js";
 
 // Carrousel détaillé en 8 slides (7 sans mesure comparable), sa légende, ses
@@ -140,7 +141,7 @@ export function carrouselRecit(donnees) {
 
   // Image de thème : celle retenue à la génération de cette version, sinon tirage.
   const illustration = illustrationCouverture(
-    { theme, contenu: { reseaux_recit: { illustration: stocke.illustration, illustration_mots_cles: recit.illustration_mots_cles } }, propositionId, demandee: donnees.illustrationDemandee ?? null, liste: donnees.illustrations },
+    { theme, contenu: { reseaux_recit: { illustration: stocke.illustration, illustration_mots_cles: recit.illustration_mots_cles, illustration_sujet: recit.illustration_sujet } }, propositionId, demandee: donnees.illustrationDemandee ?? null, liste: donnees.illustrations },
     avertissements,
   );
   // Photo du candidat (Wikimedia Commons) : celle demandée, sinon celle
@@ -160,33 +161,49 @@ export function carrouselRecit(donnees) {
   const blocageArchive = photo && !creditsPhoto(photo) ? `Crédit manquant pour la photo ${photo.n} de ${candidatNom} (auteur ou licence) : pas d’archive.` : illustration && !illustration.auteur ? "Crédit manquant pour l’image de thème : pas d’archive." : null;
   if (blocageArchive) avertissements.push({ cle: "crédits", fort: true, message: blocageArchive });
 
-  // Critères : notes du code (notation_detaillee), lignes du modèle.
+  // Critères : nom, barre et sous-note, tous écrits par le code
+  // (notation_detaillee) ; plus de phrase d'explication sous chaque critère.
   const notation = contenu?.notation_detaillee;
-  const criteres = notation
-    ? criteresPrincipaux(notation).map((critere, i) => ({ label: critere.label, note: critere.note, max: critere.max, ligne: nom(recit.note.criteres[CLES_CRITERES[i]] ?? "") }))
-    : [];
+  const criteres = notation ? criteresPrincipaux(notation).map((critere) => ({ label: critere.label, note: critere.note, max: critere.max })) : [];
   if (!notation) avertissements.push({ cle: "slide « La note »", message: "Pas de notation détaillée dans la fiche : sous-notes des critères absentes." });
 
   const effets = (liste) => liste.map((e) => ({ ...e, acteur: nom(e.acteur), texte: nom(e.texte) }));
+  // 3 mots en gras au plus par slide (tous ses textes ensemble, dans l'ordre de lecture).
+  const [constatTitre, constatExplication, constatProposition, constatImprecisions] = limiterMotsGras([recit.constat.titre, recit.constat.explication, recit.constat.proposition, recit.constat.imprecisions ?? ""].map(nom));
+  const [noteTitre, noteExplication] = limiterMotsGras([recit.note.titre, recit.note.explication].map(nom));
+  const effetsLimites = (partie) => {
+    const textes = limiterMotsGras([recit[partie].titre, ...recit[partie].effets.map((e) => e.texte)].map(nom));
+    return { titre: textes[0], effets: effets(recit[partie].effets).map((e, i) => ({ ...e, texte: textes[i + 1] })) };
+  };
+  const court = effetsLimites("court_terme");
+  const long = effetsLimites("long_terme");
+  const ailleursLimite = recit.ailleurs
+    ? (() => {
+        const mesures = recit.ailleurs.mesures;
+        const textes = limiterMotsGras([recit.ailleurs.titre, ...mesures.flatMap((m) => [m.fait, m.resultat ?? ""])].map(nom));
+        return { titre: textes[0], mesures: mesures.map((m, i) => ({ ...m, fait: textes[1 + 2 * i], resultat: textes[2 + 2 * i] })) };
+      })()
+    : null;
+  const tientCoince = [...recit.avis.tient.slice(0, 3), ...recit.avis.coince.slice(0, 3)];
+  const [avisTexte, ...pointsAvis] = limiterMotsGras([recit.avis.avis, ...tientCoince].map(nom));
+  const nbTient = Math.min(3, recit.avis.tient.length);
   const brutes = [
     { type: "couverture", photo: photo ? { n: photo.n, fichier: photo.fichier } : null, theme: resolveTheme(theme), question: remplirTweet(recit.couverture.question, { NOM: nomInsecable(candidatNom), CANDIDAT: candidatNom }), sousTitre: SOUS_TITRE_COUVERTURE, illustration, credits: credits.courts },
     {
       type: "constat",
-      titre: nom(recit.constat.titre),
-      explication: nom(recit.constat.explication),
+      titre: constatTitre,
+      explication: constatExplication,
       chiffres: recit.constat.chiffres,
-      proposition: nom(recit.constat.proposition),
-      imprecisions: nom(recit.constat.imprecisions ?? ""),
+      proposition: constatProposition,
+      imprecisions: constatImprecisions,
       sources: recit.constat.sources,
       theme: resolveTheme(theme),
     },
-    { type: "noteRecit", score: Number(score), scoreAffiche: scoreAffiche(score), palier: getScoreBadge(Number(score)).label, titre: nom(recit.note.titre), explication: nom(recit.note.explication), criteres },
-    { type: "effetsCourt", onglet: "court", titre: nom(recit.court_terme.titre), effets: effets(recit.court_terme.effets) },
-    { type: "effetsLong", onglet: "long", titre: nom(recit.long_terme.titre), effets: effets(recit.long_terme.effets) },
-    recit.ailleurs
-      ? { type: "ailleurs", titre: nom(recit.ailleurs.titre), mesures: recit.ailleurs.mesures.map((m) => ({ ...m, fait: nom(m.fait), resultat: nom(m.resultat) })), sources: recit.ailleurs.sources }
-      : null,
-    { type: "avis", avis: nom(recit.avis.avis), tient: recit.avis.tient.slice(0, 3).map(nom), coince: recit.avis.coince.slice(0, 3).map(nom) },
+    { type: "noteRecit", score: Number(score), scoreAffiche: scoreAffiche(score), palier: getScoreBadge(Number(score)).label, titre: noteTitre, explication: noteExplication, criteres },
+    { type: "effetsCourt", onglet: "court", ...court },
+    { type: "effetsLong", onglet: "long", ...long },
+    ailleursLimite ? { type: "ailleurs", ...ailleursLimite, sources: recit.ailleurs.sources } : null,
+    { type: "avis", avis: avisTexte, tient: pointsAvis.slice(0, nbTient), coince: pointsAvis.slice(nbTient) },
     { type: "fin", sources: sourcesPrincipales(contenu), credits: credits.fin },
   ].filter(Boolean);
   if (!recit.ailleurs) {
@@ -220,7 +237,7 @@ export function carrouselRecit(donnees) {
 
   const tweet = remplirTweet(recit.tweet_assemble, valeurs);
   const version = `${analyseId}-${precedent ? "p" : "r"}-${empreinte(JSON.stringify([candidatNom, slugCandidat({ nom: candidatNom, photoUrl }), couleur, sujet, slides]))}`;
-  return { slides, legende, credits: creditsTexte, tweet, avertissements, version, couleur, couleurAttribuee: Boolean(couleurChoisie), sujet, illustration, photo, photos: photosCandidat.map((p) => p.n), blocageArchive, controles, illustrations: illustrationsPourFiche(theme, donnees.illustrations ?? undefined).map((ill) => ill.fichier) };
+  return { slides, legende, credits: creditsTexte, tweet, avertissements, version, couleur, couleurAttribuee: Boolean(couleurChoisie), sujet, illustration, photo, photos: photosCandidat.map((p) => p.n), blocageArchive, controles, illustrations: illustrationsProposees({ theme, motsCles: recit.illustration_mots_cles ?? [] }, donnees.illustrations ?? undefined).map((ill) => ill.fichier), imageSujet: recit.illustration_sujet ?? "", imageMotsCles: recit.illustration_mots_cles ?? [] };
 }
 
 // Slides d'un carrousel détaillé stocké, dans l'ordre : [{ type, numero, libelle }].

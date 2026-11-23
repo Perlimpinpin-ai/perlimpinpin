@@ -264,7 +264,7 @@ function Candidat({ candidat }) {
   return <img src={candidat.image} alt="" width={l} height={h} style={{ position: "absolute", left: BOITE_CANDIDAT.gauche + Math.round((boiteL - l) / 2), top: BOITE_CANDIDAT.bas - h, width: l, height: h }} />;
 }
 
-function Couverture({ slide, mise, couleur, images }) {
+function Couverture({ slide, mise, couleur, images, controle = false }) {
   const hautCredits = mise.credits ? BAS - 10 - mise.credits.hauteur - 8 : BAS;
   return (
     <>
@@ -277,39 +277,43 @@ function Couverture({ slide, mise, couleur, images }) {
           <Lignes b={mise.sousTitre} couleur="rgba(255,255,255,.88)" />
         </div>
       </div>
-      <svg width={LARGEUR} height={HAUTEUR} viewBox={`0 0 ${LARGEUR} ${HAUTEUR}`} style={{ position: "absolute", left: 0, top: 0 }}>
-        <polygon points={BLOC} fill={couleur.bloc} />
-      </svg>
+      {controle ? null : (
+        <svg width={LARGEUR} height={HAUTEUR} viewBox={`0 0 ${LARGEUR} ${HAUTEUR}`} style={{ position: "absolute", left: 0, top: 0 }}>
+          <polygon points={BLOC} fill={couleur.bloc} />
+        </svg>
+      )}
       {images.papier ? <img src={images.papier} alt="" width={PAPIER.largeur} height={PAPIER.hauteur} style={{ position: "absolute", left: PAPIER.gauche, top: PAPIER.haut, width: PAPIER.largeur, height: PAPIER.hauteur }} /> : null}
       {images.illustration ? (
         <img src={images.illustration} alt="" width={ILLUSTRATION.largeur} height={ILLUSTRATION.hauteur} style={{ position: "absolute", left: ILLUSTRATION.gauche, top: ILLUSTRATION.haut, width: ILLUSTRATION.largeur, height: ILLUSTRATION.hauteur }} />
       ) : null}
       <Candidat candidat={images.candidat} />
+      {controle ? null : (
       <div style={{ position: "absolute", left: C.marge, top: hautCredits - 16 - 52, height: 52, display: "flex", alignItems: "center", padding: "0 20px", borderRadius: 6, backgroundColor: "#ECE8EE", fontFamily: MONO, fontSize: 26, color: ENCRE }}>
         <span>Glissez</span>
         <span style={{ marginLeft: 18, color: "#8A8790" }}>→</span>
       </div>
-      {mise.credits ? (
+      )}
+      {mise.credits && !controle ? (
         <div style={{ position: "absolute", left: C.marge, top: hautCredits, display: "flex", padding: "4px 10px", borderRadius: 3, backgroundColor: eclaircir(couleur.fond, 0.22) }}>
           <Lignes b={mise.credits} couleur={BLANC} />
         </div>
       ) : null}
-      <BandeBillet couleur="#ffffff" opacite={0.45} hauteur={C.bande} />
+      {controle ? null : <BandeBillet couleur="#ffffff" opacite={0.45} hauteur={C.bande} />}
     </>
   );
 }
 
 // --- Slides 2 à 7 (papier crème) -----------------------------------------------------------
 
-function Papier({ slide, couleur, images, candidatNom, sujet, mise, children }) {
+function Papier({ slide, couleur, images, candidatNom, sujet, mise, children, controle = false }) {
   return (
     <>
       <Fond couleur={CREME} grain={images.grain} opacite={0.9} />
       <EnTete slide={slide} texte={ENCRE} accent={couleur.fond} />
       <Zone>{children}</Zone>
       {mise.picto ? <Picto src={images.picto} /> : null}
-      <Pied candidatNom={candidatNom} sujet={sujet} couleur={GRIS} />
-      <BandeBillet couleur={couleur.fond} />
+      {controle ? null : <Pied candidatNom={candidatNom} sujet={sujet} couleur={GRIS} />}
+      {controle ? null : <BandeBillet couleur={couleur.fond} />}
     </>
   );
 }
@@ -368,35 +372,31 @@ function NoteRecit({ slide, mise, couleur }) {
       <div style={{ display: "flex", alignItems: "center", height: ECARTS.scoreLigne, marginTop: ECARTS.apresEtiquette }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div style={{ display: "flex", fontFamily: "Texte", fontWeight: 800, fontSize: STYLES.score.taille, letterSpacing: STYLES.score.espacement, lineHeight: 1, color: teinte.score }}>{slide.scoreAffiche}</div>
-          <div style={{ display: "flex", fontFamily: "Texte", fontWeight: 500, fontSize: 48, color: GRIS, marginLeft: 8 }}>/100</div>
+          <div style={{ display: "flex", fontFamily: "Texte", fontWeight: 500, fontSize: 56, color: GRIS, marginLeft: 10 }}>/100</div>
         </div>
-        <div style={{ display: "flex", marginLeft: 32 }}>
-          <Etiquette couleur={teinte.pastilleTexte} fond={teinte.pastilleFond} bordure={teinte.pastilleFond} taille={28}>
+        <div style={{ display: "flex", marginLeft: 36 }}>
+          <Etiquette couleur={teinte.pastilleTexte} fond={teinte.pastilleFond} bordure={teinte.pastilleFond} taille={30}>
             {slide.palier.toUpperCase()}
           </Etiquette>
         </div>
       </div>
-      <div style={{ display: "flex", marginTop: 18 }}>
+      <div style={{ display: "flex", marginTop: ECARTS.apresScore }}>
         <Lignes b={mise.titre} />
       </div>
-      <div style={{ display: "flex", marginTop: 14 }}>
+      <div style={{ display: "flex", marginTop: ECARTS.apresTitreNote }}>
         <Lignes b={mise.explication} />
       </div>
-      <div style={{ display: "flex", flexDirection: "column", marginTop: 22 }}>
+      {/* Les 5 critères : nom, sous-note et barre épaisse, sans phrase. */}
+      <div style={{ display: "flex", flexDirection: "column", marginTop: ECARTS.avantCriteres }}>
         {mise.criteres.map((c, i) => (
-          <div key={c.label} style={{ display: "flex", flexDirection: "column", marginTop: i ? 12 : 0 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: 36 }}>
-              <div style={{ display: "flex", fontFamily: "Texte", fontWeight: 800, fontSize: 28, color: ENCRE }}>{c.label}</div>
-              <div style={{ display: "flex", fontFamily: MONO, fontSize: 28, color: couleur.fond }}>{typeof c.note === "number" ? `${c.note}/${c.max}` : `–/${c.max}`}</div>
+          <div key={c.label} style={{ display: "flex", flexDirection: "column", marginTop: i ? ECARTS.critereEcart : 0 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: ECARTS.critereLigne }}>
+              <div style={{ display: "flex", fontFamily: "Texte", fontWeight: 800, fontSize: STYLES.critereNom.taille, color: ENCRE }}>{c.label}</div>
+              <div style={{ display: "flex", fontFamily: MONO, fontSize: STYLES.critereNom.taille, color: couleur.fond }}>{typeof c.note === "number" ? `${c.note}/${c.max}` : `–/${c.max}`}</div>
             </div>
-            <div style={{ display: "flex", width: LARGEUR_UTILE, height: ECARTS.barre, marginTop: 8, borderRadius: 2, backgroundColor: rgba(ENCRE, 0.12) }}>
-              <div style={{ display: "flex", width: Math.round((LARGEUR_UTILE * Math.max(0, Math.min(c.note ?? 0, c.max))) / c.max), height: ECARTS.barre, borderRadius: 2, backgroundColor: couleur.fond }} />
+            <div style={{ display: "flex", width: LARGEUR_UTILE, height: ECARTS.critereBarre, marginTop: ECARTS.critereBarreEcart, borderRadius: 4, backgroundColor: rgba(ENCRE, 0.12) }}>
+              <div style={{ display: "flex", width: Math.round((LARGEUR_UTILE * Math.max(0, Math.min(c.note ?? 0, c.max))) / c.max), height: ECARTS.critereBarre, borderRadius: 4, backgroundColor: couleur.fond }} />
             </div>
-            {c.ligne ? (
-              <div style={{ display: "flex", marginTop: 8 }}>
-                <Lignes b={c.ligne} couleur={GRIS} />
-              </div>
-            ) : null}
           </div>
         ))}
       </div>
@@ -519,7 +519,7 @@ function Avis({ mise, couleur, images }) {
 
 // --- Fin (couleur du candidat) -------------------------------------------------------------
 
-function Fin({ slide, mise, couleur, images }) {
+function Fin({ slide, mise, couleur, images, controle = false }) {
   const clair = rgba("#ffffff", 0.82);
   return (
     <>
@@ -555,7 +555,7 @@ function Fin({ slide, mise, couleur, images }) {
         ) : null}
       </Zone>
       {mise.picto ? <Picto src={images.picto} /> : null}
-      <BandeBillet couleur="#ffffff" opacite={0.45} />
+      {controle ? null : <BandeBillet couleur="#ffffff" opacite={0.45} />}
     </>
   );
 }
@@ -565,14 +565,18 @@ const CONTENUS_PAPIER = { constat: Constat, noteRecit: NoteRecit, effetsCourt: E
 // Élément de la slide demandée. `mise` : miseEnPageSlide (mêmes lignes que la
 // mesure) ; `couleur` : { fond, bloc } ; `images` (data URI) : grain, candidat
 // ({ image, detoure }), illustration (traitée), picto.
-export function elementSlideDetaille({ slide, mise, couleur, images = {}, candidatNom, sujet = "" }) {
+// `controle` (tests, scripts/carrousel-rendu.test.js) : seulement les textes
+// et les cartes sur un fond uni, sans grain, image, pied de page, bande ni
+// collage : un pixel non uni dans une zone réservée est un texte qui y entre.
+export function elementSlideDetaille({ slide, mise, couleur, images: imagesFournies = {}, candidatNom, sujet = "", controle = false }) {
+  const images = controle ? {} : imagesFournies;
   let contenu;
-  if (slide.type === "couverture") contenu = <Couverture slide={slide} mise={mise} couleur={couleur} images={images} />;
-  else if (slide.type === "fin") contenu = <Fin slide={slide} mise={mise} couleur={couleur} images={images} />;
+  if (slide.type === "couverture") contenu = <Couverture slide={slide} mise={mise} couleur={couleur} images={images} controle={controle} />;
+  else if (slide.type === "fin") contenu = <Fin slide={slide} mise={mise} couleur={couleur} images={images} controle={controle} />;
   else {
     const Contenu = CONTENUS_PAPIER[slide.type];
     contenu = (
-      <Papier slide={slide} couleur={couleur} images={images} candidatNom={candidatNom} sujet={sujet} mise={mise}>
+      <Papier slide={slide} couleur={couleur} images={images} candidatNom={candidatNom} sujet={sujet} mise={mise} controle={controle}>
         <Contenu slide={slide} mise={mise} couleur={couleur} images={images} />
       </Papier>
     );

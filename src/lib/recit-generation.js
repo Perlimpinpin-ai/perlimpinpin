@@ -43,12 +43,12 @@ export function fichePourRecit(ficheFinale) {
 }
 
 // Message du premier essai : le prompt (data/prompt-recit.md), puis la fiche.
-// Avec la liste fermée des mots-clés d'illustration du thème avant la fiche ;
+// Avec la liste fermée des mots-clés d'illustration de toute la bibliothèque avant la fiche ;
 // en régénération, la consigne des remarques (version précédente, remarque,
 // partie à réécrire) à la fin.
 export function construireMessageRecit(prompt, ficheFinale, { motsClesIllustration = [], remarques = null } = {}) {
   const texte = String(prompt ?? "").replace(/\r\n/g, "\n").trim();
-  const mots = `MOTS-CLÉS D'ILLUSTRATION DISPONIBLES POUR CE THÈME : ${motsClesIllustration.length ? motsClesIllustration.join(", ") : "(aucun : mets illustration_mots_cles à [])"}`;
+  const mots = `MOTS-CLÉS D'ILLUSTRATION DISPONIBLES (toute la bibliothèque) : ${motsClesIllustration.length ? motsClesIllustration.join(", ") : "(aucun : mets illustration_mots_cles à [])"}`;
   const base = `${texte}\n\n${mots}\n\nFICHE FINALE :\n${JSON.stringify(fichePourRecit(ficheFinale), null, 2)}`;
   return remarques ? `${base}\n\n${consigneRemarques(remarques)}` : base;
 }
@@ -68,28 +68,36 @@ export function estimationCoutRecit(caracteresMessage) {
   return { min: coutClaude(min), max: coutClaude(max), tokens: min.input_tokens };
 }
 
-// Débordements au rendu d'une réponse acceptée : une relance au plus pour
-// raccourcir les textes visés (consigneRaccourcir). Renvoie { recit,
-// avertissements, debordements, usage } ; la relance n'est gardée que si
-// elle passe les mêmes contrôles et déborde moins.
+// Débordements au rendu d'une réponse acceptée : jusqu'à RELANCES_RACCOURCIR
+// relances pour raccourcir les textes visés (consigneRaccourcir : champs à
+// raccourcir et lignes à gagner ; jamais la police). Renvoie { recit,
+// avertissements, debordements, usage } ; une relance n'est gardée que si
+// elle passe les mêmes contrôles et déborde moins (en px au total). Ce qui
+// déborde encore devient un avertissement rouge et bloque l'archive
+// (src/lib/carrousel-serveur.js).
+export const RELANCES_RACCOURCIR = 2;
+const pxDeTrop = (liste) => liste.reduce((total, d) => total + (d.manque ?? 1), 0);
+
 async function raccourcirSiBesoin({ controle, base, contexte, appeler, analyser, debordements, journal }) {
   const message = (d) => `Texte trop long, slide ${d.numero} (${d.libelle}) : ${d.bloc}, ${d.raison}. On ne réduit pas la police : raccourcir ce texte.`;
   const avant = debordements ? debordements(controle.recit) : [];
   let retenu = { recit: controle.recit, avertissements: controle.avertissements, debordements: avant, usage: {} };
-  if (avant.length > 0) {
-    journal.error(`  ⚠️  Carrousel détaillé : ${avant.length} texte(s) trop long(s), relance pour raccourcir.`);
+  let usage = {};
+  for (let relance = 1; relance <= RELANCES_RACCOURCIR && retenu.debordements.length > 0; relance++) {
+    journal.error(`  ⚠️  Carrousel détaillé : ${retenu.debordements.length} texte(s) trop long(s), relance ${relance} pour raccourcir.`);
     try {
-      const reponse = await appeler(`${base}\n\n${consigneRaccourcir(controle.recit, avant)}`);
-      retenu.usage = reponse?.usage ?? {};
-      const second = controlerRecit(analyser(reponse), contexte);
-      if (second.valide) {
-        const apres = debordements(second.recit);
-        if (apres.length < avant.length) retenu = { recit: second.recit, avertissements: second.avertissements, debordements: apres, usage: retenu.usage };
+      const reponse = await appeler(`${base}\n\n${consigneRaccourcir(retenu.recit, retenu.debordements)}`);
+      usage = additionnerUsage(usage, reponse?.usage);
+      const essai = controlerRecit(analyser(reponse), contexte);
+      if (essai.valide) {
+        const apres = debordements(essai.recit);
+        if (pxDeTrop(apres) < pxDeTrop(retenu.debordements)) retenu = { recit: essai.recit, avertissements: essai.avertissements, debordements: apres };
       }
     } catch (error) {
       journal.error(`     - relance impossible : ${error.message}`);
     }
   }
+  retenu.usage = usage;
   return { ...retenu, avertissements: [...retenu.avertissements, ...retenu.debordements.map(message)] };
 }
 
@@ -107,7 +115,7 @@ async function raccourcirSiBesoin({ controle, base, contexte, appeler, analyser,
 //     le tout passe les mêmes contrôles ;
 //   debordements(recit) → [{ numero, libelle, bloc, raison }] : textes qui ne
 //     tiennent pas dans leur slide au rendu (src/lib/mise-en-page-carrousel.js).
-//     Réponse acceptée mais qui déborde : UNE relance demande au modèle de
+//     Réponse acceptée mais qui déborde : jusqu’à 2 relances demandent au modèle de
 //     raccourcir ces textes ; la version qui déborde le moins est gardée, et
 //     les débordements restants deviennent des avertissements.
 export async function genererRecitCore({ ficheFinale, candidatNom, score, propositionId = 0, prompt, appeler, analyser, motsClesIllustration = [], remarques = null, debordements = null, journal = console }) {

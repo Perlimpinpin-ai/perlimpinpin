@@ -1,6 +1,6 @@
 import { empreinte } from "./carte.js";
 import { resolveTheme } from "./themes.js";
-import { CARROUSELS_EXCLUS, choisirEnRotation } from "./rotation-images.js";
+import { choisirEnRotation } from "./rotation-images.js";
 
 // Bibliothèque des images de thème des carrousels Instagram (couverture).
 //
@@ -162,6 +162,15 @@ export const THEMES_ILLUSTRATIONS = {
       ["administrative documents stamp", "tampon"],
     ],
   },
+  tabac: {
+    libelle: "Tabac (sujet)",
+    sujet: true,
+    requetes: [
+      ["plain cigarette packaging", "paquet"],
+      ["ashtray close up", "cendrier"],
+      ["tobacco shop sign", "buraliste"],
+    ],
+  },
   general: {
     libelle: "Général (secours)",
     requetes: [
@@ -254,6 +263,14 @@ export const REQUETES_COMMONS = {
     ["urne électorale", "urne"],
     ["hémicycle Assemblée nationale", "hemicycle"],
     ["voting booth", "isoloir"],
+  ],
+  tabac: [
+    ["paquet de cigarettes neutre", "paquet"],
+    ["plain cigarette packaging", "paquet"],
+    ["cendrier", "cendrier"],
+    ["ashtray cigarette butts", "cendrier"],
+    ["carotte bureau de tabac", "buraliste"],
+    ["bureau de tabac façade", "buraliste"],
   ],
   general: [
     ["journaux kiosque", "journal"],
@@ -368,8 +385,24 @@ export function illustrationsPourFiche(themeFiche, liste = ILLUSTRATIONS) {
 
 // Liste fermée des mots-clés disponibles pour un thème de fiche (envoyée au
 // modèle du carrousel détaillé).
+// Les mots-clés de TOUTE la bibliothèque : le modèle choisit selon la mesure
+// (tabac, carburant, loyers…), pas seulement selon le thème. `themeFiche` est
+// gardé pour la compatibilité des appels.
 export function motsClesDisponibles(themeFiche, liste = ILLUSTRATIONS) {
-  return [...new Set(illustrationsPourFiche(themeFiche, liste).flatMap((ill) => ill.motsCles ?? []))].sort();
+  return [...new Set(liste.flatMap((ill) => ill.motsCles ?? []))].sort();
+}
+
+// Images qui portent au moins un des mots-clés (toute la bibliothèque).
+export function illustrationsDesMotsCles(motsCles, liste = ILLUSTRATIONS) {
+  const voulus = (motsCles ?? []).map(motCleNormalise).filter(Boolean);
+  return voulus.length ? liste.filter((ill) => (ill.motsCles ?? []).some((m) => voulus.includes(m))) : [];
+}
+
+// Images proposées par le bouton « Changer d'image » : celles des mots-clés
+// de la mesure, sinon celles du thème (ou du dossier de secours).
+export function illustrationsProposees({ theme, motsCles = [] }, liste = ILLUSTRATIONS) {
+  const parMot = illustrationsDesMotsCles(motsCles, liste);
+  return parMot.length ? parMot : illustrationsPourFiche(theme, liste);
 }
 
 // Contrôle des mots-clés choisis par le modèle : 0 à 2, dans la liste fermée.
@@ -388,12 +421,15 @@ export function controlerMotsCles(proposes, disponibles) {
 }
 
 // Choix de l'image de couverture :
-//  - parmi les images du thème de la fiche, sinon (thème vide ou inconnu)
-//    celles du thème de secours « general » ;
 //  - `demandee` (fichier, bouton « Changer d'image ») : prise telle quelle si
-//    elle est dans ces images ;
-//  - si des mots-clés sont donnés (choisis par le modèle dans la liste
-//    fermée), de préférence parmi celles qui en portent au moins un ;
+//    elle est dans la bibliothèque ;
+//  - mots-clés de la mesure (choisis par le modèle dans la liste fermée de
+//    toute la bibliothèque) : parmi les images qui en portent au moins un ;
+//  - sujet de la mesure sans mot-clé, ou mot-clé sans image : AUCUNE image
+//    (papier jaune tramé seul) et l'avertissement « Pas d'image pour … »,
+//    plutôt qu'une image hors sujet ;
+//  - ni sujet ni mot-clé (anciennes versions, carrousel 6 slides) : parmi les
+//    images du thème de la fiche, sinon celles du thème de secours « general » ;
 //  - en écartant les images des 2 derniers carrousels (`recentes` : fichiers,
 //    le plus récent d'abord ; `derniere` : ancien paramètre, une seule image),
 //    sinon la moins récemment utilisée (src/lib/rotation-images.js) ;
@@ -401,7 +437,20 @@ export function controlerMotsCles(proposes, disponibles) {
 //    voir aleaFiche), départage les images libres.
 // Renvoie { illustration, avertissement } ; illustration null si ni le thème
 // ni le secours n'ont d'image (couverture sans illustration, et un avertissement).
-export function choisirIllustration({ theme, motsCles = [], recentes = [], derniere = null, demandee = null, alea = 0, liste = ILLUSTRATIONS }) {
+export function choisirIllustration({ theme, motsCles = [], sujet = "", recentes = [], derniere = null, demandee = null, alea = 0, liste = ILLUSTRATIONS }) {
+  const historique = recentes?.length ? recentes : derniere ? [derniere] : [];
+  const demandeeTrouvee = demandee ? liste.find((ill) => ill.fichier === demandee) : null;
+  if (demandeeTrouvee) return { illustration: demandeeTrouvee, avertissement: null };
+  const voulus = (motsCles ?? []).map(motCleNormalise).filter(Boolean);
+  const sujetNet = motCleNormalise(sujet);
+  if (voulus.length || sujetNet) {
+    const parMot = illustrationsDesMotsCles(voulus, liste);
+    if (parMot.length === 0) {
+      const quoi = voulus.length ? voulus.join(", ") : sujetNet;
+      return { illustration: null, avertissement: `Pas d'image pour « ${quoi} » : papier jaune tramé seul sur la couverture. Ajouter des images : npm run banque-images:themes, puis /test/illustrations.` };
+    }
+    return { illustration: choisirEnRotation(parMot, { cle: (ill) => ill.fichier, recentes: historique, alea }), avertissement: null };
+  }
   const duTheme = illustrationsDuTheme(theme, liste);
   const pourFiche = illustrationsPourFiche(theme, liste);
   if (pourFiche.length === 0) {
@@ -412,15 +461,7 @@ export function choisirIllustration({ theme, motsCles = [], recentes = [], derni
     };
   }
   const avertissement = duTheme.length === 0 ? `Pas encore d'image pour le thème « ${resolveTheme(theme) ?? theme ?? "(aucun)"} » : image du dossier de secours « ${THEME_SECOURS} ».` : null;
-  const voulue = demandee ? pourFiche.find((ill) => ill.fichier === demandee) : null;
-  if (voulue) return { illustration: voulue, avertissement };
-  const historique = recentes?.length ? recentes : derniere ? [derniere] : [];
-  const voulus = motsCles.map(motCleNormalise);
-  const parMot = voulus.length ? pourFiche.filter((ill) => (ill.motsCles ?? []).some((m) => voulus.includes(m))) : [];
-  const bloquees = new Set(historique.slice(0, CARROUSELS_EXCLUS));
-  // Les mots-clés orientent le choix tant qu'une de leurs images est libre.
-  const pool = parMot.some((ill) => !bloquees.has(ill.fichier)) ? parMot : pourFiche;
-  const illustration = choisirEnRotation(pool, { cle: (ill) => ill.fichier, recentes: historique, alea });
+  const illustration = choisirEnRotation(pourFiche, { cle: (ill) => ill.fichier, recentes: historique, alea });
   return { illustration, avertissement };
 }
 

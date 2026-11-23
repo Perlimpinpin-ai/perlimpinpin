@@ -85,7 +85,7 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
                 <ChoixPhotoCandidat cle={slug} numeros={recit.photos} actuelle={recit.photo?.n ?? null} credit={recit.photo ? (recit.slides[0]?.credits?.[0] ?? null) : null} />
               ) : null}
               {recit.slides.length ? (
-                <ChoixImageTheme fichiers={recit.illustrations} actuelle={recit.illustration?.fichier ?? null} credit={recit.illustration?.creditVisible ?? null} />
+                <ChoixImageTheme fichiers={recit.illustrations} actuelle={recit.illustration?.fichier ?? null} credit={recit.illustration?.creditVisible ?? null} sujet={recit.imageSujet} motsCles={recit.imageMotsCles} />
               ) : null}
               <EncadreARelire avertissements={recit.avertissements} />
               <CarrouselPartage

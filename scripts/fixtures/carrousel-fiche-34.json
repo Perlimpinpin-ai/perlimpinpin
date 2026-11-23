@@ -1,0 +1,281 @@
+{
+  "proposition": {
+    "id": 34,
+    "titre": "Geler le prix du tabac pour soulager les buralistes",
+    "texteOriginal": "Pour \"stopper l'escalade fiscale\", Marine Le Pen veut \"geler\" les taxes sur le tabac et désindexer le prix sur l'inflation",
+    "theme": "sante",
+    "candidat": {
+      "nom": "Marine Le Pen",
+      "photoUrl": "/photos/marine-le-pen.jpg"
+    }
+  },
+  "analyse": {
+    "id": 34,
+    "statut": "publie",
+    "scoreFaisabilite": 49,
+    "contenuComplet": {
+      "limites": {
+        "texte": "La candidate présente cette mesure comme une question de pouvoir d'achat et de soutien aux buralistes, ce qui aurait pu justifier de la classer dans le domaine Fiscalité et pouvoir d'achat. Cette fiche la classe plutôt dans le domaine **Santé**, parce que le mécanisme qu'elle vise (l'indexation du prix du tabac) est avant tout **un outil de santé publique**, ce qui permet de le comparer au repère le plus pertinent et le mieux documenté disponible.",
+        "synthese": "Classée en Santé plutôt qu'en Fiscalité, car l'indexation visée est avant tout un outil de santé publique."
+      },
+      "titre_fiche": "Geler le prix du tabac pour soulager les buralistes",
+      "angles_morts": {
+        "texte": "Cette fiche évalue **uniquement le gel du prix du tabac**. Elle ne couvre pas d'éventuelles autres mesures de lutte contre le tabagisme (prévention, aide au sevrage) qui pourraient être présentées séparément par la candidate et changer l'appréciation d'ensemble de sa politique en matière de tabac.",
+        "synthese": "Cette fiche n'évalue que le gel des prix, pas d'autres mesures de lutte contre le tabagisme."
+      },
+      "resume_court": "Marine Le Pen veut geler les taxes sur le tabac et arrêter d'augmenter automatiquement le prix chaque année avec l'inflation. Techniquement, rien ne s'y oppose : c'est une simple décision budgétaire, sans obstacle juridique ni logistique.\n\nLe problème, c'est que la hausse des prix est justement l'outil le plus efficace jamais mesuré en France contre le tabagisme, avec une baisse de 17 % de la consommation entre 2016 et 2020. La mesure répond en revanche à un vrai problème pour les buralistes, pris entre baisse des ventes légales et marché parallèle.\n\nScore : 49/100, partiellement fondée.",
+      "reseaux_recit": {
+        "avis": {
+          "avis": "La mesure est facile à appliquer et soulage un secteur en difficulté, mais désactive un outil de santé publique efficace.",
+          "tient": [
+            "Aucun obstacle juridique ou logistique à un simple gel des taxes",
+            "Un vrai problème économique pour les buralistes, bien documenté",
+            "Cohérente avec le discours de {NOM} contre la pression fiscale"
+          ],
+          "coince": [
+            "Elle désactive l'outil le mieux démontré contre le tabagisme en France",
+            "Aucune mesure de compensation annoncée à ce stade",
+            "Le lien entre gel du prix et recul du marché parallèle n'est pas démontré"
+          ]
+        },
+        "note": {
+          "titre": "La mesure de {NOM} soulage les buralistes mais désactive un levier clé contre le tabagisme.",
+          "criteres": {
+            "efficacite": "Elle désactive l'outil le plus efficace jamais mesuré contre le tabagisme en France.",
+            "degre_preparation": "C'est une lettre ouverte de campagne, sans texte de loi ni chiffrage du coût sur plusieurs années.",
+            "alignement_logique": "Elle s'inscrit sans tension dans son discours contre la pression fiscale et pour les petits commerces.",
+            "operationnalite_moyens": "Geler une taxe est une décision budgétaire simple, sans obstacle juridique ni logistique.",
+            "effets_rebonds_externalites": "Elle répond à un vrai problème pour les buralistes, sans que son effet sur le marché parallèle soit démontré."
+          },
+          "explication": "Geler une taxe est simple à mettre en œuvre et répond à un vrai problème économique. Mais cela va à l'encontre de l'outil le mieux démontré pour faire reculer le tabagisme."
+        },
+        "tweet": {
+          "hic": "Sauf que ce gel désactiverait justement l'outil le mieux démontré pour faire reculer le tabagisme en France, sans compensation annoncée.",
+          "appel": "Protéger les buralistes ou préserver un levier de santé publique : selon vous, lequel doit passer avant l'autre ?",
+          "tient": "Ce qui tient : aucune difficulté juridique à geler une taxe, et un vrai problème économique pour les buralistes, pris entre marché parallèle et baisse des ventes.",
+          "exemple": "Prenons la période 2016-2020 : le prix du tabac a augmenté de 42 %, et la consommation a reculé de 17 % dans le même temps.",
+          "accroche": "Vous achetez un paquet de cigarettes à 12,50 euros : 10,50 euros partent dans les caisses de l'État, 1 euro seulement va au buraliste.",
+          "promesse": "{CANDIDAT} propose de geler les taxes sur le tabac et de supprimer la hausse automatique du prix sur l'inflation, pour soulager les buralistes."
+        },
+        "format": 6,
+        "modele": "claude-sonnet-5",
+        "constat": {
+          "titre": "La hausse des prix a fait reculer le tabagisme comme jamais.",
+          "sources": "Rapport du Sénat n° 23-638, étude de l'Observatoire français des drogues et des tendances addictives (données 2019).",
+          "chiffres": [
+            {
+              "jaune": true,
+              "detail": "de consommation entre 2016 et 2020",
+              "valeur": "-17 %"
+            },
+            {
+              "jaune": false,
+              "detail": "de dépenses de santé liées au tabac par an",
+              "valeur": "16,4 Md€"
+            },
+            {
+              "jaune": false,
+              "detail": "de taxes sur le tabac perçues par an",
+              "valeur": "13,1 Md€"
+            },
+            {
+              "jaune": false,
+              "detail": "perdus avec le marché parallèle en 2023",
+              "valeur": "4,3 Md€"
+            }
+          ],
+          "explication": "Entre 2016 et 2020, le prix du tabac a augmenté de 42 %. C'est l'outil le plus efficace jamais mesuré en France contre la consommation de tabac.",
+          "proposition": "La proposition de {NOM} : geler les taxes sur le tabac et arrêter la hausse automatique du prix sur l'inflation.",
+          "imprecisions": "Elle ne précise ni le montant du gel sur plusieurs années, ni une éventuelle mesure de compensation."
+        },
+        "legende": {
+          "avis": "Notre avis : la mesure est simple à appliquer et répond à un vrai problème économique, mais elle désactive un levier de santé publique efficace, sans compensation prévue.",
+          "effet": "À terme, la baisse de la consommation de tabac observée depuis des années pourrait ralentir, en particulier chez les jeunes.",
+          "question": "Marine Le Pen veut geler le prix du tabac pour soulager les buralistes. Mais cette hausse de prix est aussi l'outil qui a le plus fait reculer le tabagisme en France."
+        },
+        "ailleurs": {
+          "titre": "En France, la hausse des prix a déjà fait ses preuves.",
+          "mesures": [
+            {
+              "fait": "Le prix des cigarettes a augmenté de 42 % sur cette période.",
+              "lieu": "France",
+              "annee": "2016-2020",
+              "pastille": "positif",
+              "resultat": "La consommation de tabac a reculé de 17 % et la part de fumeurs quotidiens de 13 %."
+            }
+          ],
+          "sources": "Rapport du Sénat n° 23-638, « La fiscalité comportementale en santé : stop ou encore ? »"
+        },
+        "genereLe": "2026-11-23T12:10:08.151Z",
+        "couverture": {
+          "question": "{NOM} veut-elle geler le prix du ==tabac== pour les ==buralistes== ?"
+        },
+        "long_terme": {
+          "titre": "Sur plusieurs années, la baisse du tabagisme pourrait ralentir.",
+          "effets": [
+            {
+              "texte": "La baisse de la consommation de tabac observée depuis des années **ralentirait probablement**.",
+              "acteur": "Pour la santé publique",
+              "pastille": "risque"
+            },
+            {
+              "texte": "Plus sensibles au prix au moment de commencer à fumer, ils seraient **les plus exposés** à cet effet.",
+              "acteur": "Pour les jeunes",
+              "pastille": "risque"
+            },
+            {
+              "texte": "Le tabac coûte déjà plus en dépenses de santé qu'il ne rapporte en taxes, **un écart qui pourrait se creuser**.",
+              "acteur": "Pour les finances publiques",
+              "pastille": "incertain"
+            }
+          ]
+        },
+        "court_terme": {
+          "titre": "Dans l'immédiat, le prix du paquet se stabiliserait.",
+          "effets": [
+            {
+              "texte": "Un prix stable **soulagerait la pression** liée à la concurrence du marché parallèle.",
+              "acteur": "Pour les buralistes",
+              "pastille": "positif"
+            },
+            {
+              "texte": "Le prix du paquet n'augmenterait plus, un gain immédiat de pouvoir d'achat.",
+              "acteur": "Pour les fumeurs",
+              "pastille": "positif"
+            },
+            {
+              "texte": "Les recettes de l'indexation annuelle, de l'ordre d'une centaine de millions d'euros, **disparaîtraient**.",
+              "acteur": "Pour l'État",
+              "pastille": "coûteux"
+            }
+          ]
+        },
+        "illustration": "illustrations/sante/stethoscope.jpg",
+        "tweet_assemble": "Vous achetez un paquet de cigarettes à 12,50 euros : 10,50 euros partent dans les caisses de l'État, 1 euro seulement va au buraliste.\n\n{CANDIDAT} propose de geler les taxes sur le tabac et de supprimer la hausse automatique du prix sur l'inflation, pour soulager les buralistes.\n\nPrenons la période 2016-2020 : le prix du tabac a augmenté de 42 %, et la consommation a reculé de 17 % dans le même temps.\n\nSauf que ce gel désactiverait justement l'outil le mieux démontré pour faire reculer le tabagisme en France, sans compensation annoncée.\n\nCe qui tient : aucune difficulté juridique à geler une taxe, et un vrai problème économique pour les buralistes, pris entre marché parallèle et baisse des ventes.\n\nNote : {PASTILLE} {SCORE}/100 {APPRECIATION}\n\nProtéger les buralistes ou préserver un levier de santé publique : selon vous, lequel doit passer avant l'autre ?\n\nAnalyse complète 👇 {LIEN}",
+        "illustration_mots_cles": [
+          "stethoscope"
+        ]
+      },
+      "verdict_final": "Techniquement, geler une taxe ne pose aucune difficulté : c'est une simple décision budgétaire, votable sans obstacle juridique ni logistique.\n\nLe problème est ailleurs. Cette mesure désactive l'outil dont l'efficacité contre le tabagisme est la mieux démontrée en France : une hausse de prix de 42 % entre 2016 et 2020 a fait reculer la consommation de 17 %. Elle répond en revanche à un vrai problème économique pour les buralistes, pris en étau entre la baisse de leurs ventes légales et un marché parallèle qui leur échappe.\n\nLa mesure protège donc un secteur en difficulté, mais au prix d'un levier de santé publique qu'elle affaiblit directement, sans compensation annoncée à ce stade.",
+      "teaser_accueil": "Le Pen veut geler le prix du tabac pour soulager les buralistes. Mais c'est justement la hausse des prix qui a le plus fait reculer le tabagisme en France : la mesure peut-elle tenir les deux à la fois ?",
+      "ce_qui_est_etabli": {
+        "texte": "La hausse des prix entre 2016 et 2020 (+42 %) a fait reculer **la consommation de tabac de 17 %** et la part de fumeurs quotidiens de 13 %, selon un rapport du Sénat de mai 2024. Le tabac rapporte environ 13 à 14 milliards d'euros de taxes par an, mais **coûte à lui seul 16,4 milliards d'euros en dépenses de santé**, selon une étude de référence sur les données de 2019. Une indexation automatique du prix minimum sur l'inflation existe aujourd'hui (environ +0,8 % en 2025). Le marché parallèle du tabac représentait **4,3 milliards d'euros de recettes fiscales perdues en 2023**, selon le Sénat.",
+        "synthese": "La hausse de 42 % des prix entre 2016 et 2020 a fait reculer la consommation de tabac de 17 %."
+      },
+      "contexte_national": {
+        "texte": "Un rapport du Sénat de mai 2024 chiffre précisément qui touche l'argent d'un paquet de cigarettes premium à 12,50 euros : 10,50 euros vont aux finances publiques (8,50 euros de taxes spécifiques et 2 euros de TVA), contre seulement 1 euro pour le buraliste lui-même. Ce même rapport souligne, à partir de la hausse de prix de 2016-2020 (+42 %), une **baisse de la consommation nationale de tabac d'environ 17 %**, et une baisse de la part de fumeurs quotidiens d'environ 13 % dans la population. Une autre étude de référence (Observatoire français des drogues et des tendances addictives, méthode Kopp, données 2019) montre que malgré les 13,1 milliards d'euros de taxes que rapporte le tabac chaque année, **les seules dépenses de santé liées au tabagisme atteignent 16,4 milliards d'euros par an** : le tabac coûte donc, au global, plus cher aux finances publiques qu'il ne leur rapporte.",
+        "synthese": "Le tabac rapporte 13 milliards de taxes mais coûte 16,4 milliards en dépenses de santé."
+      },
+      "mesure_reformulee": {
+        "texte": "Marine Le Pen propose de **geler le montant des taxes sur le tabac** et d'arrêter d'augmenter chaque année le prix minimum du paquet en fonction de l'inflation, ce qui mettrait fin à la **hausse continue du prix du tabac observée ces dernières années**.",
+        "synthese": "Geler les taxes sur le tabac et supprimer l'indexation annuelle du prix sur l'inflation."
+      },
+      "sources_utilisees": [
+        "Public Sénat, « Marine Le Pen défend le gel des taxes sur le tabac dans une lettre aux buralistes », 7 septembre 2026",
+        "Rapport du Sénat n° 23-638, « La fiscalité comportementale en santé : stop ou encore ? »",
+        "Comité national contre le tabagisme (CNCT), « Le tabac : un coût majeur pour les finances publiques », d'après l'étude de l'Observatoire français des drogues et des tendances addictives (méthode Kopp, données 2019)",
+        "La Revue des Tabacs, « Taxes tabac : +0,8 % d'indexation sur l'inflation »",
+        "prompt-méthodologie Perlimpinpin, section 3.2 Santé (0_Objectifs de politique publique.docx)"
+      ],
+      "analyse_longevites": {
+        "texte": "Un gel voté serait **immédiatement applicable dès la prochaine loi de financement de la sécurité sociale**. Son effet sur la consommation de tabac, en revanche, se jouerait surtout à moyen et long terme : c'est sur plusieurs années que l'écart avec la trajectoire de baisse observée entre 2016 et 2020 se ferait sentir, notamment **chez les jeunes, plus sensibles au prix au moment de commencer à fumer**.",
+        "synthese": "Applicable immédiatement, mais son effet sur la consommation ne se ferait sentir qu'à moyen et long terme."
+      },
+      "ce_qui_est_inconnu": {
+        "texte": "Le **montant exact du gel sur plusieurs années** reste inconnu, tout comme l'ampleur précise de l'effet sur la consommation si le prix cesse d'augmenter, et si la candidate prévoit une mesure de compensation pour les finances publiques ou pour la politique de santé publique.",
+        "synthese": "Le coût exact du gel sur plusieurs années et une éventuelle mesure de compensation restent inconnus."
+      },
+      "contexte_programme": {
+        "texte": "Cette proposition a été annoncée le **7 septembre 2026 dans une lettre ouverte aux buralistes**, en réponse à un appel à la mobilisation lancé par leur confédération professionnelle contre la hausse des prix et la progression du marché parallèle (cigarettes achetées à l'étranger ou de contrebande). Marine Le Pen la présente comme une **mesure de pouvoir d'achat et de soutien à un commerce de proximité**, dans la continuité de son discours plus général contre ce qu'elle appelle l'escalade fiscale.",
+        "synthese": "Annoncée le 7 septembre 2026 dans une lettre ouverte aux buralistes mobilisés contre la hausse des prix."
+      },
+      "nature_et_existant": "Depuis plusieurs années, le prix du tabac en France suit une trajectoire de hausse organisée par la loi : entre 2016 et 2020, le prix des cigarettes a augmenté de 42 %, une hausse volontaire pour faire reculer le tabagisme. Depuis, un mécanisme plus automatique prend le relais : le prix minimum de vente est réévalué chaque année en fonction de l'inflation, pour environ +0,8 % en 2025. Marine Le Pen ne propose donc pas de créer une nouvelle règle, mais de supprimer ce mécanisme existant, ce qui reviendrait à un gel pur et simple du prix du tabac.",
+      "notation_detaillee": {
+        "efficacite": 6,
+        "score_total": 49,
+        "appreciation": "partiellement fondé",
+        "plafond_applique": false,
+        "degre_preparation": 2,
+        "alignement_logique": 8,
+        "plafond_declencheur": null,
+        "qualification_juridique": "SOLIDE",
+        "qualification_alignement": "SOLIDE",
+        "qualification_budgetaire": "INCERTAIN",
+        "qualification_efficacite": "FRAGILE",
+        "operationnalite_juridique": 9,
+        "qualification_preparation": "FRAGILE",
+        "operationnalite_budgetaire": 6,
+        "effets_rebonds_externalites": 9,
+        "operationnalite_moyens_total": 24,
+        "qualification_effets_rebonds": "INCERTAIN",
+        "qualification_moyens_humains": "SOLIDE",
+        "operationnalite_moyens_humains": 9
+      },
+      "verdict_conclusion": "Une mesure facile à appliquer, mais qui désactive l'outil le plus efficace jamais mesuré contre le tabagisme en France.",
+      "ce_qui_est_probable": {
+        "texte": "Un gel prolongé du prix du tabac **ralentirait la baisse de la consommation observée ces dernières années**, selon la même logique économique que celle démontrée pour la période 2016-2020, avec un effet plus marqué chez les jeunes.",
+        "synthese": "Un gel prolongé ralentirait probablement la baisse de la consommation de tabac, surtout chez les jeunes."
+      },
+      "niveau_de_confiance": "Bon niveau de confiance sur les chiffres centraux (effet de la hausse des prix 2016-2020 sur la consommation, coût du tabac pour les finances publiques), qui viennent de sources primaires ou quasi primaires (rapport du Sénat, étude de référence sur données 2019). Confiance plus faible sur le lien précis entre gel du prix et recul du marché parallèle, qui n'est pas démontré par ces mêmes sources, même si le montant du problème qu'il pose (4,3 milliards d'euros) est bien documenté par ailleurs.",
+      "analyse_par_criteres": [
+        {
+          "note": 24,
+          "texte": "Geler une taxe ou supprimer une indexation automatique **ne pose aucune difficulté juridique ou logistique** : c'est une simple décision votable en loi de financement de la sécurité sociale, sans nouvelle administration à créer. Le seul point d'incertitude porte sur le budget : l'indexation actuelle rapporte de l'ordre d'une centaine de millions d'euros par an, un montant réel mais modeste, dont **l'effet cumulé sur plusieurs années dépendra surtout de l'évolution de la consommation**, plus difficile à anticiper.",
+          "titre": "Opérationnalité & Moyens",
+          "critere": "operationnalite_moyens",
+          "note_max": 30,
+          "plafond_applique": false,
+          "plafond_declencheur": null
+        },
+        {
+          "note": 6,
+          "texte": "La mesure désactive **l'outil le plus solidement démontré pour faire reculer le tabagisme en France** : une hausse de prix de 42 % entre 2016 et 2020 a fait chuter la consommation de 17 % et la part de fumeurs quotidiens de 13 %, selon le Sénat. Geler le prix atteint bien l'objectif affiché (arrêter la hausse), mais **s'oppose frontalement à l'objectif de santé publique que ce même levier sert aujourd'hui**.",
+          "titre": "Efficacité",
+          "critere": "efficacite",
+          "note_max": 30
+        },
+        {
+          "note": 9,
+          "texte": "Deux logiques s'opposent sans qu'aucune domine clairement. D'un côté, **le tabac coûte déjà 16,4 milliards d'euros de dépenses de santé pour 13,1 milliards de taxes perçues**, un déséquilibre qu'un prix gelé pourrait aggraver en freinant moins la consommation. De l'autre, les buralistes pointent un vrai problème documenté par le Sénat, **4,3 milliards d'euros de recettes fiscales perdues chaque année à cause du marché parallèle**, sans que le lien entre gel des prix et recul de ce marché soit démontré par les sources disponibles.",
+          "titre": "Effets rebonds & Externalités",
+          "critere": "effets_rebonds_externalites",
+          "note_max": 20
+        },
+        {
+          "note": 2,
+          "texte": "L'annonce reste **une lettre ouverte de campagne, sans texte de loi ni chiffrage précis** du coût du gel sur plusieurs années. À ce stade, c'est une prise de position politique, pas un dossier détaillé.",
+          "titre": "Degré de préparation",
+          "critere": "degre_preparation",
+          "note_max": 10
+        },
+        {
+          "note": 8,
+          "texte": "La mesure s'inscrit **sans tension apparente** dans le discours plus large de Marine Le Pen contre la pression fiscale et pour le soutien aux petits commerces de proximité.",
+          "titre": "Alignement & Logique globale",
+          "critere": "alignement_logique",
+          "note_max": 10
+        }
+      ],
+      "impact_environnement": null,
+      "mesure_vers_objectif": {
+        "lien_causal": "direct",
+        "objectif_vise": "Protéger le pouvoir d'achat des fumeurs et l'activité économique des buralistes, en mettant fin à ce que la candidate appelle une hausse fiscale permanente et injustifiée du prix du tabac.",
+        "objectif_court": "Arrêter la hausse continue du prix du tabac",
+        "mecanisme_propose": "Geler les taxes sur le tabac à leur niveau actuel et supprimer le mécanisme qui augmente chaque année le prix minimum du paquet au rythme de l'inflation (une hausse automatique d'environ 0,8 % par an aujourd'hui).",
+        "categorie_objectif": "Santé"
+      },
+      "ce_qui_est_discutable": {
+        "texte": "Le lien exact entre un prix stabilisé et un recul du marché parallèle **n'est pas démontré par les sources consultées** pour cette fiche, même si le montant du manque à gagner fiscal lié à ce marché parallèle est, lui, documenté par le Sénat.",
+        "synthese": "Le lien entre un prix stable et un recul du marché parallèle du tabac n'est pas démontré ici."
+      },
+      "contexte_international": {
+        "texte": "La fiscalité du tabac est en partie encadrée par le droit européen : la directive 2011/64/UE fixe des seuils minimaux d'accise que les États membres doivent respecter, mais laisse libre toute hausse au-delà de ce plancher. **La France taxe aujourd'hui le tabac largement au-dessus de ces minima européens**, ce qui signifie qu'un simple gel du niveau actuel ne créerait aucun risque de non-conformité vis-à-vis de ce cadre communautaire, à la différence d'une baisse des taxes en deçà du plancher fixé au niveau européen.",
+        "synthese": "La France taxe le tabac bien au-dessus du plancher fixé par la directive européenne sur les accises."
+      },
+      "impact_temporel_et_sectoriel": {
+        "texte": "Court terme (0-2 ans) : stabilisation immédiate du prix du paquet, soulagement pour les buralistes qui subissent la concurrence du marché parallèle. Moyen terme (2-7 ans) : **risque d'un ralentissement voire d'un arrêt de la baisse de la consommation de tabac**, selon la logique du levier prix déjà démontrée en 2016-2020, avec un effet plus marqué chez les jeunes et les foyers modestes, plus sensibles au prix. Long terme (>7 ans) : effet cumulé possible sur les dépenses de santé liées au tabac, **déjà supérieures aux recettes fiscales qu'il génère**.",
+        "synthese": "Stabilité immédiate pour les buralistes, mais ralentissement possible de la baisse du tabagisme à moyen et long terme."
+      }
+    }
+  }
+}

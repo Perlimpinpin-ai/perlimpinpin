@@ -1,6 +1,6 @@
 import { slugCandidat } from "./carte.js";
 import { resolveTheme } from "./themes.js";
-import { choisirIllustration, ILLUSTRATIONS } from "./illustrations.js";
+import { choisirIllustration, ILLUSTRATIONS, THEMES_ILLUSTRATIONS } from "./illustrations.js";
 import { choisirPhoto, PHOTOS_CANDIDATS } from "./photos-candidats.js";
 
 // Banque d'images des couvertures de carrousels : point d'entrée commun aux
@@ -98,11 +98,13 @@ export function bilanBanque({ illustrations = ILLUSTRATIONS, photos = PHOTOS_CAN
     ...(cheminTraitee && !existe(cheminTraitee(e.fichier)) ? ["version traitée absente (node scripts/preparer-images-carrousel.js)"] : []),
   ];
   const fichiersPhoto = (e) => (existe(e.fichier) ? [] : [`photo détourée absente (public/${e.fichier}) : python scripts/detourer-candidats.py --photos ${e.slug}`]);
+  // Les dossiers de sujet (tabac…) n'ont pas d'objectif minimal : ils servent
+  // aux mesures qui en parlent.
   const lignesThemes = themes.map((t) =>
     ligne(
       t,
       illustrations.filter((i) => i.theme === t),
-      IMAGES_THEME_MIN,
+      THEMES_ILLUSTRATIONS[t]?.sujet ? 0 : IMAGES_THEME_MIN,
       fichiersTheme,
     ),
   );
