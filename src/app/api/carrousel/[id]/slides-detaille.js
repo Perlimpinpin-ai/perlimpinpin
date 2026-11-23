@@ -253,8 +253,8 @@ function Candidat({ candidat }) {
   if (!candidat.detoure) {
     // Repli : la vignette actuelle en tirage incliné.
     return (
-      <div style={{ position: "absolute", left: 560, top: 720, display: "flex", boxShadow: "0 18px 40px rgba(0,0,0,.35)", transform: "rotate(-4deg)" }}>
-        <img src={candidat.image} alt="" width={434} height={535} style={{ width: 434, height: 535 }} />
+      <div style={{ position: "absolute", left: 640, top: 850, display: "flex", boxShadow: "0 18px 40px rgba(0,0,0,.35)", transform: "rotate(-4deg)" }}>
+        <img src={candidat.image} alt="" width={352} height={434} style={{ width: 352, height: 434 }} />
       </div>
     );
   }

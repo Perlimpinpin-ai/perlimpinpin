@@ -218,10 +218,19 @@ export function conditionPrincipale(liste, avertissements) {
 // sources_utilisees, sans leur adresse, raccourcies.
 export function sourcesPrincipales(contenu) {
   const liste = Array.isArray(contenu?.sources_utilisees) ? contenu.sources_utilisees : [];
+  // Source réduite à une adresse nue : le nom du site (« education.gouv.fr »).
+  const nomSite = (texte) => {
+    const m = String(texte).trim().match(/^https?:\/\/(?:www\.)?([^/\s]+)/i);
+    return m ? m[1] : "";
+  };
+  const vus = new Set();
   return liste
+    .map((source) => {
+      const brut = String(typeof source === "string" ? source : (source?.titre ?? source?.nom ?? ""));
+      return brut.replace(/\s*:?\s*https?:\/\/\S+/g, "").trim() || nomSite(brut);
+    })
+    .filter((source) => source && !vus.has(source) && vus.add(source))
     .slice(0, 3)
-    .map((source) => String(typeof source === "string" ? source : (source?.titre ?? source?.nom ?? "")).replace(/\s*:?\s*https?:\/\/\S+/g, "").trim())
-    .filter(Boolean)
     .map((source) => (source.length > 70 ? `${source.slice(0, 69).replace(/[\s,;:]+\S*$/, "")}…` : source));
 }
 
