@@ -1,4 +1,4 @@
-// Génère le carrousel « récit » (10 slides) et le tweet long d'une fiche DÉJÀ
+// Génère le carrousel détaillé (8 slides, docs/prompt-carrousel.md) et le tweet long d'une fiche DÉJÀ
 // PUBLIÉE (ou, avec --brouillon, de son dernier brouillon), en un seul appel
 // à Claude (data/prompt-recit.md, mêmes modèle et réglages que l'étape 3 ter),
 // et les ajoute à son contenuComplet, sous la clé reseaux_recit. Même logique
@@ -50,6 +50,7 @@ import { jsonDepuisTexte } from "../src/lib/reel-generation.js";
 import { construireMessageRecit, estimationCoutRecit, fichePourRecit, genererRecitCore, MODELE_RECIT, requeteRecit } from "../src/lib/recit-generation.js";
 import { contenuAvecRecit, controlerRecit, recitPourStockage } from "../src/lib/recit.js";
 import { motsClesDisponibles } from "../src/lib/illustrations.js";
+import { debordementsDuRecit } from "../src/lib/carrousel-serveur.js";
 import { remplirTweet, valeursReseaux, longueurX } from "../src/lib/reseaux.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -138,25 +139,25 @@ function simuler(contenu, nom) {
 
 function afficher(recit, { candidatNom, score, propositionId: id }) {
   const nom = (t) => remplirTweet(t, { NOM: candidatNom, CANDIDAT: candidatNom });
-  const cartes = (liste) => liste.map((c) => `\n       [${c.pastille}] ${nom(c.titre)} : ${nom(c.texte)}`).join("");
+  const effets = (liste) => liste.map((e) => `\n       [${e.pastille}] ${nom(e.acteur)} : ${nom(e.texte)}`).join("");
   console.log("\n=== Carrousel détaillé ===");
-  console.log(`  1. Couverture : ${candidatNom} veut ${nom(recit.couverture.mesure)}. ${recit.couverture.question} [surligné : ${recit.couverture.mot_cle}]`);
+  console.log(`  1. Couverture : ${nom(recit.couverture.question)} (==…== surligné en jaune)`);
   console.log(`     Mots-clés d'illustration : ${recit.illustration_mots_cles?.join(", ") || "(aucun)"}`);
-  console.log(`  2. ${nom(recit.concretement.titre)} ${nom(recit.concretement.texte)}`);
-  for (const [cle, { valeur, detail }] of Object.entries(recit.concretement.tuiles)) console.log(`       ${cle} : ${valeur} (${detail})`);
-  console.log(`     Conclusion : ${nom(recit.concretement.conclusion ?? "")}`);
+  console.log(`  2. Constat : ${nom(recit.constat.titre)} ${nom(recit.constat.explication)}`);
+  for (const { valeur, detail, jaune } of recit.constat.chiffres) console.log(`       ${jaune ? "★ " : ""}${valeur} (${detail})`);
+  console.log(`     ${nom(recit.constat.proposition)} ${nom(recit.constat.imprecisions ?? "")}`);
   console.log(`  3. La note : ${nom(recit.note.titre)} ${nom(recit.note.explication)}`);
   for (const [cle, ligne] of Object.entries(recit.note.criteres)) console.log(`       ${cle} : ${nom(ligne)}`);
-  console.log(`  4. Court terme : ${nom(recit.court_terme.titre)}${cartes(recit.court_terme.cartes)}`);
-  console.log(`  5. Long terme : ${nom(recit.long_terme.titre)}${cartes(recit.long_terme.cartes)}`);
+  console.log(`  4. Court terme : ${nom(recit.court_terme.titre)}${effets(recit.court_terme.effets)}`);
+  console.log(`  5. Long terme : ${nom(recit.long_terme.titre)}${effets(recit.long_terme.effets)}`);
   console.log(
     recit.ailleurs
-      ? `  6. À l'étranger : ${nom(recit.ailleurs.titre)}${recit.ailleurs.precedents.map((p) => `\n       [${p.pastille}] ${p.pays} ${p.annee} : ${nom(p.fait)} ${nom(p.resultat)}`).join("")}`
-      : "  6. À l'étranger : aucun précédent dans la fiche, slide sautée",
+      ? `  6. Ailleurs ou avant : ${nom(recit.ailleurs.titre)}${recit.ailleurs.mesures.map((m) => `\n       [${m.pastille}] ${m.lieu} ${m.annee} : ${nom(m.fait)} ${nom(m.resultat)}`).join("")}`
+      : "  6. Ailleurs ou avant : aucune mesure comparable dans la fiche, slide sautée",
   );
-  console.log(`  7. Tient : ${recit.tient.tient.map(nom).join(" / ")}\n     Coince : ${recit.tient.coince.map(nom).join(" / ")}`);
+  console.log(`  7. Notre avis : ${nom(recit.avis.avis)}\n     Tient : ${recit.avis.tient.map(nom).join(" / ")}\n     Coince : ${recit.avis.coince.map(nom).join(" / ")}`);
   console.log("  8. Fin : (code)");
-  console.log(`\nAccroche de la légende : ${nom(recit.legende_accroche)}`);
+  console.log(`\nLégende : ${nom(recit.legende.question)} / ${nom(recit.legende.avis)} / ${nom(recit.legende.effet)}`);
   const tweet = remplirTweet(recit.tweet_assemble, valeursReseaux({ candidatNom, score, propositionId: id }));
   console.log(`\n=== Tweet long (${longueurX(tweet)} caractères) ===\n${tweet}`);
 }
@@ -183,7 +184,7 @@ async function ecrire({ host, analyse, contenu, recit, propositionId: id, sauveg
   );
 }
 
-async function generer(contenu, { candidatNom, score, propositionId: id, theme = null }) {
+async function generer(contenu, { candidatNom, score, propositionId: id, theme = null, proposition = null }) {
   return genererRecitCore({
     ficheFinale: contenu,
     candidatNom,
@@ -191,6 +192,8 @@ async function generer(contenu, { candidatNom, score, propositionId: id, theme =
     propositionId: id,
     prompt: prompt(),
     motsClesIllustration: motsClesDisponibles(theme),
+    // Texte qui déborde de sa slide au rendu : une relance pour le raccourcir.
+    debordements: proposition ? (recit) => debordementsDuRecit(recit, { proposition, contenu, score }) : null,
     appeler: (message) => appelerClaude(requeteRecit(message)),
     analyser: (reponse) => cleanContenu(jsonDepuisTexte(reponse.texte)),
   });
@@ -228,6 +231,7 @@ function preparerDemo(fiche) {
   const controle = controlerRecit(simulationModele.reponse, {
     ficheFinale: fichePourRecit(fiche),
     candidatNom,
+    score,
     valeurs: valeursReseaux({ candidatNom, score, propositionId: id }),
     motsClesIllustration,
   });
@@ -281,7 +285,7 @@ async function mainFiche(host) {
   }
 
   console.log("\nRécit (Claude)…");
-  const resultat = await generer(contenu, { candidatNom, score, propositionId, theme: proposition.theme });
+  const resultat = await generer(contenu, { candidatNom, score, propositionId, theme: proposition.theme, proposition });
   console.log(`Coût : ${dollars(resultat.cout)} (${resultat.usage.input_tokens ?? 0} tokens en entrée, ${resultat.usage.output_tokens ?? 0} en sortie)`);
   if (!resultat.recit) {
     if (resultat.derniere) console.log(`\nDernière réponse refusée :\n${JSON.stringify(resultat.derniere, null, 2)}`);
@@ -373,7 +377,7 @@ async function mainLot(host) {
       if (!analyse || analyse.statut !== "publie") throw new Error("l'analyse n'est plus publiée, fiche non touchée.");
       const contenu = analyse.contenuComplet ?? {};
       if (contenu.reseaux_recit) throw new Error("un récit a été ajouté entre-temps, fiche non touchée.");
-      const genere = await generer(contenu, { candidatNom, score: analyse.scoreFaisabilite, propositionId: id, theme: fiche.proposition.theme });
+      const genere = await generer(contenu, { candidatNom, score: analyse.scoreFaisabilite, propositionId: id, theme: fiche.proposition.theme, proposition: { ...fiche.proposition, candidat: { nom: candidatNom, photoUrl: null } } });
       resultat.cout = genere.cout;
       if (!genere.recit) throw new Error(`refusé après deux tentatives : ${genere.errors[0] ?? "raison inconnue"}`);
       afficher(genere.recit, { candidatNom, score: analyse.scoreFaisabilite, propositionId: id });

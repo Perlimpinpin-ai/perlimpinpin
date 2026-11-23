@@ -11,6 +11,7 @@ import { genererRecitCore, requeteRecit } from "@/lib/recit-generation";
 import { estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "@/lib/recit-action-core";
 import { resolveTheme } from "@/lib/themes";
 import { DEMO_ACTIVE, genererDemo, ID_DEMO, prismaDemo } from "@/lib/carrousel-demo";
+import { debordementsDuRecit } from "@/lib/carrousel-serveur";
 
 // Actions du carrousel détaillé de /test/reseaux/[id] : « Générer le
 // carrousel détaillé » / « Générer à nouveau », « Régénérer avec ces
@@ -47,7 +48,7 @@ async function derniereIllustration({ theme, propositionId }) {
   return lignes.find((ligne) => resolveTheme(ligne.theme) === slug)?.fichier ?? null;
 }
 
-function genererReel(contenu, { candidatNom, score, propositionId, motsClesIllustration, remarques }) {
+function genererReel(contenu, { candidatNom, score, propositionId, motsClesIllustration, remarques, proposition }) {
   return lirePromptRecit().then((prompt) =>
     genererRecitCore({
       ficheFinale: contenu,
@@ -57,6 +58,7 @@ function genererReel(contenu, { candidatNom, score, propositionId, motsClesIllus
       prompt,
       motsClesIllustration,
       remarques,
+      debordements: proposition ? (recit) => debordementsDuRecit(recit, { proposition, contenu, score }) : null,
       appeler: (message) => appelerClaude(requeteRecit(message)),
       analyser: (reponse) => cleanContenu(jsonDepuisTexte(reponse.texte)),
     }),

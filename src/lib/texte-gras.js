@@ -52,10 +52,10 @@ export function motsGras(texte, max = GRAS_MAX_PAR_SLIDE) {
   const mots = [];
   let colle = false; // le morceau précédent finit au milieu d'un mot
   for (const { texte: t, gras } of morceauxGras(texte, max)) {
-    const jetons = t.split(/(\s+)/);
+    const jetons = t.split(/([ \t\n]+)/);
     jetons.forEach((jeton, i) => {
       if (!jeton) return;
-      if (/^\s+$/.test(jeton)) {
+      if (/^[ \t\n]+$/.test(jeton)) {
         colle = false;
         return;
       }

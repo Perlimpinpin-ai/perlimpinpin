@@ -67,3 +67,6 @@ recovered-analysis-*.txt
 /data/demo-carrousel/demo.json
 /data/illustrations/candidates/
 /data/illustrations/selection/
+
+# Photos des candidats (Wikimedia Commons) : propositions, sélection, originaux téléchargés
+/data/photos-candidats/

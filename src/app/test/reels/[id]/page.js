@@ -7,6 +7,7 @@ import { formatScore } from "@/lib/score";
 import { slugCandidat } from "@/lib/carte";
 import { assemblerDepuisReel, cheminImageReel, formatDuree, versionReel } from "@/lib/reel";
 import { donneesPartageReel } from "@/lib/reel-paquet";
+import { photoReel } from "@/lib/photo-reel";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import EditorBar from "../../EditorBar";
 import ReelPartage from "../ReelPartage";
@@ -64,8 +65,10 @@ export default async function ReelPage({ params, searchParams }) {
   const reel = analyse?.contenuComplet?.reel ?? null;
   let donnees = null;
   let avertissements = [];
+  // Photo de la bibliothèque des carrousels (src/lib/photo-reel.js), sinon portrait bleu.
+  const photo = editeur && proposition && reel ? photoReel(proposition.candidat, `reel-${propositionId}-${reel.genereLe ?? ""}`) : null;
   const portrait = editeur && proposition
-    ? existsSync(join(process.cwd(), "public", "portraits-bleus", `${slugCandidat(proposition.candidat)}.png`))
+    ? Boolean(photo) || existsSync(join(process.cwd(), "public", "portraits-bleus", `${slugCandidat(proposition.candidat)}.png`))
     : false;
   const assemble = editeur && reel
     ? assemblerDepuisReel(reel, { candidatNom: proposition.candidat.nom, score: analyse.scoreFaisabilite, portrait })
@@ -97,6 +100,7 @@ export default async function ReelPage({ params, searchParams }) {
         ? [`Le score a changé depuis la génération (${formatScore(Number(reel.score))} → ${formatScore(score)}) : le verdict ci-dessous suit le score actuel, relisez la phrase de chute.`]
         : []),
       ...(!portrait ? ["Portrait bleu manquant : la scène 2 et la couverture affichent le nom sans portrait."] : []),
+      ...(photo ? [`Photo du candidat : à créditer dans la légende du Reel. ${photo.credit?.complet ?? "CRÉDIT MANQUANT : ne pas publier."}`] : []),
       ...(reel.avertissements ?? []),
     ];
   }

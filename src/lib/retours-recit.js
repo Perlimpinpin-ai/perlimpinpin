@@ -31,7 +31,7 @@ export function listeRetours(lignes) {
 // Libellé de la cible d'une remarque.
 export function libelleCible(retour) {
   if (retour.slide) return `Slide ${retour.slide.numero} · ${retour.slide.libelle}`;
-  return retour.cible === "tweet" ? "Tweet long" : "Toutes les slides";
+  return retour.cible === "tweet" ? "Tweet long" : retour.cible === "legende" ? "Légende" : "Toutes les slides";
 }
 
 // Remarques qui reviennent : regroupées par cible (libellé de slide, sans
@@ -39,7 +39,7 @@ export function libelleCible(retour) {
 export function remarquesFrequentes(retours, seuil = 2) {
   const groupes = new Map();
   for (const r of retours) {
-    const cible = r.slide?.libelle ?? (r.cible === "tweet" ? "Tweet long" : "Toutes les slides");
+    const cible = r.slide?.libelle ?? (r.cible === "tweet" ? "Tweet long" : r.cible === "legende" ? "Légende" : "Toutes les slides");
     const cle = `${cible}|${cleRemarque(r.remarque)}`;
     const groupe = groupes.get(cle) ?? { cible, remarque: r.remarque, nombre: 0, fiches: new Set() };
     groupe.nombre += 1;

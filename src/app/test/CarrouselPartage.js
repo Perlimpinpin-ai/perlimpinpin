@@ -22,7 +22,11 @@ function telechargerBlob(blob, nom) {
   setTimeout(() => URL.revokeObjectURL(lien.href), 10_000);
 }
 
-export default function CarrouselPartage({ vignettes, legendeInitiale, archive, prefixeFichier }) {
+// `fichiersSupplementaires` : [{ nom, donnees }] ajoutés à l'archive (credits.txt) ;
+// `blocage` : raison qui interdit l'archive (crédit photo manquant) ;
+// `memoire` : { cle, valeur } écrit dans le navigateur une fois l'archive
+// téléchargée (photo du dernier carrousel du candidat).
+export default function CarrouselPartage({ vignettes, legendeInitiale, archive, prefixeFichier, fichiersSupplementaires = [], blocage = null, memoire = null }) {
   const [legende, setLegende] = useState(legendeInitiale);
   const [copie, setCopie] = useState(null);
   const [etat, setEtat] = useState("repos"); // repos | preparation | erreur
@@ -43,7 +47,7 @@ export default function CarrouselPartage({ vignettes, legendeInitiale, archive, 
   }
 
   async function toutTelecharger() {
-    if (etat === "preparation") return;
+    if (etat === "preparation" || blocage) return;
     setEtat("preparation");
     setErreur("");
     let faites = 0;
@@ -59,8 +63,15 @@ export default function CarrouselPartage({ vignettes, legendeInitiale, archive, 
         }),
       );
       // La légende telle qu'elle est dans la zone de texte (modifications comprises).
-      const zip = creerZip([...fichiers, { nom: "legende.txt", donnees: legende }]);
+      const zip = creerZip([...fichiers, { nom: "legende.txt", donnees: legende }, ...fichiersSupplementaires]);
       telechargerBlob(new Blob([zip], { type: "application/zip" }), archive);
+      if (memoire) {
+        try {
+          window.localStorage.setItem(memoire.cle, memoire.valeur);
+        } catch {
+          // Stockage indisponible : la photo pourra revenir au prochain carrousel.
+        }
+      }
       setEtat("repos");
     } catch (error) {
       setErreur(`Archive impossible : ${error.message}`);
@@ -75,14 +86,19 @@ export default function CarrouselPartage({ vignettes, legendeInitiale, archive, 
         <button
           type="button"
           onClick={toutTelecharger}
-          disabled={etat === "preparation"}
+          disabled={etat === "preparation" || Boolean(blocage)}
           className="rounded-full border border-zinc-900 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-80 disabled:cursor-wait disabled:opacity-60"
         >
           {etat === "preparation" ? `Préparation de l’archive… ${progression}` : "Tout télécharger (.zip)"}
         </button>
         <span className="text-xs text-zinc-500">
-          {vignettes.length} slides + legende.txt, dans {archive}
+          {vignettes.length} slides + legende.txt{fichiersSupplementaires.map((x) => ` + ${x.nom}`).join("")}, dans {archive}
         </span>
+        {blocage ? (
+          <span role="alert" className="text-xs font-semibold text-red-700">
+            {blocage}
+          </span>
+        ) : null}
         {erreur ? (
           <span role="status" className="text-xs text-red-700">
             {erreur}

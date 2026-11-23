@@ -9,6 +9,8 @@ import { HAUTEUR_REEL, ICONES_APPEL, LARGEUR_REEL, SCENES_REEL, THEMES_REEL, ass
 import { elementsScene } from "@/lib/reel-montage";
 import { CANDIDAT_EXEMPLE, COUVERTURE_EXEMPLE, SCORE_EXEMPLE, VARIABLES_EXEMPLE, VARIANTES_EXEMPLE } from "@/lib/reel-exemple";
 import { elementCouverture, elementScene } from "./scenes";
+import { photoReel } from "@/lib/photo-reel";
+import { imagePrete } from "@/lib/images-carrousel";
 
 // Images 1080 × 1920 d'un Reel :
 //   ?scene=1..9&theme=sombre|clair      image complète d'une scène ;
@@ -55,9 +57,16 @@ function fond(theme) {
   return fondsEnCache[theme];
 }
 
-// Portrait bleu détouré (public/portraits-bleus/<slug>.png). Absent : la
+// Fenêtre du candidat : photo de la bibliothèque des carrousels
+// (src/lib/photo-reel.js), détourée en noir et blanc ; sinon le portrait
+// bleu détouré (public/portraits-bleus/<slug>.png). Aucun des deux : la
 // scène 2 et la couverture affichent le nom en grand, sans portrait.
-async function portrait(candidat) {
+async function portrait(candidat, graine) {
+  const photo = photoReel(candidat, graine);
+  if (photo) {
+    const image = await imagePrete(photo.fichier);
+    if (image) return image;
+  }
   try {
     const png = await readFile(join(process.cwd(), "public", "portraits-bleus", `${slugCandidat(candidat)}.png`));
     return `data:image/png;base64,${png.toString("base64")}`;
@@ -133,7 +142,7 @@ export async function GET(request, { params }) {
     numero,
     calque,
     theme,
-    portrait: besoinPortrait ? await portrait(proposition.candidat) : null,
+    portrait: besoinPortrait ? await portrait(proposition.candidat, `reel-${propositionId}-${reel.genereLe ?? ""}`) : null,
     cacheControl: cacheControlCarte({
       publie: analyse.statut === "publie",
       versionDemandee: recherche.get("v"),

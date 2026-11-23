@@ -12,7 +12,6 @@ import {
   entreeRetour,
   fusionnerRecit,
   PASTILLES,
-  QUESTIONS_COUVERTURE,
   valeurCourte,
 } from "../src/lib/recit.js";
 import { morceauxGras, motsGras, nombreGras, sansGras } from "../src/lib/texte-gras.js";
@@ -31,118 +30,38 @@ import { valeursReseaux } from "../src/lib/reseaux.js";
 import { getScoreBadge } from "../src/lib/score.js";
 import { contraste, couleurCandidat, couleursProches, texteSur, themeCandidat } from "../src/lib/couleurs-candidats.js";
 import { controlerCarrousel } from "../src/lib/carrousel.js";
-
-const FICHE = {
-  mesure_reformulee: { synthese: "Fabien Roussel veut porter le Smic à 2 200 euros brut par mois, soit une hausse de 20 %." },
-  contexte_national: { texte: "Le Smic brut est de 1 830 euros. 3 millions de salariés sont au Smic." },
-  contexte_international: { texte: "En Espagne, le salaire minimum est passé de 736 à 900 euros en 2019 ; l'emploi a moins progressé." },
-  verdict_final: "Ce qui tient : le pouvoir d'achat des bas salaires. Ce qui ne tient pas : le coût pour les PME n'est pas chiffré.",
-  notation_detaillee: {
-    operationnalite_moyens_total: 18,
-    efficacite: 12,
-    effets_rebonds_externalites: 9,
-    degre_preparation: 4,
-    alignement_logique: 8,
-    qualification_efficacite: "INCERTAIN",
-  },
-  ce_qui_la_ferait_tenir: ["Étaler la hausse : par paliers annuels.", "Chiffrer le coût : publier une étude d'impact.", "Compenser : un allègement ciblé."],
-  sources_utilisees: ["Ministère du Travail, montants du Smic 2026 : https://travail.gouv.fr/smic", "Insee, salaires : https://insee.fr/x", "OCDE, Smic rapporté au salaire médian"],
-  reseaux: { tient: { tient_court: ["Les bas salaires gagnent nettement"], tient_pas_court: ["Le coût pour les PME n'est pas chiffré"] } },
-};
-
-const PARAGRAPHE = "Une phrase de récit assez longue pour remplir le tweet sans changer le sens de la fiche ni ajouter de fait. ";
-const carte = (titre, texte, pastille) => ({ titre, texte, pastille });
-
-function reponse(modifs = {}) {
-  return {
-    couverture: { mesure: "un Smic à 2 200 euros brut", chiffre_cle: "2 200 euros", question: "Est-ce tenable ?" },
-    concretement: {
-      titre: "Concrètement, qu'est-ce qui est proposé ?",
-      texte: "Aujourd'hui, le Smic brut est de 1 830 euros. {NOM} veut le porter à 2 200 euros.",
-      tuiles: {
-        aujourdhui: { valeur: "1 830 €", detail: "brut par mois" },
-        propose: { valeur: "2 200 €", detail: "brut par mois" },
-        ecart: { valeur: "+20 %", detail: "de hausse" },
-        concernes: { valeur: "3 millions", detail: "de salariés" },
-      },
-      sources: "Ministère du Travail",
-    },
-    note: {
-      titre: "Facile à décider, beaucoup plus dur à financer.",
-      explication: "Le coût pour les entreprises n'est pas évalué.",
-      criteres: {
-        operationnalite_moyens: "Un décret suffit.",
-        efficacite: "Le gain est réel.",
-        effets_rebonds_externalites: "L'emploi peu qualifié est exposé.",
-        degre_preparation: "Aucun chiffrage publié.",
-        alignement_logique: "Cohérent avec le programme.",
-      },
-    },
-    court_terme: {
-      titre: "Un vrai gain sur la fiche de paie.",
-      cartes: [carte("Pour les salariés", "Le salaire brut augmente.", "positif"), carte("Pour les entreprises", "Le coût monte.", "négatif")],
-    },
-    long_terme: { titre: "Le vrai débat porte sur l'emploi.", cartes: [carte("L'emploi peu qualifié", "Les plus exposés.", "débattu")] },
-    ailleurs: {
-      titre: "En Europe, une hausse comparable.",
-      precedents: [{ pays: "Espagne", annee: "2019", fait: "Le salaire minimum passe de 736 à 900 euros.", resultat: "L'emploi a moins progressé.", pastille: "débattu" }],
-      sources: "Banque d'Espagne",
-    },
-    tient: { tient: ["Le gain brut est réel."], coince: ["Le coût pour les PME n'est pas chiffré."] },
-    legende_accroche: "Ce que changerait vraiment un Smic à 2 200 euros brut.",
-    tweet: {
-      accroche: "Et si votre fiche de paie changeait d'un coup ?",
-      promesse: `{CANDIDAT} veut porter le Smic à 2 200 euros brut. ${PARAGRAPHE}`,
-      exemple: `Prenons une salariée au Smic à temps plein. ${PARAGRAPHE}${PARAGRAPHE}`,
-      hic: `Sauf que… le coût pour les PME n'est pas chiffré. ${PARAGRAPHE}${PARAGRAPHE}`,
-      tient: `Ce qui tient : le pouvoir d'achat des bas salaires. ${PARAGRAPHE}`,
-      appel: "Et vous, vous en pensez quoi ?",
-    },
-    ...modifs,
-  };
-}
-
-const CONTEXTE = {
-  ficheFinale: FICHE,
-  candidatNom: "Fabien Roussel",
-  valeurs: valeursReseaux({ candidatNom: "Fabien Roussel", score: 51, propositionId: 42 }),
-};
+import { CONTEXTE, FICHE, reponse } from "./lib/recit-fixture.js";
 
 test("réponse conforme : acceptée, tweet assemblé avec ligne de note et lien du code", () => {
   const { valide, erreurs, avertissements, recit } = controlerRecit(reponse(), CONTEXTE);
   assert.deepEqual(erreurs, []);
-  assert.ok(valide, avertissements.join("\n"));
+  assert.ok(valide);
+  assert.deepEqual(avertissements, []);
   assert.match(recit.tweet_assemble, /\n\nNote : \{PASTILLE\} \{SCORE\}\/100 \{APPRECIATION\}\n\n/);
   assert.match(recit.tweet_assemble, /Analyse complète 👇 \{LIEN\}$/);
-  assert.equal(recit.ailleurs.precedents[0].pays, "Espagne");
+  assert.equal(recit.ailleurs.mesures[0].lieu, "Espagne");
+  assert.equal(recit.constat.chiffres[1].valeur, "3 M");
 });
 
-test("refus : JSON invalide ou champ manquant", () => {
+test("refus : JSON invalide, champ manquant, ancien format v5", () => {
   assert.equal(controlerRecit(null, CONTEXTE).valide, false);
   assert.match(controlerRecit("texte", CONTEXTE).erreurs[0], /JSON invalide/);
-  const sansTuile = reponse();
-  delete sansTuile.concretement.tuiles.ecart;
-  assert.match(controlerRecit(sansTuile, CONTEXTE).erreurs[0], /concretement\.tuiles\.ecart\.valeur/);
+  const sansProposition = reponse();
+  delete sansProposition.constat.proposition;
+  assert.match(controlerRecit(sansProposition, CONTEXTE).erreurs[0], /constat\.proposition/);
   const sansCritere = reponse();
   delete sansCritere.note.criteres.efficacite;
   assert.match(controlerRecit(sansCritere, CONTEXTE).erreurs[0], /note\.criteres\.efficacite/);
+  assert.match(controlerRecit({ concretement: { titre: "x" }, tient: { tient: ["a"] } }, CONTEXTE).erreurs[0], /format précédent \(v5\)/);
 });
 
-test("refus : nombre absent de la fiche", () => {
+test("refus : nombre absent de la fiche, tiret cadratin, score ou niveau écrit par le modèle", () => {
   const r = reponse();
-  r.court_terme.cartes[0].texte = "Le salaire monte de 333 euros.";
-  const { valide, erreurs } = controlerRecit(r, CONTEXTE);
-  assert.equal(valide, false);
-  assert.match(erreurs.join(" "), /absent\(s\) de la fiche : 333/);
-});
-
-test("refus : tiret cadratin", () => {
-  const r = reponse();
-  r.tient.tient = ["Le gain—réel."];
-  assert.match(controlerRecit(r, CONTEXTE).erreurs.join(" "), /tiret cadratin/);
-});
-
-test("refus : score ou niveau écrit par le modèle", () => {
+  r.court_terme.effets[0].texte = "Le salaire monterait de 333 euros.";
+  assert.match(controlerRecit(r, CONTEXTE).erreurs.join(" "), /absent\(s\) de la fiche : 333/);
+  const tiret = reponse();
+  tiret.avis.tient = ["Le gain—réel.", "b"];
+  assert.match(controlerRecit(tiret, CONTEXTE).erreurs.join(" "), /tiret cadratin/);
   const avecScore = reponse();
   avecScore.note.titre = "Une mesure notée 51/100.";
   assert.match(controlerRecit(avecScore, CONTEXTE).erreurs.join(" "), /score ou pastille/);
@@ -151,63 +70,19 @@ test("refus : score ou niveau écrit par le modèle", () => {
   assert.match(controlerRecit(avecNiveau, CONTEXTE).erreurs.join(" "), /niveau « Plausible sous condition »/);
 });
 
-test("refus : pays ou année d'un précédent absents de la fiche", () => {
-  const pays = reponse();
-  pays.ailleurs.precedents[0].pays = "Allemagne";
-  assert.match(controlerRecit(pays, CONTEXTE).erreurs.join(" "), /pays « Allemagne » absent de la fiche/);
+test("refus : lieu ou année d'une mesure comparable absents de la fiche ; pastille hors liste", () => {
+  const lieu = reponse();
+  lieu.ailleurs.mesures[0].lieu = "Allemagne";
+  assert.match(controlerRecit(lieu, CONTEXTE).erreurs.join(" "), /lieu « Allemagne » absent de la fiche/);
   const annee = reponse();
-  annee.ailleurs.precedents[0].annee = "2022";
+  annee.ailleurs.mesures[0].annee = "2022";
   assert.equal(controlerRecit(annee, CONTEXTE).valide, false);
-});
-
-test("avertissements seulement : question trop longue, mot clé absent, carte trop longue, plus de 3 cartes, trop de gras", () => {
-  const r = reponse();
-  r.couverture.question = "Est-ce que cette mesure est vraiment tenable ?";
-  r.court_terme.cartes = [
-    carte("A", Array.from({ length: 40 }, () => "mot").join(" "), "positif"),
-    carte("B", "**un** **deux** **trois** **quatre**", "possible"),
-    carte("C", "c", "positif"),
-    carte("D", "d", "positif"),
-  ];
-  const { valide, avertissements, recit } = controlerRecit(r, CONTEXTE);
-  assert.ok(valide);
-  const texte = avertissements.join("\n");
-  assert.match(texte, /question « Est-ce que cette mesure est vraiment tenable \? »/);
-  assert.equal(recit.couverture.question, QUESTIONS_COUVERTURE[0]);
-  assert.equal(recit.couverture.mot_cle, "tenable");
-  assert.match(texte, /40 mots \(35 au plus\)/);
-  assert.match(texte, /court_terme : 4 passages en gras \(3 au plus par slide\)/);
-  assert.equal(recit.court_terme.cartes.length, 3);
-
-  const motAbsent = reponse();
-  motAbsent.couverture = { mesure: "un Smic à 2 200 euros brut", question: "Et les PME ?", mot_cle: "entreprises" };
-  assert.match(controlerRecit(motAbsent, CONTEXTE).avertissements.join("\n"), /mot clé « entreprises » n’apparaît pas tel quel/);
-});
-
-test("couverture : question libre courte et mot clé surligné ; mesure sans point final", () => {
-  const r = reponse();
-  r.couverture = { mesure: "un Smic à 2 200 euros brut.", question: "Et les PME ?", mot_cle: "PME" };
-  const { valide, recit } = controlerRecit(r, CONTEXTE);
-  assert.ok(valide);
-  assert.equal(recit.couverture.mesure, "un Smic à 2 200 euros brut");
-  assert.equal(recit.couverture.question, "Et les PME ?");
-  assert.equal(recit.couverture.mot_cle, "PME");
-  // Question type sans mot clé : le dernier mot avant « ? ».
-  const type = reponse();
-  type.couverture = { mesure: "x", question: "Est-ce finançable ?" };
-  assert.equal(controlerRecit(type, CONTEXTE).recit.couverture.mot_cle, "finançable");
-});
-
-test("refus : pastille hors liste ; liste élargie acceptée avec ses couleurs", () => {
-  const r = reponse();
-  r.court_terme.cartes[1].pastille = "joyeux";
-  assert.match(controlerRecit(r, CONTEXTE).erreurs.join(" "), /pastille « joyeux » hors liste/);
-  const orange = reponse();
-  orange.long_terme.cartes[0].pastille = "orange";
-  assert.equal(controlerRecit(orange, CONTEXTE).valide, false);
+  const p = reponse();
+  p.court_terme.effets[1].pastille = "joyeux";
+  assert.match(controlerRecit(p, CONTEXTE).erreurs.join(" "), /pastille « joyeux » hors liste/);
   for (const pastille of PASTILLES) {
     const ok = reponse();
-    ok.long_terme.cartes[0].pastille = pastille;
+    ok.long_terme.effets[0].pastille = pastille;
     assert.ok(controlerRecit(ok, CONTEXTE).valide, pastille);
   }
   assert.deepEqual([...new Set(Object.values(COULEURS_PASTILLES))].sort(), ["jaune", "rouge", "vert"]);
@@ -221,27 +96,24 @@ test("refus : mot-clé d'illustration hors de la liste fermée du thème", () =>
   const ok = controlerRecit(reponse({ illustration_mots_cles: ["Caisse"] }), { ...CONTEXTE, motsClesIllustration: ["billets", "caisse"] });
   assert.ok(ok.valide);
   assert.deepEqual(ok.recit.illustration_mots_cles, ["caisse"]);
-  // Relecture d'un récit stocké (liste null) : pas de contrôle.
   assert.ok(controlerRecit(r, CONTEXTE).valide);
 });
 
-test("tuiles : format court, la nuance « près de » gardée dans la petite ligne", () => {
-  assert.equal(valeurCourte("près de 600 milliards d'euros"), "~600 Md€");
-  assert.equal(valeurCourte("488 milliards d’euros"), "488 Md€");
-  assert.equal(valeurCourte("3 millions"), "3 M");
-  assert.equal(valeurCourte("1 830 euros"), "1 830 €");
-  assert.equal(valeurCourte("+20 %"), "+20 %");
+test("tuiles : format court, la nuance « près de » gardée dans la petite ligne, un seul chiffre en jaune", () => {
+  assert.equal(valeurCourte("près de 600 milliards d'euros"), "~600 Md€");
+  assert.equal(valeurCourte("488 milliards d’euros"), "488 Md€");
+  assert.equal(valeurCourte("3 millions"), "3 M");
+  assert.equal(valeurCourte("1 830 euros"), "1 830 €");
   assert.equal(valeurCourte("non chiffré"), "non chiffré");
   const r = reponse();
-  r.concretement.tuiles.propose = { valeur: "près de 2 200 euros", detail: "brut par mois" };
-  r.concretement.tuiles.aujourdhui = { valeur: "1 830 euros", detail: "brut par mois" };
-  const { valide, recit } = controlerRecit(r, CONTEXTE);
-  assert.ok(valide);
-  assert.deepEqual(recit.concretement.tuiles.propose, { valeur: "~2 200 €", detail: "près de 2 200 euros · brut par mois" });
-  assert.deepEqual(recit.concretement.tuiles.aujourdhui, { valeur: "1 830 €", detail: "brut par mois" });
-  const longue = reponse();
-  longue.concretement.tuiles.concernes = { valeur: "tous les salariés du privé", detail: "" };
-  assert.match(controlerRecit(longue, CONTEXTE).avertissements.join("\n"), /trop long pour la tuile/);
+  r.constat.chiffres[2] = { valeur: "près de 2 200 euros", detail: "brut par mois" };
+  const { recit } = controlerRecit(r, CONTEXTE);
+  assert.deepEqual(recit.constat.chiffres[2], { valeur: "~2 200 €", detail: "près de 2 200 euros · brut par mois", jaune: false });
+  const deux = reponse();
+  deux.constat.chiffres[0].jaune = true;
+  const c = controlerRecit(deux, CONTEXTE);
+  assert.match(c.avertissements.join("\n"), /2 chiffre\(s\) en jaune/);
+  assert.deepEqual(c.recit.constat.chiffres.map((x) => x.jaune), [true, false, false, false]);
 });
 
 test("gras : balisage **…** découpé en mots, 3 passages au plus, ponctuation collée", () => {
@@ -330,6 +202,7 @@ test("génération : échec après deux refus, rien à enregistrer", async () =>
   assert.match(resultat.errors[0], /JSON invalide/);
 });
 
+
 function donneesRecit(modifs = {}) {
   const { recit } = controlerRecit(reponse(), CONTEXTE);
   return {
@@ -342,55 +215,50 @@ function donneesRecit(modifs = {}) {
     score: 51,
     contenu: { ...FICHE, reseaux_recit: recit },
     handlesInstagram: {},
+    couleursCarrousel: { "Fabien Roussel": { fond: "#B33A2B", bloc: "#1C2A5E" } },
+    photos: [],
     ...modifs,
   };
 }
 
-test("carrousel récit : 8 slides, note, critères et fin par le code, légende et tweet remplis", () => {
-  const { slides, legende, tweet, sujet } = carrouselRecit(donneesRecit());
-  assert.equal(slides.length, 8);
+test("carrousel détaillé : 8 slides, note, critères, sous-titre et fin par le code, légende et tweet remplis", () => {
+  const { slides, legende, tweet, sujet, couleur } = carrouselRecit(donneesRecit());
   assert.deepEqual(
     slides.map((s) => s.type),
-    ["couverture", "concretement", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "tientCoince", "fin"],
+    ["couverture", "constat", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "avis", "fin"],
   );
-  assert.equal(sujet, "Smic");
-  assert.equal(slides[0].intro, "Fabien Roussel veut");
-  assert.equal(slides[0].sousTitre, "Notre analyse en 8 slides");
+  assert.equal(sujet, "Smic à 2 200 euros brut");
+  assert.equal(slides[0].question, "Fabien Roussel veut-il un ==Smic à 2 200 euros== ?");
+  assert.equal(slides[0].sousTitre, "Sa proposition : bonne idée… ou poudre de perlimpinpin ?");
   assert.equal(slides[0].fichier, "01-couverture.png");
+  assert.equal(slides[1].fichier, "02-constat-et-proposition.png");
   assert.equal(slides[7].fichier, "08-fin.png");
-  assert.equal(slides[1].texte, "Aujourd'hui, le Smic brut est de 1 830 euros. Fabien Roussel veut le porter à 2 200 euros.");
-  // Note : niveau et notes des 5 critères du barème, avec leurs vrais maxima.
+  assert.equal(slides[1].proposition, "La proposition de Fabien Roussel : porter le Smic à 2 200 euros brut par mois.");
   assert.equal(slides[2].palier, getScoreBadge(51).label);
   assert.deepEqual(slides[2].criteres.map((c) => `${c.note}/${c.max}`), ["18/30", "12/30", "9/20", "4/10", "8/10"]);
-  assert.equal(slides[2].criteres[0].ligne, "Un décret suffit.");
-  assert.equal(slides[6].condition, "Étaler la hausse");
+  assert.equal(slides[6].avis, "Le gain est réel, mais le coût pour les PME reste à chiffrer.");
   assert.deepEqual(slides[7].sources, ["Ministère du Travail, montants du Smic 2026", "Insee, salaires", "OCDE, Smic rapporté au salaire médian"]);
-  assert.match(legende, /^🟡 Smic à 2 200 euros brut : Ce que changerait vraiment/);
+  assert.deepEqual(couleur, { fond: "#B33A2B", bloc: "#1C2A5E" });
+  assert.match(legende, /^Fabien Roussel veut porter le Smic à 2 200 euros brut\. Est-ce tenable \?\n\nNotre avis : /);
+  assert.match(legende, /lien en bio/);
   assert.match(tweet, /@Fabien_Roussel veut porter le Smic/);
   assert.match(tweet, /Note : 🟡 51\/100 Plausible sous condition/);
 });
 
-test("carrousel récit sans précédent étranger : 7 slides, avertissement", () => {
+test("carrousel détaillé sans mesure comparable : 7 slides, avertissement", () => {
   const { recit } = controlerRecit(reponse({ ailleurs: null }), CONTEXTE);
   const { slides, avertissements } = carrouselRecit(donneesRecit({ contenu: { ...FICHE, reseaux_recit: recit } }));
   assert.equal(slides.length, 7);
-  assert.ok(!slides.some((s) => s.type === "ailleurs"));
-  assert.equal(slides[0].sousTitre, "Notre analyse en 7 slides");
   assert.deepEqual(slides.map((s) => `${s.numero}/${s.total}`), ["1/7", "2/7", "3/7", "4/7", "5/7", "6/7", "7/7"]);
-  assert.ok(avertissements.some((a) => /Slide sautée : la fiche ne cite aucun précédent/.test(a.message)));
+  assert.ok(avertissements.some((a) => /Slide sautée : la fiche ne cite aucune mesure comparable/.test(a.message)));
 });
 
-test("pas de carrousel détaillé : null ; archive carrousel-detaille-<id>-<slug>.zip", () => {
+test("pas de carrousel détaillé : null ; ancien format signalé ; archive carrousel-<slug>-<thème>.zip", () => {
   assert.equal(carrouselRecit(donneesRecit({ contenu: FICHE })), null);
-  assert.equal(nomArchiveRecit({ propositionId: 42, candidatNom: "Fabien Roussel" }), "carrousel-detaille-42-fabien-roussel.zip");
-});
-
-test("carrousel détaillé : numéro de fiche sur les slides 3 à 7, mot clé, conclusion, slide « À l’étranger »", () => {
-  const { slides } = carrouselRecit(donneesRecit());
-  assert.deepEqual(slides.map((s) => s.numeroFiche ?? null), [null, null, "#42", "#42", "#42", "#42", "#42", null]);
-  assert.equal(slides[0].motCle, "tenable");
-  assert.equal(slides[5].libelle, "À l’étranger");
-  assert.equal(slides[5].fichier, "06-a-l-etranger.png");
+  const ancien = carrouselRecit(donneesRecit({ contenu: { ...FICHE, reseaux_recit: { concretement: {}, tient: { tient: [] } } } }));
+  assert.equal(ancien.slides.length, 0);
+  assert.match(ancien.avertissements[0].message, /ancien format/);
+  assert.equal(nomArchiveRecit({ candidatNom: "Fabien Roussel", theme: "economie" }), "carrousel-fabien-roussel-economie.zip");
 });
 
 // --- Image de thème ---------------------------------------------------------------
@@ -425,7 +293,8 @@ test("image de thème : bibliothèque vide → couverture sans illustration et a
   assert.ok(vide.avertissements.some((a) => a.cle === "image de thème" && /bibliothèque est vide/.test(a.message)));
   const plein = carrouselRecit(donneesRecit({ illustrations: BIBLIO }));
   assert.ok(plein.slides[0].illustration.fichier.startsWith("illustrations/"));
-  assert.match(plein.legende, /Photo de couverture : /);
+  assert.match(plein.legende, /Photo d’illustration : /);
+  assert.match(plein.credits, /Photo d’illustration : /);
   // Carrousel 6 slides : même image (même tirage stable pour la fiche).
   const six = controlerCarrousel({ ...donneesRecit({ illustrations: BIBLIO }), contenu: { ...FICHE, reseaux_recit: undefined } });
   assert.equal(six.slides[0].illustration.fichier, choisirIllustration({ theme: "economie", alea: aleaFiche("illustration-42"), liste: BIBLIO }).illustration.fichier);
@@ -447,28 +316,29 @@ test("bibliothèque : candidates Pexels (20 au plus, sans doublon), entrées et 
   assert.match(reecrit, /\/\/ FIN LISTE ILLUSTRATIONS\naprès$/);
 });
 
+
 // --- Remarques et régénération ciblée -------------------------------------------------
 
 test("remarques : seule la slide visée change, le reste est repris tel quel", () => {
   const { recit: precedent } = controlerRecit(reponse(), CONTEXTE);
-  const nouveau = { ...reponse(), concretement: { ...reponse().concretement, texte: "Plus court." }, note: { ...reponse().note, titre: "Changé sans qu'on le demande." } };
-  const fusion = fusionnerRecit(precedent, nouveau, "concretement");
-  assert.equal(fusion.concretement.texte, "Plus court.");
+  const nouveau = { ...reponse(), constat: { ...reponse().constat, explication: "Plus court." }, note: { ...reponse().note, titre: "Changé sans qu'on le demande." } };
+  const fusion = fusionnerRecit(precedent, nouveau, "constat");
+  assert.equal(fusion.constat.explication, "Plus court.");
   assert.equal(fusion.note.titre, precedent.note.titre);
   assert.deepEqual(fusion.tweet, precedent.tweet);
   assert.equal(fusionnerRecit(precedent, nouveau, "toutes").note.titre, "Changé sans qu'on le demande.");
   assert.equal(fusionnerRecit(precedent, { ...reponse(), ailleurs: null }, "ailleurs").ailleurs, null);
-  const consigne = consigneRemarques({ precedent, remarque: "la slide 2 est trop chargée", cible: "concretement", libelleCible: "la slide 2 (« Concrètement »)" });
+  const consigne = consigneRemarques({ precedent, remarque: "la slide 2 est trop chargée", cible: "constat", libelleCible: "la slide 2 (« Le constat »)" });
   assert.match(consigne, /ne passent JAMAIS avant les règles/);
-  assert.match(consigne, /Ne réécris que la slide 2 \(« Concrètement »\) \(clé\(s\) JSON : concretement\)/);
-  assert.ok(cibleValide("tweet") && cibleValide("toutes") && !cibleValide("fin"));
+  assert.match(consigne, /Ne réécris que la slide 2 \(« Le constat »\) \(clé\(s\) JSON : constat\)/);
+  assert.ok(cibleValide("tweet") && cibleValide("legende") && cibleValide("toutes") && !cibleValide("fin"));
 });
 
-test("remarques : menu des slides (sans la fin), slide visée selon la présence d'un précédent étranger", () => {
+test("remarques : menu des slides (sans la fin), slide visée selon la présence d'une mesure comparable", () => {
   const { recit } = controlerRecit(reponse(), CONTEXTE);
-  assert.deepEqual(ciblesRemarques(recit).map((c) => c.valeur), ["toutes", "couverture", "concretement", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "tientCoince", "tweet"]);
-  assert.deepEqual(slideDeCible(recit, "tientCoince"), { numero: 7, libelle: "Ce qui tient… et ce qui coince" });
-  assert.deepEqual(slideDeCible({ ...recit, ailleurs: null }, "tientCoince"), { numero: 6, libelle: "Ce qui tient… et ce qui coince" });
+  assert.deepEqual(ciblesRemarques(recit).map((c) => c.valeur), ["toutes", "couverture", "constat", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "avis", "legende", "tweet"]);
+  assert.deepEqual(slideDeCible(recit, "avis"), { numero: 7, libelle: "Notre avis" });
+  assert.deepEqual(slideDeCible({ ...recit, ailleurs: null }, "avis"), { numero: 6, libelle: "Notre avis" });
   assert.equal(slideDeCible(recit, "tweet"), null);
 });
 
@@ -476,15 +346,15 @@ test("génération avec remarques : mêmes refus (chiffre absent de la fiche), f
   const { recit: precedent } = controlerRecit(reponse(), CONTEXTE);
   const messages = [];
   const tentatives = [
-    { ...reponse(), concretement: { ...reponse().concretement, texte: "Le Smic passerait à 9 999 euros." } },
-    { ...reponse(), concretement: { ...reponse().concretement, texte: "Plus court." }, note: { ...reponse().note, titre: "Autre." } },
+    { ...reponse(), constat: { ...reponse().constat, explication: "Le Smic passerait à 9 999 euros." } },
+    { ...reponse(), constat: { ...reponse().constat, explication: "Plus court." }, note: { ...reponse().note, titre: "Autre." } },
   ];
   const resultat = await genererRecitCore({
     ficheFinale: FICHE,
     candidatNom: "Fabien Roussel",
     score: 51,
     prompt: "PROMPT",
-    remarques: { precedent, remarque: "trop chargée", cible: "concretement", libelleCible: "la slide 2" },
+    remarques: { precedent, remarque: "trop chargée", cible: "constat", libelleCible: "la slide 2" },
     appeler: async (message) => {
       messages.push(message);
       return { donnees: tentatives[messages.length - 1], usage: { input_tokens: 10_000, output_tokens: 1_000 } };
@@ -494,8 +364,47 @@ test("génération avec remarques : mêmes refus (chiffre absent de la fiche), f
   });
   assert.match(messages[0], /RÉGÉNÉRATION AVEC REMARQUES/);
   assert.match(messages[1], /Nombre\(s\) absent\(s\) de la fiche : 9999/);
-  assert.equal(resultat.recit.concretement.texte, "Plus court.");
+  assert.equal(resultat.recit.constat.explication, "Plus court.");
   assert.equal(resultat.recit.note.titre, precedent.note.titre);
+});
+
+test("génération : texte qui déborde → une relance pour raccourcir, version qui déborde le moins gardée", async () => {
+  const messages = [];
+  const longue = reponse();
+  longue.constat.explication = "Le Smic brut est de 1 830 euros. Trois millions de salariés en dépendent, dans tous les secteurs.";
+  const reponses = [longue, reponse()];
+  const trop = (recit) => (recit.constat.explication.length > 80 ? [{ numero: 2, libelle: "Le constat", bloc: "contenu", raison: "40 px de trop" }] : []);
+  const resultat = await genererRecitCore({
+    ficheFinale: FICHE,
+    candidatNom: "Fabien Roussel",
+    score: 51,
+    prompt: "PROMPT",
+    appeler: async (message) => {
+      messages.push(message);
+      return { donnees: reponses[messages.length - 1], usage: { input_tokens: 1000, output_tokens: 100 } };
+    },
+    analyser: (r) => r.donnees,
+    debordements: trop,
+    journal: { error() {} },
+  });
+  assert.equal(messages.length, 2);
+  assert.match(messages[1], /TEXTE TROP LONG POUR LA SLIDE/);
+  assert.match(messages[1], /slide 2 \(Le constat\) : contenu/);
+  assert.equal(resultat.recit.constat.explication, reponse().constat.explication);
+  assert.deepEqual(resultat.debordements, []);
+  // Relance qui déborde encore : la première version est gardée, avec l'avertissement.
+  const toujours = await genererRecitCore({
+    ficheFinale: FICHE,
+    candidatNom: "Fabien Roussel",
+    score: 51,
+    prompt: "PROMPT",
+    appeler: async () => ({ donnees: longue, usage: {} }),
+    analyser: (r) => r.donnees,
+    debordements: trop,
+    journal: { error() {} },
+  });
+  assert.ok(toujours.recit);
+  assert.match(toujours.avertissements.join("\n"), /Texte trop long, slide 2 \(Le constat\)/);
 });
 
 test("journal des remarques et retour arrière : seule reseaux_recit change, l'historique est gardé", () => {
@@ -519,14 +428,17 @@ test("journal des remarques et retour arrière : seule reseaux_recit change, l'h
   assert.equal(contenuRevenuAuPrecedent(contenu), null);
 });
 
+
+
 test("page des retours : toutes fiches, plus récentes d'abord, remarques fréquentes regroupées", () => {
   const lignes = [
-    { propositionId: 1, titre: "A", candidat: "X", statut: "publie", retours: [{ date: "2026-11-01", remarque: "La slide 2 est trop chargée", cible: "concretement", slide: { numero: 2, libelle: "Concrètement" }, resultat: "acceptée" }, { date: "2026-11-03", remarque: "", resultat: "retour à la version précédente" }] },
-    { propositionId: 2, titre: "B", candidat: "Y", statut: "publie", retours: [{ date: "2026-11-02", remarque: "la slide 2 est trop chargée !", cible: "concretement", slide: { numero: 2, libelle: "Concrètement" }, resultat: "refusée" }] },
+    { propositionId: 1, titre: "A", candidat: "X", statut: "publie", retours: [{ date: "2026-11-01", remarque: "La slide 2 est trop chargée", cible: "constat", slide: { numero: 2, libelle: "Le constat" }, resultat: "acceptée" }, { date: "2026-11-03", remarque: "", resultat: "retour à la version précédente" }] },
+    { propositionId: 2, titre: "B", candidat: "Y", statut: "publie", retours: [{ date: "2026-11-02", remarque: "la slide 2 est trop chargée !", cible: "constat", slide: { numero: 2, libelle: "Le constat" }, resultat: "refusée" }] },
   ];
   const retours = listeRetours(lignes);
   assert.deepEqual(retours.map((r) => r.propositionId), [2, 1]);
-  assert.equal(libelleCible(retours[0]), "Slide 2 · Concrètement");
+  assert.equal(libelleCible(retours[0]), "Slide 2 · Le constat");
+  assert.equal(libelleCible({ cible: "legende" }), "Légende");
   const frequentes = remarquesFrequentes(retours);
   assert.equal(frequentes.length, 1);
   assert.equal(frequentes[0].nombre, 2);
@@ -587,6 +499,8 @@ function fausseBase(contenu, { modifiee = false } = {}) {
     proposition: {
       findUnique: async () => ({
         id: 42,
+        titre: "Smic à 2 200 euros brut",
+        theme: "economie",
         candidat: { nom: "Fabien Roussel" },
         analyses: [{ id: 7, statut: "publie", scoreFaisabilite: 51, updatedAt: new Date(0), contenuComplet: contenu }],
       }),
@@ -682,6 +596,8 @@ test("action : estimation du coût sans appel", async () => {
   assert.equal(r.aDejaUnRecit, false);
 });
 
+
+
 test("action remarques : slide visée réécrite seule, journal, ancienne version gardée ; refus noté au journal sans toucher au carrousel", async () => {
   const { recit } = controlerRecit(reponse(), CONTEXTE);
   const contenu = { ...FICHE, reseaux_recit: recit };
@@ -691,29 +607,34 @@ test("action remarques : slide visée réécrite seule, journal, ancienne versio
   const r = await regenererAvecRemarquesCore(42, {
     ...options,
     remarque: "  la slide 2 est trop chargée ",
-    cible: "concretement",
+    cible: "constat",
     generer: async (_c, opts) => {
-      recu = opts.remarques;
-      return { recit: { ...recit, concretement: { ...recit.concretement, texte: "Plus court." } }, cout: 0.05, avertissements: [] };
+      recu = opts;
+      return { recit: { ...recit, constat: { ...recit.constat, explication: "Plus court." } }, cout: 0.05, avertissements: [] };
     },
   });
   assert.ok(r.ok, r.erreur);
-  assert.equal(recu.remarque, "la slide 2 est trop chargée");
-  assert.equal(recu.libelleCible, "la slide 2 (« Concrètement »)");
+  assert.equal(recu.remarques.remarque, "la slide 2 est trop chargée");
+  assert.equal(recu.remarques.libelleCible, "la slide 2 (« Le constat, puis la proposition »)");
+  assert.equal(recu.proposition.id, 42);
   const ecrit = db.ecritures[0].data.contenuComplet.reseaux_recit;
-  assert.equal(ecrit.concretement.texte, "Plus court.");
-  assert.equal(ecrit.precedent.concretement.texte, recit.concretement.texte);
+  assert.equal(ecrit.constat.explication, "Plus court.");
+  assert.equal(ecrit.precedent.constat.explication, recit.constat.explication);
   assert.equal(ecrit.retours[0].resultat, "acceptée");
-  assert.deepEqual(ecrit.retours[0].slide, { numero: 2, libelle: "Concrètement" });
+  assert.deepEqual(ecrit.retours[0].slide, { numero: 2, libelle: "Le constat, puis la proposition" });
 
   const db2 = fausseBase(contenu);
-  const refus = await regenererAvecRemarquesCore(42, { ...options, prisma: db2, remarque: "mets la note", cible: "noteRecit", generer: async () => ({ recit: null, cout: 0.08, errors: ["note (titre) : score ou pastille de note écrits par le modèle"] }) });
+  const refus = await regenererAvecRemarquesCore(42, { ...options, prisma: db2, remarque: "mets la note", cible: "noteRecit", generer: async () => ({ recit: null, cout: 0.08, errors: ["slide 3 (titre) : score ou pastille de note écrits par le modèle"] }) });
   assert.equal(refus.ok, false);
   const apresRefus = db2.ecritures[0].data.contenuComplet.reseaux_recit;
   assert.equal(apresRefus.note.titre, recit.note.titre);
   assert.equal(apresRefus.precedent, undefined);
   assert.equal(apresRefus.retours[0].resultat, "refusée");
   assert.match(apresRefus.retours[0].details[0], /score ou pastille/);
+
+  const legende = await regenererAvecRemarquesCore(42, { ...options, prisma: fausseBase(contenu), remarque: "plus court", cible: "legende", generer: async () => ({ recit, cout: 0.01, avertissements: [] }) });
+  assert.ok(legende.ok, legende.erreur);
+  assert.match(legende.message, /la légende/);
 
   assert.match((await regenererAvecRemarquesCore(42, { ...options, remarque: " ", cible: "toutes", generer: () => assert.fail() })).erreur, /Écrivez/);
   assert.match((await regenererAvecRemarquesCore(42, { ...options, remarque: "x", cible: "fin", generer: () => assert.fail() })).erreur, /inconnue/);
@@ -733,10 +654,11 @@ test("action retour arrière : échange des versions sans appel, refusé sans ve
   assert.match(sans.erreur, /Pas de version précédente/);
 });
 
+
 test("action : estimation d'une régénération avec remarques plus chère (message avec la version précédente)", async () => {
   const { recit } = controlerRecit(reponse(), CONTEXTE);
   const base = { isEditor: async () => true, prisma: fausseBase({ ...FICHE, reseaux_recit: recit }), lirePrompt: async () => "PROMPT" };
   const simple = await estimerRecitCore(42, base);
-  const avec = await estimerRecitCore(42, { ...base, remarque: "trop chargée", cible: "concretement" });
+  const avec = await estimerRecitCore(42, { ...base, remarque: "trop chargée", cible: "constat" });
   assert.ok(avec.min > simple.min);
 });

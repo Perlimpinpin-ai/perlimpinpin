@@ -101,6 +101,7 @@ export async function genererRecitPourFicheCore(propositionId, { brouillon, isEd
     score: analyse.scoreFaisabilite,
     propositionId,
     motsClesIllustration: motsClesDisponibles(proposition.theme),
+    proposition,
   });
   const cout = resultat.cout;
   if (!resultat.recit) {
@@ -142,7 +143,7 @@ export async function regenererAvecRemarquesCore(propositionId, { remarque, cibl
   const precedent = contenu.reseaux_recit;
   if (!precedent) return { ok: false, erreur: "Pas encore de carrousel détaillé à régénérer." };
   const slide = slideDeCible(precedent, cible);
-  if (cible !== "toutes" && cible !== "tweet" && !slide) return { ok: false, erreur: "Cette slide n’existe pas dans la version actuelle." };
+  if (!["toutes", "tweet", "legende"].includes(cible) && !slide) return { ok: false, erreur: "Cette slide n’existe pas dans la version actuelle." };
 
   if (dryRun) {
     return { ok: true, simulation: true, message: "Mode simulation (TEST_DRY_RUN=1) : aucun appel à Claude, rien n’est écrit." };
@@ -151,12 +152,13 @@ export async function regenererAvecRemarquesCore(propositionId, { remarque, cibl
     return { ok: false, erreur: "ANTHROPIC_API_KEY n’est pas configurée sur ce serveur : génération impossible." };
   }
 
-  const libelleCible = cible === "toutes" ? "l’ensemble" : cible === "tweet" ? "le tweet long" : `la slide ${slide.numero} (« ${slide.libelle} »)`;
+  const libelleCible = cible === "toutes" ? "l’ensemble" : cible === "tweet" ? "le tweet long" : cible === "legende" ? "la légende" : `la slide ${slide.numero} (« ${slide.libelle} »)`;
   const resultat = await generer(contenu, {
     candidatNom: proposition.candidat.nom,
     score: analyse.scoreFaisabilite,
     propositionId,
     motsClesIllustration: motsClesDisponibles(proposition.theme),
+    proposition,
     remarques: { precedent, remarque: texteRemarque, cible, libelleCible },
   });
   const cout = resultat.cout;

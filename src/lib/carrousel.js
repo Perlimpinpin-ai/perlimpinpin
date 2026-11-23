@@ -402,9 +402,11 @@ export function legendeTropLongue(texte) {
 // URL d'une slide (route src/app/api/carrousel/[id]/route.js).
 // `recit` : carrousel détaillé en 8 slides (?version=recit) ; avec
 // `precedent`, sa version précédente (?version=recit-precedent), à comparer.
-export function cheminSlide({ propositionId, numero, version, brouillon = false, recit = false, precedent = false }) {
+// `photo` : numéro de la photo du candidat sur la couverture du carrousel détaillé.
+export function cheminSlide({ propositionId, numero, version, brouillon = false, recit = false, precedent = false, photo = null }) {
   const params = new URLSearchParams({ ...(recit ? { version: precedent ? "recit-precedent" : "recit" } : {}), slide: String(numero), v: version });
   if (brouillon) params.set("brouillon", "1");
+  if (photo !== null && photo !== undefined) params.set("photo", String(photo));
   return `/api/carrousel/${propositionId}?${params}`;
 }
 

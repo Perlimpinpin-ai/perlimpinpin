@@ -8,6 +8,29 @@ import { lireDemo } from "@/lib/carrousel-demo";
 import { illustrationCandidat, policesCarrousel, portraitBleu, portraitCadre, portraitNoirBlanc, stickerTheme } from "@/lib/og-ressources";
 import { illustrationTraitee, teinteIllustration } from "@/lib/traitement-illustration";
 import { elementSlide } from "./slides";
+import { elementSlideDetaille, PICTOS } from "./slides-detaille";
+import { miseEnPageSlide } from "@/lib/mise-en-page-carrousel";
+import { mesureurCarrousel } from "@/lib/metriques-polices";
+import { CHEMIN_GRAIN, CHEMIN_PAPIER, cheminIllustrationTraitee, cheminVignetteNb, imageCandidatPrete, imagePrete } from "@/lib/images-carrousel";
+import { dataUriIcone } from "@/lib/icones-pixel";
+
+// Images d'une slide du carrousel détaillé (data URI), toutes déjà prêtes
+// (scripts/preparer-images-carrousel.js, scripts/detourer-candidats.py) :
+// aucun traitement d'image ici. Grain du papier, pictogramme ; couverture :
+// papier jaune déchiré, illustration déjà teintée et tramée, photo Commons du
+// candidat déjà détourée (noir et blanc, grain, liseré), sinon la vignette
+// actuelle en tirage.
+async function imagesDetaille(slide, candidat) {
+  const couverture = slide.type === "couverture";
+  const fond = couverture || slide.type === "fin" ? "sombre" : "clair";
+  const [grain, papier, portrait, illustration] = await Promise.all([
+    imagePrete(CHEMIN_GRAIN),
+    couverture ? imagePrete(CHEMIN_PAPIER) : null,
+    couverture ? imageCandidatPrete({ detoure: slide.photo?.fichier ?? null, vignette: cheminVignetteNb(candidat) }) : null,
+    couverture && slide.illustration ? imagePrete(cheminIllustrationTraitee(slide.illustration.fichier)) : null,
+  ]);
+  return { grain, papier, candidat: portrait, illustration, picto: PICTOS[slide.type] ? dataUriIcone(PICTOS[slide.type], { theme: fond, taille: 112 }) : null };
+}
 
 // Slides 1080 × 1350 des carrousels Instagram :
 //  - ?slide=1..6 : carrousel 6 slides (position dans le carrousel, qui passe
@@ -16,7 +39,11 @@ import { elementSlide } from "./slides";
 //  - ?version=recit&slide=1..8 : carrousel détaillé (7 sans précédent
 //    étranger), à partir de contenuComplet.reseaux_recit
 //    (src/lib/carrousel-recit.js) ; 404 tant qu'il n'a pas été généré ;
-//  - ?version=recit-precedent : sa version précédente (comparaison).
+//  - ?version=recit-precedent : sa version précédente (comparaison) ;
+//  - ?photo=<n> : photo du candidat sur la couverture du carrousel détaillé
+//    (src/lib/photos-candidats.js, bouton « Changer de photo »).
+// Rendu du carrousel détaillé : ./slides-detaille.js, lignes mesurées par
+// src/lib/mise-en-page-carrousel.js.
 // Aucun appel à l'IA ici. Comme /api/carte : fiche publiée ouverte à tous,
 // image mise en cache longtemps (URL versionnée, ?v=) ; brouillon
 // (?brouillon=1) réservé aux personnes déverrouillées sur /test, jamais en
@@ -64,12 +91,31 @@ export async function GET(request, { params }) {
   const { proposition, analyse } = fiche;
 
   const version = recherche.get("version");
-  const carrousel =
-    version === "recit" || version === "recit-precedent" ? recitDe(proposition, analyse, { precedent: version === "recit-precedent" }) : carrouselDe(proposition, analyse);
+  const detaille = version === "recit" || version === "recit-precedent";
+  const photoDemandee = detaille ? recherche.get("photo") : null;
+  const carrousel = detaille ? recitDe(proposition, analyse, { precedent: version === "recit-precedent", photo: photoDemandee }) : carrouselDe(proposition, analyse);
   if (!carrousel) return introuvable();
   const { slides, couleur, sujet } = carrousel;
   const slide = slides.find((s) => s.numero === numero);
   if (!slide) return introuvable();
+
+  if (detaille) {
+    const images = await imagesDetaille(slide, proposition.candidat);
+    return new ImageResponse(
+      elementSlideDetaille({ slide, mise: miseEnPageSlide(slide, mesureurCarrousel()), couleur, images, candidatNom: proposition.candidat.nom, sujet }),
+      {
+        width: LARGEUR_SLIDE,
+        height: HAUTEUR_SLIDE,
+        fonts: await policesCarrousel(),
+        headers: {
+          "Cache-Control":
+            demo
+              ? "no-store"
+              : cacheControlCarte({ publie: analyse.statut === "publie", versionDemandee: recherche.get("v"), versionCourante: carrousel.version }),
+        },
+      },
+    );
+  }
 
   // Couverture en collage : portrait détouré noir et blanc, image de thème de
   // la bibliothèque (bichromie et trame, src/lib/traitement-illustration.js),

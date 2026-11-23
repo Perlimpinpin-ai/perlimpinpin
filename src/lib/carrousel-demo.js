@@ -57,9 +57,11 @@ export function prismaDemo() {
 
 // Génération simulée : même contrôle et même fusion que la vraie génération,
 // réponse lue dans demo.simulation, usage estimé d'après la longueur du message.
-export async function genererDemo(contenu, { candidatNom, score, propositionId, motsClesIllustration, remarques = null }) {
+export async function genererDemo(contenu, { candidatNom, score, propositionId, motsClesIllustration, remarques = null, proposition = null }) {
   const demo = await lireDemo();
   const simulation = demo?.simulation ?? {};
+  // Import dynamique : carrousel-serveur lit les polices et le disque (serveur seulement).
+  const { debordementsDuRecit } = await import("./carrousel-serveur.js");
   return genererRecitCore({
     ficheFinale: contenu,
     candidatNom,
@@ -68,6 +70,7 @@ export async function genererDemo(contenu, { candidatNom, score, propositionId, 
     prompt: await readFile(join(process.cwd(), "data", "prompt-recit.md"), "utf-8"),
     motsClesIllustration,
     remarques,
+    debordements: proposition ? (recit) => debordementsDuRecit(recit, { proposition, contenu, score }) : null,
     appeler: async (message) => {
       let reponse = simulation.reponse ?? {};
       if (remarques) {
