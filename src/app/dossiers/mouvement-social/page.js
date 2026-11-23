@@ -38,9 +38,9 @@ export const metadata = {
   ...(DOSSIER_MS.visible ? {} : { robots: { index: false, follow: false } }),
 };
 
-// Page régénérée toutes les heures : fiches publiées entre-temps et dates
-// « à venir » passées.
-export const revalidate = 3600;
+// Page régénérée au plus tard une fois par jour, et aussitôt après chaque
+// publication (src/lib/rafraichir-public.js) : fiches publiées entre-temps.
+export const revalidate = 86400;
 
 // Ordre des sections si le JSON n'en donne pas.
 const ORDRE_PAR_DEFAUT = [

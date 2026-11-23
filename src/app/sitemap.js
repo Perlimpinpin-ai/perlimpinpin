@@ -1,7 +1,10 @@
 import { getHorsSeries } from "@/lib/hors-series";
 import { getPublishedPropositionsForSitemap } from "@/lib/queries";
 
-export const dynamic = "force-dynamic";
+// Recalculé au plus tard une fois par jour, et aussitôt après chaque
+// publication (src/lib/rafraichir-public.js) : un passage de robot ne lit plus
+// la base à chaque fois.
+export const revalidate = 86400;
 
 const BASE_URL = "https://perlimpinpin.ai";
 

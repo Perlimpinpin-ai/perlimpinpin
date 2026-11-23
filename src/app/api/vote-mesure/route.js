@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 const VALID_TYPES = new Set(["accord", "desaccord"]);
@@ -34,6 +35,11 @@ export async function POST(request) {
   });
 
   const counts = await getCounts(propositionId);
+
+  // Compteurs rendus côté serveur (fiche) et classement « Le choix des
+  // visiteurs » : pages en cache un jour, recalculées à leur prochaine visite.
+  revalidatePath(`/declarations/${propositionId}`);
+  revalidatePath("/prix-perlimpinpin");
 
   return Response.json(counts, { status: 201 });
 }

@@ -18,8 +18,8 @@ import { DOSSIER, NUANCES_JAUNE } from "@/lib/couleurs-dossier";
 export const dynamicParams = false;
 
 // Les scores des fiches publiées sont lus en base : même délai que les
-// autres pages.
-export const revalidate = 300;
+// autres pages (un jour ; rafraîchie aussitôt après chaque publication (src/lib/rafraichir-public.js)).
+export const revalidate = 86400;
 
 export function generateStaticParams() {
   return getHorsSerieSlugs().map((slug) => ({ slug }));

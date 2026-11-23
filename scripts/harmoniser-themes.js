@@ -26,6 +26,7 @@ import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
 import { THEMES, getThemeBySlug, normaliserTheme, resolveTheme } from "../src/lib/themes.js";
+import { rafraichirSite } from "./rafraichir-site.js";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -108,6 +109,8 @@ async function main() {
   );
   const total = resultats.reduce((somme, r) => somme + r.count, 0);
   console.log(`\nFait : ${total} fiche(s) mise(s) à jour.`);
+  // Thèmes des fiches publiées modifiés : les pages publiques (en cache un jour) sont recalculées.
+  await rafraichirSite();
 }
 
 main()

@@ -33,6 +33,8 @@ import { neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
 import { confirmerEcriture, hoteDe } from "./lib/garde-fou-base.js";
 import { TEASER_ACCUEIL_MAX, TITRE_FICHE_MAX, checkLongueursAccueil } from "./lib/scoring.js";
+import { rafraichirSite } from "./rafraichir-site.js";
+import { rafraichirSite } from "./rafraichir-site.js";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -353,6 +355,8 @@ async function appliquer() {
     });
   }
   console.log(`\n${aAppliquer.length} fiche(s) mise(s) à jour. Journal : ${INSERTIONS_LOG_PATH}`);
+  // Fiches publiées modifiées : les pages publiques (en cache un jour) sont recalculées.
+  await rafraichirSite();
 }
 
 try {

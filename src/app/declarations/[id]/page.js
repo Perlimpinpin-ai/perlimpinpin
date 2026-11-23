@@ -31,10 +31,11 @@ import { EXPLICATIONS_CRITERES } from "@/lib/criteresScore";
 import ActionsFiche from "@/components/ActionsFiche";
 
 // ISR : chaque fiche est calculée à sa première visite, puis servie depuis le
-// cache du CDN et recalculée au plus toutes les 5 minutes (nouvelle analyse,
-// compteurs de votes). generateStaticParams renvoie [] : le build ne lit pas
+// cache du CDN et recalculée au plus tard une fois par jour ; aussitôt après
+// chaque publication (src/lib/rafraichir-public.js) et après chaque vote
+// (compteurs, /api/vote-mesure et /api/feedback). generateStaticParams renvoie [] : le build ne lit pas
 // Neon, et dynamicParams = true laisse générer n'importe quel id à la demande.
-export const revalidate = 300;
+export const revalidate = 86400;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

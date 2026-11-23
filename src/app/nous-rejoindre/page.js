@@ -17,9 +17,9 @@ export const metadata = {
 };
 
 // Page mise en cache (pas de requête en base à chaque visite). Elle est
-// recalculée au plus tard toutes les heures, et immédiatement après chaque
+// recalculée au plus tard une fois par jour, et immédiatement après chaque
 // modification de texte depuis le mode édition.
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const HELLOASSO_URL = "https://www.helloasso.com/associations/perlimpinpin-ai";
 

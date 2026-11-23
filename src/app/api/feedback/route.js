@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 const VALID_TYPES = new Set(["like", "dislike"]);
@@ -25,7 +26,7 @@ export async function POST(request) {
 
   const analyse = await prisma.analyse.findUnique({
     where: { id: analyseId },
-    select: { id: true },
+    select: { id: true, propositionId: true },
   });
 
   if (!analyse) {
@@ -42,6 +43,10 @@ export async function POST(request) {
   });
 
   const counts = await getCounts(analyseId);
+
+  // Compteurs rendus côté serveur sur la fiche (en cache un jour) : recalculée
+  // à sa prochaine visite.
+  revalidatePath(`/declarations/${analyse.propositionId}`);
 
   return Response.json(counts, { status: 201 });
 }

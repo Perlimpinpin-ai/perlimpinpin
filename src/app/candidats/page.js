@@ -11,8 +11,9 @@ import {
 } from "@/lib/parcours";
 import { lireTextes } from "@/lib/textes-site-serveur";
 
-// ISR : servie depuis le cache du CDN, recalculée au plus toutes les 5 minutes.
-export const revalidate = 300;
+// ISR : servie depuis le cache du CDN, recalculée au plus tard une fois par jour.
+// Rafraîchie aussitôt après chaque publication (src/lib/rafraichir-public.js).
+export const revalidate = 86400;
 
 export const metadata = {
   title: "Les candidats | Perlimpinpin",
