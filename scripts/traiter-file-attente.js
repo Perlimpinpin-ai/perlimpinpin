@@ -5,6 +5,9 @@
 //                                             aucun appel payant, rien d'écrit
 //   npm run file-attente -- --max 1           au plus 1 fiche
 //   npm run file-attente -- --fiches a,b      seulement ces fiches
+//   npm run file-attente -- --oui             sans question « oui » : UNIQUEMENT dans
+//                                             GitHub Actions (workflow traiter-file-attente.yml,
+//                                             lancé depuis /test/depot) ; refusé ailleurs
 //   npm run file-attente:import -- <dossier>  met en file tous les .json du dossier
 //                                             (après contrôle ; --simulation possible,
 //                                             --par "Nom" pour « déposé par »)
@@ -21,7 +24,7 @@
 // faut taper « oui ».
 
 import "dotenv/config";
-import { mkdirSync, readFileSync, readdirSync, existsSync, statSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdirSync, readFileSync, readdirSync, existsSync, statSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -32,6 +35,13 @@ import { mettreEnFile, slugDuFichier } from "../src/lib/file-attente.js";
 import { SITE_URL } from "./lib/revision-relecture.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const DANS_GITHUB = process.env.GITHUB_ACTIONS === "true";
+
+// Résumé du run GitHub (onglet Summary), en plus du journal.
+function resumeGitHub(titre, texte) {
+  if (!process.env.GITHUB_STEP_SUMMARY) return;
+  appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## ${titre}\n\n\`\`\`text\n${String(texte).trim()}\n\`\`\`\n`);
+}
 
 async function connexion() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL absent (voir le .env).");
@@ -78,12 +88,14 @@ function afficherBase() {
   for (const l of avertissementBase(hoteDe(process.env.DATABASE_URL))) console.log(l);
 }
 
-async function traiter(db, { simulation, fiches, max }) {
+async function traiter(db, { simulation, fiches, max, oui = false }) {
   if (simulation) {
     afficherBase();
   } else {
     if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY absent (voir le .env).");
-    const ok = await confirmerEcriture({
+    // Dans GitHub Actions, personne ne peut taper « oui » : le clic sur le bouton
+    // de /test/depot (et le workflow) tient lieu de confirmation. La base reste affichée.
+    const ok = oui ? (afficherBase(), true) : await confirmerEcriture({
       host: hoteDe(process.env.DATABASE_URL),
       question: "Lancer les étapes 2 et 3 (appels payants) et créer les brouillons sur cette base ?",
     });
@@ -94,7 +106,12 @@ async function traiter(db, { simulation, fiches, max }) {
   }
   const sortie = await traiterFile({ db, lancerPipeline: lancerAnalyze, simulation, fiches, max });
   const cout = simulation ? await coutEstime(db) : null;
-  console.log(resumeTraitement(sortie, { simulation, coutEstime: cout, siteUrl: SITE_URL }));
+  const resume = resumeTraitement(sortie, { simulation, coutEstime: cout, siteUrl: SITE_URL });
+  console.log(resume);
+  const erreurs = sortie.resultats.filter((r) => r.etat === "erreur").length;
+  resumeGitHub(erreurs ? `✗ File d'attente : ${erreurs} fiche(s) en erreur` : "File d'attente", resume);
+  // Run rouge sur GitHub si une fiche a échoué (le résumé dit laquelle).
+  if (erreurs && DANS_GITHUB) process.exitCode = 1;
 }
 
 async function importer(db, dossier, { simulation, par }) {
@@ -151,6 +168,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         max: { type: "string" },
         import: { type: "boolean", default: false },
         par: { type: "string" },
+        oui: { type: "boolean", default: false },
       },
       allowPositionals: true,
     });
@@ -165,6 +183,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
   const fiches = values.fiches ? values.fiches.split(",").map((s) => s.trim()).filter(Boolean) : null;
+  if (values.oui && (!DANS_GITHUB || values.import)) {
+    console.error("✗ --oui n'est accepté que dans GitHub Actions, pour le traitement de la file (pas pour --import).");
+    process.exit(1);
+  }
   if (values.import && !positionals[0]) {
     console.error("✗ Usage : npm run file-attente:import -- <dossier> [--simulation] [--par \"Nom\"]");
     process.exit(1);
@@ -174,9 +196,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   try {
     db = await connexion();
     if (values.import) await importer(db, positionals[0], values);
-    else await traiter(db, { simulation: values.simulation, fiches, max });
+    else await traiter(db, { simulation: values.simulation, fiches, max, oui: values.oui });
   } catch (e) {
     console.error(`✗ ${e?.message ?? e}`);
+    resumeGitHub("✗ File d'attente arrêtée", e?.message ?? e);
     process.exitCode = 1;
   } finally {
     await db?.$disconnect();
