@@ -2,6 +2,8 @@
 import { appreciationCarte, lignesEstimees, slugCandidat } from "@/lib/carte";
 import { HAUTEUR_SLIDE, LARGEUR_SLIDE } from "@/lib/carrousel";
 import { contraste, couleursProches, TEXTE_CLAIR } from "@/lib/couleurs-candidats";
+import { COULEURS_PASTILLES } from "@/lib/recit";
+import { motsGras } from "@/lib/texte-gras";
 
 // Mise en page des slides 1080 × 1350 des deux carrousels Instagram (JSX pour
 // next/og : flexbox seulement, ni grid ni filter). Les données arrivent
@@ -119,6 +121,7 @@ function Cadre({ slide, p, couleur, candidatNom, sujet, children }) {
   return (
     <div style={{ position: "relative", display: "flex", width: LARGEUR_SLIDE, height: HAUTEUR_SLIDE, backgroundColor: p.fond, overflow: "hidden", fontFamily: "Texte" }}>
       <EnTete slide={slide} p={p} />
+      <NumeroFiche slide={slide} p={p} />
       {children}
       {slide.type === "couverture" ? null : <Pied slide={slide} p={p} candidatNom={candidatNom} sujet={sujet} />}
       <Rayures couleurCandidat={couleur?.couleur} />
@@ -154,6 +157,37 @@ function Texte({ children, p, tailleTexte = 36, gras = false, couleur, marge = 0
   );
 }
 
+// Texte avec les mots en gras du balisage **…** (src/lib/texte-gras.js),
+// rendu mot à mot (Satori ne mêle pas les graisses dans un même bloc).
+function TexteRiche({ texte, tailleTexte = 36, couleur = ENCRE, largeur = LARGEUR_UTILE, marge = 0, interligne = 1.3, graisse = 500 }) {
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", width: largeur, fontSize: tailleTexte, lineHeight: interligne, color: couleur, marginTop: marge }}>
+      {motsGras(texte).map((segments, i) => (
+        <div key={i} style={{ display: "flex", marginRight: tailleTexte * 0.26 }}>
+          {segments.map((seg, j) => (
+            <span key={j} style={{ fontWeight: seg.gras ? 800 : graisse }}>
+              {seg.texte}
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Numéro de la fiche en petite étiquette (« #93 »), en haut des slides 3 à 7
+// du carrousel détaillé.
+function NumeroFiche({ slide, p }) {
+  if (!slide.numeroFiche) return null;
+  return (
+    <div style={{ position: "absolute", left: MARGE, top: 108, display: "flex" }}>
+      <Etiquette couleur={p.secondaire} bordure={p.surCouleur ? p.secondaire : "rgba(28,27,25,.3)"} tailleTexte={20}>
+        {slide.numeroFiche}
+      </Etiquette>
+    </div>
+  );
+}
+
 function Etiquette({ children, couleur, fond, bordure, tailleTexte = 22 }) {
   return (
     <div style={{ display: "flex", fontFamily: MONO, fontWeight: 500, fontSize: tailleTexte, letterSpacing: 0.5, color: couleur, backgroundColor: fond ?? "transparent", border: bordure ? `1.5px solid ${bordure}` : "none", borderRadius: 8, padding: "5px 12px" }}>
@@ -162,15 +196,16 @@ function Etiquette({ children, couleur, fond, bordure, tailleTexte = 22 }) {
   );
 }
 
-const PASTILLES = {
-  positif: { couleur: "#1f7a45", fond: "#e6f4ea" },
-  négatif: { couleur: "#b42318", fond: "#fde9e7" },
-  débattu: { couleur: "#7a5b00", fond: "#fbf1cc" },
-  incertain: { couleur: "#55524c", fond: "#ecebe7" },
+// Pastilles des cartes : une couleur fixe par famille (src/lib/recit.js),
+// jamais d'orange (réservé au niveau de note qui l'utilise).
+const TEINTES_PASTILLES = {
+  vert: { couleur: "#1f7a45", fond: "#e6f4ea" },
+  jaune: { couleur: "#7a5b00", fond: "#fbf1cc" },
+  rouge: { couleur: "#b42318", fond: "#fde9e7" },
 };
 
 function Pastille({ valeur }) {
-  const { couleur, fond } = PASTILLES[valeur] ?? PASTILLES.incertain;
+  const { couleur, fond } = TEINTES_PASTILLES[COULEURS_PASTILLES[valeur]] ?? TEINTES_PASTILLES.jaune;
   return (
     <Etiquette couleur={couleur} fond={fond} bordure={rgba(couleur.length === 7 ? couleur : "#555555", 0.35)} tailleTexte={20}>
       {`• ${valeur}`}
@@ -286,18 +321,29 @@ function Couverture({ slide, p, photo, illustration, portrait, imageTheme, stick
   return <CouvertureSimple slide={slide} p={p} photo={photo} illustration={illustration} />;
 }
 
-// Mots du titre de couverture, avec le chiffre clé surligné et la question à la ligne.
+// Mots du titre de couverture. Carrousel détaillé : « <Candidat> veut
+// <mesure>. », puis à la ligne la question, son mot clé surligné en jaune.
 function motsCouverture(slide) {
   const morceaux = [];
   if (slide.recit) {
-    const { intro, mesure, chiffreCle } = slide;
-    const i = chiffreCle ? mesure.indexOf(chiffreCle) : -1;
-    const avant = i >= 0 ? mesure.slice(0, i) : mesure;
-    const apres = i >= 0 ? mesure.slice(i + chiffreCle.length) : "";
-    for (const mot of `${intro} ${avant}`.split(/\s+/).filter(Boolean)) morceaux.push({ mot });
-    if (i >= 0) morceaux.push({ mot: chiffreCle, jaune: true });
-    for (const mot of apres.split(/\s+/).filter(Boolean)) morceaux.push({ mot });
-    slide.question.split(/\s+/).filter(Boolean).forEach((mot, j) => morceaux.push({ mot, ligne: j === 0 }));
+    const { intro, mesure, question, motCle } = slide;
+    const phrase = /[.!?…]$/.test(mesure) ? mesure : `${mesure}.`;
+    for (const mot of `${intro} ${phrase}`.split(/\s+/).filter(Boolean)) morceaux.push({ mot });
+    const i = motCle ? question.indexOf(motCle) : -1;
+    const parties = i >= 0 ? [[question.slice(0, i), false], [motCle, true], [question.slice(i + motCle.length), false]] : [[question, false]];
+    let premier = true;
+    for (const [texte, jaune] of parties) {
+      if (jaune) {
+        morceaux.push({ mot: texte, jaune: true, ligne: premier });
+        premier = false;
+        continue;
+      }
+      for (const mot of texte.split(/\s+/).filter(Boolean)) {
+        // Le « ? » reste un mot à part : l'espace qui le précède est celui de la typographie française.
+        morceaux.push({ mot, ligne: premier });
+        premier = false;
+      }
+    }
   } else {
     for (const mot of slide.titre.split(/\s+/).filter(Boolean)) morceaux.push({ mot });
   }
@@ -359,19 +405,7 @@ function CouvertureCollage({ slide, p, portrait, illustration, photo, imageTheme
 
 // Couverture sans portrait ni image de thème (repli) : la mise en page précédente.
 function CouvertureSimple({ slide, p, photo, illustration }) {
-  const morceaux = [];
-  if (slide.recit) {
-    const { intro, mesure, chiffreCle } = slide;
-    const i = chiffreCle ? mesure.indexOf(chiffreCle) : -1;
-    const avant = i >= 0 ? mesure.slice(0, i) : mesure;
-    const apres = i >= 0 ? mesure.slice(i + chiffreCle.length) : "";
-    for (const mot of `${intro} ${avant}`.split(/\s+/).filter(Boolean)) morceaux.push({ mot });
-    if (i >= 0) morceaux.push({ mot: chiffreCle, jaune: true });
-    for (const mot of apres.split(/\s+/).filter(Boolean)) morceaux.push({ mot });
-    for (const mot of slide.question.split(/\s+/).filter(Boolean)) morceaux.push({ mot, ligne: mot === slide.question.split(/\s+/)[0] });
-  } else {
-    for (const mot of slide.titre.split(/\s+/).filter(Boolean)) morceaux.push({ mot });
-  }
+  const morceaux = motsCouverture(slide);
   const texteTitre = morceaux.map((m) => m.mot).join(" ");
   const t = taille(texteTitre, [100, 92, 84, 76, 68, 60, 54], { hauteur: 420, interligne: 1.05, ratio: 0.55 });
   const image = illustration ?? photo;
@@ -436,6 +470,7 @@ function Fin({ slide, p }) {
       {slide.sources?.length ? (
         <div style={{ display: "flex", marginTop: 26, fontWeight: 500, fontSize: 20, lineHeight: 1.35, color: p.secondaire }}>Sources : {slide.sources.join(" · ")}</div>
       ) : null}
+      {slide.credit ? <div style={{ display: "flex", marginTop: 10, fontWeight: 500, fontSize: 18, color: p.secondaire }}>{slide.credit}</div> : null}
     </Zone>
   );
 }
@@ -455,7 +490,7 @@ function TientCoince({ slide, p }) {
       {points.map((point, i) => (
         <div key={i} style={{ display: "flex", marginTop: 12 }}>
           <div style={{ display: "flex", width: 30, fontSize: t, color: GRIS }}>•</div>
-          <div style={{ display: "flex", width: LARGEUR_UTILE - 100, fontWeight: 500, fontSize: t, lineHeight: 1.3, color: ENCRE }}>{point}</div>
+          <TexteRiche texte={point} tailleTexte={t} largeur={LARGEUR_UTILE - 100} />
         </div>
       ))}
     </Carte>
@@ -533,20 +568,19 @@ function Concretement({ slide, p }) {
   const tuile = ({ etiquette, valeur, detail, cle }) => (
     <div key={etiquette} style={{ display: "flex", flexDirection: "column", width: (LARGEUR_UTILE - 20) / 2, padding: "20px 24px", borderRadius: 16, backgroundColor: cle ? JAUNE : CARTE, border: "1px solid rgba(28,27,25,.07)", marginBottom: 20 }}>
       <div style={{ display: "flex", fontFamily: MONO, fontSize: 20, letterSpacing: 1.5, color: cle ? ENCRE : GRIS }}>{etiquette.toUpperCase()}</div>
-      <div style={{ display: "flex", fontWeight: 800, fontSize: taille(valeur, [50, 44, 38, 32], { largeur: 380, hauteur: 60, interligne: 1.1, ratio: 0.58 }), lineHeight: 1.1, color: ENCRE, marginTop: 6 }}>{valeur}</div>
-      {detail ? <div style={{ display: "flex", fontWeight: 500, fontSize: 22, lineHeight: 1.25, color: cle ? ENCRE : GRIS, marginTop: 6 }}>{detail}</div> : null}
+      <div style={{ display: "flex", fontWeight: 800, fontSize: taille(valeur, [52, 46, 40, 34], { largeur: 400, hauteur: 64, interligne: 1.1, ratio: 0.58 }), lineHeight: 1.1, color: ENCRE, marginTop: 6, whiteSpace: "nowrap" }}>{valeur}</div>
+      {detail ? <div style={{ display: "flex", fontWeight: 500, fontSize: 21, lineHeight: 1.25, color: cle ? ENCRE : GRIS, marginTop: 6 }}>{detail}</div> : null}
     </div>
   );
   return (
     <Zone>
-      <TitreSerif p={p} tailleTexte={taille(slide.titre, [62, 56, 50], { hauteur: 150, interligne: 1.08, ratio: 0.48 })}>
+      <TitreSerif p={p} tailleTexte={taille(slide.titre, [58, 52, 48], { hauteur: 130, interligne: 1.08, ratio: 0.48 })} marge={22}>
         {slide.titre}
       </TitreSerif>
-      <Texte p={p} tailleTexte={taille(slide.texte, [36, 34, 32, 30], { hauteur: 280 })}>
-        {slide.texte}
-      </Texte>
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", width: LARGEUR_UTILE, marginTop: 34 }}>{slide.tuiles.map(tuile)}</div>
-      {slide.sources ? <div style={{ display: "flex", marginTop: 6, fontWeight: 500, fontSize: 20, lineHeight: 1.35, color: GRIS }}>Sources : {slide.sources}</div> : null}
+      <TexteRiche texte={slide.texte} tailleTexte={taille(slide.texte, [34, 32, 30, 28], { hauteur: 220 })} />
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", width: LARGEUR_UTILE, marginTop: 28 }}>{slide.tuiles.map(tuile)}</div>
+      {slide.conclusion ? <TexteRiche texte={slide.conclusion} tailleTexte={30} graisse={800} interligne={1.25} /> : null}
+      {slide.sources ? <div style={{ display: "flex", marginTop: 14, fontWeight: 500, fontSize: 20, lineHeight: 1.35, color: GRIS }}>Source : {slide.sources}</div> : null}
     </Zone>
   );
 }
@@ -562,9 +596,7 @@ function NoteRecit({ slide, p }) {
           {slide.titre}
         </TitreSerif>
       </div>
-      <Texte p={p} tailleTexte={28} couleur={p.secondaire}>
-        {slide.explication}
-      </Texte>
+      <TexteRiche texte={slide.explication} tailleTexte={28} couleur={p.secondaire} />
       <div style={{ display: "flex", flexDirection: "column", marginTop: 22 }}>
         {slide.criteres.map(({ label, note, max, ligne }) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", marginTop: 16 }}>
@@ -575,7 +607,7 @@ function NoteRecit({ slide, p }) {
             <div style={{ display: "flex", width: LARGEUR_UTILE, height: 9, borderRadius: 5, backgroundColor: rgba(p.texte, 0.2), marginTop: 7 }}>
               <div style={{ display: "flex", width: Math.round((LARGEUR_UTILE * Math.max(0, Math.min(note ?? 0, max))) / max), height: 9, borderRadius: 5, backgroundColor: p.texte }} />
             </div>
-            {ligne ? <div style={{ display: "flex", marginTop: 6, fontWeight: 500, fontSize: 22, lineHeight: 1.25, color: p.secondaire }}>{ligne}</div> : null}
+            {ligne ? <TexteRiche texte={ligne} tailleTexte={22} couleur={p.secondaire} interligne={1.25} marge={6} /> : null}
           </div>
         ))}
       </div>
@@ -598,7 +630,7 @@ function Effets({ slide, p }) {
   return (
     <Zone>
       <div style={{ display: "flex", justifyContent: "space-between", width: LARGEUR_UTILE, marginBottom: 34 }}>
-        {onglet("court", "Court terme", "Dans l’année")}
+        {onglet("court", "Court terme", "0 à 2 ans")}
         {onglet("long", "Long terme", "Après plusieurs années")}
       </div>
       <TitreSerif p={p} tailleTexte={taille(slide.titre, [56, 50, 46], { hauteur: 130, interligne: 1.08, ratio: 0.48 })}>
@@ -610,7 +642,7 @@ function Effets({ slide, p }) {
             <div style={{ display: "flex", fontWeight: 800, fontSize: 32, color: ENCRE }}>{carte.titre}</div>
             <Pastille valeur={carte.pastille} />
           </div>
-          <div style={{ display: "flex", marginTop: 8, fontWeight: 500, fontSize: t, lineHeight: 1.3, color: ENCRE }}>{carte.texte}</div>
+          <TexteRiche texte={carte.texte} tailleTexte={t} largeur={LARGEUR_UTILE - 60} marge={8} />
         </Carte>
       ))}
     </Zone>
@@ -633,11 +665,11 @@ function Ailleurs({ slide, p }) {
             </div>
             <Pastille valeur={prec.pastille} />
           </div>
-          <div style={{ display: "flex", marginTop: 12, fontWeight: 800, fontSize: 30, lineHeight: 1.3, color: ENCRE }}>{prec.fait}</div>
-          {prec.resultat ? <div style={{ display: "flex", marginTop: 8, fontWeight: 500, fontSize: 30, lineHeight: 1.3, color: ENCRE }}>{prec.resultat}</div> : null}
+          <TexteRiche texte={prec.fait} tailleTexte={30} largeur={LARGEUR_UTILE - 64} graisse={800} marge={12} />
+          {prec.resultat ? <TexteRiche texte={prec.resultat} tailleTexte={30} largeur={LARGEUR_UTILE - 64} marge={8} /> : null}
         </Carte>
       ))}
-      {slide.sources ? <div style={{ display: "flex", marginTop: 20, fontWeight: 500, fontSize: 20, lineHeight: 1.35, color: GRIS }}>Sources : {slide.sources}</div> : null}
+      {slide.sources ? <div style={{ display: "flex", marginTop: 20, fontWeight: 500, fontSize: 20, lineHeight: 1.35, color: GRIS }}>Source : {slide.sources}</div> : null}
     </Zone>
   );
 }

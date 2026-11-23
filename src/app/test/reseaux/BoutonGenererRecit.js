@@ -4,8 +4,8 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { estimerRecitAction, genererRecitAction } from "./actions";
 
-// Bouton « Générer le récit » / « Générer à nouveau » de /test/reseaux/<id> :
-// un seul appel à Claude pour le carrousel récit (10 slides) et le tweet
+// Bouton « Générer le carrousel détaillé » / « Générer à nouveau » de /test/reseaux/<id> :
+// un seul appel à Claude pour le carrousel détaillé (8 slides) et le tweet
 // long. Confirmation avec le coût estimé, puis génération (30 s à 2 min) ;
 // le coût réel s'affiche ensuite. Un verrou empêche un second envoi (pas de
 // double paiement). À la fin, la page est rechargée ou l'erreur est écrite
@@ -15,7 +15,7 @@ function dollars(montant) {
   return montant.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 3 });
 }
 
-export default function BoutonGenererRecit({ propositionId, brouillon = false, aDejaUnRecit = false }) {
+export default function BoutonGenererRecit({ propositionId, brouillon = false, aDejaUnRecit = false, demo = false }) {
   const router = useRouter();
   const verrou = useRef(false);
   const [etat, setEtat] = useState("repos"); // repos | estimation | generation
@@ -33,10 +33,11 @@ export default function BoutonGenererRecit({ propositionId, brouillon = false, a
         return;
       }
       const question = estimation.aDejaUnRecit
-        ? "Générer à nouveau le récit (carrousel 10 slides et tweet long) ?"
-        : "Générer le récit (carrousel 10 slides et tweet long) ?";
-      const remplace = estimation.aDejaUnRecit ? "\nL’ancien récit sera gardé (precedent)." : "";
-      if (!window.confirm(`${question}\nCoût estimé ≈ ${dollars(estimation.min)} à ${dollars(estimation.max)} $.${remplace}`)) return;
+        ? "Générer à nouveau le carrousel détaillé (8 slides) et le tweet long ?"
+        : "Générer le carrousel détaillé (8 slides) et le tweet long ?";
+      const remplace = estimation.aDejaUnRecit ? "\nL’ancienne version sera gardée comme version précédente." : "";
+      const simule = demo ? " (simulé : aucun appel réel)" : "";
+      if (!window.confirm(`${question}\nCoût estimé ≈ ${dollars(estimation.min)} à ${dollars(estimation.max)} $${simule}.${remplace}`)) return;
 
       setEtat("generation");
       const resultat = await genererRecitAction(propositionId, brouillon);
@@ -62,7 +63,7 @@ export default function BoutonGenererRecit({ propositionId, brouillon = false, a
 
   const occupe = etat !== "repos";
   const libelle =
-    etat === "generation" ? "Génération en cours…" : etat === "estimation" ? "Calcul du coût…" : aDejaUnRecit ? "Générer à nouveau" : "Générer le récit";
+    etat === "generation" ? "Génération en cours…" : etat === "estimation" ? "Calcul du coût…" : aDejaUnRecit ? "Générer à nouveau" : "Générer le carrousel détaillé";
 
   return (
     <span className="flex flex-col gap-1">

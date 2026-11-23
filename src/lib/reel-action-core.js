@@ -25,6 +25,7 @@ export async function analyseVisee(prisma, propositionId, { brouillon = false } 
     where: { id: propositionId },
     select: {
       id: true,
+      theme: true,
       candidat: { select: { nom: true } },
       analyses: {
         ...(brouillon ? { where: { statut: "brouillon" } } : {}),

@@ -1,31 +1,86 @@
 import { getScoreBands } from "./score.js";
 import { nombresHorsFiche } from "./nombres-fiche.js";
 import { longueurX, mentionneCandidat, nombreDeMots, remplirTweet } from "./reseaux.js";
+import { GRAS_MAX_PAR_SLIDE, grasDesequilibre, nombreGras, sansGras } from "./texte-gras.js";
+import { motCleNormalise } from "./illustrations.js";
 
-// Carrousel « récit » (8 slides) et tweet long d'une fiche, écrits par Claude
-// à la demande (bouton « Générer le récit » de /test/reseaux/<id>, ou
-// scripts/recit.js) avec le prompt data/prompt-recit.md, en un seul appel.
-// Rangés dans contenuComplet.reseaux_recit. Ce fichier : le contrôle de la
-// réponse du modèle (controlerRecit), l'assemblage du tweet long et le
-// stockage. Fonctions PURES, testées par scripts/recit.test.js.
+// Carrousel détaillé (8 slides) et tweet long d'une fiche, écrits par Claude
+// à la demande (bouton « Générer le carrousel détaillé » de
+// /test/reseaux/<id>, ou scripts/recit.js) avec le prompt
+// data/prompt-recit.md (sections 1, 2 et 5 de docs/prompt-carrousel.md, qui
+// fait foi), en un seul appel. Rangés dans contenuComplet.reseaux_recit (nom
+// de clé gardé). Ce fichier : le contrôle de la réponse du modèle
+// (controlerRecit), l'assemblage du tweet long, les remarques (régénération
+// ciblée, journal des retours) et le stockage. Fonctions PURES, testées par
+// scripts/recit.test.js.
 //
-// Le modèle n'écrit ni score, ni niveau, ni pastille de note, ni lien, ni
-// compte X : le code les ajoute (src/lib/score.js, marqueurs de src/lib/reseaux.js).
+// Le modèle n'écrit ni score, ni verdict, ni sous-note, ni lien, ni compte :
+// le code les ajoute (src/lib/score.js, marqueurs de src/lib/reseaux.js).
 
-export const MOTS_MAX_CARTE = 35;
-export const CARTES_MAX = 3;
+// Format de la réponse (v6 : constat puis proposition, notre avis). Un
+// carrousel stocké dans un format plus ancien est signalé, à régénérer.
+export const FORMAT_RECIT = 6;
+
+export const MOTS_MAX_PHRASE = 25;
+export const MOTS_MAX_QUESTION = 14;
+export const SURLIGNES_MIN = 1;
+export const SURLIGNES_MAX = 3;
+export const CHIFFRES_CONSTAT = 4;
+export const EFFETS_PAR_SLIDE = 3;
 export const TWEET_LONG_MIN = 800;
 export const TWEET_LONG_MAX = 1500;
+// Valeur d'une tuile chiffrée : au-delà, elle déborde (format court attendu,
+// « ~600 Md€ », la précision dans la petite ligne).
+export const VALEUR_TUILE_MAX = 12;
 // Au-delà de cette longueur d'URL, le lien « Ouvrir dans X » risque d'être
 // tronqué par le navigateur ou par X : la page conseille « Copier ».
 export const URL_INTENTION_MAX = 2000;
 
-// Liste fermée des questions de la couverture et des pastilles des cartes.
-export const QUESTIONS_COUVERTURE = ["Est-ce tenable ?", "Est-ce réaliste ?", "Est-ce finançable ?", "Est-ce efficace ?", "Est-ce applicable ?"];
-export const PASTILLES = ["positif", "négatif", "débattu", "incertain"];
+// Sous-titre fixe de la couverture, écrit par le code.
+export const SOUS_TITRE_COUVERTURE = "Sa proposition : bonne idée… ou poudre de perlimpinpin ?";
+
+// Tournures qui sonnent « IA » (avertissement). Liste enrichissable : une
+// expression par entrée, comparée sans accents ni majuscules, en mots entiers.
+export const TOURNURES_IA = [
+  "en somme",
+  "crucial",
+  "cruciale",
+  "cruciaux",
+  "il est important de noter",
+  "il est essentiel de",
+  "en définitive",
+  "force est de constater",
+  "par ailleurs",
+  "il convient de",
+  "enjeu majeur",
+  "véritable",
+  "dans un contexte de",
+  "en outre",
+  "de surcroît",
+  "il est à noter",
+  "un levier puissant",
+  "à l'aune de",
+  "plus que jamais",
+];
+
+// Pastilles des effets : liste fermée, chacune avec sa couleur fixe (pas
+// d'orange : la charte le réserve au niveau de note qui l'utilise).
+export const COULEURS_PASTILLES = {
+  positif: "vert",
+  possible: "vert",
+  complémentaire: "vert",
+  incertain: "jaune",
+  différé: "jaune",
+  débattu: "jaune",
+  risque: "rouge",
+  coûteux: "rouge",
+  négatif: "rouge",
+};
+export const PASTILLES = Object.keys(COULEURS_PASTILLES);
 // Les 5 critères du barème (src/lib/criteresScore.js) : une ligne du modèle par critère.
 export const CLES_CRITERES = ["operationnalite_moyens", "efficacite", "effets_rebonds_externalites", "degre_preparation", "alignement_logique"];
 const PARTIES_TWEET = ["accroche", "promesse", "exemple", "hic", "tient", "appel"];
+const PARTIES_LEGENDE = ["question", "avis", "effet"];
 
 function texte(valeur) {
   return typeof valeur === "string" ? valeur.replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, " ").trim() : "";
@@ -33,6 +88,95 @@ function texte(valeur) {
 
 function sansAccents(t) {
   return String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+// --- Petites fonctions de contrôle (exportées pour les tests) -----------------------
+
+// Balisage du surlignage jaune de la couverture : ==mot== ou ==groupe de mots==.
+// Morceaux [{ texte, jaune }] ; un == sans fermeture est ignoré.
+export function morceauxSurlignes(t) {
+  const morceaux = [];
+  let reste = String(t ?? "");
+  while (reste.length) {
+    const debut = reste.indexOf("==");
+    const fin = debut >= 0 ? reste.indexOf("==", debut + 2) : -1;
+    if (debut < 0 || fin < 0) {
+      morceaux.push({ texte: reste.replace(/==/g, ""), jaune: false });
+      break;
+    }
+    if (debut > 0) morceaux.push({ texte: reste.slice(0, debut), jaune: false });
+    const dedans = reste.slice(debut + 2, fin);
+    if (dedans.trim()) morceaux.push({ texte: dedans, jaune: true });
+    reste = reste.slice(fin + 2);
+  }
+  return morceaux.filter((m) => m.texte);
+}
+
+export function sansSurlignage(t) {
+  return morceauxSurlignes(t).map((m) => m.texte).join("");
+}
+
+export function nombreSurlignes(t) {
+  return morceauxSurlignes(t).filter((m) => m.jaune).length;
+}
+
+// Phrases d'un texte (coupe après . ! ? … suivis d'une majuscule, d'un chiffre
+// ou d'un guillemet ; « {NOM} » compte comme un mot).
+export function phrasesDe(t) {
+  return String(t ?? "")
+    .split(/(?<=[.!?…])\s+(?=[«"“({\p{Lu}\d])/u)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+// Phrases de plus de `max` mots.
+export function phrasesTropLongues(t, max = MOTS_MAX_PHRASE) {
+  return phrasesDe(sansGras(sansSurlignage(t)))
+    .map((phrase) => ({ phrase, mots: nombreDeMots(phrase) }))
+    .filter(({ mots }) => mots > max);
+}
+
+// Tournures « IA » présentes dans un texte (liste TOURNURES_IA par défaut).
+export function tournuresIA(t, liste = TOURNURES_IA) {
+  const s = ` ${sansAccents(sansGras(t)).replace(/[’']/g, "'")} `;
+  return liste.filter((tournure) => {
+    const motif = sansAccents(tournure).replace(/[’']/g, "'").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|[^\\p{L}])${motif}($|[^\\p{L}])`, "u").test(s);
+  });
+}
+
+// Le texte nomme-t-il le candidat ? Le marqueur {NOM} ou {CANDIDAT}, son nom
+// complet, son nom sans le prénom, ou son dernier mot de 4 lettres au moins,
+// en mots entiers (« Le Pen » ne se confond pas avec « pension »).
+export function nommeCandidat(t, candidatNom) {
+  if (/\{(NOM|CANDIDAT)\}/.test(t ?? "")) return true;
+  if (!candidatNom) return false;
+  const s = ` ${sansAccents(sansGras(sansSurlignage(t)))} `;
+  const mots = String(candidatNom).trim().split(/\s+/);
+  const formes = [candidatNom, mots.slice(1).join(" "), mots.at(-1).length >= 4 ? mots.at(-1) : ""].map(sansAccents).filter((forme) => forme.length >= 4);
+  return formes.some((forme) => new RegExp(`(^|[^\\p{L}])${forme.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^\\p{L}])`, "u").test(s));
+}
+
+// Verbe au conditionnel présent (« réduirait », « pourraient », « serions »…).
+// Repérage par la terminaison, sur des mots d'au moins 6 lettres (évite
+// « mais », « jamais », « vrais »).
+export function contientConditionnel(t) {
+  return /(^|[^\p{L}])\p{L}{2,}r(?:ais|ait|ions|iez|aient)($|[^\p{L}])/u.test(sansGras(t));
+}
+
+// Libellés du barème (src/lib/score.js), cherchés comme mots entiers.
+function palierEcrit(t) {
+  const sans = t.toLowerCase();
+  return getScoreBands()
+    .map((bande) => bande.label)
+    .find((label) => new RegExp(`(^|[^\\p{L}])${label.toLowerCase()}($|[^\\p{L}])`, "u").test(sans));
+}
+
+// La note du candidat écrite telle quelle (« 45 », « 45,5 ») dans un texte.
+function scoreEcrit(t, score) {
+  if (score === null || score === undefined || !Number.isFinite(Number(score))) return false;
+  const formes = [String(score), String(score).replace(".", ",")];
+  return formes.some((forme) => new RegExp(`(^|[^\\d,.])${forme.replace(".", "\\.")}($|[^\\d,.])`).test(t));
 }
 
 // Tweet long assemblé, AVEC ses marqueurs (remplis à l'affichage) : les
@@ -52,52 +196,94 @@ export function assemblerTweetRecit(tweet) {
     .join("\n\n");
 }
 
-// Libellés du barème (src/lib/score.js), cherchés comme mots entiers.
-function palierEcrit(t) {
-  const sans = t.toLowerCase();
-  return getScoreBands()
-    .map((bande) => bande.label)
-    .find((label) => new RegExp(`(^|[^\\p{L}])${label.toLowerCase()}($|[^\\p{L}])`, "u").test(sans));
+// Format court d'une valeur de tuile : « près de 600 milliards d'euros » →
+// « ~600 Md€ », « 3 millions » → « 3 M », « 1 830 euros » → « 1 830 € ».
+// Valeur laissée telle quelle si elle ne suit pas ce schéma (mots en plus).
+export function valeurCourte(valeur) {
+  const v = texte(valeur);
+  const m = v.match(/^(près de|environ|quelque|presque)?\s*([+−-]?\d{1,3}(?:[\s  ]\d{3})*(?:,\d+)?|[+−-]?\d+(?:,\d+)?)\s*(milliards?|millions?|milliers?|Md|M)?\s*(d['’]euros|d['’]€|euros?|€)?$/i);
+  if (!m) return v;
+  const [, approx, nombre, unite, euro] = m;
+  const u = unite ? { milliard: "Md", milliards: "Md", million: "M", millions: "M", millier: "k", milliers: "k", md: "Md", m: "M" }[unite.toLowerCase()] : "";
+  const suffixe = u ? `${u}${euro ? "€" : ""}` : euro ? "€" : "";
+  const court = `${approx ? "~" : ""}${nombre.replace(/[\s  ]/g, " ")}${suffixe ? ` ${suffixe}` : ""}`;
+  return court.length < v.length ? court : v;
 }
 
-// Cartes { titre, texte, pastille } normalisées (3 au plus).
-function cartes(liste, cle, avertissements) {
-  const brutes = Array.isArray(liste) ? liste : [];
-  if (brutes.length > CARTES_MAX) avertissements.push(`${cle} : ${brutes.length} cartes, seules les ${CARTES_MAX} premières sont gardées.`);
-  return brutes.slice(0, CARTES_MAX).map((carte, i) => {
-    const pastille = texte(carte?.pastille).toLowerCase();
-    if (!PASTILLES.includes(pastille)) avertissements.push(`${cle} ${i + 1} : pastille « ${pastille || "(absente)"} » hors liste, « incertain » retenu.`);
-    return { titre: texte(carte?.titre), texte: texte(carte?.texte), pastille: PASTILLES.includes(pastille) ? pastille : "incertain" };
-  });
+// Tuile { valeur, detail } normalisée : valeur au format court ; quand ce
+// format perd une nuance (« près de » devenu « ~ »), la forme longue du
+// modèle est reportée dans la petite ligne si elle y manque.
+function tuileCourte(brute) {
+  const valeur = texte(brute?.valeur);
+  const detail = texte(brute?.detail);
+  const courte = valeurCourte(valeur);
+  if (courte === valeur || !courte.startsWith("~")) return { valeur: courte, detail };
+  const precision = sansAccents(detail).includes(sansAccents(valeur)) ? detail : [valeur, detail].filter(Boolean).join(" · ");
+  return { valeur: courte, detail: precision };
 }
 
-// Contrôle de la réponse du modèle. Refus (erreurs) SEULEMENT pour : JSON
-// invalide (structure ou champ manquant), nombre absent de la fiche, tiret
-// cadratin, score ou niveau écrit par le modèle, pays ou année d'un précédent
-// absents de la fiche. Tout le reste est un avertissement.
+function pastilleControlee(brute, libelle, erreurs) {
+  const pastille = texte(brute).toLowerCase();
+  if (!PASTILLES.includes(pastille)) erreurs.push(`${libelle} : pastille « ${pastille || "(absente)"} » hors liste (${PASTILLES.join(", ")}).`);
+  return pastille;
+}
+
+// Effets { acteur, texte, pastille } normalisés (3 au plus).
+function effets(liste, cle, avertissements, erreurs) {
+  const bruts = Array.isArray(liste) ? liste : [];
+  if (bruts.length !== EFFETS_PAR_SLIDE && bruts.length > 0) {
+    avertissements.push(`${cle} : ${bruts.length} effet(s), ${EFFETS_PAR_SLIDE} attendus${bruts.length > EFFETS_PAR_SLIDE ? `, seuls les ${EFFETS_PAR_SLIDE} premiers sont gardés` : ""}.`);
+  }
+  return bruts.slice(0, EFFETS_PAR_SLIDE).map((effet, i) => ({
+    acteur: texte(effet?.acteur ?? effet?.titre),
+    texte: texte(effet?.texte),
+    pastille: pastilleControlee(effet?.pastille, `${cle} ${i + 1}`, erreurs),
+  }));
+}
+
+// Récit stocké dans un format plus ancien (v5 et avant : « concretement »).
+export function formatAncien(recit) {
+  return Boolean(recit && typeof recit === "object" && (recit.concretement || recit.tient?.tient) && !recit.constat);
+}
+
+// Contrôle de la réponse du modèle. Refus (erreurs) pour : JSON invalide
+// (structure ou champ manquant), nombre absent de la fiche, tiret cadratin,
+// score ou niveau écrit par le modèle, couverture qui porte la note ou le
+// verdict, slide 2 où la proposition passe avant le constat ou sans le nom du
+// candidat, lieu ou année d'une mesure comparable absents de la fiche,
+// pastille hors liste, mot-clé d'illustration hors liste. Tout le reste est
+// un avertissement.
 //   raw : objet proposé par le modèle (ou récit déjà stocké, pour le relire) ;
-//   ficheFinale : fiche envoyée au modèle (référence des nombres et des précédents) ;
-//   valeurs : valeurs des marqueurs (valeursReseaux), pour mesurer le tweet.
+//   ficheFinale : fiche envoyée au modèle (référence des nombres et des mesures comparables) ;
+//   valeurs : valeurs des marqueurs (valeursReseaux), pour mesurer le tweet ;
+//   score : note calculée par le code (pour la repérer sur la couverture) ;
+//   motsClesIllustration : liste fermée des mots-clés d'illustration du thème
+//     (null : pas de contrôle, pour la relecture d'un récit stocké).
 // Renvoie { valide, erreurs, avertissements, recit } ; recit : réponse
 // normalisée (textes nettoyés, tweet assemblé), null si la structure est invalide.
-export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs }) {
+export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score = null, motsClesIllustration = null }) {
   const erreurs = [];
   const avertissements = [];
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     return { valide: false, erreurs: ["JSON invalide : un objet est attendu."], avertissements, recit: null };
   }
+  if (formatAncien(raw)) {
+    return { valide: false, erreurs: ["Carrousel détaillé au format précédent (v5) : à régénérer avec le nouveau prompt."], avertissements, recit: null };
+  }
 
   const c = raw.couverture ?? {};
-  const k = raw.concretement ?? {};
+  const k = raw.constat ?? {};
   const n = raw.note ?? {};
-  const t = raw.tient ?? {};
-  const tuile = (cle) => ({ valeur: texte(k.tuiles?.[cle]?.valeur), detail: texte(k.tuiles?.[cle]?.detail) });
+  const a = raw.avis ?? {};
+  const chiffresBruts = Array.isArray(k.chiffres) ? k.chiffres : [];
   const recit = {
-    couverture: { mesure: texte(c.mesure), chiffre_cle: texte(c.chiffre_cle), question: texte(c.question) },
-    concretement: {
+    couverture: { question: texte(c.question) },
+    constat: {
       titre: texte(k.titre),
-      texte: texte(k.texte),
-      tuiles: { aujourdhui: tuile("aujourdhui"), propose: tuile("propose"), ecart: tuile("ecart"), concernes: tuile("concernes") },
+      explication: texte(k.explication),
+      chiffres: chiffresBruts.slice(0, CHIFFRES_CONSTAT).map((chiffre) => ({ ...tuileCourte(chiffre), jaune: chiffre?.jaune === true })),
+      proposition: texte(k.proposition),
+      imprecisions: texte(k.imprecisions),
       sources: texte(k.sources),
     },
     note: {
@@ -105,57 +291,63 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs }) {
       explication: texte(n.explication),
       criteres: Object.fromEntries(CLES_CRITERES.map((cle) => [cle, texte(n.criteres?.[cle])])),
     },
-    court_terme: { titre: texte(raw.court_terme?.titre), cartes: cartes(raw.court_terme?.cartes, "court terme, carte", avertissements) },
-    long_terme: { titre: texte(raw.long_terme?.titre), cartes: cartes(raw.long_terme?.cartes, "long terme, carte", avertissements) },
+    court_terme: { titre: texte(raw.court_terme?.titre), effets: effets(raw.court_terme?.effets, "court terme, effet", avertissements, erreurs) },
+    long_terme: { titre: texte(raw.long_terme?.titre), effets: effets(raw.long_terme?.effets, "long terme, effet", avertissements, erreurs) },
     ailleurs: null,
-    tient: {
-      tient: (Array.isArray(t.tient) ? t.tient : []).map(texte).filter(Boolean),
-      coince: (Array.isArray(t.coince) ? t.coince : []).map(texte).filter(Boolean),
+    avis: {
+      avis: texte(a.avis).replace(/^notre avis\s*:\s*/i, ""),
+      tient: (Array.isArray(a.tient) ? a.tient : []).map(texte).filter(Boolean),
+      coince: (Array.isArray(a.coince) ? a.coince : []).map(texte).filter(Boolean),
     },
-    legende_accroche: texte(raw.legende_accroche),
+    illustration_mots_cles: (Array.isArray(raw.illustration_mots_cles) ? raw.illustration_mots_cles : []).map(motCleNormalise).filter(Boolean),
+    legende: Object.fromEntries(PARTIES_LEGENDE.map((partie) => [partie, texte(raw.legende?.[partie])])),
     tweet: Object.fromEntries(PARTIES_TWEET.map((partie) => [partie, texte(raw.tweet?.[partie])])),
   };
-  if (raw.ailleurs && typeof raw.ailleurs === "object" && Array.isArray(raw.ailleurs.precedents) && raw.ailleurs.precedents.length > 0) {
-    if (raw.ailleurs.precedents.length > 2) avertissements.push(`ailleurs : ${raw.ailleurs.precedents.length} précédents, seuls les 2 premiers sont gardés.`);
+  const mesuresBrutes = Array.isArray(raw.ailleurs?.mesures) ? raw.ailleurs.mesures : [];
+  if (raw.ailleurs && typeof raw.ailleurs === "object" && mesuresBrutes.length > 0) {
+    if (mesuresBrutes.length > 2) avertissements.push(`ailleurs ou avant : ${mesuresBrutes.length} mesures, seules les 2 premières sont gardées.`);
     recit.ailleurs = {
       titre: texte(raw.ailleurs.titre),
-      precedents: raw.ailleurs.precedents.slice(0, 2).map((p, i) => {
-        const pastille = texte(p?.pastille).toLowerCase();
-        if (!PASTILLES.includes(pastille)) avertissements.push(`ailleurs ${i + 1} : pastille « ${pastille || "(absente)"} » hors liste, « incertain » retenu.`);
-        return {
-          pays: texte(p?.pays),
-          annee: texte(String(p?.annee ?? "")),
-          fait: texte(p?.fait),
-          resultat: texte(p?.resultat),
-          pastille: PASTILLES.includes(pastille) ? pastille : "incertain",
-        };
-      }),
+      mesures: mesuresBrutes.slice(0, 2).map((m, i) => ({
+        lieu: texte(m?.lieu ?? m?.pays),
+        annee: texte(String(m?.annee ?? "")),
+        fait: texte(m?.fait),
+        resultat: texte(m?.resultat),
+        pastille: pastilleControlee(m?.pastille, `ailleurs ou avant ${i + 1}`, erreurs),
+      })),
       sources: texte(raw.ailleurs.sources),
     };
   }
 
   // Structure (JSON invalide si un champ attendu manque).
   const manquants = [
-    ["couverture.mesure", recit.couverture.mesure],
-    ["couverture.chiffre_cle", recit.couverture.chiffre_cle],
-    ["concretement.titre", recit.concretement.titre],
-    ["concretement.texte", recit.concretement.texte],
-    ...["aujourdhui", "propose", "ecart", "concernes"].map((cle) => [`concretement.tuiles.${cle}.valeur`, recit.concretement.tuiles[cle].valeur]),
+    ["couverture.question", recit.couverture.question],
+    ["constat.titre", recit.constat.titre],
+    ["constat.explication", recit.constat.explication],
+    ["constat.chiffres", recit.constat.chiffres.length ? "ok" : ""],
+    ...recit.constat.chiffres.map((chiffre, i) => [`constat.chiffres.${i}.valeur`, chiffre.valeur]),
+    ["constat.proposition", recit.constat.proposition],
     ["note.titre", recit.note.titre],
     ["note.explication", recit.note.explication],
     ...CLES_CRITERES.map((cle) => [`note.criteres.${cle}`, recit.note.criteres[cle]]),
     ["court_terme.titre", recit.court_terme.titre],
-    ["court_terme.cartes", recit.court_terme.cartes.length ? "ok" : ""],
+    ["court_terme.effets", recit.court_terme.effets.length ? "ok" : ""],
     ["long_terme.titre", recit.long_terme.titre],
-    ["long_terme.cartes", recit.long_terme.cartes.length ? "ok" : ""],
-    ["tient.tient", recit.tient.tient.length ? "ok" : ""],
-    ["tient.coince", recit.tient.coince.length ? "ok" : ""],
-    ["legende_accroche", recit.legende_accroche],
+    ["long_terme.effets", recit.long_terme.effets.length ? "ok" : ""],
+    ...["court_terme", "long_terme"].flatMap((partie) =>
+      recit[partie].effets.flatMap((effet, i) => [
+        [`${partie}.effets.${i}.acteur`, effet.acteur],
+        [`${partie}.effets.${i}.texte`, effet.texte],
+      ]),
+    ),
+    ["avis.avis", recit.avis.avis],
+    ["avis.tient", recit.avis.tient.length ? "ok" : ""],
+    ["avis.coince", recit.avis.coince.length ? "ok" : ""],
+    ...PARTIES_LEGENDE.map((partie) => [`legende.${partie}`, recit.legende[partie]]),
     ...PARTIES_TWEET.map((partie) => [`tweet.${partie}`, recit.tweet[partie]]),
-    ...[...recit.court_terme.cartes, ...recit.long_terme.cartes].flatMap((carte, i) => [[`carte ${i + 1}.texte`, carte.texte]]),
-    ...(recit.ailleurs?.precedents ?? []).flatMap((p, i) => [
-      [`ailleurs.precedents.${i}.pays`, p.pays],
-      [`ailleurs.precedents.${i}.fait`, p.fait],
+    ...(recit.ailleurs?.mesures ?? []).flatMap((m, i) => [
+      [`ailleurs.mesures.${i}.lieu`, m.lieu],
+      [`ailleurs.mesures.${i}.fait`, m.fait],
     ]),
   ]
     .filter(([, valeur]) => !valeur)
@@ -165,46 +357,51 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs }) {
   }
   recit.tweet_assemble = assemblerTweetRecit(recit.tweet);
 
-  // Tous les textes écrits par le modèle, avec leur libellé.
+  // Tous les textes écrits par le modèle : [libellé, texte, slide, phrases à contrôler ?].
   const textes = [
-    ["couverture (mesure)", recit.couverture.mesure],
-    ["couverture (chiffre clé)", recit.couverture.chiffre_cle],
-    ["concrètement (titre)", recit.concretement.titre],
-    ["concrètement (texte)", recit.concretement.texte],
-    ...Object.entries(recit.concretement.tuiles).flatMap(([cle, { valeur, detail }]) => [
-      [`concrètement (tuile ${cle})`, valeur],
-      [`concrètement (tuile ${cle}, détail)`, detail],
+    ["couverture (question)", recit.couverture.question, "couverture", true],
+    ["slide 2 (titre)", recit.constat.titre, "constat", true],
+    ["slide 2 (explication)", recit.constat.explication, "constat", true],
+    ...recit.constat.chiffres.flatMap(({ valeur, detail }, i) => [
+      [`slide 2 (chiffre ${i + 1})`, valeur, "constat", false],
+      [`slide 2 (chiffre ${i + 1}, détail)`, detail, "constat", true],
     ]),
-    ["concrètement (sources)", recit.concretement.sources],
-    ["note (titre)", recit.note.titre],
-    ["note (explication)", recit.note.explication],
-    ...CLES_CRITERES.map((cle) => [`note (critère ${cle})`, recit.note.criteres[cle]]),
-    ...["court_terme", "long_terme"].flatMap((partie) => [
-      [`${partie} (titre)`, recit[partie].titre],
-      ...recit[partie].cartes.flatMap((carte, i) => [
-        [`${partie}, carte ${i + 1} (titre)`, carte.titre],
-        [`${partie}, carte ${i + 1}`, carte.texte],
+    ["slide 2 (proposition)", recit.constat.proposition, "constat", true],
+    ["slide 2 (ce qu’elle ne précise pas)", recit.constat.imprecisions, "constat", true],
+    ["slide 2 (sources)", recit.constat.sources, "constat", false],
+    ["slide 3 (titre)", recit.note.titre, "note", true],
+    ["slide 3 (explication)", recit.note.explication, "note", true],
+    ...CLES_CRITERES.map((cle) => [`slide 3 (critère ${cle})`, recit.note.criteres[cle], "note", true]),
+    ...[
+      ["court_terme", "slide 4"],
+      ["long_terme", "slide 5"],
+    ].flatMap(([partie, nom]) => [
+      [`${nom} (titre)`, recit[partie].titre, partie, true],
+      ...recit[partie].effets.flatMap((effet, i) => [
+        [`${nom}, effet ${i + 1} (acteur)`, effet.acteur, partie, false],
+        [`${nom}, effet ${i + 1}`, effet.texte, partie, true],
       ]),
     ]),
     ...(recit.ailleurs
       ? [
-          ["ailleurs (titre)", recit.ailleurs.titre],
-          ["ailleurs (sources)", recit.ailleurs.sources],
-          ...recit.ailleurs.precedents.flatMap((p, i) => [
-            [`ailleurs ${i + 1} (fait)`, p.fait],
-            [`ailleurs ${i + 1} (résultat)`, p.resultat],
+          ["ailleurs ou avant (titre)", recit.ailleurs.titre, "ailleurs", true],
+          ["ailleurs ou avant (sources)", recit.ailleurs.sources, "ailleurs", false],
+          ...recit.ailleurs.mesures.flatMap((m, i) => [
+            [`ailleurs ou avant ${i + 1} (fait)`, m.fait, "ailleurs", true],
+            [`ailleurs ou avant ${i + 1} (résultat)`, m.resultat, "ailleurs", true],
           ]),
         ]
       : []),
-    ...recit.tient.tient.map((point, i) => [`ce qui tient ${i + 1}`, point]),
-    ...recit.tient.coince.map((point, i) => [`ce qui coince ${i + 1}`, point]),
-    ["légende (accroche)", recit.legende_accroche],
-    ...PARTIES_TWEET.map((partie) => [`tweet long (${partie})`, recit.tweet[partie]]),
+    ["notre avis", recit.avis.avis, "avis", true],
+    ...recit.avis.tient.map((point, i) => [`ce qui tient ${i + 1}`, point, "avis", true]),
+    ...recit.avis.coince.map((point, i) => [`ce qui coince ${i + 1}`, point, "avis", true]),
+    ...PARTIES_LEGENDE.map((partie) => [`légende (${partie})`, recit.legende[partie], "legende", true]),
+    ...PARTIES_TWEET.map((partie) => [`tweet long (${partie})`, recit.tweet[partie], "tweet", false]),
   ];
 
-  // Refus.
+  // --- Refus ---
   const horsFiche = nombresHorsFiche(
-    [...textes.map(([, t2]) => t2.replace(/\{[A-Z]+\}/g, "")), ...(recit.ailleurs?.precedents ?? []).map((p) => p.annee)],
+    [...textes.map(([, t2]) => sansGras(sansSurlignage(t2)).replace(/\{[A-Z]+\}/g, "")), ...(recit.ailleurs?.mesures ?? []).map((m) => m.annee)],
     ficheFinale,
   );
   if (horsFiche.length > 0) erreurs.push(`Nombre(s) absent(s) de la fiche : ${horsFiche.join(", ")}.`);
@@ -213,34 +410,110 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs }) {
     if (/\d+(?:[,.]\d+)?\s*(?:\/|sur)\s*100\b/i.test(t2) || /\{(SCORE|APPRECIATION|PASTILLE)\}/.test(t2) || /[🔴🟠🟡🟢]/u.test(t2)) {
       erreurs.push(`${libelle} : score ou pastille de note écrits par le modèle (le code les ajoute).`);
     }
-    const palier = palierEcrit(t2);
+    const palier = palierEcrit(sansGras(sansSurlignage(t2)));
     if (palier) erreurs.push(`${libelle} : niveau « ${palier} » écrit par le modèle (le code l’ajoute).`);
   }
-  // Précédents : pays et année doivent figurer dans la fiche.
+  // Couverture : jamais la note ni le verdict.
+  const question = sansSurlignage(recit.couverture.question);
+  if (scoreEcrit(question, score) || /\bnot[ée]e?s?\b/i.test(question) || /\bverdict\b/i.test(question)) {
+    erreurs.push(`couverture : la note ou le verdict apparaît (« ${question} ») : jamais sur la couverture.`);
+  }
+  // Slide 2 : le constat d'abord, la proposition ensuite, avec le nom du candidat.
+  for (const [libelle, t2] of [
+    ["titre", recit.constat.titre],
+    ["explication", recit.constat.explication],
+  ]) {
+    if (nommeCandidat(t2, candidatNom) || /\b(sa proposition|son plan|sa reforme|il propose|elle propose|le candidat|la candidate)\b/.test(sansAccents(t2))) {
+      erreurs.push(`slide 2 (${libelle}) : la proposition du candidat apparaît avant le constat (« ${t2} »). Le titre et l’explication portent sur le constat seul.`);
+    }
+  }
+  if (!nommeCandidat(recit.constat.proposition, candidatNom)) {
+    erreurs.push(`slide 2 (proposition) : le nom du candidat manque (« La proposition de {NOM} : … » attendu).`);
+  }
+  // Mesures comparables : lieu et année doivent figurer dans la fiche.
   const ficheTexte = sansAccents(JSON.stringify(ficheFinale ?? {}));
-  for (const [i, p] of (recit.ailleurs?.precedents ?? []).entries()) {
-    if (!ficheTexte.includes(sansAccents(p.pays))) erreurs.push(`ailleurs ${i + 1} : pays « ${p.pays} » absent de la fiche (jamais de précédent ajouté).`);
-    if (p.annee && !ficheTexte.includes(sansAccents(p.annee))) erreurs.push(`ailleurs ${i + 1} : année « ${p.annee} » absente de la fiche.`);
+  for (const [i, m] of (recit.ailleurs?.mesures ?? []).entries()) {
+    if (!ficheTexte.includes(sansAccents(m.lieu))) erreurs.push(`ailleurs ou avant ${i + 1} : lieu « ${m.lieu} » absent de la fiche (jamais de mesure ajoutée).`);
+    if (m.annee && !ficheTexte.includes(sansAccents(m.annee))) erreurs.push(`ailleurs ou avant ${i + 1} : année « ${m.annee} » absente de la fiche.`);
+  }
+  // Mots-clés d'illustration : 2 au plus, dans la liste fermée du thème.
+  if (motsClesIllustration) {
+    for (const mot of recit.illustration_mots_cles) {
+      if (!motsClesIllustration.includes(mot)) erreurs.push(`illustration : mot-clé « ${mot} » hors de la liste du thème (${motsClesIllustration.join(", ") || "liste vide"}).`);
+    }
+  }
+  if (recit.illustration_mots_cles.length > 2) {
+    avertissements.push(`illustration : ${recit.illustration_mots_cles.length} mots-clés, seuls les 2 premiers sont gardés.`);
+    recit.illustration_mots_cles = recit.illustration_mots_cles.slice(0, 2);
   }
 
-  // Avertissements.
-  if (!QUESTIONS_COUVERTURE.includes(recit.couverture.question)) {
-    avertissements.push(`couverture : question « ${recit.couverture.question || "(absente)"} » hors liste, « ${QUESTIONS_COUVERTURE[0]} » retenue.`);
-    recit.couverture.question = QUESTIONS_COUVERTURE[0];
+  // --- Avertissements ---
+  // Couverture.
+  const q = recit.couverture.question;
+  const surlignes = nombreSurlignes(q);
+  if (surlignes < SURLIGNES_MIN || surlignes > SURLIGNES_MAX) avertissements.push(`couverture : ${surlignes} mot(s) clé(s) surligné(s) (==…==), ${SURLIGNES_MIN} à ${SURLIGNES_MAX} attendus.`);
+  if (!question.trim().endsWith("?")) avertissements.push(`couverture : « ${question} » n’est pas une question (« ? » final attendu).`);
+  if (nombreDeMots(question.replace(/\{NOM\}/g, candidatNom ?? "X")) > MOTS_MAX_QUESTION) avertissements.push(`couverture : question de ${nombreDeMots(question)} mots (${MOTS_MAX_QUESTION} au plus).`);
+  if (!nommeCandidat(q, candidatNom)) avertissements.push("couverture : la question ne nomme pas le candidat.");
+  if (nombreGras(q) > 0) {
+    avertissements.push("couverture : balisage ** inutile (le surlignage jaune se marque ==…==), retiré.");
+    recit.couverture.question = sansGras(q);
   }
-  if (!recit.couverture.mesure.includes(recit.couverture.chiffre_cle)) {
-    avertissements.push(`couverture : le chiffre clé « ${recit.couverture.chiffre_cle} » n’apparaît pas tel quel dans la mesure, il ne sera pas surligné.`);
+  // Slide 2.
+  if (recit.constat.chiffres.length !== CHIFFRES_CONSTAT) avertissements.push(`slide 2 : ${recit.constat.chiffres.length} chiffre(s) clé(s), ${CHIFFRES_CONSTAT} attendus.`);
+  const jaunes = recit.constat.chiffres.filter((ch) => ch.jaune).length;
+  if (jaunes !== 1) {
+    avertissements.push(`slide 2 : ${jaunes} chiffre(s) en jaune, un seul attendu (le premier ${jaunes ? "marqué" : "chiffre"} est retenu).`);
+    const retenu = Math.max(0, recit.constat.chiffres.findIndex((ch) => ch.jaune));
+    recit.constat.chiffres = recit.constat.chiffres.map((ch, i) => ({ ...ch, jaune: i === retenu }));
   }
-  for (const [libelle, t2] of textes.filter(([l]) => !l.startsWith("tweet") && !l.startsWith("légende"))) {
-    const mots = nombreDeMots(t2);
-    if (mots > MOTS_MAX_CARTE) avertissements.push(`${libelle} : ${mots} mots (${MOTS_MAX_CARTE} au plus).`);
+  for (const [i, { valeur }] of recit.constat.chiffres.entries()) {
+    if (valeur.length > VALEUR_TUILE_MAX) avertissements.push(`slide 2 (chiffre ${i + 1}) : « ${valeur} » trop long pour la tuile (${VALEUR_TUILE_MAX} caractères au plus, format court « ~600 Md€ » attendu).`);
   }
-  for (const [cote, points] of [["ce qui tient", recit.tient.tient], ["ce qui coince", recit.tient.coince]]) {
-    if (points.length > 3) avertissements.push(`${cote} : ${points.length} puces, seules les 3 premières sont affichées.`);
+  if (!/^la proposition de\b/i.test(recit.constat.proposition)) avertissements.push("slide 2 (proposition) : la phrase devrait commencer par « La proposition de {NOM} : ».");
+  if (!recit.constat.imprecisions) avertissements.push("slide 2 : pas de phrase sur ce que la proposition ne précise pas.");
+  if (!recit.constat.sources) avertissements.push("slide 2 : pas de ligne « Source : … ».");
+  // Slide 3.
+  if (!nommeCandidat(recit.note.titre, candidatNom)) avertissements.push("slide 3 (titre) : le titre d’avis ne nomme pas le candidat.");
+  // Slides 4 et 5 : effets au conditionnel.
+  for (const [partie, nom] of [
+    ["court_terme", "slide 4"],
+    ["long_terme", "slide 5"],
+  ]) {
+    for (const [i, effet] of recit[partie].effets.entries()) {
+      if (!contientConditionnel(effet.texte)) avertissements.push(`${nom}, effet ${i + 1} (${effet.acteur}) : pas de verbe au conditionnel (« réduirait », « pourrait »…).`);
+    }
+  }
+  // Slide 7.
+  for (const [cote, points] of [
+    ["ce qui tient", recit.avis.tient],
+    ["ce qui coince", recit.avis.coince],
+  ]) {
+    if (points.length < 2 || points.length > 3) avertissements.push(`${cote} : ${points.length} point(s), 2 à 3 attendus${points.length > 3 ? " (les 3 premiers sont affichés)" : ""}.`);
+  }
+  if (phrasesDe(recit.avis.avis).length > 1) avertissements.push("notre avis : une seule phrase attendue.");
+  // Phrases trop longues et tournures « IA » (slides et légende).
+  for (const [libelle, t2, , phrases] of textes) {
+    if (phrases) {
+      for (const { mots } of phrasesTropLongues(t2)) avertissements.push(`${libelle} : phrase de ${mots} mots (${MOTS_MAX_PHRASE} au plus).`);
+    }
+    for (const tournure of tournuresIA(t2)) avertissements.push(`${libelle} : tournure « ${tournure} » qui sonne « IA ».`);
+    if (grasDesequilibre(t2)) avertissements.push(`${libelle} : balisage ** non fermé, ignoré.`);
+  }
+  // Gras par slide.
+  const grasParSlide = {};
+  for (const [, t2, slide] of textes) grasParSlide[slide] = (grasParSlide[slide] ?? 0) + nombreGras(t2);
+  for (const [slide, nombre] of Object.entries(grasParSlide)) {
+    if (["tweet", "legende"].includes(slide)) {
+      if (nombre > 0) avertissements.push(`${slide === "tweet" ? "tweet long" : "légende"} : balisage ** inutile hors des slides (X et Instagram ne l’affichent pas).`);
+    } else if (nombre > GRAS_MAX_PAR_SLIDE) {
+      avertissements.push(`${slide} : ${nombre} passages en gras (${GRAS_MAX_PAR_SLIDE} au plus par slide), les suivants seront en texte normal.`);
+    }
   }
   if (!mentionneCandidat(recit.tweet.promesse, candidatNom)) avertissements.push("tweet long (promesse) : le candidat n’est pas nommé.");
   for (const [libelle, t2] of textes) {
     if (/(^|\s)@\w/.test(t2)) avertissements.push(`${libelle} : compte écrit à la main (@…) au lieu de {CANDIDAT}.`);
+    if (libelle.startsWith("légende") && /(^|\s)#\w/.test(t2)) avertissements.push(`${libelle} : hashtag écrit par le modèle (le code les ajoute).`);
   }
   if (valeurs) {
     const longueur = longueurX(remplirTweet(recit.tweet_assemble, valeurs));
@@ -252,16 +525,139 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs }) {
   return { valide: erreurs.length === 0, erreurs, avertissements, recit };
 }
 
+// --- Remarques et régénération ciblée -------------------------------------------------
+
+// Parties de la réponse du modèle visées par une remarque : une slide (par
+// son type, src/lib/carrousel-recit.js), le tweet long, ou « toutes ».
+// La slide de fin est écrite par le code : elle ne se régénère pas.
+export const PARTIES_PAR_CIBLE = {
+  couverture: ["couverture", "illustration_mots_cles"],
+  constat: ["constat"],
+  noteRecit: ["note"],
+  effetsCourt: ["court_terme"],
+  effetsLong: ["long_terme"],
+  ailleurs: ["ailleurs"],
+  avis: ["avis"],
+  legende: ["legende"],
+  tweet: ["tweet"],
+};
+const PARTIES_REPONSE = ["couverture", "constat", "note", "court_terme", "long_terme", "ailleurs", "avis", "illustration_mots_cles", "legende", "tweet"];
+
+export function cibleValide(cible) {
+  return cible === "toutes" || Object.hasOwn(PARTIES_PAR_CIBLE, cible);
+}
+
+// Réponse du modèle (sans les champs du stockage) à partir d'un récit stocké.
+export function reponseDepuisRecit(recit) {
+  return Object.fromEntries(PARTIES_REPONSE.filter((p) => recit?.[p] !== undefined).map((p) => [p, recit[p]]));
+}
+
+// Remarque nettoyée (texte libre, 600 caractères au plus).
+export function remarqueNettoyee(remarque) {
+  return texte(remarque).slice(0, 600);
+}
+
+// Consigne ajoutée au message quand on régénère avec des remarques : la
+// version précédente, les remarques, et la partie à réécrire. Les remarques
+// ne passent jamais avant les règles du prompt.
+export function consigneRemarques({ precedent, remarque, cible, libelleCible }) {
+  const parties = cible === "toutes" ? null : PARTIES_PAR_CIBLE[cible];
+  return [
+    "RÉGÉNÉRATION AVEC REMARQUES.",
+    "Voici la version précédente (même format JSON que ta réponse) :",
+    JSON.stringify(reponseDepuisRecit(precedent), null, 2),
+    "",
+    "Remarques de l'équipe, à appliquer comme consignes supplémentaires. Elles ne passent JAMAIS avant les règles ci-dessus : si une remarque demande d'écrire la note, le niveau, un chiffre absent de la fiche, une mesure comparable absente de la fiche ou un tiret cadratin, ignore cette partie de la remarque.",
+    `« ${remarque} »`,
+    "",
+    parties
+      ? `Ne réécris que ${libelleCible} (clé(s) JSON : ${parties.join(", ")}). Recopie toutes les autres clés à l'identique, sans rien changer. Réponds avec le JSON complet.`
+      : "Réécris l'ensemble en tenant compte des remarques. Réponds avec le JSON complet.",
+  ].join("\n");
+}
+
+// Consigne de la relance quand un texte déborde de sa slide au rendu : les
+// champs à raccourcir, le reste recopié à l'identique. On ne réduit jamais la
+// police : on raccourcit le texte.
+export function consigneRaccourcir(precedent, debordements) {
+  return [
+    "TEXTE TROP LONG POUR LA SLIDE.",
+    "Voici ta réponse (acceptée), mais certains textes débordent de leur slide au rendu :",
+    ...debordements.map((d) => `- slide ${d.numero} (${d.libelle}) : ${d.bloc}`),
+    "",
+    "Raccourcis UNIQUEMENT ces textes (phrases plus courtes, même sens, mêmes chiffres), sans changer les autres. Recopie toutes les autres clés à l'identique. Réponds avec le JSON complet.",
+    JSON.stringify(reponseDepuisRecit(precedent), null, 2),
+  ].join("\n");
+}
+
+// Récit fusionné : seule la partie visée vient de la nouvelle réponse, tout
+// le reste est repris tel quel de la version précédente (les autres slides
+// restent identiques, même si le modèle les a modifiées).
+export function fusionnerRecit(precedent, nouveau, cible) {
+  if (cible === "toutes") return reponseDepuisRecit(nouveau);
+  const parties = PARTIES_PAR_CIBLE[cible] ?? [];
+  const base = reponseDepuisRecit(precedent);
+  for (const partie of parties) {
+    if (nouveau?.[partie] === undefined) delete base[partie];
+    else base[partie] = nouveau[partie];
+  }
+  return base;
+}
+
+// --- Stockage ------------------------------------------------------------------------
+
 // Objet rangé dans contenuComplet.reseaux_recit.
-export function recitPourStockage(recit, { modele, genereLe = new Date().toISOString() } = {}) {
-  return { ...recit, genereLe, ...(modele ? { modele } : {}) };
+export function recitPourStockage(recit, { modele, genereLe = new Date().toISOString(), illustration } = {}) {
+  return { ...recit, format: FORMAT_RECIT, genereLe, ...(modele ? { modele } : {}), ...(illustration ? { illustration } : {}) };
+}
+
+// Version gardée sous `precedent` : sans son propre précédent ni le journal.
+function versionArchivee(recit) {
+  if (!recit) return null;
+  const { precedent: _p, retours: _r, ...reste } = recit;
+  return reste;
 }
 
 // contenuComplet après écriture : seule la clé reseaux_recit change ; l'ancien
-// récit (s'il y en avait un) y est gardé sous `precedent`, sans remonter plus loin.
-export function contenuAvecRecit(contenu, recit) {
+// récit (s'il y en avait un) y est gardé sous `precedent`, sans remonter plus
+// loin ; le journal des remarques (`retours`) est conservé.
+export function contenuAvecRecit(contenu, recit, retour = null) {
   const base = contenu ?? {};
-  const ancien = base.reseaux_recit ? { ...base.reseaux_recit } : null;
-  if (ancien) delete ancien.precedent;
-  return { ...base, reseaux_recit: { ...recit, ...(ancien ? { precedent: ancien } : {}) } };
+  const ancien = versionArchivee(base.reseaux_recit);
+  const retours = [...(base.reseaux_recit?.retours ?? []), ...(retour ? [retour] : [])];
+  return { ...base, reseaux_recit: { ...recit, ...(ancien ? { precedent: ancien } : {}), ...(retours.length ? { retours } : {}) } };
+}
+
+// contenuComplet avec une entrée de plus au journal des remarques (régénération
+// refusée : seul le journal change).
+export function contenuAvecRetour(contenu, retour) {
+  const base = contenu ?? {};
+  if (!base.reseaux_recit) return base;
+  return { ...base, reseaux_recit: { ...base.reseaux_recit, retours: [...(base.reseaux_recit.retours ?? []), retour] } };
+}
+
+// « Revenir à la version précédente » : la version précédente redevient la
+// version actuelle, l'actuelle passe sous `precedent` (on peut donc revenir
+// encore, pour comparer). Renvoie null s'il n'y a pas de version précédente.
+export function contenuRevenuAuPrecedent(contenu, retour = null) {
+  const actuel = contenu?.reseaux_recit;
+  if (!actuel?.precedent) return null;
+  const retours = [...(actuel.retours ?? []), ...(retour ? [retour] : [])];
+  return { ...contenu, reseaux_recit: { ...actuel.precedent, precedent: versionArchivee(actuel), ...(retours.length ? { retours } : {}) } };
+}
+
+// Entrée du journal des remarques.
+//   cible : "toutes", type de slide ou "tweet" ; slide : { numero, libelle } ou null ;
+//   resultat : "acceptée" | "refusée" | "retour à la version précédente" ;
+//   details : raisons du refus ou avertissements (liste courte).
+export function entreeRetour({ remarque, cible, slide = null, resultat, details = [], cout = null, date = new Date().toISOString() }) {
+  return {
+    date,
+    remarque,
+    cible,
+    ...(slide ? { slide } : {}),
+    resultat,
+    ...(details.length ? { details: details.slice(0, 8) } : {}),
+    ...(cout !== null && cout !== undefined ? { cout: Math.round(cout * 10000) / 10000 } : {}),
+  };
 }

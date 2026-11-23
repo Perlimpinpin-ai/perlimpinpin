@@ -6,6 +6,7 @@ import { formatScore } from "@/lib/score";
 import { slugCandidat } from "@/lib/carte";
 import { assemblerDepuisReel, cheminImageReel, formatDuree, versionReel } from "@/lib/reel";
 import { donneesPartageReel } from "@/lib/reel-paquet";
+import { photoReel } from "@/lib/photo-reel";
 import { estStoryboard, verdictDuScore } from "@/lib/reel-storyboard";
 import { dossierDemo } from "@/lib/reel-storyboard-serveur";
 import { chargerFiche, etatStoryboard, versionStoryboard } from "@/lib/reel-storyboard-base";
@@ -81,8 +82,11 @@ export default async function ReelPage({ params, searchParams }) {
 
   // Ancien Reel v3 (9 scènes fixes), affiché tant qu'aucun storyboard ne le remplace.
   let v3 = null;
+  let photoV3 = null;
   if (editeur && reel && !estStoryboard(reel) && !simulation) {
-    const portrait = existsSync(join(process.cwd(), "public", "portraits-bleus", `${slugCandidat(proposition.candidat)}.png`));
+    // Photo de la bibliothèque des carrousels (src/lib/photo-reel.js), sinon portrait bleu.
+    photoV3 = photoReel(proposition.candidat, `reel-${propositionId}-${reel.genereLe ?? ""}`);
+    const portrait = Boolean(photoV3) || existsSync(join(process.cwd(), "public", "portraits-bleus", `${slugCandidat(proposition.candidat)}.png`));
     const assemble = assemblerDepuisReel(reel, { candidatNom: proposition.candidat.nom, score: analyse.scoreFaisabilite, portrait });
     if (assemble) {
       const versionV3 = versionReel({ analyseId: analyse.id, candidatNom: proposition.candidat.nom, score: analyse.scoreFaisabilite, reel });
@@ -247,6 +251,11 @@ export default async function ReelPage({ params, searchParams }) {
                 <p className="rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-600">
                   Reel v3 (9 scènes fixes) généré avant le storyboard, affiché tel quel. « Script Claude » ou le dépôt de l’équipe le remplacent (il reste gardé sous reelPrecedent).
                 </p>
+                {photoV3 ? (
+                  <p className="rounded-xl border border-orange-300 bg-orange-50 p-3 text-sm text-orange-900">
+                    Photo du candidat : à créditer dans la légende du Reel. {photoV3.credit?.complet ?? "CRÉDIT MANQUANT : ne pas publier."}
+                  </p>
+                ) : null}
                 <ReelPartage {...v3} />
               </section>
             ) : null}

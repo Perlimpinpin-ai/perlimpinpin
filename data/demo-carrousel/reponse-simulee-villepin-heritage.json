@@ -1,0 +1,75 @@
+{
+  "_note": "Réponse SIMULÉE du modèle (format v6, docs/prompt-carrousel.md) pour la démonstration locale, écrite à la main à partir de la fiche data/analyses finales/DeVillepin/villepin_patrimoine_successions_etape1_v2.json. Aucun appel à Claude.",
+  "reponse": {
+    "couverture": {
+      "question": "{NOM} veut-il ==taxer davantage l'héritage== ?"
+    },
+    "constat": {
+      "titre": "L'héritage pèse de plus en plus lourd.",
+      "explication": "Il pèse environ 60 % du patrimoine, contre 35 % dans les années 1970. Et il est très concentré.",
+      "chiffres": [
+        { "valeur": "60 %", "detail": "du patrimoine vient de l'héritage", "jaune": true },
+        { "valeur": "20,8 Md€", "detail": "de droits de succession et de donation en 2023" },
+        { "valeur": "70 000 €", "detail": "au plus, hérités par la moitié des Français" },
+        { "valeur": "4,2 M€", "detail": "reçus en moyenne par le 1 % le mieux doté" }
+      ],
+      "proposition": "La proposition de {NOM} : un impôt sur toute la fortune, des **droits de succession renforcés** et des donations exonérées.",
+      "imprecisions": "Elle ne donne ni taux, ni seuil, ni chiffrage.",
+      "sources": "Conseil d'analyse économique, note de 2021 ; Sénat, chiffres de 2023"
+    },
+    "note": {
+      "titre": "Le plan de {NOM} vise juste, mais laisse une porte de sortie.",
+      "explication": "Les plus grandes fortunes pourraient éviter l'impôt par des donations. Et sans taux, son rendement reste inconnu.",
+      "criteres": {
+        "operationnalite_moyens": "Faisable en droit, et l'administration sait gérer un impôt sur la fortune.",
+        "efficacite": "Les donations exonérées ouvrent une voie d'évitement.",
+        "effets_rebonds_externalites": "Des patrimoines se déplaceraient, comme après la fin de l'ISF.",
+        "degre_preparation": "Ni taux, ni seuil, ni chiffrage.",
+        "alignement_logique": "Exonérer les donations va contre l'objectif de taxer l'héritage."
+      }
+    },
+    "court_terme": {
+      "titre": "Dès la première année, donner de son vivant deviendrait gratuit.",
+      "effets": [
+        { "acteur": "Pour les familles aisées", "texte": "Elles auraient intérêt à **tout donner de leur vivant**, sans payer d'impôt.", "pastille": "risque" },
+        { "acteur": "Pour l'État", "texte": "L'exonération des donations coûterait d'emblée environ 4 milliards d'euros.", "pastille": "coûteux" },
+        { "acteur": "Pour les jeunes ménages", "texte": "Des donations plus précoces pourraient aider à acheter un logement. L'effet n'est pas chiffré.", "pastille": "possible" }
+      ]
+    },
+    "long_terme": {
+      "titre": "Avec le temps, l'impôt sur l'héritage deviendrait plus injuste.",
+      "effets": [
+        { "acteur": "Pour les plus grandes fortunes", "texte": "Elles sortiraient leurs biens de l'impôt, comme au Royaume-Uni.", "pastille": "négatif" },
+        { "acteur": "Pour les héritages moyens", "texte": "Ceux qui n'ont pas anticipé paieraient **l'impôt renforcé**.", "pastille": "risque" },
+        { "acteur": "Pour l'épargne", "texte": "Les placements pourraient se déplacer selon l'assiette retenue pour l'impôt sur la fortune.", "pastille": "incertain" }
+      ]
+    },
+    "ailleurs": {
+      "titre": "Au Royaume-Uni, les donations servent déjà à éviter l'impôt.",
+      "mesures": [
+        { "lieu": "Royaume-Uni", "annee": "2023", "fait": "Les donations y sont exonérées si le donateur vit encore sept ans.", "resultat": "Selon l'Institute for Fiscal Studies, l'impôt y devient régressif au sommet.", "pastille": "négatif" },
+        { "lieu": "France", "annee": "2017", "fait": "Un impôt sur toute la fortune a existé jusqu'en 2017.", "resultat": "Son remplacement par l'impôt sur la seule fortune immobilière a coûté environ 2,9 milliards en 2018.", "pastille": "débattu" }
+      ],
+      "sources": "Institute for Fiscal Studies, 2023 ; Sénat, rapport de 2019"
+    },
+    "avis": {
+      "avis": "Taxer davantage l'héritage répond à un vrai constat, mais exonérer toutes les donations viderait la mesure de son sens.",
+      "tient": ["La mesure est faisable en droit.", "Elle répond au poids croissant et très concentré de l'héritage."],
+      "coince": ["Les donations exonérées offrent une porte de sortie aux plus riches.", "Sans taux ni seuil, le rendement reste inconnu.", "L'exonération coûterait d'emblée environ 4 milliards d'euros."]
+    },
+    "illustration_mots_cles": [],
+    "legende": {
+      "question": "{NOM} veut taxer davantage l'héritage, mais exonérer toutes les donations. Est-ce cohérent ?",
+      "avis": "Notre avis : le constat est juste, mais les donations exonérées ouvriraient une porte de sortie aux plus grandes fortunes.",
+      "effet": "L'effet principal : l'impôt renforcé pèserait surtout sur les familles qui n'ont pas anticipé."
+    },
+    "tweet": {
+      "accroche": "Et si donner son patrimoine à ses enfants de son vivant ne coûtait plus rien ?",
+      "promesse": "C'est l'idée de {CANDIDAT} : un impôt unique sur toute la fortune, des droits de succession renforcés, et des donations totalement exonérées.",
+      "exemple": "Prenons une famille aisée. Avec ce plan, elle aurait tout intérêt à transmettre avant le décès, sans aucun impôt. Une famille qui n'anticipe pas paierait, elle, les droits renforcés.",
+      "hic": "Sauf que… le Royaume-Uni montre ce qui se passe quand les donations échappent à l'impôt : les plus grandes fortunes sortent leurs biens de l'assiette, et l'impôt devient régressif au sommet. L'exonération coûterait aussi environ 4 milliards d'euros d'emblée.",
+      "tient": "Ce qui tient : le constat. Le patrimoine hérité représente environ 60 % du patrimoine total, contre 35 % dans les années 1970.",
+      "appel": "Faut-il taxer les donations comme les héritages ? Dites-le en commentaire."
+    }
+  }
+}
