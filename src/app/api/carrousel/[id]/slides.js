@@ -291,27 +291,28 @@ const CRETES = [
   [0, 130], [55, 62], [96, 104], [150, 26], [205, 92], [248, 48], [300, 118], [356, 40], [404, 96],
   [452, 58], [510, 128], [566, 70], [612, 112], [668, 64], [720, 120], [780, 150],
 ];
-const POLYGONE_PANNEAU = [...CRETES, [780, 550], [0, 550]].map(([x, y]) => `${x},${y}`).join(" ");
+const POINTS_PANNEAU = [...CRETES, [780, 550], [0, 550]];
+const POLYGONE_PANNEAU = POINTS_PANNEAU.map(([x, y]) => `${x},${y}`).join(" ");
+const CLIP_PANNEAU = `polygon(${POINTS_PANNEAU.map(([x, y]) => `${x}px ${y}px`).join(", ")})`;
 
+// L'image de thème est un <img> découpé par clip-path, et non une <image>
+// dans le <svg> : Satori (next/og) ne précharge pas les <image> d'un svg
+// rendu par un composant, et le rendu plantait (« reading '0' »).
 function PanneauTheme({ imageTheme }) {
+  if (imageTheme) {
+    return <img src={imageTheme} alt="" width={780} height={550} style={{ position: "absolute", left: 0, top: HAUT_PANNEAU, width: 780, height: 550, objectFit: "cover", clipPath: CLIP_PANNEAU }} />;
+  }
   return (
     <svg width={780} height={550} viewBox="0 0 780 550" style={{ position: "absolute", left: 0, top: HAUT_PANNEAU }}>
       <defs>
-        <clipPath id="dechire">
-          <polygon points={POLYGONE_PANNEAU} />
-        </clipPath>
         <pattern id="trame" width="18" height="18" patternUnits="userSpaceOnUse">
           <circle cx="9" cy="9" r="4.2" fill="#b98a12" />
         </pattern>
       </defs>
-      {imageTheme ? (
-        <image href={imageTheme} x="0" y="0" width="780" height="550" preserveAspectRatio="xMidYMid slice" clipPath="url(#dechire)" />
-      ) : (
-        <g>
-          <polygon points={POLYGONE_PANNEAU} fill="#f2c230" />
-          <polygon points={POLYGONE_PANNEAU} fill="url(#trame)" opacity="0.55" />
-        </g>
-      )}
+      <g>
+        <polygon points={POLYGONE_PANNEAU} fill="#f2c230" />
+        <polygon points={POLYGONE_PANNEAU} fill="url(#trame)" opacity="0.55" />
+      </g>
     </svg>
   );
 }
