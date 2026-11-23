@@ -155,7 +155,11 @@ test("tient / tient pas trop long : un point retiré, avertissement", () => {
 });
 
 test("légende : modèle, score et palier écrits par le code", () => {
-  const { legende } = controlerCarrousel(ficheComplete());
+  // Bibliothèque d'images vide : légende sans crédit photo (indépendant de src/lib/illustrations.js).
+  const { legende } = controlerCarrousel({ ...ficheComplete(), illustrations: [] });
+  // Avec une image de thème : son crédit termine la légende.
+  const image = { fichier: "illustrations/economie/caisse.jpg", theme: "economie", motsCles: ["caisse"], source: "Wikimedia Commons", auteur: "Zoé Photo", licence: "CC BY-SA 4.0", lien: "https://commons.wikimedia.org/wiki/File:Caisse.jpg" };
+  assert.ok(controlerCarrousel({ ...ficheComplete(), illustrations: [image] }).legende.endsWith("\n\nPhoto : Zoé Photo, CC BY-SA 4.0, Wikimedia Commons https://commons.wikimedia.org/wiki/File:Caisse.jpg"));
   assert.equal(
     legende,
     [
