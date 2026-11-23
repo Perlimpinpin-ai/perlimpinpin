@@ -1,0 +1,74 @@
+{
+  "_note": "Réponse SIMULÉE du modèle (format v6, docs/prompt-carrousel.md) pour la démonstration locale, écrite à la main à partir de la fiche n° 95 (Marine Tondelier, « 19 élèves par classe en primaire »), lue en base en lecture seule. Aucun appel à Claude.",
+  "reponse": {
+    "couverture": {
+      "question": "{NOM} veut-elle ==19 élèves par classe== à l'école ?"
+    },
+    "constat": {
+      "titre": "Les classes se vident déjà à l'école primaire.",
+      "explication": "Les classes comptent environ 21 élèves, un chiffre qui baisse depuis neuf ans. Avec moins de naissances, il tomberait seul vers 18,8 en 2032.",
+      "chiffres": [
+        { "valeur": "21", "detail": "élèves par classe en moyenne, rentrée 2025" },
+        { "valeur": "-11 %", "detail": "d'élèves en primaire d'ici 2032", "jaune": true },
+        { "valeur": "4 000", "detail": "postes d'enseignants supprimés à la rentrée 2026" },
+        { "valeur": "1,1 M", "detail": "d'écoliers en éducation prioritaire" }
+      ],
+      "proposition": "La proposition de {NOM} : **19 élèves par classe** en primaire d'ici 2032, et 12 à tous les niveaux en éducation prioritaire.",
+      "imprecisions": "Elle ne dit ni s'il s'agit d'une moyenne ou d'un plafond, ni combien de postes elle financerait.",
+      "sources": "DEPP, rentrée 2025 ; ministère de l'Éducation nationale"
+    },
+    "note": {
+      "titre": "Le plan de {NOM} : 19 élèves presque acquis, 12 très coûteux.",
+      "explication": "La démographie fait l'essentiel du travail. Le volet éducation prioritaire coûterait cher.",
+      "criteres": {
+        "operationnalite_moyens": "Pas de loi à voter, mais des postes et des salles à trouver.",
+        "efficacite": "Des gains réels, souvent effacés en 6e.",
+        "effets_rebonds_externalites": "Les communes devraient ouvrir des salles.",
+        "degre_preparation": "Ni chiffrage ni plan de recrutement publiés.",
+        "alignement_logique": "Une ligne constante des Écologistes."
+      }
+    },
+    "court_terme": {
+      "titre": "Dans un premier temps, les classes allégeraient surtout grâce à la démographie.",
+      "effets": [
+        { "acteur": "Pour les écoliers", "texte": "Les classes descendraient vers 19 élèves sans création massive de postes.", "pastille": "positif" },
+        { "acteur": "Pour les communes", "texte": "Les écoles en éducation prioritaire devraient trouver des salles pour de nouvelles classes.", "pastille": "risque" },
+        { "acteur": "Pour le recrutement", "texte": "Les académies les plus tendues, comme l'Île-de-France, peineraient à suivre.", "pastille": "incertain" }
+      ]
+    },
+    "long_terme": {
+      "titre": "À plus long terme, tout dépendrait du volet à 12 élèves.",
+      "effets": [
+        { "acteur": "Pour les apprentissages", "texte": "Prolonger les petites classes jusqu'au CM2 pourrait rendre durables les progrès du CP et du CE1.", "pastille": "débattu" },
+        { "acteur": "Pour le budget", "texte": "Le volet éducation prioritaire demanderait environ 27 000 classes de plus.", "pastille": "coûteux" },
+        { "acteur": "Pour l'école", "texte": "Ne plus fermer de classes inverserait la politique actuelle de suppressions de postes.", "pastille": "possible" }
+      ]
+    },
+    "ailleurs": {
+      "titre": "En France, les classes dédoublées ont déjà été testées.",
+      "mesures": [
+        { "lieu": "France", "annee": "2017", "fait": "Les classes de CP en éducation prioritaire sont dédoublées, puis celles de CE1.", "resultat": "Les progrès obtenus au CP et au CE1 s'effacent à l'entrée en 6e.", "pastille": "débattu" }
+      ],
+      "sources": "DEPP, effets à long terme des classes dédoublées"
+    },
+    "avis": {
+      "avis": "Viser 19 élèves par classe est réaliste, mais le volet à 12 élèves reste à chiffrer et à prouver.",
+      "tient": ["La baisse des naissances rend les 19 élèves presque acquis.", "Aucune loi n'est nécessaire."],
+      "coince": ["Le volet éducation prioritaire coûterait environ 27 000 postes.", "Aucun chiffrage ni plan de recrutement n'est publié.", "Les gains des petites classes s'effacent souvent en 6e."]
+    },
+    "illustration_mots_cles": [],
+    "legende": {
+      "question": "{NOM} veut 19 élèves par classe en primaire, et 12 en éducation prioritaire. Est-ce tenable ?",
+      "avis": "Notre avis : les 19 élèves sont presque acquis grâce à la démographie, le volet à 12 élèves reste à chiffrer.",
+      "effet": "L'effet principal : des classes plus légères, mais environ 27 000 classes de plus en éducation prioritaire."
+    },
+    "tweet": {
+      "accroche": "Et si la classe de votre enfant passait à 19 élèves sans recruter presque personne ?",
+      "promesse": "C'est la promesse de {CANDIDAT} : 19 élèves par classe en primaire d'ici 2032, et 12 à tous les niveaux en éducation prioritaire.",
+      "exemple": "Prenons une école de quartier. Avec la baisse des naissances, ses classes passeraient d'elles-mêmes vers 19 élèves, à condition de ne plus en fermer. En éducation prioritaire, il faudrait en revanche ouvrir de nouvelles classes.",
+      "hic": "Sauf que… le volet à 12 élèves demanderait environ 27 000 classes de plus, et des locaux à la charge des communes. Ni chiffrage ni plan de recrutement n'ont été publiés.",
+      "tient": "Ce qui tient : le point de départ. Les classes comptent déjà environ 21 élèves en moyenne, et ce chiffre baisse depuis neuf ans.",
+      "appel": "Des classes plus petites, une priorité pour vous ? Dites-le en commentaire."
+    }
+  }
+}

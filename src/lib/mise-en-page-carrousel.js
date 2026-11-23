@@ -55,7 +55,7 @@ export const ECARTS = {
   tuileGap: 16,
   paddingTuile: 12,
   onglets: 72,
-  scoreLigne: 156,
+  scoreLigne: 146,
   enteteCarte: 44,
   barre: 10,
 };
@@ -93,7 +93,11 @@ function espace(style, mesurer) {
 export function apostrophes(texte) {
   return String(texte ?? "")
     .replace(/'/g, "’")
-    .replace(/(\d) (?=\d{3}\b)/g, "$1\u00A0");
+    .replace(/(\d) (?=\d{3}\b)/g, "$1\u00A0")
+    // Espace ins\u00E9cable avant : ; ! ? % \u20AC \u00BB et apr\u00E8s \u00AB (jamais une ligne qui
+    // commence par \u00AB : \u00BB).
+    .replace(/ ([:;!?%\u20AC\u00BB])/g, "\u00A0$1")
+    .replace(/\u00AB /g, "\u00AB\u00A0");
 }
 
 // Mots mesurés d'un texte riche (gras **…**) : [{ segments, largeur }].
