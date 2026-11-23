@@ -1,5 +1,6 @@
 import { empreinte } from "./carte.js";
 import { resolveTheme } from "./themes.js";
+import { CARROUSELS_EXCLUS, choisirEnRotation } from "./rotation-images.js";
 
 // Bibliothèque des images de thème des carrousels Instagram (couverture).
 //
@@ -7,19 +8,22 @@ import { resolveTheme } from "./themes.js";
 // automatique. Jamais d'image générée par IA, jamais de recherche d'image au
 // moment de la génération d'un carrousel.
 //
-//  1. node scripts/chercher-illustrations.js <thème>
-//       → interroge l'API Pexels (clé PEXELS_API_KEY dans .env) avec les
-//         requêtes du thème ci-dessous et garde 20 candidates dans
-//         data/illustrations/candidates/<thème>.json (--simulation : candidates
-//         factices, sans appel) ;
-//  2. /test/illustrations : on coche les candidates retenues (et on corrige
-//     leur mot-clé) → data/illustrations/selection/<thème>.json ;
-//  3. node scripts/chercher-illustrations.js <thème> --telecharger
-//       → télécharge les retenues dans public/illustrations/<thème>/<mot-clé>.jpg
-//         et réécrit la liste ILLUSTRATIONS ci-dessous (entre les deux repères).
-// Rien n'entre dans la bibliothèque sans cette validation.
+//  1. npm run banque-images:themes (ou node scripts/chercher-illustrations.js <thème>)
+//       → interroge l'API Wikimedia Commons avec les REQUETES_COMMONS du
+//         thème et garde 8 propositions sous licence libre, ≥ 1600 px, dans
+//         data/illustrations/candidates/<thème>.json (--pexels : API Pexels ;
+//         --simulation : propositions factices, sans appel) ;
+//  2. /test/illustrations (serveur local) : on coche 3 ou 4 images, on corrige
+//     leur mot-clé, puis « Garder » → public/illustrations/<thème>/<mot-clé>.jpg
+//     (+ version traitée) et la liste ILLUSTRATIONS ci-dessous est réécrite
+//     (entre les deux repères) ; même effet en ligne de commande :
+//     node scripts/chercher-illustrations.js <thème> --telecharger.
+// Rien n'entre dans la bibliothèque sans cette validation. Le dossier
+// « general » sert de secours aux thèmes sans image. Choix sur la couverture :
+// hors des images des 2 derniers carrousels du thème (src/lib/banque-images.js).
 //
-// Fonctions PURES (choix, crédit), testées par scripts/illustrations.test.js.
+// Fonctions PURES (choix, crédit), testées par scripts/recit.test.js et
+// scripts/banque-images.test.js.
 // Le traitement graphique (bichromie et trame) est dans
 // src/lib/traitement-illustration.js.
 
@@ -158,6 +162,13 @@ export const THEMES_ILLUSTRATIONS = {
       ["administrative documents stamp", "tampon"],
     ],
   },
+  general: {
+    libelle: "Général (secours)",
+    requetes: [
+      ["magnifying glass documents", "loupe"],
+      ["newspaper reading table", "journal"],
+    ],
+  },
   "democratie-et-institutions": {
     libelle: "Institutions",
     requetes: [
@@ -168,6 +179,87 @@ export const THEMES_ILLUSTRATIONS = {
       ["constitution book", "constitution"],
     ],
   },
+};
+
+// Thème de secours : ses images servent quand le thème de la fiche n'en a
+// aucune (ou que la fiche n'a pas de thème reconnu).
+export const THEME_SECOURS = "general";
+
+// Requêtes Wikimedia Commons (source par défaut de
+// scripts/chercher-illustrations.js) : 2 ou 3 par thème, en français et en
+// anglais, avec le mot-clé proposé pour les images trouvées. Des lieux et des
+// objets plutôt que des personnes.
+export const REQUETES_COMMONS = {
+  logement: [
+    ["immeuble façade logements", "immeuble"],
+    ["apartment building facade", "immeuble"],
+    ["construction site crane housing", "chantier"],
+  ],
+  economie: [
+    ["caisse supermarché", "caisse"],
+    ["euro banknotes", "billets"],
+    ["shopping cart supermarket", "courses"],
+  ],
+  fiscalite: [
+    ["centre des finances publiques", "impots"],
+    ["tax return form", "declaration"],
+    ["calculator receipts", "calcul"],
+  ],
+  "ia-numerique": [
+    ["salle serveurs informatique", "serveurs"],
+    ["data center servers", "serveurs"],
+    ["computer keyboard close-up", "clavier"],
+  ],
+  education: [
+    ["salle de classe vide", "classe"],
+    ["empty classroom desks", "classe"],
+    ["school blackboard chalk", "tableau"],
+  ],
+  "securite-justice": [
+    ["palais de justice France", "tribunal"],
+    ["courtroom empty", "tribunal"],
+    ["police car France", "police"],
+  ],
+  sante: [
+    ["hôpital couloir", "hopital"],
+    ["hospital corridor", "hopital"],
+    ["stethoscope", "stethoscope"],
+  ],
+  retraites: [
+    ["banc parc personnes âgées", "banc"],
+    ["park bench autumn", "banc"],
+    ["retirement elderly hands", "mains"],
+  ],
+  emploi: [
+    ["agence France Travail", "agence"],
+    ["factory workers assembly line", "usine"],
+    ["office desks open space", "bureau"],
+  ],
+  "energie-climat": [
+    ["éoliennes champ", "eoliennes"],
+    ["wind turbines field", "eoliennes"],
+    ["solar panels roof", "solaire"],
+  ],
+  "alimentation-agriculture": [
+    ["tracteur champ blé", "champ"],
+    ["wheat field harvest", "moisson"],
+    ["vegetable market stall France", "marche"],
+  ],
+  immigration: [
+    ["passeport tampon", "passeport"],
+    ["airport departures board", "aeroport"],
+    ["border crossing checkpoint", "frontiere"],
+  ],
+  "democratie-et-institutions": [
+    ["urne électorale", "urne"],
+    ["hémicycle Assemblée nationale", "hemicycle"],
+    ["voting booth", "isoloir"],
+  ],
+  general: [
+    ["journaux kiosque", "journal"],
+    ["newspapers stack", "journal"],
+    ["magnifying glass documents", "loupe"],
+  ],
 };
 
 // Thèmes de la bibliothèque où puiser pour un thème de fiche (slug ou libellé).
@@ -187,16 +279,78 @@ export function motCleNormalise(mot) {
     .replace(/^-+|-+$/g, "");
 }
 
-// Licences qui demandent un crédit visible sur la slide de fin. La licence
-// Pexels n'en demande pas (le crédit reste ici et dans legende.txt).
-const LICENCES_CREDIT_OBLIGATOIRE = new Set(["CC BY 4.0", "CC BY-SA 4.0", "CC BY 2.0", "CC BY-SA 3.0"]);
+// Licences qui demandent un crédit visible (couverture et slide de fin) :
+// CC BY et CC BY-SA, toutes versions. CC0, domaine public et licence Pexels
+// n'en demandent pas (le crédit reste ici et dans la légende).
+export function creditObligatoire(licence) {
+  return /^CC BY(-SA)?\b/i.test(String(licence ?? "").trim());
+}
 
 // --- Liste de la bibliothèque --------------------------------------------------------
 // Écrite par scripts/chercher-illustrations.js --telecharger : ne pas modifier à la
 // main entre les deux repères (sauf pour retirer une image).
 // Chaque entrée : { fichier (relatif à public/), theme, motsCles, source, auteur, licence, lien }.
 // DEBUT LISTE ILLUSTRATIONS
-export const ILLUSTRATIONS = [];
+export const ILLUSTRATIONS = [
+  {"fichier":"illustrations/sante/hopital.jpg","theme":"sante","motsCles":["hopital"],"source":"Wikimedia Commons","auteur":"Olybrius","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Toulouse_-_H%C3%B4pital_Saint-Joseph_de_la_Grave_-_20100914_-_(1).jpg","description":"Un couloir de l' hôpital Saint-Joseph de la Grave à Toulouse ."},
+  {"fichier":"illustrations/sante/hopital-2.jpg","theme":"sante","motsCles":["hopital"],"source":"Wikimedia Commons","auteur":"Terry Robinson","licence":"CC BY-SA 2.0","lien":"https://commons.wikimedia.org/wiki/File:Vickers_Corridor,_Northern_General_Hospital,_Sheffield_-_geograph.org.uk_-_1724026.jpg","description":"Vickers Corridor, Northern General Hospital, Sheffield. The Vickers Corridor - named after Edward Vickers - has, since the building of the Hospital, been an important central corridor giving access to"},
+  {"fichier":"illustrations/sante/stethoscope.jpg","theme":"sante","motsCles":["stethoscope"],"source":"Wikimedia Commons","auteur":"Stethoscopes","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Doctors_stethoscope_1.jpg","description":"GUIDE: Littmann Stethoscopes Review —What’s your perfect one?Is there any doctor who cannot recognize the Littmann brand? On the one hand, you may already know that they get their name because of the "},
+  {"fichier":"illustrations/sante/hopital-3.jpg","theme":"sante","motsCles":["hopital"],"source":"Wikimedia Commons","auteur":"Arthur Causse","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Anamorphose_peinte_dans_le_couloir_des_chambres_de_l%27h%C3%B4pital_Salvator_%C3%A0_Marseille.JPG","description":"anamorphose peinte dans le couloir des chambres de l'hôpital Salvator à Marseille. La couleur retenue est le violet. c'est la couleur de la méditation et de l’introspection. Le violet calme l’esprit e"},
+  {"fichier":"illustrations/sante/hopital-4.jpg","theme":"sante","motsCles":["hopital"],"source":"Wikimedia Commons","auteur":"Rehtse","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:H%C3%B4pital_Saint-Jacques_de_Nantes_-_couloir.jpg","description":"Couloir du pavillon d'entrée de l'hôpital Saint-Jacques de Nantes (France)"},
+  {"fichier":"illustrations/sante/hopital-5.jpg","theme":"sante","motsCles":["hopital"],"source":"Wikimedia Commons","auteur":"Pub. by The Lovell General Hospital, Post Exchange, Fort Devens, Mass. Tichnor Bros. Inc., Boston, Mass.","licence":"Domaine public","lien":"https://commons.wikimedia.org/wiki/File:Main_Corridor,_Lovell_General_Hospital,_Fort_Devens,_Mass_(71546).jpg","description":"Title: Main Corridor, Lovell General Hospital, Fort Devens, Mass. Subjects: Interiors; Passageways; Military hospitals Places: Massachusetts &gt; Worcester (county) &gt; Fort Devens Notes: Title from "},
+  {"fichier":"illustrations/sante/stethoscope-2.jpg","theme":"sante","motsCles":["stethoscope"],"source":"Wikimedia Commons","auteur":"Stethoscopes","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Doctors_stethoscope_2.jpg","description":"A specialist cardiology stethoscope."},
+  {"fichier":"illustrations/sante/hopital-6.jpg","theme":"sante","motsCles":["hopital"],"source":"Wikimedia Commons","auteur":"Globetrotter19","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Hospital_of_the_Sisters_of_Charity._Corridor._-_V%C3%A1c.JPG","description":"This chapel was a part of a fomer monastery and the other part was a hospital, now retire home. The historic building of the Hospital and the Chapel of the Sisters of Charity was created through uniti"},
+  {"fichier":"illustrations/logement/immeuble.jpg","theme":"logement","motsCles":["immeuble"],"source":"Wikimedia Commons","auteur":"Saintonge","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:R%C3%A9sidence_Basilique,immeuble_%C3%A0_appartements_sis_avenue_Charles_Quint_122-124_%C3%A0_1083_Ganshoren;_architecte_Jean_DELHAYE_(un_des_derniers_collaborateurs_de_Victor_HORTA).JPG","description":"This is a photo of a monument in Brussels, number:"},
+  {"fichier":"illustrations/logement/immeuble-2.jpg","theme":"logement","motsCles":["immeuble"],"source":"Wikimedia Commons","auteur":"Andriy Makukha","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Apartment_building_in_Kiev_02.jpg","description":"An apartment building near Palace of Ukraine, Kiev. (It is seen from behind the palace on Image:Palace_of_Ukraine.jpg )"},
+  {"fichier":"illustrations/logement/chantier.jpg","theme":"logement","motsCles":["chantier"],"source":"Wikimedia Commons","auteur":"Lionel Allorge","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Chantier_des_logements_sociaux_Les_Delach%C3%A9s_%C3%A0_Gometz-le-Ch%C3%A2tel_-_01.jpg","description":"Site for social housing Les Delachés in Gometz-le-Châtel , France ."},
+  {"fichier":"illustrations/logement/immeuble-3.jpg","theme":"logement","motsCles":["immeuble"],"source":"Wikimedia Commons","auteur":"Claude villetaneuse","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:P1050686_T8_Avant_gare_de_Villetaneuse.JPG","description":"Rue de l'Université à Villetaneuse : A gauche, la façade du gymnase universitaire Jesse Richardson, puis le trottoir / circulations douces, la plateforme de la ligne T8 au niveau des aiguillages de jo"},
+  {"fichier":"illustrations/economie/caisse.jpg","theme":"economie","motsCles":["caisse"],"source":"Wikimedia Commons","auteur":"Wolfmann","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:REMA_1000_Supermarket_interior_grocery_store_T%C3%B8nsberg,_Norway_2017-11-03_cashier_checkout_e.jpg","description":"Interior of REMA 1000 supermarket/grocery store in Tønsberg, Norway. Products displayed for sale at cashier/checkout: chewig gum, chocolate, dates, cold drinks, etc."},
+  {"fichier":"illustrations/economie/billets.jpg","theme":"economie","motsCles":["billets"],"source":"Wikimedia Commons","auteur":"Avij","licence":"Domaine public","lien":"https://commons.wikimedia.org/wiki/File:Euro_coins_and_banknotes.jpg","description":"A picture of some Euro banknotes and various Euro coins ."},
+  {"fichier":"illustrations/economie/courses.jpg","theme":"economie","motsCles":["courses"],"source":"Wikimedia Commons","auteur":"Stilfehler","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Shopping_Cart_Return.jpg","description":"Shopping cart return on the parking lot of a Wegman's store in NY"},
+  {"fichier":"illustrations/economie/caisse-2.jpg","theme":"economie","motsCles":["caisse"],"source":"Wikimedia Commons","auteur":"Wolfmann","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:REMA_1000_Supermarket_interior_grocery_store_T%C3%B8nsberg,_Norway_2017-11-03_cashier_checkout_Red_Bull_Simply_Cola_d.jpg","description":"Interior of REMA 1000 supermarket/grocery store in Tønsberg, Norway. Red Bull Simply Cola displayed for sale at cashier/checkout."},
+  {"fichier":"illustrations/fiscalite/impots.jpg","theme":"fiscalite","motsCles":["impots"],"source":"Wikimedia Commons","auteur":"Benjamin Smith","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Nogent-le-Rotrou_-_Centre_des_Finances_Publiques_-_1.jpg","description":"The tax office of Nogent-le-Rotrou , Eure-et-Loir , France ."},
+  {"fichier":"illustrations/fiscalite/impots-2.jpg","theme":"fiscalite","motsCles":["impots"],"source":"Wikimedia Commons","auteur":"Benjamin Smith","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Nogent-le-Rotrou_-_Centre_des_Finances_Publiques_-_2.jpg","description":"The tax office of Nogent-le-Rotrou , Eure-et-Loir , France ."},
+  {"fichier":"illustrations/fiscalite/impots-3.jpg","theme":"fiscalite","motsCles":["impots"],"source":"Wikimedia Commons","auteur":"P.poschadel","licence":"CC BY-SA 2.0","lien":"https://commons.wikimedia.org/wiki/File:Pont-Sainte-Maxence_(60),_centre_des_Finances_Publiques_et_anciennePoste,_rue_Charles-Lescot.jpg","description":"Le centre des Finances Publiques, dans la vieille ville, rue Charles-Lescot. Il s'agit de l'ancienne poste construite en 1928 et transféré dans de nouveaux locaux plus grands en 1992."},
+  {"fichier":"illustrations/fiscalite/impots-4.jpg","theme":"fiscalite","motsCles":["impots"],"source":"Wikimedia Commons","auteur":"Marianne Casamance","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:Plaisance_(Gers)_Centre_des_finances_publiques.JPG","description":"Centre des finances publiques"},
+  {"fichier":"illustrations/ia-numerique/serveurs.jpg","theme":"ia-numerique","motsCles":["serveurs"],"source":"Wikimedia Commons","auteur":"Florian Hirzinger - www.fh-ap.com","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:CERN_Server_02.jpg","description":"Server room in CERN (France / Switzerland)"},
+  {"fichier":"illustrations/ia-numerique/serveurs-2.jpg","theme":"ia-numerique","motsCles":["serveurs"],"source":"Wikimedia Commons","auteur":"Victorgrigas","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Wikimedia_Foundation_Servers-8055_02.jpg","description":"Wikimedia Foundation Servers"},
+  {"fichier":"illustrations/ia-numerique/clavier.jpg","theme":"ia-numerique","motsCles":["clavier"],"source":"Wikimedia Commons","auteur":"Henrique Pinto","licence":"CC BY 2.0","lien":"https://commons.wikimedia.org/wiki/File:Microdigital_TK85_Keyboard_close_up.jpg","description":"Microdigital TK 85, a Brazilian Sinclair ZX81 clone with a ZX Spectrum-like case (chiclet keyboard detail)."},
+  {"fichier":"illustrations/ia-numerique/serveurs-3.jpg","theme":"ia-numerique","motsCles":["serveurs"],"source":"Wikimedia Commons","auteur":"Florian Hirzinger - www.fh-ap.com","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:CERN_Server_03.jpg","description":"Server room in CERN (Switzerland)"},
+  {"fichier":"illustrations/education/classe.jpg","theme":"education","motsCles":["classe"],"source":"Wikimedia Commons","auteur":"Maryane13","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:L%27ARSENAL.JPG","description":"construit en 1580 sur l'ancienne \"maison des rois de Navarre\" bâtiment de trois corps en U de 819.94 mètres carrés On pouvait entreposer dans la cour 30 000 boulets ou grenades et sous les élégantes a"},
+  {"fichier":"illustrations/education/classe-2.jpg","theme":"education","motsCles":["classe"],"source":"Wikimedia Commons","auteur":"Albert Brichaut","licence":"CC0","lien":"https://commons.wikimedia.org/wiki/File:Ecole_des_filles_mineures,_prison_de_Saint-Lazare,_107_rue_du_Faubourg_Saint-Denis,_10%C3%A8me_arrondissement,_Paris,_PH15195(1).jpg","description":"Auteur(s): Brichaut, Albert (vers 1901), photographe Autre titre: Prisons de St Lazare. L'Ecole des filles mineures. (Titre inscrit (lettre)) Date de production: Entre 1898 et 1912 Type(s) d'objet(s):"},
+  {"fichier":"illustrations/education/classe-3.jpg","theme":"education","motsCles":["classe"],"source":"Wikimedia Commons","auteur":"Anthony J. Bentley","licence":"Domaine public","lien":"https://commons.wikimedia.org/wiki/File:Blackboards_%E2%80%93_UNM_Astrophysics.JPG","description":"A classroom in the University of New Mexico’s Department of Physics and Astronomy."},
+  {"fichier":"illustrations/education/classe-4.jpg","theme":"education","motsCles":["classe"],"source":"Wikimedia Commons","auteur":"Abaddon1337","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:Orbe_-_Chantemerle_-_salle_de_classe_2.jpg","description":"Classroom of 6-7 years old students, Chantemerle school, Orbe. Teacher's desk."},
+  {"fichier":"illustrations/securite-justice/tribunal.jpg","theme":"securite-justice","motsCles":["tribunal"],"source":"Wikimedia Commons","auteur":"Bjengles3","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:Rochester_City_Court_part_1_courtroom.jpg","description":"This is the Part 1 courtroom, in the County Public Safety Building. This courtroom is adjacent to the jail, and is generally used for arraignments."},
+  {"fichier":"illustrations/securite-justice/police.jpg","theme":"securite-justice","motsCles":["police"],"source":"Wikimedia Commons","auteur":"mpd01605 from Paris, France","licence":"CC BY-SA 2.0","lien":"https://commons.wikimedia.org/wiki/File:Police_Car_at_Night.jpg","description":"Citroën Xsara police car in France at night, with \"POLICE\" in mirror writing (\"ECILOP\")."},
+  {"fichier":"illustrations/securite-justice/tribunal-2.jpg","theme":"securite-justice","motsCles":["tribunal"],"source":"Wikimedia Commons","auteur":"Eusebius Retouched by Maedin","licence":"CC BY 3.0","lien":"https://commons.wikimedia.org/wiki/File:Tours_-_palais_de_justice-edit_1.jpg","description":"The courthouse of Tours ."},
+  {"fichier":"illustrations/securite-justice/police-2.jpg","theme":"securite-justice","motsCles":["police"],"source":"Wikimedia Commons","auteur":"Jebulon","licence":"CC0","lien":"https://commons.wikimedia.org/wiki/File:Car_Police_Renault.jpg","description":"A Renault Trafic van of the French National Police. No geocode for security reasons."},
+  {"fichier":"illustrations/retraites/banc.jpg","theme":"retraites","motsCles":["banc"],"source":"Wikimedia Commons","auteur":"Onderwijsgek","licence":"CC BY-SA 2.5","lien":"https://commons.wikimedia.org/wiki/File:Bench_autumn.JPG","description":"Bankje in de herfst bij de begraafplaats in Oudewater."},
+  {"fichier":"illustrations/retraites/banc-2.jpg","theme":"retraites","motsCles":["banc"],"source":"Wikimedia Commons","auteur":"Onderwijsgek","licence":"CC BY-SA 2.5","lien":"https://commons.wikimedia.org/wiki/File:Bench_autumn_02.JPG","description":"Bankje in de herfst bij de begraafplaats in Oudewater."},
+  {"fichier":"illustrations/retraites/banc-3.jpg","theme":"retraites","motsCles":["banc"],"source":"Wikimedia Commons","auteur":"Onderwijsgek","licence":"CC BY-SA 2.5","lien":"https://commons.wikimedia.org/wiki/File:Bench_autumn_03.JPG","description":"Bankje in de herfst bij de begraafplaats in Oudewater."},
+  {"fichier":"illustrations/retraites/banc-4.jpg","theme":"retraites","motsCles":["banc"],"source":"Wikimedia Commons","auteur":"Zorro2212","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Park_Sienkiewicza_in_Autumn_2.jpg","description":"Park Sienkiewicza in Autumn"},
+  {"fichier":"illustrations/emploi/bureau.jpg","theme":"emploi","motsCles":["bureau"],"source":"Wikimedia Commons","auteur":"Navy Medicine from Washington, DC, USA","licence":"CC BY 2.0","lien":"https://commons.wikimedia.org/wiki/File:12-0186-017_and_018_(8024320813).jpg","description":"CBC Renovates Dental Facility. In 1942, when WWII was barely six months old, a medical dental dispensary was built to support personnel at the Port Hueneme Naval Construction Battalion Center. Today, "},
+  {"fichier":"illustrations/emploi/usine.jpg","theme":"emploi","motsCles":["usine"],"source":"Wikimedia Commons","auteur":"ENERGY.GOV","licence":"Domaine public","lien":"https://commons.wikimedia.org/wiki/File:AEMC_Summit_(11343379864).jpg","description":"Pictured here is a tablet that could be used in conjunction with Google Glass to increase worker safety on the manufacturing line. Instead of having to check off a piece of paper or swipe on a tablet,"},
+  {"fichier":"illustrations/emploi/bureau-2.jpg","theme":"emploi","motsCles":["bureau"],"source":"Wikimedia Commons","auteur":"Navy Medicine from Washington, DC, USA","licence":"CC BY 2.0","lien":"https://commons.wikimedia.org/wiki/File:12-0186-017_and_018_(8024320517).jpg","description":"CBC Renovates Dental Facility. In 1942, when WWII was barely six months old, a medical dental dispensary was built to support personnel at the Port Hueneme Naval Construction Battalion Center. Today, "},
+  {"fichier":"illustrations/energie-climat/eoliennes.jpg","theme":"energie-climat","motsCles":["eoliennes"],"source":"Wikimedia Commons","auteur":"Kim Hansen, retouches Richard Bartz et Kim Hansen","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Middelgrunden_wind_farm_2009-07-01_edit_filtered.jpg","description":"Middelgrunden offshore wind farm (40 MW) observed in Øresund"},
+  {"fichier":"illustrations/energie-climat/eoliennes-2.jpg","theme":"energie-climat","motsCles":["eoliennes"],"source":"Wikimedia Commons","auteur":"Steve Barnes","licence":"CC BY-SA 2.0","lien":"https://commons.wikimedia.org/wiki/File:Tythegston_Wind_Turbines_(geograph_6183484).jpg","description":"Tythegston Wind Turbines Not far from the Household Waste Recycling Centre can be found these wind turbines. These are the two turbines of Newton Down Wind Farm."},
+  {"fichier":"illustrations/energie-climat/solaire.jpg","theme":"energie-climat","motsCles":["solaire"],"source":"Wikimedia Commons","auteur":"Pujanak","licence":"Domaine public","lien":"https://commons.wikimedia.org/wiki/File:Solar_panels_on_a_roof.jpg","description":"Solar panels on a roof"},
+  {"fichier":"illustrations/energie-climat/eoliennes-3.jpg","theme":"energie-climat","motsCles":["eoliennes"],"source":"Wikimedia Commons","auteur":"Jmh2o","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:%C3%89oliennes_-_Belgique_-_Buset_-_01.JPG","description":"Champ éolien de Buzet - Belgique"},
+  {"fichier":"illustrations/alimentation-agriculture/champ.jpg","theme":"alimentation-agriculture","motsCles":["champ"],"source":"Wikimedia Commons","auteur":"Moktarama","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Botteleuse_-_Emballoteuse.jpg","description":"Agricultural machinery - Wheat field (Mayenne - France)"},
+  {"fichier":"illustrations/alimentation-agriculture/moisson.jpg","theme":"alimentation-agriculture","motsCles":["moisson"],"source":"Wikimedia Commons","auteur":"Adrian Cable","licence":"CC BY-SA 2.0","lien":"https://commons.wikimedia.org/wiki/File:Wheat_field_after_the_harvest_-_geograph.org.uk_-_233376.jpg","description":"Wheat field after the harvest."},
+  {"fichier":"illustrations/alimentation-agriculture/marche.jpg","theme":"alimentation-agriculture","motsCles":["marche"],"source":"Wikimedia Commons","auteur":"BorisAhonon","licence":"CC BY-SA 4.0","lien":"https://commons.wikimedia.org/wiki/File:Etale_de_piments_%C3%A0_Yamoussoukro.jpg","description":"This is an image with the theme \" Farm to Plate \" from:"},
+  {"fichier":"illustrations/alimentation-agriculture/moisson-2.jpg","theme":"alimentation-agriculture","motsCles":["moisson"],"source":"Wikimedia Commons","auteur":"U.S. Department of Agriculture","licence":"Domaine public","lien":"https://commons.wikimedia.org/wiki/File:Wheat_harvest_on_field.jpg","description":"Image title: Wheat harvest on field Image from Public domain images website, http://www.public-domain-image.com/full-image/nature-landscapes-public-domain-images-pictures/field-public-domain-images-pi"},
+  {"fichier":"illustrations/immigration/passeport.jpg","theme":"immigration","motsCles":["passeport"],"source":"Wikimedia Commons","auteur":"Jsx","licence":"CC0","lien":"https://commons.wikimedia.org/wiki/File:TJ-Dushanbe-IN.jpg","description":"Dushanbe airport entry stamp"},
+  {"fichier":"illustrations/immigration/aeroport.jpg","theme":"immigration","motsCles":["aeroport"],"source":"Wikimedia Commons","auteur":"Dragfyre","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Departures_board_Danang_Airport.JPG","description":"An electronic flight departures board at Danang Int'l Airport."},
+  {"fichier":"illustrations/immigration/frontiere.jpg","theme":"immigration","motsCles":["frontiere"],"source":"Wikimedia Commons","auteur":"Brunswyk","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Helmstedt-Marienborn_ehemaliger_Grenzuebergang_Luftbild_(2007).JPG","description":"Aerial photograph of Helmstedt-Marienborn border crossing , Germany as seen from the north."},
+  {"fichier":"illustrations/immigration/passeport-2.jpg","theme":"immigration","motsCles":["passeport"],"source":"Wikimedia Commons","auteur":"Slleong","licence":"CC0","lien":"https://commons.wikimedia.org/wiki/File:Sadao_Thailand_old_style_passport_stamp_exit_2.jpg","description":"Old Style Thailand passport exit stamp from Sadao Checkpoint"},
+  {"fichier":"illustrations/democratie-et-institutions/urne.jpg","theme":"democratie-et-institutions","motsCles":["urne"],"source":"Wikimedia Commons","auteur":"Jiří Sedláček - Frettie","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Ballot_box_of_czech_legislative_election_2010_in_T%C5%99eb%C3%AD%C4%8D,_T%C5%99eb%C3%AD%C4%8D_District.jpg","description":"Ballot box of czech legislative election 2010."},
+  {"fichier":"illustrations/democratie-et-institutions/hemicycle.jpg","theme":"democratie-et-institutions","motsCles":["hemicycle"],"source":"Wikimedia Commons","auteur":"Coucouoeuf","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Hemicycle_assemblee_nationale.JPG","description":"This building is indexed in the base Mérimée , a database of architectural heritage maintained by the French Ministry of Culture , under the reference PA00088698 . brezhoneg ∙ català ∙ Deutsch ∙ Engli"},
+  {"fichier":"illustrations/democratie-et-institutions/isoloir.jpg","theme":"democratie-et-institutions","motsCles":["isoloir"],"source":"Wikimedia Commons","auteur":"secretlondon123","licence":"CC BY-SA 2.0","lien":"https://commons.wikimedia.org/wiki/File:Polling_station_6_may_2010.jpg","description":"Polling station sign, London. UK general election (and local council elections), 6 May 2010."},
+  {"fichier":"illustrations/democratie-et-institutions/urne-2.jpg","theme":"democratie-et-institutions","motsCles":["urne"],"source":"Wikimedia Commons","auteur":"Jebulon","licence":"CC0","lien":"https://commons.wikimedia.org/wiki/File:Urne_Ballot_box_r%C3%A9publique.jpg","description":"\"Universal suffrage\", bronze ballot boxe on the pedestal of the Monument to the Republic, Place de la République, Paris."},
+  {"fichier":"illustrations/general/journal.jpg","theme":"general","motsCles":["journal"],"source":"Wikimedia Commons","auteur":"Lhsunshine","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Microfilm_of_Toowoomba_Chronicle.JPG","description":"Microfilm of Toowoomba Chronicle"},
+  {"fichier":"illustrations/general/loupe.jpg","theme":"general","motsCles":["loupe"],"source":"Wikimedia Commons","auteur":"Penarc","licence":"CC BY 3.0","lien":"https://commons.wikimedia.org/wiki/File:Chilean_stamp_album_and_catalogue,_and_a_magnifying_glass.jpg","description":"Chilean stamp album and catalogue, and a magnifying glass"},
+  {"fichier":"illustrations/general/journal-2.jpg","theme":"general","motsCles":["journal"],"source":"Wikimedia Commons","auteur":"Andi oisn","licence":"CC BY-SA 3.0","lien":"https://commons.wikimedia.org/wiki/File:Graz_Am_Eisernen_Tor_Tabakkiosk.jpg","description":"Tabakkiosk am Eisernen Tor, Graz"},
+];
 // FIN LISTE ILLUSTRATIONS
 
 // Images disponibles pour un thème de fiche.
@@ -205,10 +359,17 @@ export function illustrationsDuTheme(themeFiche, liste = ILLUSTRATIONS) {
   return liste.filter((ill) => themes.includes(ill.theme));
 }
 
+// Images où puiser pour une fiche : celles de son thème, sinon celles du
+// thème de secours.
+export function illustrationsPourFiche(themeFiche, liste = ILLUSTRATIONS) {
+  const duTheme = illustrationsDuTheme(themeFiche, liste);
+  return duTheme.length ? duTheme : liste.filter((ill) => ill.theme === THEME_SECOURS);
+}
+
 // Liste fermée des mots-clés disponibles pour un thème de fiche (envoyée au
 // modèle du carrousel détaillé).
 export function motsClesDisponibles(themeFiche, liste = ILLUSTRATIONS) {
-  return [...new Set(illustrationsDuTheme(themeFiche, liste).flatMap((ill) => ill.motsCles ?? []))].sort();
+  return [...new Set(illustrationsPourFiche(themeFiche, liste).flatMap((ill) => ill.motsCles ?? []))].sort();
 }
 
 // Contrôle des mots-clés choisis par le modèle : 0 à 2, dans la liste fermée.
@@ -227,30 +388,40 @@ export function controlerMotsCles(proposes, disponibles) {
 }
 
 // Choix de l'image de couverture :
-//  - parmi les images du thème de la fiche ;
+//  - parmi les images du thème de la fiche, sinon (thème vide ou inconnu)
+//    celles du thème de secours « general » ;
+//  - `demandee` (fichier, bouton « Changer d'image ») : prise telle quelle si
+//    elle est dans ces images ;
 //  - si des mots-clés sont donnés (choisis par le modèle dans la liste
-//    fermée), parmi celles qui en portent au moins un ;
-//  - sinon tirage au hasard dans le thème ; `alea` (0 ≤ x < 1) est fourni par
-//    l'appelant (stable pour une fiche : voir aleaFiche) ;
-//  - en évitant `derniere` (fichier de l'image du dernier carrousel du même
-//    thème) quand il reste une autre image.
-// Renvoie { illustration, avertissement } ; illustration null si le thème n'a
-// aucune image (couverture sans illustration, et un avertissement).
-export function choisirIllustration({ theme, motsCles = [], derniere = null, alea = 0, liste = ILLUSTRATIONS }) {
+//    fermée), de préférence parmi celles qui en portent au moins un ;
+//  - en écartant les images des 2 derniers carrousels (`recentes` : fichiers,
+//    le plus récent d'abord ; `derniere` : ancien paramètre, une seule image),
+//    sinon la moins récemment utilisée (src/lib/rotation-images.js) ;
+//  - `alea` (0 ≤ x < 1), fourni par l'appelant (stable pour une version :
+//    voir aleaFiche), départage les images libres.
+// Renvoie { illustration, avertissement } ; illustration null si ni le thème
+// ni le secours n'ont d'image (couverture sans illustration, et un avertissement).
+export function choisirIllustration({ theme, motsCles = [], recentes = [], derniere = null, demandee = null, alea = 0, liste = ILLUSTRATIONS }) {
   const duTheme = illustrationsDuTheme(theme, liste);
-  if (duTheme.length === 0) {
+  const pourFiche = illustrationsPourFiche(theme, liste);
+  if (pourFiche.length === 0) {
     const nom = resolveTheme(theme) ?? theme ?? "(aucun)";
     return {
       illustration: null,
-      avertissement: `Pas d'image de thème pour « ${nom} » : la bibliothèque est vide pour ce thème (couverture sans illustration). La remplir : node scripts/chercher-illustrations.js ${themesBibliotheque(theme)[0] ?? "<thème>"}, puis /test/illustrations.`,
+      avertissement: `Pas d'image de thème pour « ${nom} » ni dans le dossier de secours « ${THEME_SECOURS} » (couverture sans illustration). La remplir : npm run banque-images:themes, puis /test/illustrations.`,
     };
   }
+  const avertissement = duTheme.length === 0 ? `Pas encore d'image pour le thème « ${resolveTheme(theme) ?? theme ?? "(aucun)"} » : image du dossier de secours « ${THEME_SECOURS} ».` : null;
+  const voulue = demandee ? pourFiche.find((ill) => ill.fichier === demandee) : null;
+  if (voulue) return { illustration: voulue, avertissement };
+  const historique = recentes?.length ? recentes : derniere ? [derniere] : [];
   const voulus = motsCles.map(motCleNormalise);
-  const parMot = voulus.length ? duTheme.filter((ill) => (ill.motsCles ?? []).some((m) => voulus.includes(m))) : [];
-  let pool = parMot.length ? parMot : duTheme;
-  if (derniere && pool.length > 1) pool = pool.filter((ill) => ill.fichier !== derniere);
-  const index = Math.min(pool.length - 1, Math.floor(Math.max(0, Math.min(alea, 0.999999)) * pool.length));
-  return { illustration: pool[index], avertissement: null };
+  const parMot = voulus.length ? pourFiche.filter((ill) => (ill.motsCles ?? []).some((m) => voulus.includes(m))) : [];
+  const bloquees = new Set(historique.slice(0, CARROUSELS_EXCLUS));
+  // Les mots-clés orientent le choix tant qu'une de leurs images est libre.
+  const pool = parMot.some((ill) => !bloquees.has(ill.fichier)) ? parMot : pourFiche;
+  const illustration = choisirEnRotation(pool, { cle: (ill) => ill.fichier, recentes: historique, alea });
+  return { illustration, avertissement };
 }
 
 // Tirage stable pour une fiche (même image à chaque affichage), de 0 à 1.
@@ -258,15 +429,20 @@ export function aleaFiche(graine) {
   return parseInt(empreinte(String(graine)).slice(0, 8), 16) / 0x100000000;
 }
 
-// Ligne de crédit visible sur la slide de fin, ou null si la licence ne la
-// demande pas.
-export function creditVisible(illustration) {
-  if (!illustration || !LICENCES_CREDIT_OBLIGATOIRE.has(illustration.licence)) return null;
-  return `Photo : ${illustration.auteur} / ${illustration.source}`;
+// Ligne « Photo : auteur, licence, source » d'une image de thème.
+function lignePhoto(illustration) {
+  return `Photo : ${illustration.auteur}, ${illustration.licence}, ${illustration.source}`;
 }
 
-// Ligne de crédit pour legende.txt (toujours, quand une image est utilisée).
+// Ligne de crédit visible (couverture, en tout petit, et slide de fin), ou
+// null si la licence ne la demande pas (CC0, domaine public, Pexels).
+export function creditVisible(illustration) {
+  if (!illustration || !creditObligatoire(illustration.licence)) return null;
+  return lignePhoto(illustration);
+}
+
+// Ligne de crédit pour la légende (toujours, quand une image est utilisée).
 export function creditLegende(illustration) {
   if (!illustration) return null;
-  return `Photo de couverture : ${illustration.auteur} / ${illustration.source} (${illustration.licence}) ${illustration.lien}`.trim();
+  return `${lignePhoto(illustration)} ${illustration.lien ?? ""}`.trim();
 }

@@ -8,6 +8,7 @@ import BarreRemarques from "./reseaux/BarreRemarques";
 import BoutonGenererRecit from "./reseaux/BoutonGenererRecit";
 import ListeARelireCarrousel from "./reseaux/ListeARelireCarrousel";
 import ChoixPhotoCandidat from "./reseaux/ChoixPhotoCandidat";
+import ChoixImageTheme from "./reseaux/ChoixImageTheme";
 import { CLE_DERNIERE_PHOTO } from "@/lib/photos-candidats";
 import { COULEURS_CARROUSEL_CANDIDATS } from "@/lib/couleurs-carrousel";
 import TweetLong from "./reseaux/TweetLong";
@@ -22,22 +23,23 @@ import TweetLong from "./reseaux/TweetLong";
 // vivent que dans la page ; seuls les boutons écrivent en base
 // (contenuComplet.reseaux_recit). `demo` : démonstration locale
 // (/test/reseaux/demo, fichier local, modèle simulé).
-// `photo` : numéro de la photo du candidat demandée (?photo=, « Changer de photo »).
-export default function CarrouselInstagram({ proposition, analyse, brouillon = false, numero = 4, demo = false, photo = null }) {
+// `photo` : numéro de la photo du candidat demandée (?photo=, « Changer de photo ») ;
+// `image` : fichier de l'image de thème demandée (?image=, « Changer d'image »).
+export default function CarrouselInstagram({ proposition, analyse, brouillon = false, numero = 4, demo = false, photo = null, image = null }) {
   const slug = slugCandidat(proposition.candidat);
   const idSlides = demo ? "demo" : proposition.id;
   const archive = { propositionId: proposition.id, candidatNom: proposition.candidat.nom, photoUrl: proposition.candidat.photoUrl };
-  const vignettes = (slides, version, recit = false, precedent = false, numeroPhoto = null) =>
+  const vignettes = (slides, version, recit = false, precedent = false, numeroPhoto = null, fichierImage = null) =>
     slides.map((slide) => ({
       numero: slide.numero,
       total: slide.total,
       libelle: slide.libelle,
       fichier: slide.fichier,
-      url: cheminSlide({ propositionId: idSlides, numero: slide.numero, version, brouillon: brouillon && !demo, recit, precedent, photo: numeroPhoto }),
+      url: cheminSlide({ propositionId: idSlides, numero: slide.numero, version, brouillon: brouillon && !demo, recit, precedent, photo: numeroPhoto, image: fichierImage }),
     }));
 
   const six = carrouselDe(proposition, analyse);
-  const recit = recitDe(proposition, analyse, { photo });
+  const recit = recitDe(proposition, analyse, { photo, image });
   const precedent = recit ? recitDe(proposition, analyse, { precedent: true, photo }) : null;
   const candidatsCouleurs = Object.entries(COULEURS_CARROUSEL_CANDIDATS).map(([nom, c]) => ({ nom, fond: c.fond }));
   const stocke = analyse.contenuComplet?.reseaux_recit;
@@ -80,11 +82,14 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
                 />
               ) : null}
               {recit.slides.length ? (
-                <ChoixPhotoCandidat cle={slug} numeros={recit.photos} actuelle={recit.photo?.n ?? null} credit={recit.slides[0]?.credits?.[0] ?? null} />
+                <ChoixPhotoCandidat cle={slug} numeros={recit.photos} actuelle={recit.photo?.n ?? null} credit={recit.photo ? (recit.slides[0]?.credits?.[0] ?? null) : null} />
+              ) : null}
+              {recit.slides.length ? (
+                <ChoixImageTheme fichiers={recit.illustrations} actuelle={recit.illustration?.fichier ?? null} credit={recit.illustration?.creditVisible ?? null} />
               ) : null}
               <EncadreARelire avertissements={recit.avertissements} />
               <CarrouselPartage
-                vignettes={vignettes(recit.slides, recit.version, true, false, recit.photo?.n ?? null)}
+                vignettes={vignettes(recit.slides, recit.version, true, false, recit.photo?.n ?? null, image && recit.illustration?.fichier === image ? image : null)}
                 legendeInitiale={recit.legende}
                 blocage={recit.blocageArchive}
                 memoire={recit.photo ? { cle: `${CLE_DERNIERE_PHOTO}${slug}`, valeur: String(recit.photo.n) } : null}

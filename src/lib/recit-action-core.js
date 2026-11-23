@@ -3,12 +3,14 @@ import { construireMessageRecit, estimationCoutRecit } from "./recit-generation.
 import { cibleValide, contenuAvecRecit, contenuAvecRetour, contenuRevenuAuPrecedent, entreeRetour, remarqueNettoyee } from "./recit.js";
 import { slideDeCible } from "./carrousel-recit.js";
 import { aleaFiche, choisirIllustration, motsClesDisponibles } from "./illustrations.js";
+import { choisirPhoto } from "./photos-candidats.js";
+import { slugCandidat } from "./carte.js";
 
 // Logique des boutons du carrousel détaillé de /test/reseaux/<id> :
 // « Générer le carrousel détaillé » / « Générer à nouveau », « Régénérer avec
 // ces remarques » et « Revenir à la version précédente ». Dépendances
 // injectées (isEditor, prisma, generer, lirePrompt, sauvegarder,
-// derniereIllustration) pour tester sans base ni appel payant
+// imagesRecentes) pour tester sans base ni appel payant
 // (scripts/recit.test.js) ; branchées par src/app/test/reseaux/actions.js
 // (et, pour la démonstration locale, par un faux `prisma` sur un fichier).
 //
@@ -45,18 +47,32 @@ async function ecrire({ prisma, analyse, contenu, contenuNouveau, sauvegarder })
   return { ecrit: count === 1, sauvegarde };
 }
 
-// Image de thème retenue pour une nouvelle version : tirage dans le thème,
-// orienté par les mots-clés du modèle, en évitant l'image du dernier
-// carrousel du même thème.
-async function illustrationRetenue({ proposition, recit, derniereIllustration }) {
-  const derniere = derniereIllustration ? await derniereIllustration({ theme: proposition.theme, propositionId: proposition.id }) : null;
+// Images de la couverture retenues pour une nouvelle version
+// (src/lib/banque-images.js) :
+//  - image de thème : tirage dans le thème (ou le dossier de secours),
+//    orienté par les mots-clés du modèle, hors des images des 2 derniers
+//    carrousels du même thème ;
+//  - photo du candidat : hors des photos de ses 2 derniers carrousels.
+// `imagesRecentes({ theme, slug })` → { illustrations, photos } (le plus
+// récent d'abord). Renvoie { illustration (fichier), photo (numéro) }, null
+// pour ce qui manque à la bibliothèque.
+async function imagesRetenues({ proposition, recit, imagesRecentes }) {
+  const slug = slugCandidat({ nom: proposition.candidat?.nom, photoUrl: proposition.candidat?.photoUrl });
+  const recentes = imagesRecentes ? await imagesRecentes({ theme: proposition.theme, slug }) : null;
+  const graine = `${proposition.id}-${recit.genereLe ?? ""}`;
   const { illustration } = choisirIllustration({
     theme: proposition.theme,
     motsCles: recit.illustration_mots_cles ?? [],
-    derniere,
-    alea: aleaFiche(`${proposition.id}-${recit.genereLe ?? ""}`),
+    recentes: recentes?.illustrations ?? [],
+    alea: aleaFiche(graine),
   });
-  return illustration?.fichier ?? null;
+  const photo = choisirPhoto({ slug, recentes: recentes?.photos ?? [], graine });
+  return { illustration: illustration?.fichier ?? null, photo: photo?.n ?? null };
+}
+
+// Récit à écrire avec ses images de couverture.
+function avecImages(recit, { illustration, photo }) {
+  return { ...recit, ...(illustration ? { illustration } : {}), ...(photo !== null && photo !== undefined ? { photo } : {}) };
 }
 
 // Coût estimé avant confirmation, sans appel payant. Avec `remarque` et
@@ -83,7 +99,7 @@ export async function estimerRecitCore(propositionId, { brouillon, isEditor, pri
 //  - l'ancien carrousel gardé sous `precedent`, le journal `retours` conservé.
 // Renvoie { ok: true, simulation?, message, cout?, avertissements?, sauvegarde? }
 // ou { ok: false, erreur, cout? }.
-export async function genererRecitPourFicheCore(propositionId, { brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, derniereIllustration = null }) {
+export async function genererRecitPourFicheCore(propositionId, { brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, imagesRecentes = null }) {
   const fiche = await cibleFiche(propositionId, { brouillon, isEditor, prisma });
   if (fiche.erreur) return fiche.erreur;
   const { proposition, analyse } = fiche;
@@ -109,8 +125,7 @@ export async function genererRecitPourFicheCore(propositionId, { brouillon, isEd
     return { ok: false, erreur: `Carrousel détaillé refusé après deux essais, rien n’est écrit. ${raisons}`, cout };
   }
 
-  const illustration = await illustrationRetenue({ proposition, recit: resultat.recit, derniereIllustration });
-  const recit = { ...resultat.recit, ...(illustration ? { illustration } : {}) };
+  const recit = avecImages(resultat.recit, await imagesRetenues({ proposition, recit: resultat.recit, imagesRecentes }));
   const { ecrit, sauvegarde } = await ecrire({ prisma, analyse, contenu, contenuNouveau: contenuAvecRecit(contenu, recit), sauvegarder });
   if (!ecrit) {
     return { ok: false, erreur: "La fiche a été modifiée pendant la génération : rien n’est écrit. Recommencez.", cout };
@@ -132,7 +147,7 @@ export async function genererRecitPourFicheCore(propositionId, { brouillon, isEd
 //  - acceptée : la version actuelle passe sous `precedent` ; refusée : rien
 //    ne change dans le carrousel. Dans les deux cas, la remarque est ajoutée
 //    au journal `retours` (date, slide visée, résultat).
-export async function regenererAvecRemarquesCore(propositionId, { remarque, cible, brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, derniereIllustration = null }) {
+export async function regenererAvecRemarquesCore(propositionId, { remarque, cible, brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, imagesRecentes = null }) {
   const fiche = await cibleFiche(propositionId, { brouillon, isEditor, prisma });
   if (fiche.erreur) return fiche.erreur;
   const { proposition, analyse } = fiche;
@@ -175,10 +190,10 @@ export async function regenererAvecRemarquesCore(propositionId, { remarque, cibl
     };
   }
 
-  // Image de thème : gardée, sauf si la couverture (ou tout) est réécrite.
+  // Images de couverture : gardées, sauf si la couverture (ou tout) est réécrite.
   const changeImage = cible === "toutes" || cible === "couverture";
-  const illustration = changeImage ? await illustrationRetenue({ proposition, recit: resultat.recit, derniereIllustration }) : precedent.illustration;
-  const recit = { ...resultat.recit, ...(illustration ? { illustration } : {}) };
+  const images = changeImage ? await imagesRetenues({ proposition, recit: resultat.recit, imagesRecentes }) : { illustration: precedent.illustration ?? null, photo: precedent.photo ?? null };
+  const recit = avecImages(resultat.recit, images);
   const retour = entreeRetour({ ...base, resultat: "acceptée", details: resultat.avertissements ?? [] });
   const { ecrit, sauvegarde } = await ecrire({ prisma, analyse, contenu, contenuNouveau: contenuAvecRecit(contenu, recit, retour), sauvegarder });
   if (!ecrit) return { ok: false, erreur: "La fiche a été modifiée pendant la génération : rien n’est écrit. Recommencez.", cout };

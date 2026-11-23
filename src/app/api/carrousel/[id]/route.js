@@ -93,7 +93,8 @@ export async function GET(request, { params }) {
   const version = recherche.get("version");
   const detaille = version === "recit" || version === "recit-precedent";
   const photoDemandee = detaille ? recherche.get("photo") : null;
-  const carrousel = detaille ? recitDe(proposition, analyse, { precedent: version === "recit-precedent", photo: photoDemandee }) : carrouselDe(proposition, analyse);
+  const imageDemandee = detaille ? recherche.get("image") : null;
+  const carrousel = detaille ? recitDe(proposition, analyse, { precedent: version === "recit-precedent", photo: photoDemandee, image: imageDemandee }) : carrouselDe(proposition, analyse);
   if (!carrousel) return introuvable();
   const { slides, couleur, sujet } = carrousel;
   const slide = slides.find((s) => s.numero === numero);

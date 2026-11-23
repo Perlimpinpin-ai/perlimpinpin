@@ -13,24 +13,48 @@
 //         dans data/photos-candidats/originaux/<slug>/<n>.jpg (1 600 px de large
 //         au plus) et les ajoute à src/lib/photos-candidats.js. Puis :
 //         python scripts/detourer-candidats.py --photos <slug>
+//   node scripts/chercher-photos-candidats.js --preparer-dossiers
+//       → crée les 12 dossiers de dépôt data/photos-candidats/a-importer/<slug>/
+//         avec un credits.json modèle (rien n'est écrasé).
+//   node scripts/chercher-photos-candidats.js <slug> --importer
+//       → photos choisies à la main sur Commons et déposées dans
+//         data/photos-candidats/a-importer/<slug>/ avec credits.json
+//         (fichier, auteur, licence, source = page Commons, description) :
+//         contrôle des crédits et de la taille (≥ 800 px), copie dans
+//         data/photos-candidats/originaux/<slug>/<n>.jpg et ajout à
+//         src/lib/photos-candidats.js. Puis le détourage, comme ci-dessus.
 //
 // User-Agent : nom du projet et contact, comme Wikimedia le demande (le site
 // par défaut ; WIKIMEDIA_CONTACT=<e-mail> pour donner une adresse).
 // Aucune base, aucun appel payant.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import sharp from "sharp";
 import { CATEGORIES_COMMONS, nomDepuisSlug } from "../src/lib/candidats-commons.js";
 import { PHOTOS_CANDIDATS } from "../src/lib/photos-candidats.js";
-import { API_COMMONS, CANDIDATES_MIN, candidatesDepuisPages, entreesPhotos, meilleuresCandidates, reecrireListePhotos, userAgent } from "./lib/commons.js";
+import { API_COMMONS, CANDIDATES_MIN, candidatesDepuisPages, entreesDepot, entreesPhotos, LARGEUR_MIN, meilleuresCandidates, modeleCredits, reecrireListePhotos, userAgent } from "./lib/commons.js";
 
 const DOSSIER = join("data", "photos-candidats");
+const DEPOT = join(DOSSIER, "a-importer");
 const FICHIERS_MAX = 400;
 const LARGEUR_TELECHARGEMENT = 1600;
 
 const [slug] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const telecharger = process.argv.includes("--telecharger");
+const importer = process.argv.includes("--importer");
+
+if (process.argv.includes("--preparer-dossiers")) {
+  for (const s of Object.keys(CATEGORIES_COMMONS)) {
+    const dossier = join(DEPOT, s);
+    mkdirSync(dossier, { recursive: true });
+    const credits = join(dossier, "credits.json");
+    if (!existsSync(credits)) writeFileSync(credits, `${JSON.stringify(modeleCredits(s), null, 2)}\n`, "utf-8");
+    console.log(`✓ ${credits.replace(/\\/g, "/")}`);
+  }
+  process.exit(0);
+}
 if (!slug || !CATEGORIES_COMMONS[slug]) {
-  console.error(`Usage : node scripts/chercher-photos-candidats.js <slug> [--telecharger]\nSlugs : ${Object.keys(CATEGORIES_COMMONS).join(", ")}`);
+  console.error(`Usage : node scripts/chercher-photos-candidats.js <slug> [--telecharger | --importer]\n   ou : node scripts/chercher-photos-candidats.js --preparer-dossiers\nSlugs : ${Object.keys(CATEGORIES_COMMONS).join(", ")}`);
   process.exit(1);
 }
 
@@ -123,7 +147,42 @@ async function telechargerSelection() {
   console.log(`\n${nouvelles.length} photo(s) ajoutée(s) à ${bibliotheque}. Étape suivante : python scripts/detourer-candidats.py --photos ${slug}`);
 }
 
-(telecharger ? telechargerSelection() : chercher()).catch((erreur) => {
+// Photos déposées à la main dans data/photos-candidats/a-importer/<slug>/.
+async function importerDepot() {
+  const dossier = join(DEPOT, slug);
+  const fichierCredits = join(dossier, "credits.json");
+  if (!existsSync(fichierCredits)) throw new Error(`Pas de ${fichierCredits} : lancez d'abord --preparer-dossiers, déposez les photos et remplissez credits.json.`);
+  const credits = JSON.parse(readFileSync(fichierCredits, "utf-8"));
+  const presents = readdirSync(dossier).filter((f) => f !== "credits.json");
+  const { nouvelles, refusees } = entreesDepot(slug, credits, presents, PHOTOS_CANDIDATS);
+  // Taille contrôlée avant toute écriture ; numéros attribués aux seules retenues.
+  const retenues = [];
+  for (const photo of nouvelles) {
+    const { width } = await sharp(join(dossier, photo.depot)).metadata();
+    if ((width ?? 0) < LARGEUR_MIN) refusees.push({ fichier: photo.depot, raison: `${width} px de large (${LARGEUR_MIN} au moins)` });
+    else retenues.push(photo);
+  }
+  let n = PHOTOS_CANDIDATS.filter((p) => p.slug === slug).reduce((max, p) => Math.max(max, p.n), 0);
+  const gardees = [];
+  mkdirSync(join(DOSSIER, "originaux", slug), { recursive: true });
+  for (const { depot, ...photo } of retenues) {
+    n += 1;
+    const entree = { ...photo, n, fichier: `carrousel/candidats/${slug}/${n}.png` };
+    await sharp(join(dossier, depot)).rotate().resize({ width: LARGEUR_TELECHARGEMENT, withoutEnlargement: true }).jpeg({ quality: 90 }).toFile(join(DOSSIER, "originaux", slug, `${n}.jpg`));
+    gardees.push(entree);
+    console.log(`✓ ${depot} → data/photos-candidats/originaux/${slug}/${n}.jpg (${entree.auteur}, ${entree.licence})`);
+  }
+  for (const r of refusees) console.log(`✗ ${r.fichier} : ${r.raison}`);
+  if (gardees.length === 0) {
+    console.log("\nAucune photo ajoutée.");
+    return;
+  }
+  const bibliotheque = join("src", "lib", "photos-candidats.js");
+  writeFileSync(bibliotheque, reecrireListePhotos(readFileSync(bibliotheque, "utf-8"), [...PHOTOS_CANDIDATS, ...gardees]), "utf-8");
+  console.log(`\n${gardees.length} photo(s) ajoutée(s) à ${bibliotheque}. Étape suivante : python scripts/detourer-candidats.py --photos ${slug}`);
+}
+
+(telecharger ? telechargerSelection() : importer ? importerDepot() : chercher()).catch((erreur) => {
   console.error(`Erreur : ${erreur.message}`);
   process.exitCode = 1;
 });

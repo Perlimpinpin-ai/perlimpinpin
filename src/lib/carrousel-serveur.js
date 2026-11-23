@@ -92,11 +92,12 @@ function avertissementsImagesRecit(candidat, illustration, photo) {
 
 // Carrousel détaillé (8 slides) et tweet long, ou null sans
 // contenuComplet.reseaux_recit ; `precedent` : sa version précédente ;
-// `photo` : numéro de la photo du candidat demandée (« Changer de photo »).
+// `photo` : numéro de la photo du candidat demandée (« Changer de photo ») ;
+// `image` : fichier de l'image de thème demandée (« Changer d'image »).
 // Chaque slide est mesurée (src/lib/mise-en-page-carrousel.js) : un texte
 // qui déborde ou un titre mal coupé devient un avertissement fort.
-export function recitDe(proposition, analyse, { precedent = false, photo = null } = {}) {
-  const recit = carrouselRecit({ ...donnees(proposition, analyse), precedent, photoDemandee: photo });
+export function recitDe(proposition, analyse, { precedent = false, photo = null, image = null } = {}) {
+  const recit = carrouselRecit({ ...donnees(proposition, analyse), precedent, photoDemandee: photo, illustrationDemandee: image });
   if (!recit) return recit;
   recit.avertissements.push(...avertissementsImagesRecit(proposition.candidat, recit.illustration, recit.photo));
   recit.debordements = debordementsCarrousel(recit.slides, mesureurCarrousel());

@@ -13,6 +13,8 @@
     "lint": "eslint",
     "test": "node --test \"scripts/**/*.test.js\"",
     "vignettes": "node scripts/vignettes-photos.js",
+    "banque-images:themes": "node scripts/chercher-illustrations.js --tous",
+    "banque-images:verifier": "node scripts/verifier-banque-images.js",
     "file-attente": "node scripts/traiter-file-attente.js",
     "file-attente:import": "node scripts/traiter-file-attente.js --import",
     "postinstall": "prisma generate"

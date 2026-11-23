@@ -71,7 +71,7 @@ export const COUVERTURE = {
   largeurSousTitre: 640,
   basTexte: 860, // le titre et le sous-titre s'arrêtent au-dessus du collage
   largeurCredits: LARGEUR - 2 * 84,
-  lignesCredits: 1, // une seule ligne de crédit sur la couverture
+  lignesCredits: 2, // photo du candidat, plus l'image de thème si sa licence exige un crédit (CC BY…)
   bande: 28, // bande de hachures plus fine sur la couverture
   paddingSurlignage: 10,
 };
@@ -224,7 +224,7 @@ function miseEnPageCouverture(slide, m) {
   controleZone(hauteur, debordements, "question de couverture", COUVERTURE.basTexte - COUVERTURE.hautTitre);
   // Crédit photo en petit, en bas : une seule ligne.
   const credits = slide.credits?.length ? bloc(slide.credits.join(" · "), STYLES.creditsCouverture, COUVERTURE.largeurCredits - 20, m, { gras: false }) : null;
-  if (credits && credits.lignes.length > COUVERTURE.lignesCredits) debordements.push({ bloc: "crédits photo", raison: `${credits.lignes.length} lignes (une seule attendue) : auteur trop long, à abréger dans src/lib/photos-candidats.js` });
+  if (credits && credits.lignes.length > COUVERTURE.lignesCredits) debordements.push({ bloc: "crédits photo", raison: `${credits.lignes.length} lignes (${COUVERTURE.lignesCredits} au plus) : auteur trop long, à abréger dans src/lib/photos-candidats.js ou src/lib/illustrations.js` });
   return { titre, sousTitre, credits, hauteur, debordements };
 }
 
