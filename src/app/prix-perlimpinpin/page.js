@@ -6,8 +6,10 @@ import { getScoreExtremes, getVoteMesureLeaderboard } from "@/lib/queries";
 import { getScoreBadge } from "@/lib/score";
 import { vignettePhoto } from "@/lib/photo-vignette";
 
-// ISR : servie depuis le cache du CDN, recalculée au plus toutes les 5 minutes.
-export const revalidate = 300;
+// ISR : servie depuis le cache du CDN, recalculée au plus tard une fois par jour,
+// aussitôt après chaque publication (src/lib/rafraichir-public.js) et après
+// chaque vote sur une mesure (/api/vote-mesure).
+export const revalidate = 86400;
 
 const ICON_FLAG = (
   <path

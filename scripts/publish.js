@@ -3,6 +3,7 @@ import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
+import { rafraichirSite } from "./rafraichir-site.js";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -82,6 +83,9 @@ async function main() {
     `Candidat : ${candidat.nom} — nouveau scoreMoyen : ${candidat.scoreMoyen}`,
   );
   console.log("");
+
+  // Les pages publiques sont en cache un jour : on les fait recalculer.
+  await rafraichirSite();
 }
 
 main()

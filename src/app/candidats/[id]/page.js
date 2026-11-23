@@ -190,10 +190,11 @@ function IndemnitesRevenus({ parcours }) {
 }
 
 // ISR : chaque page est calculée à sa première visite, puis servie depuis le
-// cache du CDN et recalculée au plus toutes les 5 minutes. generateStaticParams
+// cache du CDN et recalculée au plus tard une fois par jour (et aussitôt après
+// chaque publication, src/lib/rafraichir-public.js). generateStaticParams
 // renvoie [] : le build ne lit pas Neon, et dynamicParams = true laisse
 // générer n'importe quelle adresse à la demande.
-export const revalidate = 300;
+export const revalidate = 86400;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/test-auth";
 import { publierRevisionCore, reclasserCore, rejeterRevisionCore, validerReponsesCore } from "@/lib/revue-admin-core";
 import { declencherRevue } from "@/lib/github";
+import { rafraichirSitePublic } from "@/lib/rafraichir-public";
 
 // Actions serveur de la revue du dimanche (/test/revue). Un fichier
 // "use server" exporte des fonctions appelables par n'importe quel client :
@@ -12,15 +13,9 @@ import { declencherRevue } from "@/lib/github";
 
 function rafraichir(propositionId = null) {
   revalidatePath("/test/revue");
-  if (propositionId) {
-    revalidatePath(`/declarations/${propositionId}`);
-    revalidatePath("/");
-    revalidatePath("/declarations");
-    revalidatePath("/candidats");
-    // Toutes les pages candidat (l'id du candidat n'est pas connu ici).
-    revalidatePath("/candidats/[id]", "page");
-    revalidatePath("/themes");
-  }
+  // Fiche publiée modifiée : tout le site public (en cache un jour) est vidé,
+  // pour ne rien oublier (fiche, accueil, candidat, thèmes, dossiers, prix…).
+  if (propositionId) rafraichirSitePublic();
 }
 
 export async function reclasserAnnotation(_etat, formData) {

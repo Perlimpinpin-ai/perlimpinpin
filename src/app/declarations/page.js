@@ -7,6 +7,9 @@ import SearchBar from "@/components/SearchBar";
 import { getPublishedDeclarations } from "@/lib/queries";
 import { resolveTheme, themeLabel } from "@/lib/themes";
 
+// Page dynamique (elle lit ?candidat=, ?theme=, ?q=), mais sans lecture en
+// base à chaque visite : les déclarations publiées sont en cache (un jour au
+// plus, vidé à chaque publication), voir getPublishedDeclarations.
 export const dynamic = "force-dynamic";
 
 // Mots-clés de la barre de recherche (?q=...) : texte nettoyé, 100

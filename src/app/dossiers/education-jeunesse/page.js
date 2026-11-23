@@ -24,7 +24,9 @@ export const metadata = {
   ...(DOSSIER.visible ? {} : { robots: { index: false, follow: false } }),
 };
 
-export const revalidate = 3600;
+// Fiches publiées lues en base : cache d'un jour, vidé à chaque publication
+// (src/lib/rafraichir-public.js).
+export const revalidate = 86400;
 
 const SECTION = "w-full scroll-mt-20 px-6 pb-16 sm:px-8 sm:pb-20";
 const CONTENEUR = "mx-auto w-full max-w-[1280px]";

@@ -13,9 +13,9 @@ export const metadata = {
     "Comment Perlimpinpin analyse et note les promesses politiques.",
 };
 
-// Page en cache, recalculée au plus tard toutes les heures et immédiatement
+// Page en cache, recalculée au plus tard une fois par jour et immédiatement
 // après une modification depuis /test/textes/methode.
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // Icônes dessinées à la main (formes simples), voir la même remarque dans
 // MethodeAnalysisSteps.js : plus sûr qu'un tracé Heroicons recopié de

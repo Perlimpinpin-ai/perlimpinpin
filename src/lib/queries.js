@@ -1,4 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { TAG_DECLARATIONS } from "@/lib/rafraichir-public";
 import { creerMoteur, motsDuCorps } from "@/lib/recherche";
 import { resolveTheme, themeLabel } from "@/lib/themes";
 import { STATUTS_VERSION, numeroVersion } from "@/lib/versions-core";
@@ -323,93 +325,115 @@ export async function getCandidateRanking(limit) {
 // `q` = mots-clés tapés dans la barre de recherche (moteur tolérant aux
 // fautes et aux accents, voir src/lib/recherche.js). sort = "pertinence"
 // classe les résultats de la recherche du plus au moins pertinent.
+//
+// La page reste dynamique (elle lit ?candidat=, ?theme=, ?q=), mais la lecture
+// en base est en cache (declarationsPublieesEnCache, ci-dessous) : filtres,
+// tri et recherche se font en mémoire. La base n'est donc lue qu'une fois par
+// jour au plus, ou après une publication (src/lib/rafraichir-public.js).
 export async function getPublishedDeclarations({ candidat, theme, sort, q } = {}) {
   const themeCible = theme ? cleTheme(theme) : null;
-  const orderBy =
-    sort === "score_asc"
-      ? [{ scoreFaisabilite: "asc" }]
-      : sort === "score_desc"
-        ? [{ scoreFaisabilite: "desc" }]
-        : ORDRE_DERNIERES_PUBLICATIONS;
+  const { fiches, candidats, themes } = await declarationsPublieesEnCache();
 
-  const [analysesCandidat, allPublished, rankRows, allCandidats] = await Promise.all([
-    // Filtre thème appliqué après coup (voir cleTheme), pour accepter aussi
-    // un libellé ou une ancienne écriture dans l'URL.
-    prisma.analyse.findMany({
-      where: {
-        statut: "publie",
-        ...(candidat ? { proposition: { candidat: { nom: candidat } } } : {}),
-      },
-      orderBy,
-      include: {
-        proposition: { include: { candidat: true } },
-      },
-    }),
-    prisma.analyse.findMany({
-      where: { statut: "publie" },
-      include: { proposition: { include: { candidat: true } } },
-    }),
-    // Rang chronologique global (1 = analyse publiée la plus ancienne),
-    // pour l'étiquette "ANALYSE_XXX" des cartes — l'id brut ne peut plus
-    // servir de numéro depuis la suppression des 20 premières analyses
-    // (la série recommençait à 021 au lieu de 001). Calculé par Postgres via
-    // ROW_NUMBER(), jamais en chargeant toutes les lignes pour les compter
-    // côté JS, et indépendant du filtre/tri courant de la page (le rang
-    // d'une analyse ne doit pas changer selon la vue affichée) — sur la
-    // date de publication (publieLe, repli createdAt), pas sur
-    // dateDeclaration (date de la déclaration du candidat, sans rapport
-    // avec l'ordre de publication de nos analyses).
-    prisma.$queryRaw`
-      SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE("publieLe", "createdAt") ASC, id ASC) AS rang
-      FROM "Analyse"
-      WHERE statut = 'publie'
-    `,
-    // Tous les candidats existants, pas seulement ceux ayant déjà une
-    // déclaration publiée : un candidat sans déclaration doit rester
-    // sélectionnable dans le filtre (il affichera juste "aucune déclaration
-    // ne correspond"), sinon le pill actif disparaît silencieusement quand
-    // on arrive sur /declarations?candidat=... depuis sa fiche.
-    prisma.candidat.findMany({ select: { nom: true, parti: true } }),
-  ]);
-
-  const analyses = themeCible
-    ? analysesCandidat.filter((a) => cleTheme(a.proposition.theme) === themeCible)
-    : analysesCandidat;
-
-  const rankById = new Map(rankRows.map((row) => [Number(row.id), Number(row.rang)]));
-
-  const candidats = [...allCandidats].sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
-
-  const themes = themeOptions(allPublished);
+  // fiches : dans l'ordre ORDRE_DERNIERES_PUBLICATIONS (tri « date »).
+  let analyses = fiches.filter(
+    (f) => (!candidat || f.candidatNom === candidat) && (!themeCible || f.themeCle === themeCible),
+  );
+  // Tri par score : stable, les ex æquo restent dans l'ordre de publication.
+  if (sort === "score_asc") analyses = [...analyses].sort((a, b) => a.carte.score - b.carte.score);
+  else if (sort === "score_desc") analyses = [...analyses].sort((a, b) => b.carte.score - a.carte.score);
 
   // Recherche (même moteur que la barre de la page d'accueil, sans limite
   // de nombre) : on garde les analyses trouvées, dans l'ordre de pertinence
   // si le tri « pertinence » est demandé.
   let analysesTrouvees = analyses;
   if (q) {
-    const trouvees = creerMoteur(analyses.map(documentRecherche)).rechercher(q, Infinity);
+    const trouvees = creerMoteur(analyses.map((f) => f.doc)).rechercher(q, Infinity);
     const rang = new Map(trouvees.map((doc, index) => [doc.id, index]));
-    analysesTrouvees = analyses.filter((analyse) => rang.has(analyse.id));
+    analysesTrouvees = analyses.filter((f) => rang.has(f.doc.id));
     if (sort === "pertinence") {
-      analysesTrouvees.sort((a, b) => rang.get(a.id) - rang.get(b.id));
+      analysesTrouvees.sort((a, b) => rang.get(a.doc.id) - rang.get(b.doc.id));
     }
   }
 
-  const declarations = analysesTrouvees.map((analyse) => ({
-    id: analyse.proposition.id,
-    analyseId: analyse.id,
-    rang: rankById.get(analyse.id),
-    titre: displayTitle(analyse.proposition),
-    candidatNom: analyse.proposition.candidat.nom,
-    candidatParti: analyse.proposition.candidat.parti,
-    candidatPhotoUrl: analyse.proposition.candidat.photoUrl,
-    theme: themeLabel(analyse.proposition.theme),
-    dateLabel: dateFormatter.format(analyse.proposition.dateDeclaration),
-    score: analyse.scoreFaisabilite,
-  }));
-
-  return { declarations, candidats, themes };
+  return { declarations: analysesTrouvees.map((f) => f.carte), candidats, themes };
 }
+
+// Au-delà de 2 Mo, le cache de données de Vercel n'enregistre pas l'entrée :
+// la page relirait alors la base à chaque visite. Avertissement dans les logs
+// avant d'y arriver (le texte de recherche `corps` est le plus lourd).
+const TAILLE_CACHE_ALERTE = 1.5 * 1024 * 1024;
+
+// Toutes les déclarations publiées, déjà mises en forme (données JSON
+// seulement : le cache sérialise, les Date et BigInt n'y survivent pas).
+// Clé fixe, un jour au plus ; vidée par revalidatePath("/", "layout") et par
+// l'étiquette TAG_DECLARATIONS (src/lib/rafraichir-public.js).
+const declarationsPublieesEnCache = unstable_cache(
+  async () => {
+    const [publiees, rankRows, allCandidats] = await Promise.all([
+      prisma.analyse.findMany({
+        where: { statut: "publie" },
+        orderBy: ORDRE_DERNIERES_PUBLICATIONS,
+        include: { proposition: { include: { candidat: true } } },
+      }),
+      // Rang chronologique global (1 = analyse publiée la plus ancienne),
+      // pour l'étiquette "ANALYSE_XXX" des cartes — l'id brut ne peut plus
+      // servir de numéro depuis la suppression des 20 premières analyses
+      // (la série recommençait à 021 au lieu de 001). Calculé par Postgres via
+      // ROW_NUMBER(), indépendant du filtre/tri courant de la page (le rang
+      // d'une analyse ne doit pas changer selon la vue affichée) — sur la
+      // date de publication (publieLe, repli createdAt), pas sur
+      // dateDeclaration (date de la déclaration du candidat, sans rapport
+      // avec l'ordre de publication de nos analyses).
+      prisma.$queryRaw`
+        SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE("publieLe", "createdAt") ASC, id ASC) AS rang
+        FROM "Analyse"
+        WHERE statut = 'publie'
+      `,
+      // Tous les candidats existants, pas seulement ceux ayant déjà une
+      // déclaration publiée : un candidat sans déclaration doit rester
+      // sélectionnable dans le filtre (il affichera juste "aucune déclaration
+      // ne correspond"), sinon le pill actif disparaît silencieusement quand
+      // on arrive sur /declarations?candidat=... depuis sa fiche.
+      prisma.candidat.findMany({ select: { nom: true, parti: true } }),
+    ]);
+
+    const rankById = new Map(rankRows.map((row) => [Number(row.id), Number(row.rang)]));
+
+    const donnees = {
+      fiches: publiees.map((analyse) => ({
+        candidatNom: analyse.proposition.candidat.nom,
+        // Filtre thème appliqué sur la clé (voir cleTheme), pour accepter aussi
+        // un libellé ou une ancienne écriture dans l'URL.
+        themeCle: cleTheme(analyse.proposition.theme),
+        doc: documentRecherche(analyse),
+        carte: {
+          id: analyse.proposition.id,
+          analyseId: analyse.id,
+          rang: rankById.get(analyse.id),
+          titre: displayTitle(analyse.proposition),
+          candidatNom: analyse.proposition.candidat.nom,
+          candidatParti: analyse.proposition.candidat.parti,
+          candidatPhotoUrl: analyse.proposition.candidat.photoUrl,
+          theme: themeLabel(analyse.proposition.theme),
+          dateLabel: dateFormatter.format(analyse.proposition.dateDeclaration),
+          score: analyse.scoreFaisabilite,
+        },
+      })),
+      candidats: [...allCandidats].sort((a, b) => a.nom.localeCompare(b.nom, "fr")),
+      themes: themeOptions(publiees),
+    };
+
+    const taille = JSON.stringify(donnees).length;
+    if (taille > TAILLE_CACHE_ALERTE) {
+      console.warn(
+        `[declarations] données en cache : ${Math.round(taille / 1024)} Ko, proche de la limite de 2 Mo du cache Vercel.`,
+      );
+    }
+    return donnees;
+  },
+  ["declarations-publiees-v1"],
+  { revalidate: 86400, tags: [TAG_DECLARATIONS] },
+);
 
 // Thèmes distincts d'une liste d'analyses, dédoublonnés :
 // [{ value: slug, label, nombre }], triés par libellé.

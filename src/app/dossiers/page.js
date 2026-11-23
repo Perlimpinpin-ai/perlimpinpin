@@ -9,8 +9,9 @@ import { DOSSIER } from "@/lib/couleurs-dossier";
 // analysé poste par poste dans plusieurs fiches notées. Le contenu vient des
 // JSON de data/hors-series/ (src/lib/hors-series.js) ; l'avancement de
 // certains dossiers est lu en base (lecture seule), d'où la régénération
-// toutes les heures.
-export const revalidate = 3600;
+// une fois par jour (et aussitôt après chaque publication,
+// src/lib/rafraichir-public.js).
+export const revalidate = 86400;
 
 export const metadata = {
   title: "Dossiers | Perlimpinpin",

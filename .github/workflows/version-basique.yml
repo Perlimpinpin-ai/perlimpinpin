@@ -15,7 +15,9 @@
 # publiée seulement si son numéro est donné ; jamais une fiche à la corbeille.
 # Aucun commit, aucune PR : la ligne est mise à jour directement en base.
 #
-# Secrets : DATABASE_URL, ANTHROPIC_API_KEY.
+# Secrets : DATABASE_URL, ANTHROPIC_API_KEY, REVALIDATE_SECRET (facultatif :
+# vide le cache du site public quand une fiche publiée est complétée, voir
+# scripts/rafraichir-site.js ; sans lui, la fiche se met à jour sous 24 h).
 
 name: Version basique manquante
 run-name: Version basique ${{ inputs.id || '(tous les brouillons)' }}
@@ -49,6 +51,7 @@ jobs:
       ID: ${{ inputs.id }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
     steps:
       - name: Récupération de main
         uses: actions/checkout@v4
