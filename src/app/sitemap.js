@@ -1,5 +1,6 @@
 import { getHorsSeries } from "@/lib/hors-series";
 import { getPublishedPropositionsForSitemap } from "@/lib/queries";
+import { cheminFiche } from "@/lib/slug";
 
 // Recalculé au plus tard une fois par jour, et aussitôt après chaque
 // publication (src/lib/rafraichir-public.js) : un passage de robot ne lit plus
@@ -29,8 +30,8 @@ export default async function sitemap() {
   }));
 
   const propositions = await getPublishedPropositionsForSitemap();
-  const declarationEntries = propositions.map(({ id, lastModified }) => ({
-    url: `${BASE_URL}/declarations/${id}`,
+  const declarationEntries = propositions.map(({ id, slug, lastModified }) => ({
+    url: `${BASE_URL}${cheminFiche({ id, slug })}`,
     ...(lastModified ? { lastModified } : {}),
   }));
 

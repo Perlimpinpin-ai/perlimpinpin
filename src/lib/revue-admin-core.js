@@ -25,6 +25,7 @@ import { REPONSE_MAX, categorieValide, confirmationValide, derniereDecision, don
 import { estSlugFiche, slugFiche } from "./fiche-annotations-core.js";
 import { planTraitements } from "./versions-core.js";
 import { journaliser as journaliserParDefaut } from "./journal-insertions.js";
+import { attribuerSlug } from "./slug-db.js";
 
 const refus = (message) => ({ ok: false, message });
 
@@ -205,7 +206,9 @@ export async function publierRevisionCore({
         _avg: { scoreFaisabilite: true },
       });
       await tx.candidat.update({ where: { id: candidatId }, data: { scoreMoyen: _avg.scoreFaisabilite ?? null } });
-      return { analyseId: nouvelle.id, decisionId: decision.id, bilan };
+      // Adresse de la fiche : déjà fixée en principe (fiche en ligne) ; sinon fixée ici, jamais écrasée.
+      const { slug } = await attribuerSlug(tx, revision.propositionId);
+      return { analyseId: nouvelle.id, decisionId: decision.id, bilan, slug };
     });
     // Après la transaction (rien n'est journalisé si elle a été annulée).
     const commun = { revisionId, propositionId: revision.propositionId };
@@ -213,7 +216,7 @@ export async function publierRevisionCore({
     journaliser({ type: "analyse_remplacee", ...commun, analyseId: source.id, ancienStatut: "publie", nouveauStatut: "remplacee", remplaceePar: resultat.analyseId }, { maintenant });
     journaliser({ type: "decision_revision", decision: "publiee", ...commun, decisionId: resultat.decisionId, analysePublieeId: resultat.analyseId }, { maintenant });
     journaliser({ type: "traitements_annotations", ...commun, decisionId: resultat.decisionId, ...resultat.bilan }, { maintenant });
-    return { ok: true, propositionId: revision.propositionId, analyseId: resultat.analyseId };
+    return { ok: true, propositionId: revision.propositionId, analyseId: resultat.analyseId, slug: resultat.slug };
   } catch (error) {
     return refus(error?.message ?? "Publication impossible.");
   }

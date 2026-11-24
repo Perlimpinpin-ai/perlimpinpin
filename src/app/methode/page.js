@@ -69,7 +69,7 @@ const ICON_CALCULATOR = (
 
 // Icônes des 5 critères : mêmes tracés qu'ICON_OPERATIONNEL/EFFICACITE/
 // REBONDS/PREPARATION/ALIGNEMENT sur la fiche déclaration (voir
-// src/app/declarations/[id]/page.js) — repris tels quels, même langage
+// src/app/declarations/[slug]/page.js) — repris tels quels, même langage
 // visuel que le reste du site pour ces 5 mêmes concepts.
 const ICON_CRITERE_OPERATIONNEL = (
   <path

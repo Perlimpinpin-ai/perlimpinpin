@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
@@ -67,7 +68,7 @@ export default async function ThemeDetailPage({ params }) {
                 return (
                   <Link
                     key={proposition.propositionId}
-                    href={`/declarations/${proposition.propositionId}`}
+                    href={cheminFiche(proposition)}
                     className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-6 transition-colors hover:border-zinc-300 hover:bg-zinc-50 sm:flex-row sm:items-center"
                   >
                     <img

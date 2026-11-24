@@ -1,5 +1,6 @@
 "use client";
 
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { getScoreBadge } from "@/lib/score";
@@ -25,6 +26,7 @@ const ARROW_REVEAL_DELAY_MS = 100;
 export default function FeaturedCard({
   dossier,
   propositionId,
+  slug,
   quoteText,
   personName,
   personPhotoUrl,
@@ -192,7 +194,7 @@ export default function FeaturedCard({
           </div>
 
           <Link
-            href={`/declarations/${propositionId}`}
+            href={cheminFiche({ id: propositionId, slug })}
             className="mt-5 flex w-full items-center justify-between gap-2 rounded-xl bg-blue-950 px-6 py-3.5 text-base font-medium text-white transition-colors hover:bg-blue-900"
           >
             Voir l&apos;analyse complète

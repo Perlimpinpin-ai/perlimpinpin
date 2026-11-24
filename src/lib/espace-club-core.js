@@ -1,4 +1,5 @@
 import { propositionDuSlug } from "./fiche-annotations-core.js";
+import { cheminFiche } from "./slug.js";
 
 // Espace adhérent du Club (page /relectures, nov. 2026) : « Mes commentaires »
 // et « Proposer une mesure ». Fonctions pures, sans Next ni Prisma, testées par
@@ -24,7 +25,7 @@ export function statutCommentaire({ reponse, retenu, etat, archiveSansReponse })
 
 // Liste renvoyée par GET /api/relectures/mes-commentaires.
 //   commentaires : RelectureComment de l'adhérent, avec `traitements` ;
-//   fichesPubliees : Map propositionId → { titre, candidat } (fiches « fiche-<id> ») ;
+//   fichesPubliees : Map propositionId → { titre, candidat, slug } (fiches « fiche-<id> ») ;
 //   archives : Map ficheSlug → { titre, candidat, reponses: Map id → { reponse, retenu } }
 //              (anciennes relectures de brouillons, data/relectures/*.json) ;
 //   dernierTraitement : versions-core.js (la ligne la plus récente fait foi).
@@ -47,7 +48,7 @@ export function mesCommentaires({ commentaires, fichesPubliees, archives, dernie
           type: "publiee",
           titre: p?.titre ?? "Fiche publiée",
           candidat: p?.candidat ?? null,
-          lien: `/declarations/${propositionId}`,
+          lien: cheminFiche({ id: propositionId, slug: p?.slug }),
         };
         if (t?.etat === "traitee") {
           reponse = t.reponse ?? null;

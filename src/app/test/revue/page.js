@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import Header from "@/components/Header";
 import MonoTag from "@/components/MonoTag";
@@ -36,7 +37,7 @@ async function donnees() {
       orderBy: { createdAt: "desc" },
       include: {
         analyseSource: {
-          select: { id: true, statut: true, contenuComplet: true, proposition: { select: { titre: true, candidat: { select: { nom: true } } } } },
+          select: { id: true, statut: true, contenuComplet: true, proposition: { select: { titre: true, slug: true, candidat: { select: { nom: true } } } } },
         },
       },
     }),
@@ -130,7 +131,7 @@ export default async function RevuePage() {
                         {r.etapes23 ? " · étapes 2 et 3 relancées" : " · textes seulement"}
                       </p>
                       <p className="mt-1 text-lg font-semibold text-zinc-900">
-                        <Link href={`/declarations/${r.propositionId}`} className="underline decoration-zinc-300 underline-offset-4">
+                        <Link href={cheminFiche({ id: r.propositionId, slug: source.proposition?.slug })} className="underline decoration-zinc-300 underline-offset-4">
                           {source.proposition?.titre ?? `Fiche ${r.propositionId}`}
                         </Link>
                       </p>

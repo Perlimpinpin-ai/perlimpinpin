@@ -59,11 +59,11 @@ export async function GET() {
   const propositions = ids.length
     ? await prisma.proposition.findMany({
         where: { id: { in: ids } },
-        select: { id: true, titre: true, texteOriginal: true, candidat: { select: { nom: true } } },
+        select: { id: true, titre: true, slug: true, texteOriginal: true, candidat: { select: { nom: true } } },
       })
     : [];
   const fichesPubliees = new Map(
-    propositions.map((p) => [p.id, { titre: p.titre || p.texteOriginal.slice(0, 120), candidat: p.candidat?.nom ?? null }]),
+    propositions.map((p) => [p.id, { titre: p.titre || p.texteOriginal.slice(0, 120), candidat: p.candidat?.nom ?? null, slug: p.slug ?? null }]),
   );
 
   return Response.json(

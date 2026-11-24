@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, us
 import { ID_VUE, ID_ONGLET, ID_DEBUT_CONTENU } from "@/lib/vue-analyse";
 
 // Bascule « Résumé basique / Résumé expert » de la fiche (voir
-// src/app/declarations/[id]/page.js). Les deux vues sont rendues côté serveur
+// src/app/declarations/[slug]/page.js). Les deux vues sont rendues côté serveur
 // (tout le texte reste dans le HTML) ; celle qui est masquée porte l'attribut
 // hidden. Vue basique par défaut, ?vue=expert ouvre directement la vue expert.
 //

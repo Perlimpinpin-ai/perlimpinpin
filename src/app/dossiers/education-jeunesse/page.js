@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import { getScoreBadge } from "@/lib/score";
 import { getFichesPubliees } from "@/lib/queries";
+import { cheminFiche } from "@/lib/slug";
 import DOSSIER from "../../../../data/hors-series/education-jeunesse.json" with { type: "json" };
 import { inter, variablesCharte } from "../mouvement-social/charte";
 import { Etiquette, ListeSources, OMBRE_CARTE, TitreNumerote, TuileChiffre } from "../mouvement-social/elements";
@@ -57,7 +58,7 @@ function vueFiche(fiche) {
   if (!fiche) return null;
   const badge = getScoreBadge(fiche.score);
   return {
-    url: `/declarations/${fiche.propositionId}`,
+    url: cheminFiche(fiche),
     score: fiche.score,
     appreciation: badge.label,
     classeScore: badge.scoreClass,

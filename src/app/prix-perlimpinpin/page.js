@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import Header from "@/components/Header";
 import MonoTag from "@/components/MonoTag";
@@ -86,7 +87,7 @@ function ExtremeCardContent({ card, border }) {
       </div>
 
       <Link
-        href={`/declarations/${card.propositionId}`}
+        href={cheminFiche(card)}
         className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 underline decoration-blue-200 underline-offset-2 transition-colors hover:text-blue-800"
       >
         Voir l&apos;analyse →
@@ -112,7 +113,7 @@ function VoteColumn({ title, cards, countLabel, pctLabel, direction }) {
         {cards.map((card, index) => (
           <li key={card.propositionId}>
             <Link
-              href={`/declarations/${card.propositionId}`}
+              href={cheminFiche(card)}
               className="-m-2 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-50"
             >
               <span className="w-5 shrink-0 text-sm font-bold text-zinc-400">

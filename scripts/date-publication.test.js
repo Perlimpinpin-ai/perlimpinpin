@@ -72,7 +72,7 @@ test("date affichée : « Analyse réalisée le » et datePublished viennent de 
   assert.match(queries, /generationDateLabel: analyse \? dateChiffres\(datePublication\(analyse\)\) : null/);
   // Les cartes et l'en-tête de la fiche gardent la date de la déclaration.
   assert.match(queries, /dateLabel: dateFormatter\.format\(proposition\.dateDeclaration\)/);
-  const fiche = lire("src/app/declarations/[id]/page.js");
+  const fiche = lire("src/app/declarations/[slug]/page.js");
   assert.match(fiche, /datePublished: datePublication\(analyse\)\.toISOString\(\)/);
   assert.match(fiche, /datePublished: declaration\.dateDeclaration\.toISOString\(\)/);
 });

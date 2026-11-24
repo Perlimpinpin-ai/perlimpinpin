@@ -5,7 +5,8 @@ import SectionHeading from "@/components/SectionHeading";
 import EncartDon from "@/components/EncartDon";
 import { MESSAGE_DON_DOSSIER } from "@/lib/message-don-dossier";
 import { getHorsSerie, getHorsSerieSlugs } from "@/lib/hors-series";
-import { getScoresPublies } from "@/lib/queries";
+import { getScoresPublies, getSlugsFiches } from "@/lib/queries";
+import { cheminFiche } from "@/lib/slug";
 import { getScoreBadge, getScoreBands, VERDICT_BG_CLASSES } from "@/lib/score";
 import { DOSSIER, NUANCES_JAUNE } from "@/lib/couleurs-dossier";
 
@@ -151,7 +152,7 @@ function CarteFiche({ fiche, candidat, score }) {
     return (
       <Link
         id={id}
-        href={`/declarations/${fiche.propositionId}`}
+        href={cheminFiche(fiche)}
         prefetch={false}
         className={`flex scroll-mt-24 flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-6 transition-colors hover:border-zinc-300 hover:bg-zinc-50 ${OMBRE_CARTE}`}
       >
@@ -222,7 +223,7 @@ function CelluleFiche({ fiche, score }) {
     const badge = getScoreBadge(score);
     return (
       <Link
-        href={`/declarations/${fiche.propositionId}`}
+        href={cheminFiche(fiche)}
         prefetch={false}
         className={`whitespace-nowrap font-semibold hover:underline ${badge.scoreClass}`}
       >
@@ -255,16 +256,16 @@ export default async function HorsSeriePage({ params }) {
     tableau,
     selection,
     analyses,
-    fiches,
+    fiches: fichesRegistre,
     noteGlobale,
   } = hs;
 
-  // Scores publiés lus en base, pour les fiches marquées « publiee ».
-  const scores = await getScoresPublies(
-    fiches
-      .filter((f) => f.statut === "publiee" && f.propositionId != null)
-      .map((f) => f.propositionId),
-  );
+  // Scores publiés et adresses (slug) lus en base, pour les fiches marquées « publiee ».
+  const idsPubliees = fichesRegistre
+    .filter((f) => f.statut === "publiee" && f.propositionId != null)
+    .map((f) => f.propositionId);
+  const [scores, slugs] = await Promise.all([getScoresPublies(idsPubliees), getSlugsFiches(idsPubliees)]);
+  const fiches = fichesRegistre.map((f) => ({ ...f, slug: slugs[f.propositionId] ?? null }));
   const ficheParNumero = new Map(fiches.map((f) => [f.numero, f]));
   const scoreDe = (fiche) =>
     fiche?.statut === "publiee" && fiche.propositionId != null

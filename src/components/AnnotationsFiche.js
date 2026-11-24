@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { garderBrouillon, liensAdhesion, lireBrouillon, oublierBrouillon } from "@/lib/brouillon-club";
 import { moiClub, surSessionClub } from "@/lib/moi-club";
 
-// Annotations du Club sur la vue experte d'une fiche PUBLIÉE (/declarations/[id]).
+// Annotations du Club sur la vue experte d'une fiche PUBLIÉE (/declarations/[slug]).
 // Réutilise l'outil de /relectures (public/club/annotations.js), chargé une
 // fois la page affichée : la page reste en cache (ISR) et ne contient jamais
 // d'annotation, tout passe par le navigateur.

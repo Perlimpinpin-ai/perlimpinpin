@@ -83,7 +83,7 @@ test("pages publiques : cache d'un jour, /declarations lit la base via unstable_
     "src/app/page.js",
     "src/app/candidats/page.js",
     "src/app/candidats/[id]/page.js",
-    "src/app/declarations/[id]/page.js",
+    "src/app/declarations/[slug]/page.js",
     "src/app/themes/page.js",
     "src/app/themes/[slug]/page.js",
     "src/app/prix-perlimpinpin/page.js",

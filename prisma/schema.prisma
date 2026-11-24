@@ -30,6 +30,11 @@ model Proposition {
   // pour l'affichage sur les cartes. Nullable pour les propositions
   // antérieures à l'ajout de ce champ.
   titre           String?
+  // Adresse publique de la fiche : /declarations/<slug> (voir src/lib/slug.js).
+  // Calculé depuis le titre et figé au premier clic « Publier » (ou par
+  // scripts/remplir-slugs.js), JAMAIS recalculé ensuite, même si le titre
+  // est corrigé. Nul tant que la mesure n'a jamais été publiée.
+  slug            String?  @unique
   texteOriginal   String
   theme           String
   dateDeclaration DateTime

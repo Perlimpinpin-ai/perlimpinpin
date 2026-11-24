@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -39,6 +40,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
         select: {
           id: true,
           titre: true,
+          slug: true,
           texteOriginal: true,
           theme: true,
           candidat: { select: { nom: true, photoUrl: true } },
@@ -76,7 +78,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
             {publiee === "1" ? (
               <p role="status" className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm font-semibold text-emerald-900">
                 Analyse publiée.{" "}
-                <Link href={`/declarations/${proposition.id}`} className="underline underline-offset-2">
+                <Link href={cheminFiche(proposition)} className="underline underline-offset-2">
                   Voir la fiche publique
                 </Link>
               </p>
@@ -86,7 +88,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
               <h1 className="text-2xl font-bold tracking-tight">Publications X</h1>
               <p className="text-sm text-zinc-600">
                 <Link
-                  href={estBrouillon ? `/test/${proposition.id}` : `/declarations/${proposition.id}`}
+                  href={estBrouillon ? `/test/${proposition.id}` : cheminFiche(proposition)}
                   className="underline underline-offset-2"
                 >
                   {proposition.titre ?? `Fiche ${proposition.id}`}

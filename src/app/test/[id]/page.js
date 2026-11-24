@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
-import DeclarationDetailPage from "@/app/declarations/[id]/page";
+import DeclarationDetailPage from "@/app/declarations/[slug]/page";
 import EditorBar from "../EditorBar";
 import PublishBox from "../PublishBox";
 import ReponsesRevision from "../ReponsesRevision";
@@ -30,7 +30,7 @@ export default async function TestDetailPage({ params }) {
 
   // On ne regarde que l'analyse la plus récente de la mesure, comme la fiche
   // publique. Pas d'analyse, ou analyse déjà publiée : 404 (les fiches
-  // publiées se voient sur /declarations/[id]). Les analyses à la corbeille
+  // publiées se voient sur /declarations/[slug]). Les analyses à la corbeille
   // sont ignorées : c'est alors l'analyse précédente qui compte.
   const derniere = await prisma.analyse.findFirst({
     where: { propositionId, statut: { not: "corbeille" } },
@@ -42,7 +42,7 @@ export default async function TestDetailPage({ params }) {
       scoreFaisabilite: true,
       contenuComplet: true,
       proposition: {
-        select: { id: true, titre: true, texteOriginal: true, candidat: { select: { nom: true, photoUrl: true } } },
+        select: { id: true, titre: true, slug: true, texteOriginal: true, candidat: { select: { nom: true, photoUrl: true } } },
       },
     },
   });

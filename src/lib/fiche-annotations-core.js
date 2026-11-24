@@ -1,4 +1,4 @@
-// Annotations du Club sur les fiches PUBLIÉES (vue experte de /declarations/[id]).
+// Annotations du Club sur les fiches PUBLIÉES (vue experte de /declarations/[slug]).
 // Fonctions pures, testées par scripts/fiche-annotations.test.js.
 //
 // Stockage : table RelectureComment, comme les relectures, avec

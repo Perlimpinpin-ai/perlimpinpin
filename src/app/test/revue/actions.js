@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { cheminFiche } from "@/lib/slug";
 import { isEditor } from "@/lib/test-auth";
 import { publierRevisionCore, reclasserCore, rejeterRevisionCore, validerReponsesCore } from "@/lib/revue-admin-core";
 import { declencherRevue } from "@/lib/github";
@@ -39,7 +40,7 @@ export async function publierRevision(_etat, formData) {
     prisma,
   });
   if (r.ok) rafraichir(r.propositionId);
-  return r.ok ? { ok: true, message: `Publiée : /declarations/${r.propositionId}` } : r;
+  return r.ok ? { ok: true, message: `Publiée : ${cheminFiche({ id: r.propositionId, slug: r.slug })}` } : r;
 }
 
 export async function rejeterRevision(_etat, formData) {

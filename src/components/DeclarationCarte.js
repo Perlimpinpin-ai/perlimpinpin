@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import MonoTag from "@/components/MonoTag";
 import { getScoreBadge } from "@/lib/score";
@@ -11,7 +12,7 @@ export default function DeclarationCarte({ d }) {
   const badge = getScoreBadge(d.score);
   return (
     <Link
-      href={`/declarations/${d.id}`}
+      href={cheminFiche(d)}
       prefetch={false}
       className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-6 transition-colors hover:border-zinc-300 hover:bg-zinc-50"
     >
