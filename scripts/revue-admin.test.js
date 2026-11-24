@@ -48,6 +48,12 @@ function fausseBase({ decisions = [], actuelleId = 100 } = {}) {
       ],
     },
     traitementAnnotation: { createMany: async ({ data }) => (ecritures.push(["traitements.createMany", data]), { count: data.length }) },
+    // Fiche déjà en ligne : son adresse (slug) existe et n'est jamais réécrite.
+    proposition: {
+      findUnique: async ({ where }) => ({ id: where.id, slug: "fiche-en-ligne", titre: "Titre corrigé", candidat: { nom: "X" } }),
+      findMany: async () => [],
+      updateMany: async (q) => (ecritures.push(["proposition.updateMany", q]), { count: 1 }),
+    },
   };
   return {
     ecritures,
@@ -85,6 +91,8 @@ test("publication avec « oui » : nouvelle version créée, ancienne remplacée
   const maintenant = new Date("2026-11-08T19:05:00Z");
   const r = await publierRevisionCore({ revisionId: 5, confirmation: "oui", isEditor: true, prisma, maintenant, journaliser: (e) => journal.push(e) });
   assert.equal(r.ok, true, r.message);
+  // L'adresse de la fiche ne change pas avec la nouvelle version (aucune écriture sur la proposition).
+  assert.equal(r.slug, "fiche-en-ligne");
   assert.deepEqual(ecritures.map(([quoi]) => quoi), ["analyse.create", "analyse.updateMany", "decision.create", "traitements.createMany", "candidat.update"]);
   // Lot 5 : la question est close avec l'ancienne version, l'annotation non triée réaccrochée au bloc de la nouvelle.
   assert.deepEqual(

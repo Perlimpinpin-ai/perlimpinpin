@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 // Boutons « Partager » et « PDF » d'une fiche, posés à côté de la bascule
-// « Résumé basique / Résumé expert » (src/app/declarations/[id]/page.js).
+// « Résumé basique / Résumé expert » (src/app/declarations/[slug]/page.js).
 //
 // Partager : sur téléphone (écran tactile + feuille de partage native), ouvre
 // la feuille de partage du système ; ailleurs, un petit menu de réseaux

@@ -1,5 +1,6 @@
 "use client";
 
+import { cheminFiche } from "@/lib/slug";
 import { useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -126,7 +127,7 @@ export default function SearchBar({
         type: "proposition",
         titre: doc.titre,
         detail: [doc.candidat, doc.theme].filter(Boolean).join(" · "),
-        href: `/declarations/${doc.propositionId}`,
+        href: cheminFiche(doc),
       });
     }
     return resultat;

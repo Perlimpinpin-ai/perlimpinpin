@@ -1,5 +1,6 @@
 import { formatScore, getScoreBadge } from "./score.js";
 import { handleX } from "./handles-x.js";
+import { urlFiche } from "./slug.js";
 
 // Publications X d'une analyse (contenuComplet.reseaux, étape 3 ter du
 // pipeline). Les textes sont enregistrés AVEC leurs marqueurs ({CANDIDAT},
@@ -25,21 +26,24 @@ export function pastille(score) {
   return PASTILLES[getScoreBadge(score).color] ?? "🟠";
 }
 
-export function lienAnalyse(propositionId) {
-  return `${URL_SITE}/declarations/${propositionId}`;
+// Adresse publique de la fiche : son slug s'il existe (fiche publiée), sinon
+// son numéro (brouillon : /declarations/<numéro> redirigera vers le slug une
+// fois la fiche publiée).
+export function lienAnalyse(propositionId, slug = null) {
+  return urlFiche({ id: propositionId, slug });
 }
 
 // Valeurs des marqueurs pour une fiche. Sans propositionId (pendant le
 // pipeline, avant l'enregistrement), un lien factice : X compte de toute
 // façon chaque lien pour 23 caractères.
-export function valeursReseaux({ candidatNom, score, propositionId = 0, handles }) {
+export function valeursReseaux({ candidatNom, score, propositionId = 0, slug = null, handles }) {
   return {
     CANDIDAT: handleX(candidatNom, handles) ?? candidatNom,
     NOM: candidatNom,
     PASTILLE: pastille(score),
     SCORE: String(formatScore(score)),
     APPRECIATION: getScoreBadge(score).label,
-    LIEN: lienAnalyse(propositionId),
+    LIEN: lienAnalyse(propositionId, slug),
   };
 }
 

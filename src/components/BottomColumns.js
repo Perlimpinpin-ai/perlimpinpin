@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import { formatScore, getScoreBadge, getScoreBands } from "@/lib/score";
 import { vignettePhoto } from "@/lib/photo-vignette";
@@ -50,7 +51,7 @@ function TopDeclarationsColumn({ declarations, t }) {
             return (
               <li key={`${item.name}-${index}`}>
                 <Link
-                  href={`/declarations/${item.propositionId}`}
+                  href={cheminFiche(item)}
                   className="-m-2 flex flex-wrap items-start gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-50"
                 >
                   <img

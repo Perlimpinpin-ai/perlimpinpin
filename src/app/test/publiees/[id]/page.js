@@ -1,8 +1,9 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
-import DeclarationDetailPage from "@/app/declarations/[id]/page";
+import DeclarationDetailPage from "@/app/declarations/[slug]/page";
 import EditorBar from "../../EditorBar";
 
 // Toujours recalculée à chaque visite (même choix que la liste /test).
@@ -25,11 +26,11 @@ export default async function FichePublieePage({ params }) {
   if (!Number.isInteger(propositionId)) notFound();
 
   // La version en ligne : la plus récente des analyses publiées (comme
-  // /declarations/[id]).
+  // /declarations/[slug]).
   const enLigne = await prisma.analyse.findFirst({
     where: { propositionId, statut: "publie" },
     orderBy: { createdAt: "desc" },
-    select: { id: true, updatedAt: true },
+    select: { id: true, updatedAt: true, proposition: { select: { slug: true } } },
   });
   if (!enLigne) notFound();
 
@@ -46,7 +47,7 @@ export default async function FichePublieePage({ params }) {
             </p>
             <div className="flex shrink-0 gap-4">
               <Link
-                href={`/declarations/${propositionId}`}
+                href={cheminFiche({ id: propositionId, slug: enLigne.proposition.slug })}
                 className="font-semibold underline underline-offset-2 transition-opacity hover:opacity-70"
               >
                 Voir sur le site

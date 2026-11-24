@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import ArrowIcon from "./ArrowIcon";
 
-// Dupliqué depuis declarations/[id]/page.js : ce composant vit côté client
+// Dupliqué depuis declarations/[slug]/page.js : ce composant vit côté client
 // (état d'ouverture) alors que la page est un composant serveur, donc pas de
 // partage direct de fonction de rendu entre les deux — même règle de gras
 // minimal **...** et même repli liste à puces que TextOrList/renderRichText

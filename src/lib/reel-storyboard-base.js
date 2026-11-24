@@ -15,6 +15,7 @@ export async function chargerFiche(propositionId, { brouillon = false } = {}) {
     select: {
       id: true,
       titre: true,
+      slug: true,
       theme: true,
       candidat: { select: { nom: true, photoUrl: true } },
       analyses: {

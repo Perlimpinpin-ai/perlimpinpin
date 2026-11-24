@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { cheminFiche } from "@/lib/slug";
 import { isEditor } from "@/lib/test-auth";
 import {
   EDIT_COOKIE_NAME,
@@ -88,7 +89,7 @@ export async function publierBrouillon(analyseId) {
 
   // Ligne d'audit pour les logs Vercel.
   console.log(
-    `[test] analyse #${resultat.analyseId} publiée (mesure #${resultat.propositionId}, ${resultat.candidatNom}) le ${resultat.publieLe}` +
+    `[test] analyse #${resultat.analyseId} publiée (mesure #${resultat.propositionId}, ${resultat.candidatNom}) le ${resultat.publieLe}, adresse /declarations/${resultat.slugAdresse}` +
       (resultat.revision ? ` ; révision « ${resultat.revision.slug} » ${resultat.revision.fusionnee ? "fusionnée" : "NON fusionnée"}` : ""),
   );
 
@@ -121,7 +122,8 @@ export async function reessayerFusion(analyseId) {
   if (!resultat.ok || resultat.simulation) return resultat;
 
   console.log(`[test] révision « ${resultat.revision.slug} » fusionnée (analyse #${resultat.analyseId}) le ${new Date().toISOString()}`);
-  redirect(`/declarations/${resultat.propositionId}`);
+  const fiche = await prisma.proposition.findUnique({ where: { id: resultat.propositionId }, select: { id: true, slug: true } });
+  redirect(cheminFiche(fiche ?? { id: resultat.propositionId }));
 }
 
 // Enregistre le nouveau texte d'un champ d'un brouillon (titre, résumé…). Les

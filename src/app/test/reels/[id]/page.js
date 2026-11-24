@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import Link from "next/link";
@@ -75,7 +76,7 @@ export default async function ReelPage({ params, searchParams }) {
     etat?.storyboard
       ? donneesPageStoryboard(etat, {
           url,
-          infos: { titre: proposition.titre ?? `Fiche ${propositionId}`, propositionId, brouillon: estBrouillon, palier: verdictDuScore(analyse.scoreFaisabilite), simulation },
+          infos: { titre: proposition.titre ?? `Fiche ${propositionId}`, propositionId, slug: proposition.slug ?? null, brouillon: estBrouillon, palier: verdictDuScore(analyse.scoreFaisabilite), simulation },
         })
       : null;
   const simulations = editeur ? ["A", "B"].filter((m) => existsSync(join(dossierDemo(propositionId), `reponse-${m}.json`))) : [];
@@ -104,6 +105,7 @@ export default async function ReelPage({ params, searchParams }) {
           score: formatScore(analyse.scoreFaisabilite),
           palier: assemble.palier.label,
           propositionId,
+          slug: proposition.slug ?? null,
           brouillon: estBrouillon,
           genereLe: reel.genereLe,
         },
@@ -132,7 +134,7 @@ export default async function ReelPage({ params, searchParams }) {
             <header className="flex flex-col gap-2">
               <h1 className="text-2xl font-bold tracking-tight">Reel vidéo · storyboard</h1>
               <p className="text-sm text-zinc-600">
-                <Link href={estBrouillon ? `/test/${proposition.id}` : `/declarations/${proposition.id}`} className="underline underline-offset-2">
+                <Link href={estBrouillon ? `/test/${proposition.id}` : cheminFiche(proposition)} className="underline underline-offset-2">
                   {proposition.titre ?? `Fiche ${proposition.id}`}
                 </Link>{" "}
                 · {proposition.candidat.nom} · {formatScore(analyse.scoreFaisabilite)}/100

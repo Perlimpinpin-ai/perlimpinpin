@@ -1,6 +1,6 @@
 import { cache, Fragment } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Header from "@/components/Header";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import VoteMesureWidget from "@/components/VoteMesureWidget";
@@ -14,7 +14,8 @@ import SupportBanner from "@/components/SupportBanner";
 import EncartDon from "@/components/EncartDon";
 import Editable from "@/app/test/Editable";
 import { CRITERES_ANALYSE } from "@/lib/test-edition";
-import { getDeclarationDetail, getNumeroVersion } from "@/lib/queries";
+import { getDeclarationDetail, getNumeroVersion, resoudreFiche } from "@/lib/queries";
+import { cheminFiche, urlFiche } from "@/lib/slug";
 import { datePublication } from "@/lib/date-publication";
 import HistoriqueVersions from "@/components/HistoriqueVersions";
 import { getScoreBadge, PLAFOND_DECLENCHEUR_LABELS } from "@/lib/score";
@@ -34,7 +35,13 @@ import ActionsFiche from "@/components/ActionsFiche";
 // cache du CDN et recalculée au plus tard une fois par jour ; aussitôt après
 // chaque publication (src/lib/rafraichir-public.js) et après chaque vote
 // (compteurs, /api/vote-mesure et /api/feedback). generateStaticParams renvoie [] : le build ne lit pas
-// Neon, et dynamicParams = true laisse générer n'importe quel id à la demande.
+// Neon, et dynamicParams = true laisse générer n'importe quelle adresse à la demande.
+//
+// Adresse : /declarations/<slug> (titre de la fiche, voir src/lib/slug.js).
+// L'ancienne adresse /declarations/<numéro> reste valable : le proxy
+// (src/proxy.js) la redirige en 301 vers le slug ; à défaut, la page elle-même
+// redirige (permanentRedirect, 308). Une fiche sans slug (jamais publiée depuis
+// l'ajout de la colonne) s'affiche à son adresse numérique.
 export const revalidate = 86400;
 export const dynamicParams = true;
 
@@ -46,6 +53,7 @@ export async function generateStaticParams() {
 // et la page elle-même ont besoin de la même fiche, et getDeclarationDetail fait
 // plusieurs requêtes Prisma (pas un simple fetch, que Next.js mémoïse déjà tout seul).
 const getDeclarationDetailCached = cache(getDeclarationDetail);
+const resoudreFicheCached = cache(resoudreFiche);
 
 // Retire les marqueurs **gras** (voir renderRichText plus bas) : utile pour le HTML
 // affiché, mais un <title>/<meta description> doit rester du texte brut.
@@ -83,7 +91,7 @@ function buildClaimReviewJsonLd(declaration) {
     // Date de publication de l'analyse (clic « Publier ») ; la date de la
     // déclaration du candidat est celle de itemReviewed ci-dessous.
     datePublished: datePublication(analyse).toISOString(),
-    url: `https://perlimpinpin.ai/declarations/${declaration.id}`,
+    url: urlFiche(declaration),
     claimReviewed: declaration.texteOriginal,
     itemReviewed: {
       "@type": "Claim",
@@ -109,12 +117,12 @@ function buildClaimReviewJsonLd(declaration) {
 }
 
 export async function generateMetadata({ params }) {
-  const { id } = await params;
-  const propositionId = Number(id);
-  if (!Number.isInteger(propositionId)) return {};
+  const { slug } = await params;
+  const cible = await resoudreFicheCached(slug);
+  if (cible.type !== "fiche") return {};
 
   // Métadonnées du site public uniquement (/test/[id] a les siennes) : publiées seules.
-  const declaration = await getDeclarationDetailCached(propositionId, false);
+  const declaration = await getDeclarationDetailCached(cible.propositionId, false);
   if (!declaration || !declaration.analyse) return {};
 
   const { analyse } = declaration;
@@ -132,10 +140,13 @@ export async function generateMetadata({ params }) {
   const evaluation = truncate(stripMarkdown(verdictText), 90) || badge.description;
   const description = `${badge.label} (${score}/100) — ${evaluation.replace(/[.!?…]+$/, "")}. Analyse complète sur Perlimpinpin.`;
 
+  // Adresse officielle de la fiche (slug), même si on y est arrivé autrement.
+  const url = cheminFiche(declaration);
   return {
     title,
     description,
-    openGraph: { title, description },
+    alternates: { canonical: url },
+    openGraph: { title, description, url },
   };
 }
 
@@ -925,11 +936,17 @@ function VueExpertSi({ actif, children }) {
 // `publiee` (avec `preview`) : /test/publiees/[id] montre la version EN LIGNE, même
 // si un brouillon plus récent existe.
 export default async function DeclarationDetailPage({ params, preview = false, publiee = false, edition = null }) {
-  const { id } = await params;
-  const propositionId = Number(id);
-
-  if (!Number.isInteger(propositionId)) {
-    notFound();
+  const parametres = await params;
+  let propositionId;
+  if (preview) {
+    // /test/[id] et /test/publiees/[id] : toujours le numéro de la mesure.
+    propositionId = Number(parametres.id);
+    if (!Number.isInteger(propositionId)) notFound();
+  } else {
+    const cible = await resoudreFicheCached(parametres.slug);
+    if (cible.type === "introuvable") notFound();
+    if (cible.type === "redirection") permanentRedirect(cible.chemin);
+    propositionId = cible.propositionId;
   }
 
   // Site public : dernière analyse publiée, 404 s'il n'y en a pas (brouillon
@@ -939,6 +956,10 @@ export default async function DeclarationDetailPage({ params, preview = false, p
   if (!declaration || !declaration.analyse) {
     notFound();
   }
+
+  // Adresse publique de la fiche (slug, ou numéro tant qu'elle n'en a pas) :
+  // partage, liens de retour du Club, adresse imprimée dans le PDF.
+  const cheminPublic = cheminFiche(declaration);
 
   const { analyse } = declaration;
   const contenu = analyse.contenuComplet ?? {};
@@ -984,7 +1005,7 @@ export default async function DeclarationDetailPage({ params, preview = false, p
   const titrePartage = typeof contenu.titre_fiche === "string" && contenu.titre_fiche ? contenu.titre_fiche : declaration.titre;
   const actionsFiche = (
     <ActionsFiche
-      chemin={`/declarations/${propositionId}`}
+      chemin={cheminPublic}
       texte={`${titrePartage} — ${analyse.scoreFaisabilite}/100 sur Perlimpinpin`}
       partage={!preview}
     />
@@ -1242,7 +1263,7 @@ export default async function DeclarationDetailPage({ params, preview = false, p
                   {/* Encadré « ouverte à la critique » aussi en vue basique, avec
                       un lien vers la vue experte (seule annotable). */}
                   {annotable ? (
-                    <EncartAnalyseOuverte vue="basique" retour={`/declarations/${propositionId}`} />
+                    <EncartAnalyseOuverte vue="basique" retour={cheminPublic} />
                   ) : null}
                   {/* Crayons seulement si la version basique est en base (pas
                       celle lue en local dans data/versions-basiques-dev). */}
@@ -1282,7 +1303,7 @@ export default async function DeclarationDetailPage({ params, preview = false, p
                     du résumé ; absent du PDF). */}
                 {annotable ? (
                   <EncartAnalyseOuverte
-                    retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+                    retour={versionBasique ? `${cheminPublic}?vue=expert` : cheminPublic}
                   />
                 ) : null}
                 {annotable ? (
@@ -1487,7 +1508,7 @@ export default async function DeclarationDetailPage({ params, preview = false, p
                 <RemarqueGenerale
                   propositionId={propositionId}
                   analyseId={analyse.id}
-                  retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+                  retour={versionBasique ? `${cheminPublic}?vue=expert` : cheminPublic}
                 />
               </div>
             ) : null}
@@ -1497,7 +1518,7 @@ export default async function DeclarationDetailPage({ params, preview = false, p
               <AnnotationsFiche
                 propositionId={propositionId}
                 analyseId={analyse.id}
-                retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+                retour={versionBasique ? `${cheminPublic}?vue=expert` : cheminPublic}
               />
             ) : null}
             {versionBasique ? <ScriptVueInitiale /> : null}
@@ -1508,7 +1529,7 @@ export default async function DeclarationDetailPage({ params, preview = false, p
               <HistoriqueVersions
                 propositionId={propositionId}
                 numeroVersion={numeroVersionFiche}
-                retour={`/declarations/${propositionId}`}
+                retour={cheminPublic}
               />
             ) : null}
 
@@ -1554,7 +1575,7 @@ export default async function DeclarationDetailPage({ params, preview = false, p
               <p className="mt-1.5 text-zinc-500">Ce que valent vraiment les promesses politiques.</p>
               <p className="mt-3">
                 Analyse complète et toutes les sources :{" "}
-                <span className="font-semibold text-zinc-900">perlimpinpin.ai/declarations/{propositionId}</span>
+                <span className="font-semibold text-zinc-900">perlimpinpin.ai{cheminPublic}</span>
               </p>
               <p>
                 Notre méthode : <span className="font-semibold text-zinc-900">perlimpinpin.ai/methode</span>

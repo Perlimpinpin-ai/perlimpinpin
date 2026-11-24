@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { cheminFiche } from "@/lib/slug";
 
 const VALID_TYPES = new Set(["like", "dislike"]);
 
@@ -26,7 +27,7 @@ export async function POST(request) {
 
   const analyse = await prisma.analyse.findUnique({
     where: { id: analyseId },
-    select: { id: true, propositionId: true },
+    select: { id: true, propositionId: true, proposition: { select: { slug: true } } },
   });
 
   if (!analyse) {
@@ -46,7 +47,9 @@ export async function POST(request) {
 
   // Compteurs rendus côté serveur sur la fiche (en cache un jour) : recalculée
   // à sa prochaine visite.
+  // Ancienne adresse (numéro) et adresse actuelle (slug) : les deux sont en cache.
   revalidatePath(`/declarations/${analyse.propositionId}`);
+  if (analyse.proposition?.slug) revalidatePath(cheminFiche({ id: analyse.propositionId, slug: analyse.proposition.slug }));
 
   return Response.json(counts, { status: 201 });
 }

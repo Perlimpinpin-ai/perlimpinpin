@@ -147,9 +147,10 @@ export function annotationsDecrochees(annotations, contenuAvant, contenuApres) {
 
 // Slugs des dossiers (JSON de data/hors-series/) qui renvoient à la fiche
 // `propositionId` : clé ficheId / propositionId, jeton {note:<id>} ou lien
-// /declarations/<id> dans un texte.
-export function dossiersDeLaFiche(dossiers, propositionId) {
-  const jeton = new RegExp(`\\{note:${propositionId}\\}|/declarations/${propositionId}(?!\\d)`);
+// /declarations/<id> ou /declarations/<slug> dans un texte.
+export function dossiersDeLaFiche(dossiers, propositionId, slug = null) {
+  const parSlug = slug ? `|/declarations/${slug}(?![a-z0-9-])` : "";
+  const jeton = new RegExp(`\\{note:${propositionId}\\}|/declarations/${propositionId}(?!\\d)${parSlug}`);
   const cite = (valeur) => {
     if (typeof valeur === "string") return jeton.test(valeur);
     if (Array.isArray(valeur)) return valeur.some(cite);

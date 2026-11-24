@@ -19,7 +19,7 @@
 // en lot) ; une fiche à la corbeille ne l'est jamais. Sauvegarde de chaque
 // ligne dans logs/sauvegardes/ avant écriture, ligne ajoutée à
 // logs/insertions.jsonl. Sur le site, la fiche publiée affiche sa version
-// basique au plus tard 5 minutes après (revalidate de /declarations/[id]).
+// basique au plus tard 5 minutes après (revalidate de /declarations/[slug]).
 //
 // Hors GitHub Actions, l'écriture demande en plus de taper « oui »
 // (garde-fou-base.js). Dans le workflow, le clic sur « Run workflow » avec la
