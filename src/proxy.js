@@ -20,8 +20,8 @@ export async function proxy(request) {
 }
 
 // Protège tout /relectures (y compris /relectures/index.html, fichier de public/ :
-// le proxy passe avant les fichiers statiques) sauf connexion, inscription et
-// déconnexion. Contrôle « optimiste » : signature et expiration du cookie, sans
+// le proxy passe avant les fichiers statiques) sauf connexion, inscription,
+// déconnexion et mot de passe oublié. Contrôle « optimiste » : signature et expiration du cookie, sans
 // base. Le vrai contrôle (compte toujours activé) est fait par getAdherent().
 function proxyRelectures(request) {
   if (!cheminRelectureProtege(request.nextUrl.pathname)) return NextResponse.next();
@@ -46,7 +46,8 @@ function proxyRelectures(request) {
   return NextResponse.redirect(new URL("/relectures/connexion", request.url));
 }
 
-// Protège tout /live sauf /live/login. Contrôle « optimiste » : on vérifie seulement que
+// Protège tout /live sauf /live/login et ses sous-pages (mot de passe oublié).
+// Contrôle « optimiste » : on vérifie seulement que
 // le cookie de session Auth.js est valide (signature, chiffrement, expiration), sans
 // requête en base. Le vrai contrôle (compte toujours existant) est fait au plus près du
 // contenu, par getLiveUser() dans chaque page et chaque route API.

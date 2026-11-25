@@ -1,3 +1,7 @@
+(Mise à jour du 6 novembre 2026 : `teaser_accueil` / `phrase_teasing` doivent se comprendre seuls, sans calcul sous-entendu ni chiffre non expliqué ; la clarté passe avant l'effet de surprise.)
+
+(Mise à jour du 27 octobre 2026 : `resume_court` ne contient plus aucune note chiffrée.)
+
 (Mise à jour du 9 octobre 2026 : commentaires du Club dans les étapes 2 et 3.)
 
 Implémente un pipeline dans `analyze.js` :
@@ -755,9 +759,9 @@ Illustratifs uniquement, sans chercher ces cas dans les sources :
 4. Vérifier exactement ce calcul. Ne jamais l'ajuster à l'instinct.
 
 Appréciation :
-`0-19 irréaliste | 20-34 fragile | 35-54 partiellement fondé | 55-69 plausible sous condition | 70-84 solide et chiffré | 85-100 exemplaire`
+`0-19 irréaliste | 20-34 fragile | 35-49 partiellement fondé | 50-64 plausible sous condition | 65-79 solide et chiffré | 80-100 exemplaire`
 
-(Barème des appréciations recalibré en septembre 2026 — cette ligne est la source de vérité pour les bornes des paliers.)
+(Barème des appréciations recalibré en septembre 2026, puis en novembre 2026 — cette ligne est la source de vérité pour les bornes des paliers.)
 
 ---
 
@@ -767,7 +771,7 @@ Aller à l'essentiel, avec des phrases naturelles et plutôt courtes. Style clai
 
 **Trancher, pas seulement documenter.** Une fiche qui documente correctement chaque point mais ne prend jamais clairement position — texte qui empile les nuances sans jamais dire si c'est plutôt bon ou plutôt mauvais signe, notes qui se regroupent systématiquement au milieu de chaque fourchette — a manqué sa mission même quand chaque phrase est exacte : le lecteur doit pouvoir se positionner. Dans `analyse_par_criteres`, `verdict_final` et `resume_court`, commencer chaque point ou chaque critère par la conclusion qui en découle (bon signe / mauvais signe / point qui tient / point qui ne tient pas), avant le fait ou la source qui y mène — jamais l'inverse. Une fois qu'un raisonnement rigoureux (recherche sérieuse, calcul par décomposition, application de la règle 6 bis) permet de conclure clairement, l'écrire sans l'atténuer : « le chiffrage ne tient pas », « le mécanisme est solide », « ce risque n'est pas traité », plutôt que des formulations qui laissent le lecteur deviner (« il est possible que », « on pourrait s'interroger sur »). Ceci prolonge directement la RÈGLE ANTI-BIAIS « SCORE MOYEN » ci-dessus : une notation qui refuse le milieu par prudence mais reste écrite dans un style qui, lui, hésite en permanence, produit le même résultat pour le lecteur — une fiche dont il ne sait pas s'il doit être pour ou contre la mesure.
 
-**Donner tout son poids à un point réellement solide, pas seulement à une faiblesse.** Cette exigence de trancher vaut dans les deux sens. Un point réellement bien établi — chiffrage confirmé et cohérent avec les données de cadrage, précédent robuste et testé, continuité documentée avec le bilan et les votes passés du candidat, mécanisme économiquement solide, absence d'effet rebond significatif — doit être présenté avec la même netteté qu'une faiblesse, jamais noyé sous une réserve secondaire ou une prudence de façade qui le fait paraître moins solide qu'il ne l'est réellement. Une mesure sérieusement préparée, dont le mécanisme tient économiquement ou institutionnellement, sans obstacle juridique ou budgétaire documenté et sans effet rebond grave, doit pouvoir atteindre une appréciation « solide et chiffré » (70-84), voire « exemplaire » (85-100), quand les faits l'établissent réellement sur les 5 critères : le barème n'est pas construit pour plafonner structurellement les bonnes mesures, et une fiche qui, par prudence de style, écrit un point fort comme s'il restait presque incertain a échoué au même titre qu'une fiche trop clémente sur une vraie faiblesse.
+**Donner tout son poids à un point réellement solide, pas seulement à une faiblesse.** Cette exigence de trancher vaut dans les deux sens. Un point réellement bien établi — chiffrage confirmé et cohérent avec les données de cadrage, précédent robuste et testé, continuité documentée avec le bilan et les votes passés du candidat, mécanisme économiquement solide, absence d'effet rebond significatif — doit être présenté avec la même netteté qu'une faiblesse, jamais noyé sous une réserve secondaire ou une prudence de façade qui le fait paraître moins solide qu'il ne l'est réellement. Une mesure sérieusement préparée, dont le mécanisme tient économiquement ou institutionnellement, sans obstacle juridique ou budgétaire documenté et sans effet rebond grave, doit pouvoir atteindre une appréciation « solide et chiffré » (65-79), voire « exemplaire » (80-100), quand les faits l'établissent réellement sur les 5 critères : le barème n'est pas construit pour plafonner structurellement les bonnes mesures, et une fiche qui, par prudence de style, écrit un point fort comme s'il restait presque incertain a échoué au même titre qu'une fiche trop clémente sur une vraie faiblesse.
 
 **Écrire pour un lecteur non spécialiste.** Ton sobre, précis et accessible. Phrases courtes, une idée par paragraphe, mots courants. Expliquer chaque terme technique à sa première apparition, en une courte incise. Ne jamais empiler références juridiques ou sigles sans dire tout de suite ce qu'ils changent concrètement pour la mesure.
 
@@ -783,13 +787,13 @@ Aller à l'essentiel, avec des phrases naturelles et plutôt courtes. Style clai
 
 **Structure de chaque critère.** Dans `analyse_par_criteres` (qui reste un texte unique de synthèse) et dans la justification de chaque note : d'abord une conclusion compréhensible, puis les preuves utiles (seulement celles qui portent la conclusion), puis la limite principale, puis le lien explicite avec la note attribuée (pourquoi ce chiffre-là dans la fourchette).
 
-**Limiter les répétitions.** Chaque partie a un rôle distinct : `resume_court` porte l'entrée en matière et la note ; `analyse_par_criteres` porte le raisonnement critère par critère ; `verdict_final` fait la synthèse (ce qui tient, ce qui ne tient pas, ce qui reste incertain) sans redérouler les preuves. Ne pas recopier les mêmes phrases d'une partie à l'autre, mais ne jamais couper un fait, une source ou une réserve nécessaire pour comprendre la conclusion.
+**Limiter les répétitions.** Chaque partie a un rôle distinct : `resume_court` porte l'entrée en matière, sans aucune note chiffrée (le score est déjà affiché à côté) ; `analyse_par_criteres` porte le raisonnement critère par critère ; `verdict_final` fait la synthèse (ce qui tient, ce qui ne tient pas, ce qui reste incertain) sans redérouler les preuves. Ne pas recopier les mêmes phrases d'une partie à l'autre, mais ne jamais couper un fait, une source ou une réserve nécessaire pour comprendre la conclusion.
 
 **Note dépendant d'une interprétation non explicitée.** Si la note repose sur une interprétation que le candidat n'a pas explicitée (périmètre, montant, calendrier, modalité), le dire dans `resume_court` et dans `verdict_final`, en précisant l'interprétation retenue et pourquoi. Ne jamais inventer de note alternative.
 
 **Sections en accordéon dès l'étape 1.** Les 13 sections listées dans « Sections en accordéon (synthese + texte) » (voir Étape 3) sont produites dès l'étape 1 sous la forme `{ "synthese": "...", "texte": "..." }` : `synthese` en une phrase de 20 mots maximum (220 caractères au plus), qui commence par la conclusion et reste fidèle au `texte` ; `texte` = le contenu complet de la section. `impact_environnement` et `impact_temporel_et_sectoriel` valent `null` (l'objet entier) quand ils ne s'appliquent pas, jamais un objet aux champs vides. Les autres champs texte (`nature_et_existant`, `analyse_par_criteres`, `verdict_final`, `niveau_de_confiance`, `resume_court`, `phrase_teasing`) restent de simples chaînes.
 
-**Phrase de teasing.** `phrase_teasing` suit dès l'étape 1 les mêmes règles que `teaser_accueil` (voir Étape 3, « Teaser accueil ») : une ou deux phrases, 200 caractères maximum (espaces compris), qui crée une tension ou une question sans jamais révéler le score ni le verdict, fidèle au contenu de la fiche.
+**Phrase de teasing.** `phrase_teasing` suit dès l'étape 1 les mêmes règles que `teaser_accueil` (voir Étape 3, « Teaser accueil ») : une ou deux phrases, 200 caractères maximum (espaces compris), qui se comprend seule sans le titre ni la fiche, crée une tension ou une question sans jamais révéler le score ni le verdict, et reste fidèle au contenu de la fiche.
 
 Pas de tirets cadratins. Expliquer brièvement chaque note. Sourcer toute affirmation déterminante.
 
@@ -998,30 +1002,52 @@ En plus de `verdict_final`, produire `verdict_conclusion` : une phrase unique et
 ### Résumé court
 En **3 à 7 phrases**, dire clairement où la mesure tient et où elle ne tient pas. Ton humain, fluide, légèrement engageant lorsque le sujet s'y prête, sans devenir partisan ni administratif. Structure le résumé en courts paragraphes (séparés par un saut de ligne vide) lorsqu'il existe une rupture logique entre deux idées — par exemple entre ce que propose la mesure et ce qui en limite la portée. Ne crée pas un nouveau paragraphe à chaque phrase : 2 paragraphes suffisent en général, exceptionnellement 3 si une troisième idée s'en détache réellement.
 
+Ne jamais écrire de note chiffrée dans le résumé : ni le score sur 100 (pas de « Score final : 61/100 », « Note : 49/100 »...), ni la note d'un critère, ni l'appréciation accolée à un score. Le score et l'appréciation sont déjà affichés à côté du résumé.
+
 ### Teaser accueil
 `teaser_accueil` est la description affichée sous le titre sur la carte
 « à la une » de la page d'accueil. Son rôle est de donner envie d'ouvrir la
-fiche, pas de la résumer.
+fiche, pas de la résumer. Mais un lecteur qui ne comprend pas la phrase
+n'ouvre pas la fiche : **la clarté passe avant l'effet de surprise.**
 
 - **Une ou deux phrases, 200 caractères maximum** (espaces compris). Elle doit
   s'afficher en entier sur la carte, sans coupure.
-- Tout chiffre cité doit dire ce qu'il mesure (stock ou montant par an,
-  montant annoncé ou estimé) : ne jamais opposer deux chiffres de nature
-  différente sans le préciser.
+- **Compréhensible seule.** Un lecteur qui ne connaît ni le sujet ni la fiche
+  doit comprendre de quoi on parle. Nommer la chose dont on parle (le gazole,
+  le salaire minimum, l'impôt sur l'héritage...) : pas de « il », « elle »,
+  « la même promesse » qui renvoie au titre ou à un élément non dit.
+- **Pas de raisonnement sous-entendu.** Si la tension vient d'un calcul ou
+  d'une comparaison, donner directement le résultat en clair, jamais les
+  pièces du calcul en laissant le lecteur le refaire. Mauvais : « À 1,70 € le
+  litre, il reste moins que le prix de gros à Rotterdam. » Bon : « Bloquer le
+  gazole à 1,70 € laisse environ 50 centimes par litre à trouver. Qui paiera ? »
+- **Un seul chiffre de préférence, deux au maximum**, chacun accompagné de ce
+  qu'il mesure et de ce à quoi il se compare (stock ou montant par an, montant
+  annoncé ou estimé, « vingt fois moins » de quoi). Ne jamais opposer deux
+  chiffres de nature différente sans le préciser. Pas de notion technique
+  (« salaire médian », « marché de gros », « assiette ») sans la traduire en
+  mots courants.
 - Ton de teasing : créer une tension, une surprise ou une question
   (un argument du candidat qui se retourne, un chiffre qui étonne, un
-  « mais » qui intrigue). Les points de suspension sont permis une fois.
+  « mais » qui intrigue). La question posée doit être claire et porter sur
+  le cœur de la mesure. Les points de suspension sont permis une fois.
 - Ne jamais révéler le score, l'appréciation ou le verdict : pas de note,
   pas de « fragile », « solide », « irréaliste », « réaliste », « réalisme ».
-- Ne pas répéter les mots du titre.
+- Ne pas recopier le titre mot pour mot. Reprendre un mot du titre est permis
+  quand il est nécessaire pour que la phrase se comprenne seule.
 - Engageant, jamais clickbait, partisan, moqueur ou exagéré : la tension
   annoncée doit être réellement traitée dans la fiche et fidèle à son
   contenu (aucune information absente de la fiche).
 
+**Test avant de valider** : lire la phrase sans le titre ni la fiche. Un
+lecteur non spécialiste peut-il dire, en une phrase, de quoi elle parle et
+quelle question elle pose ? Sinon, réécrire plus simplement, quitte à perdre
+l'effet de surprise.
+
 Exemples de forme (pas des textes à reprendre) :
-« Le Japon, cité en modèle, fait… exactement l'inverse. »
-« Une idée qui séduit… jusqu'aux chiffres. »
-« Moins chère qu'annoncé, mais pour qui ? »
+« Le Japon, cité en modèle, fait… exactement l'inverse sur les retraites. »
+« L'idée de baisser les loyers séduit… jusqu'à ce qu'on regarde qui paie. »
+« Ce chèque énergie coûterait moins cher qu'annoncé. Mais qui le recevrait ? »
 
 ### Analyse par critères
 

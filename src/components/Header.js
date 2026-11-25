@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NewsletterModal from "./NewsletterModal";
+import { libelleCompte, useMoiClub } from "@/lib/moi-club";
+import { liensAdhesion, retourCourant } from "@/lib/brouillon-club";
 
 // Onglets du centre de la barre (maquette : Déclarations, Candidats,
 // Méthode, À propos) + Thèmes, conservé à la demande. "Prix Perlimpinpin"
@@ -75,11 +77,36 @@ const CLUB_LETTRES = [
   ["B", "#f4649a"],
 ];
 
+// Adhérent connecté : le bouton affiche son pseudo (sinon le premier mot de
+// son nom) et mène à « Mon compte » ; sinon « CLUB ». Session partagée et
+// relue au besoin, mise à jour en direct (src/lib/moi-club.js).
 function ClubLink({ className = "", onClick }) {
+  const compte = libelleCompte(useMoiClub());
+
+  if (compte) {
+    return (
+      <a
+        href="/relectures#moi"
+        onClick={onClick}
+        aria-label={`Mon compte du Club Perlimpinpin (${compte})`}
+        title="Mon compte"
+        className={`inline-flex max-w-[12rem] items-center gap-1.5 text-sm font-semibold text-zinc-900 transition-opacity hover:opacity-80 ${className}`}
+      >
+        <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-yellow-400" />
+        <span className="truncate">{compte}</span>
+      </a>
+    );
+  }
+
   return (
     <a
       href="/relectures"
-      onClick={onClick}
+      onClick={(event) => {
+        // Visiteur sur une fiche : connexion avec retour sur cette fiche, dans la vue affichée.
+        const retour = retourCourant(null);
+        if (retour) event.currentTarget.href = liensAdhesion(retour).connexion;
+        onClick?.(event);
+      }}
       aria-label="Club Perlimpinpin (espace adhérents)"
       title="Club Perlimpinpin"
       className={`inline-flex items-center gap-[0.32em] text-sm font-semibold tracking-normal transition-opacity hover:opacity-80 ${className}`}
@@ -125,7 +152,7 @@ export default function Header() {
     // Le <header> reste sticky mais devient transparent : c'est la "pilule"
     // blanche à l'intérieur qui flotte, avec une marge autour (maquette). Le
     // dégradé de la page (bg-page-gradient) passe donc derrière la barre.
-    <header className="sticky top-0 z-30 w-full px-4 pt-3 sm:px-8 sm:pt-4 lg:px-12">
+    <header className="print:hidden sticky top-0 z-30 w-full px-4 pt-3 sm:px-8 sm:pt-4 lg:px-12">
       {/* box-shadow/backdrop-filter posés en style inline plutôt qu'en
           classes Tailwind (shadow-sm/backdrop-blur-md) : ces utilitaires
           composent leur valeur via des custom properties CSS (--tw-shadow,

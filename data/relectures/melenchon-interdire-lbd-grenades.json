@@ -129,6 +129,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Interdire les LBD et les grenades » (33 caractères). Teasing proposé : « Le candidat demandait déjà la même chose en 2019. Sept ans plus tard, des lycéens ont perdu une main ou un œil. » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Melenchon/melenchon_interdire_lbd_grenades_etape3.json",
+      "reponses": []
+    }
   }
 }

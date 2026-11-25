@@ -1,36 +1,48 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { avecMention, configImapClub, deposerDansEnvoyes, mentionEnvoi, PORT_IMAP } from "../src/lib/copie-envoyes.js";
+import {
+  avecMention,
+  configImapClub,
+  copierDansEnvoyes,
+  mentionEnvoi,
+  messageBrut,
+  PORT_IMAP,
+} from "../src/lib/copie-envoyes.js";
 
 // Copie des mails envoyés dans le dossier Envoyés du Club : serveur IMAP
 // simulé, aucune connexion réseau.
 
 const ENV = {
+  CLUB_IMAP_HOST: "imap.exemple.test",
   CLUB_SMTP_HOST: "smtp.exemple.test",
   CLUB_SMTP_PORT: "587",
   CLUB_SMTP_USER: "club@exemple.test",
   CLUB_SMTP_PASSWORD: "mot-de-passe-factice",
 };
+const PROD = { ...ENV, VERCEL: "1", VERCEL_ENV: "production" };
 
 const MESSAGE = {
   from: '"Club" <club@exemple.test>',
   to: "camille@exemple.test",
+  replyTo: "club@exemple.test",
   subject: "Sujet de test",
-  text: "Bonjour Camille,\n\nCorps.",
+  text: "Bonjour Camille,\n\nhttps://exemple.test/activer?jeton=12.34.abc",
   html: '<!doctype html><html><body style="margin:0"><p>Bonjour Camille,</p></body></html>',
+  messageId: "<identifiant-unique@exemple.test>",
 };
 
-// Boîte simulée : « Sent » n'a pas l'attribut \Sent, c'est « Éléments envoyés » qui l'a.
+// Boîte simulée : « Sent » n'a pas l'attribut \Sent, c'est « Envoyés » qui l'a.
 const DOSSIERS = [
   { path: "INBOX", flags: new Set() },
   { path: "Sent", flags: new Set() },
-  { path: "Éléments envoyés", flags: new Set(["\\Sent"]) },
+  { path: "Envoyés", flags: new Set(["\\Sent"]), specialUse: "\\Sent" },
 ];
 
 function fauxImap({ dossiers = DOSSIERS, echoue = null, bloque = false } = {}) {
-  const etat = { config: null, depots: [], deconnecte: false, ferme: false };
+  const etat = { config: null, creations: 0, depots: [], deconnecte: false, ferme: false };
   etat.creer = (config) => {
     etat.config = config;
+    etat.creations += 1;
     return {
       connect: async () => {
         if (bloque) return new Promise(() => {});
@@ -53,86 +65,122 @@ function journal() {
   return { lignes, log: { log: (m) => lignes.push(m), warn: (m) => lignes.push(m), error: (m) => lignes.push(m) } };
 }
 
-test("configuration IMAP : identifiants SMTP, port 993 en TLS, serveur IMAP ou SMTP", () => {
+test("configuration IMAP : CLUB_IMAP_HOST, identifiants SMTP, port 993 en TLS, délai 10 s", () => {
   const c = configImapClub(ENV);
-  assert.equal(c.host, "smtp.exemple.test");
+  assert.equal(c.host, "imap.exemple.test");
   assert.equal(c.port, PORT_IMAP);
   assert.equal(c.port, 993);
   assert.equal(c.secure, true);
   assert.deepEqual(c.auth, { user: "club@exemple.test", pass: "mot-de-passe-factice" });
   assert.equal(c.logger, false);
-  assert.equal(configImapClub({ ...ENV, CLUB_IMAP_HOST: " imap.exemple.test " }).host, "imap.exemple.test");
+  assert.equal(c.connectionTimeout, 10_000);
+  // CLUB_IMAP_HOST obligatoire : pas de repli sur le serveur SMTP
+  assert.equal(configImapClub({ ...ENV, CLUB_IMAP_HOST: "" }), null);
   assert.equal(configImapClub({ ...ENV, CLUB_SMTP_PASSWORD: "" }), null);
-  assert.equal(configImapClub({ ...ENV, CLUB_SMTP_USER: "" }), null);
-  assert.equal(configImapClub({ CLUB_SMTP_USER: "u", CLUB_SMTP_PASSWORD: "p" }), null);
+  assert.equal(configImapClub({ ...ENV, CLUB_SMTP_USER: undefined }), null);
 });
 
-test("mention : nombre d'adhérents et adresses, au singulier comme au pluriel", () => {
-  assert.equal(mentionEnvoi(["a@x.fr"]), "Envoyé à 1 adhérent : a@x.fr");
-  assert.equal(mentionEnvoi(["a@x.fr", "b@x.fr"]), "Envoyé à 2 adhérents : a@x.fr, b@x.fr");
-  const m = avecMention(MESSAGE, ["a@x.fr", "<b>@x.fr"]);
-  assert.ok(m.text.startsWith("Envoyé à 2 adhérents : a@x.fr, <b>@x.fr\n\nBonjour Camille,"));
-  // Juste après <body>, et échappée dans le HTML.
-  assert.match(m.html, /<body style="margin:0">\n<p [^>]*>Envoyé à 2 adhérents : a@x.fr, &lt;b&gt;@x.fr<\/p><p>Bonjour/);
-  assert.equal(m.subject, MESSAGE.subject);
-  assert.equal(MESSAGE.text.startsWith("Bonjour"), true); // l'original n'est pas modifié
-});
-
-test("dépôt : dossier trouvé par l'attribut \\Sent, pas par son nom ; marqué lu", async () => {
-  const imap = fauxImap();
-  const { lignes, log } = journal();
-  const ok = await deposerDansEnvoyes(avecMention(MESSAGE, ["camille@exemple.test"]), { env: ENV, creerClient: imap.creer, log });
-  assert.equal(ok, true);
-  assert.equal(imap.depots.length, 1);
-  assert.equal(imap.depots[0].path, "Éléments envoyés");
-  assert.deepEqual(imap.depots[0].flags, ["\\Seen"]);
-  assert.ok(imap.depots[0].date instanceof Date);
-  // Message MIME complet, avec la mention.
-  const brut = imap.depots[0].contenu;
-  assert.match(brut, /^From: /m);
+test("message brut RFC 822 : mêmes en-têtes que le mail envoyé, Date et Message-ID", async () => {
+  const brut = (await messageBrut(MESSAGE)).toString();
+  assert.match(brut, /^From: "?Club"? <club@exemple\.test>/m);
   assert.match(brut, /^To: camille@exemple\.test/m);
+  assert.match(brut, /^Reply-To: club@exemple\.test/m);
   assert.match(brut, /^Subject: Sujet de test/m);
-  assert.ok(brut.includes("adh=C3=A9rent : camille@exemple.test") || brut.includes("adhérent : camille@exemple.test"));
-  assert.equal(imap.deconnecte, true);
-  assert.deepEqual(lignes, []);
+  assert.match(brut, /^Date: /m);
+  assert.match(brut, /^Message-ID: <identifiant-unique@exemple\.test>/m);
+  assert.match(brut, /text\/plain/);
+  assert.match(brut, /text\/html/);
+  // Sans Message-ID fourni, un identifiant est créé quand même
+  const sansId = (await messageBrut({ ...MESSAGE, messageId: undefined })).toString();
+  assert.match(sansId, /^Message-ID: <.+@.+>/m);
 });
 
-test("pas de dossier \\Sent : copie abandonnée, rien n'est déposé dans « Sent »", async () => {
-  const imap = fauxImap({ dossiers: DOSSIERS.slice(0, 2) });
-  const { lignes, log } = journal();
-  assert.equal(await deposerDansEnvoyes(MESSAGE, { env: ENV, creerClient: imap.creer, log }), false);
-  assert.equal(imap.depots.length, 0);
-  assert.equal(imap.ferme, true);
-  assert.deepEqual(lignes, ["[club] copie Envoyés impossible (SANS_DOSSIER_SENT)"]);
+test("dépôt dans le dossier \\Sent (pas par le nom), marqué lu, puis déconnexion", async () => {
+  const imap = fauxImap();
+  const r = await copierDansEnvoyes(MESSAGE, { env: PROD, creerClient: imap.creer, log: journal().log });
+  assert.deepEqual(r, { statut: "copie" });
+  assert.equal(imap.depots.length, 1);
+  assert.equal(imap.depots[0].path, "Envoyés");
+  assert.deepEqual(imap.depots[0].flags, ["\\Seen"]);
+  assert.match(imap.depots[0].contenu, /Subject: Sujet de test/);
+  assert.match(imap.depots[0].contenu, /To: camille@exemple\.test/);
+  assert.ok(imap.deconnecte);
 });
 
-test("échec IMAP : false, jamais d'exception, ni identifiant ni mot de passe au journal", async () => {
-  for (const echoue of ["connect", "append"]) {
-    const imap = fauxImap({ echoue });
-    const { lignes, log } = journal();
-    const ok = await deposerDansEnvoyes(MESSAGE, { env: ENV, creerClient: imap.creer, log, prefixe: "[annonce]" });
-    assert.equal(ok, false);
-    assert.equal(lignes.length, 1);
-    assert.match(lignes[0], /^\[annonce\] copie Envoyés impossible/);
-    const tout = lignes.join("\n");
-    assert.ok(!tout.includes("@"));
-    assert.ok(!tout.includes(ENV.CLUB_SMTP_PASSWORD));
+test("dossier repéré aussi par l'attribut seul (sans specialUse)", async () => {
+  const imap = fauxImap({ dossiers: [{ path: "INBOX", flags: new Set() }, { path: "Sent", flags: new Set(["\\Sent"]) }] });
+  const r = await copierDansEnvoyes(MESSAGE, { env: PROD, creerClient: imap.creer, log: journal().log });
+  assert.deepEqual(r, { statut: "copie" });
+  assert.equal(imap.depots[0].path, "Sent");
+});
+
+test("aucune connexion IMAP sans variables : statut non-configure", async () => {
+  for (const env of [{}, { ...PROD, CLUB_IMAP_HOST: "" }, { ...PROD, CLUB_SMTP_PASSWORD: "" }]) {
+    const imap = fauxImap();
+    const j = journal();
+    const r = await copierDansEnvoyes(MESSAGE, { env, creerClient: imap.creer, log: j.log, ref: "adhérent n°3" });
+    assert.deepEqual(r, { statut: "non-configure" });
+    assert.equal(imap.creations, 0);
+    assert.equal(j.lignes.length, 1);
+    assert.match(j.lignes[0], /^\[club\] copie dans Envoyés non faite \(adhérent n°3\)/);
   }
 });
 
-test("serveur muet : abandon au bout du délai, connexion fermée", async () => {
-  const imap = fauxImap({ bloque: true });
-  const { lignes, log } = journal();
-  const ok = await deposerDansEnvoyes(MESSAGE, { env: ENV, creerClient: imap.creer, log, delaiMs: 20 });
-  assert.equal(ok, false);
-  assert.equal(imap.ferme, true);
-  assert.deepEqual(lignes, ["[club] copie Envoyés impossible (DELAI)"]);
+test("aucune connexion IMAP hors production (preview, next dev), même avec les variables", async () => {
+  for (const env of [
+    { ...ENV, VERCEL: "1", VERCEL_ENV: "preview" },
+    { ...ENV, VERCEL: "1", VERCEL_ENV: "development" },
+    { ...ENV, VERCEL: "1" },
+    { ...ENV, NODE_ENV: "development" },
+  ]) {
+    const imap = fauxImap();
+    const j = journal();
+    const r = await copierDansEnvoyes(MESSAGE, { env, creerClient: imap.creer, log: j.log });
+    assert.deepEqual(r, { statut: "non-configure" });
+    assert.equal(imap.creations, 0);
+    assert.match(j.lignes[0], /bloquée hors production/);
+  }
 });
 
-test("configuration incomplète : aucune connexion tentée", async () => {
-  const imap = fauxImap();
-  const { lignes, log } = journal();
-  assert.equal(await deposerDansEnvoyes(MESSAGE, { env: {}, creerClient: imap.creer, log }), false);
-  assert.equal(imap.config, null);
-  assert.match(lignes[0], /copie Envoyés impossible/);
+test("échec de connexion : statut echec, journal avec le code seulement", async () => {
+  const imap = fauxImap({ echoue: "connect" });
+  const j = journal();
+  const r = await copierDansEnvoyes(MESSAGE, { env: PROD, creerClient: imap.creer, log: j.log, ref: "adhérent n°7" });
+  assert.deepEqual(r, { statut: "echec" });
+  assert.deepEqual(j.lignes, ["[club] copie dans Envoyés en échec (adhérent n°7) : ECONNREFUSED"]);
+  const tout = j.lignes.join("\n");
+  for (const secret of ["mot-de-passe-factice", "club@exemple.test", "camille@exemple.test", "jeton"]) {
+    assert.ok(!tout.includes(secret), `« ${secret} » ne doit pas apparaître dans le journal`);
+  }
+  assert.ok(imap.ferme);
+});
+
+test("pas de dossier \\Sent ou dépôt refusé : echec, sans exception", async () => {
+  const sansSent = fauxImap({ dossiers: [{ path: "INBOX", flags: new Set() }] });
+  const j1 = journal();
+  assert.deepEqual(await copierDansEnvoyes(MESSAGE, { env: PROD, creerClient: sansSent.creer, log: j1.log }), { statut: "echec" });
+  assert.match(j1.lignes[0], /SANS_DOSSIER_SENT/);
+
+  const refus = fauxImap({ echoue: "append" });
+  const j2 = journal();
+  assert.deepEqual(await copierDansEnvoyes(MESSAGE, { env: PROD, creerClient: refus.creer, log: j2.log }), { statut: "echec" });
+  assert.match(j2.lignes[0], /NoConnection/);
+});
+
+test("serveur qui ne répond pas : abandon après le délai", async () => {
+  const imap = fauxImap({ bloque: true });
+  const j = journal();
+  const r = await copierDansEnvoyes(MESSAGE, { env: PROD, creerClient: imap.creer, log: j.log, delaiMs: 20 });
+  assert.deepEqual(r, { statut: "echec" });
+  assert.match(j.lignes[0], /: DELAI$/);
+});
+
+test("annonces : mention « Envoyé à N adhérents » en tête, texte et HTML", () => {
+  assert.equal(mentionEnvoi(["a@x.fr"]), "Envoyé à 1 adhérent : a@x.fr");
+  assert.equal(mentionEnvoi(["a@x.fr", "b@x.fr"]), "Envoyé à 2 adhérents : a@x.fr, b@x.fr");
+  const m = avecMention(MESSAGE, ["a@x.fr", "b@x.fr"]);
+  assert.ok(m.text.startsWith("Envoyé à 2 adhérents : a@x.fr, b@x.fr\n\nBonjour Camille,"));
+  assert.match(m.html, /<body style="margin:0">\n<p [^>]*>Envoyé à 2 adhérents : a@x\.fr, b@x\.fr<\/p>/);
+  assert.equal(m.subject, MESSAGE.subject);
+  assert.equal(avecMention({ ...MESSAGE, html: undefined }, ["a@x.fr"]).html, undefined);
 });

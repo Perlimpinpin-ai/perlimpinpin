@@ -25,6 +25,13 @@ on:
         description: "Slug de la fiche (nom du fichier de data/relectures/, sans .json)"
         required: true
         type: string
+      # Appels Claude par l'API Message Batches (scripts/lib/claude-lot.js).
+      # Absent de l'appel de POST /api/relectures/revision : défaut false.
+      mode_lot:
+        description: "Moitié prix, mais la révision peut prendre de quelques minutes à plusieurs heures"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: revision-${{ inputs.slug }}
@@ -37,7 +44,7 @@ permissions:
 jobs:
   revision:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 180
     env:
       SLUG: ${{ inputs.slug }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -82,6 +89,9 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          # Transmis à analyze.js (spawnSync hérite de l'environnement).
+          CLAUDE_LOT: ${{ inputs.mode_lot && '1' || '' }}
+          CLAUDE_LOT_ATTENTE_MAX_MIN: "20"
         run: node scripts/reviser-relecture.js "$SLUG" --sortie "$RUNNER_TEMP/revision"
 
       - name: Contrôle des fichiers modifiés
@@ -107,7 +117,18 @@ jobs:
           while IFS= read -r f; do [ -n "$f" ] && git add -- "$f"; done < "$RUNNER_TEMP/revision/fichiers.txt"
           git commit -q -m "Révision $SLUG : réponses aux commentaires et fiche finale"
           git push -q origin "$BRANCHE"
-          lien=$(gh pr create --base main --head "$BRANCHE" --title "Révision $SLUG" --body-file "$RUNNER_TEMP/revision/rapport.md")
+          if ! lien=$(gh pr create --base main --head "$BRANCHE" --title "Révision $SLUG" --body-file "$RUNNER_TEMP/revision/rapport.md" 2>&1); then
+            manuel="https://github.com/$GITHUB_REPOSITORY/pull/new/$BRANCHE"
+            echo "✗ Branche $BRANCHE poussée, mais pull request NON créée : $lien"
+            {
+              echo "### ⚠ Pull request à créer à la main"
+              echo "La révision est faite et la branche est poussée. Crée la PR ici : $manuel"
+              echo
+              echo "Pour que le robot la crée lui-même : Settings de l'organisation, puis Actions > General > Workflow permissions,"
+              echo "cocher « Allow GitHub Actions to create and approve pull requests » (puis la même case dans les Settings du dépôt)."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
           echo "lien=$lien" >> "$GITHUB_OUTPUT"
           echo "Pull request : $lien"
 
@@ -124,6 +145,18 @@ jobs:
             echo
             cat "$rapport"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Sorties brutes de Claude sauvegardées par analyze.js quand le JSON a dû
+      # être récupéré ou réparé : seul moyen de comprendre un échec d'étape 3.
+      - name: Sorties brutes de Claude
+        if: ${{ failure() && (hashFiles('recovered-analysis-*.txt') != '' || hashFiles('failed-analysis-*.txt') != '') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sorties-brutes-${{ inputs.slug }}-${{ github.run_id }}
+          path: |
+            recovered-analysis-*.txt
+            failed-analysis-*.txt
+          retention-days: 30
 
       # logs/ n'est pas conservé sur le serveur GitHub : le journal des
       # insertions (analyse créée en brouillon) est gardé ici 90 jours.

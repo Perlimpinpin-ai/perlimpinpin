@@ -53,28 +53,12 @@ const DATA_DIR = path.join(ROOT, "data/relectures");
 const TEMPLATE_PATH = path.join(ROOT, "scripts/templates/relectures.html");
 const OUTPUT_PATH = path.join(ROOT, "public/relectures/index.html");
 
-// Thèmes des filtres du hub : [valeur de data-cat, libellé du bouton].
-const THEMES = [
-  ["Logement", "Logement"],
-  ["Perspectives économiques, pouvoir d'achat, inflation & fiscalité", "Économie & pouvoir d'achat"],
-  ["IA & Numérique", "IA & Numérique"],
-  ["Éducation nationale", "Éducation nationale"],
-  ["Sécurité & Justice", "Sécurité & Justice"],
-  ["Santé & Hôpital", "Santé & Hôpital"],
-  ["Retraites", "Retraites"],
-  ["Emploi & Chômage", "Emploi & Chômage"],
-  ["Énergie & Climat", "Énergie & Climat"],
-  ["Alimentation & Agriculture", "Alimentation & Agriculture"],
-  ["Immigration", "Immigration"],
-  ["Démocratie et institutions", "Démocratie et institutions"],
-];
-
 // Paliers du score (mêmes bornes que APPRECIATION_BANDS dans scripts/lib/scoring.js).
 const TIERS = [
-  { min: 85, cls: "exemplaire", label: "Exemplaire", range: "85 à 100", flex: 16 },
-  { min: 70, cls: "solide", label: "Solide et chiffré", range: "70 à 84", flex: 15 },
-  { min: 55, cls: "plausible", label: "Plausible sous condition", range: "55 à 69", flex: 15 },
-  { min: 35, cls: "partiel", label: "Partiellement fondé", range: "35 à 54", flex: 20 },
+  { min: 80, cls: "exemplaire", label: "Exemplaire", range: "80 à 100", flex: 21 },
+  { min: 65, cls: "solide", label: "Solide et chiffré", range: "65 à 79", flex: 15 },
+  { min: 50, cls: "plausible", label: "Plausible sous condition", range: "50 à 64", flex: 15 },
+  { min: 35, cls: "partiel", label: "Partiellement fondé", range: "35 à 49", flex: 15 },
   { min: 20, cls: "fragile", label: "Fragile", range: "20 à 34", flex: 15 },
   { min: 0, cls: "irreal", label: "Irréaliste", range: "0 à 19", flex: 20 },
 ];
@@ -143,8 +127,13 @@ function paragraphes(text) {
   return out;
 }
 
+// Texte échappé, avec **gras** rendu en <strong>.
+function rich(text) {
+  return esc(text).replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
+}
+
 function ps(text) {
-  return paragraphes(text).map((p) => "<p>" + esc(p) + "</p>").join("");
+  return paragraphes(text).map((p) => "<p>" + rich(p) + "</p>").join("");
 }
 
 // Section en accordéon { synthese, texte } ou texte simple (fiches antérieures).
@@ -159,7 +148,7 @@ function texteDe(v) {
 }
 
 function syntheseHtml(v) {
-  return estAccordeon(v) && v.synthese ? '<p class="synthese">' + esc(v.synthese) + "</p>" : "";
+  return estAccordeon(v) && v.synthese ? '<p class="synthese">' + rich(v.synthese) + "</p>" : "";
 }
 
 // Synthèse en tête (si accordéon), puis le texte découpé en paragraphes.
@@ -168,16 +157,27 @@ function section(v) {
 }
 
 // Découpe analyse_par_criteres selon les intitulés « Critère (n/max) : ».
+// Tolère les variantes rencontrées dans les fiches : « et » ou « & », casse
+// libre (« Opérationnalité & Moyens »), précision après la note
+// (« (9/30, FRAGILE) », « (8/30, plafond appliqué) », « (9/30), FRAGILE »),
+// et « : » ou « . » ensuite.
+function motifNom(nom) {
+  return nom
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/ et /g, " (?:et|&) ");
+}
+
 function decouperCriteres(text) {
-  const noms = CRITERES.map((c) => c.nom).join("|");
-  const re = new RegExp(`(?:^|(?<=\\s))(${noms}) \\(\\d+/\\d+\\) : `, "gu");
-  const hits = [...String(text).matchAll(re)];
+  const t = String(text ?? "");
+  const noms = CRITERES.map((c) => `(${motifNom(c.nom)})`).join("|");
+  const re = new RegExp(`(?:^|(?<=\\s))(?:${noms}) \\(\\d+(?:[.,]\\d+)?/\\d+(?:[,;][^)]*)?\\)(?:,\\s*[^:.\\n]{1,40}?)?\\s*[:.]\\s*`, "giu");
+  const hits = [...t.matchAll(re)];
   if (!hits.length) return null;
   const parts = {};
   hits.forEach((m, i) => {
-    const fin = i + 1 < hits.length ? hits[i + 1].index : text.length;
-    const crit = CRITERES.find((c) => c.nom === m[1]);
-    parts[crit.id] = text.slice(m.index + m[0].length, fin).trim();
+    const fin = i + 1 < hits.length ? hits[i + 1].index : t.length;
+    const crit = CRITERES[m.slice(1).findIndex(Boolean)];
+    parts[crit.id] = t.slice(m.index + m[0].length, fin).trim();
   });
   return parts;
 }
@@ -246,7 +246,16 @@ function renderDetailScore(id, n) {
 
 function renderCriteres(slug, fiche) {
   const n = fiche.notation_detaillee;
-  const parts = decouperCriteres(fiche.analyse_par_criteres);
+  let parts = decouperCriteres(fiche.analyse_par_criteres);
+  if (parts) {
+    // Garde-fou : un critère introuvable donnerait une carte vide et décalerait
+    // le texte des autres ; on retombe alors sur un seul bloc.
+    const manquants = CRITERES.filter((c) => !parts[c.id]).map((c) => c.nom);
+    if (manquants.length) {
+      console.warn(`[${slug}] critère(s) introuvable(s) dans analyse_par_criteres : ${manquants.join(", ")}. Affichage en un seul bloc.`);
+      parts = null;
+    }
+  }
   if (!parts) {
     // Texte sans intitulés de critères : un seul bloc commentable.
     return subBlock(`${slug}-criteres-texte`, "Analyse par critères", ps(fiche.analyse_par_criteres), { foot: "Commenter" });
@@ -276,7 +285,7 @@ export function renderVue(slug, fiche) {
 
   const a = r.archive;
   const head = `<div data-view="${slug}" class="fiche${a ? " is-archived" : ""}"${a ? ' data-archived="1"' : ""} hidden>
-<a class="back" href="${a ? "#/archives" : "#/"}">← ${a ? "Toutes les analyses archivées" : "Tous les brouillons"}</a>
+<a class="back" href="#/">← Mon espace</a>
 ${a ? renderArchiveBanner(a) : '<p class="anno-help">Survolez un paragraphe ou sélectionnez un passage pour ajouter une note.</p>'}
 <header class="f-head tier-${tier.cls}">
   <p class="badge-cat">${esc(r.theme)}</p>
@@ -342,8 +351,8 @@ ${a ? renderArchiveBanner(a) : '<p class="anno-help">Survolez un paragraphe ou s
     id("verdict"),
     "Verdict final",
     ps(fiche.verdict_final) +
-      (r.verdict_tient ? `<h3 class="mini">Ce qui tient</h3><p>${esc(r.verdict_tient)}</p>` : "") +
-      (r.verdict_flou ? `<h3 class="mini">Ce qui reste flou</h3><p>${esc(r.verdict_flou)}</p>` : "") +
+      (r.verdict_tient ? `<h3 class="mini">Ce qui tient</h3><p>${rich(r.verdict_tient)}</p>` : "") +
+      (r.verdict_flou ? `<h3 class="mini">Ce qui reste flou</h3><p>${rich(r.verdict_flou)}</p>` : "") +
       `<p class="verdict-score">Score : <b>${n.score_total}</b> sur 100.</p>`,
   );
 
@@ -360,7 +369,7 @@ ${a ? renderArchiveBanner(a) : '<p class="anno-help">Survolez un paragraphe ou s
       `<h3 class="mini">Limites identifiées</h3>` +
       syntheseHtml(fiche.limites) +
       `<ul class="plist">` +
-      limites.map((l) => "<li>" + esc(l) + "</li>").join("") +
+      limites.map((l) => "<li>" + rich(l) + "</li>").join("") +
       "</ul>",
   );
 
@@ -394,44 +403,6 @@ function renderReponses(sectionId, a) {
     `<section class="review replies" id="${sectionId}"><p class="label">Relecture traitée</p><h2>Réponses aux commentaires</h2>` +
     (a.synthese ? ps(a.synthese) : "") +
     `<ol class="rp-list">${items}</ol></section>\n`
-  );
-}
-
-function renderCarte(slug, fiche) {
-  const r = fiche.relecture;
-  const a = r.archive;
-  const score = fiche.notation_detaillee.score_total;
-  const tier = tierOf(score);
-  const n = a?.reponses.length ?? 0;
-  const bas = a
-    ? `<p class="meta"><span>Étape 1</span><span>Version ${r.version}</span><span>${dateFr(r.date)}</span></p>` +
-      `<p class="arch-line"><span class="arch-badge">Archivée · version suivante déposée</span><span>le ${dateFr(a.date)} · ${n} réponse${n > 1 ? "s" : ""} aux commentaires</span></p></div>`
-    : `<p class="meta"><span>Étape 1</span><span>Version ${r.version}</span><span>${dateFr(r.date)}</span><span data-statut>À relire</span></p></div>`;
-  return (
-    `<article class="fcard tier-${tier.cls}${a ? " archived" : ""}" data-fiche="${slug}" data-cat="${esc(r.theme)}"><div class="main">` +
-    `<p class="badge-cat">${esc(r.theme)} · ${esc(r.candidat)}</p>` +
-    `<h2><a class="fcard-link" href="#/${slug}">${esc(r.titre)}</a></h2>` +
-    `<p class="teaser">${esc(fiche.phrase_teasing)}</p>` +
-    bas +
-    `<div class="fscore"><span class="n">${score}<small>/100</small></span><span class="tierl">${tier.label}</span><span class="go" aria-hidden="true">→</span></div>` +
-    // Hors de .main : la barre de temps restant prend toute la largeur de la carte.
-    (a ? "" : `<div class="chrono" data-chrono="${slug}"></div>`) +
-    `</article>`
-  );
-}
-
-function renderFiltres(fiches) {
-  const themes = [...THEMES];
-  for (const { fiche } of fiches) {
-    if (!themes.some(([v]) => v === fiche.relecture.theme)) themes.push([fiche.relecture.theme, fiche.relecture.theme]);
-  }
-  const chip = (value, label, count, pressed) =>
-    `<button class="chipf" type="button" data-cat="${esc(value)}" aria-pressed="${pressed}"${count || value === "all" ? "" : " disabled"}>${esc(label)}<i>${count}</i></button>`;
-  return (
-    '<div class="filters" role="group" aria-label="Filtrer par thème">' +
-    chip("all", "Tous", fiches.length, true) +
-    themes.map(([v, label]) => chip(v, label, fiches.filter(({ fiche }) => fiche.relecture.theme === v).length, false)).join("") +
-    "</div>"
   );
 }
 
@@ -496,15 +467,10 @@ function main() {
   );
   const reponsesJson = JSON.stringify(reponses).replace(/</g, "\\u003c");
 
+  // Plus de liste de brouillons ni d'archives sur l'accueil (espace adhérent,
+  // nov. 2026) : les fiches relues restent consultables par leur lien (#/<slug>),
+  // notamment depuis « Mes commentaires ».
   const html = readFileSync(TEMPLATE_PATH, "utf8")
-    .replace("{{FILTRES}}", () => renderFiltres(brouillons))
-    .replace("{{CARTES}}", () => brouillons.map(({ slug, fiche }) => renderCarte(slug, fiche)).join(""))
-    .replace("{{NB_ARCHIVES}}", () => String(archives.length))
-    .replace("{{ARCHIVES}}", () =>
-      archives.length
-        ? archives.map(({ slug, fiche }) => renderCarte(slug, fiche)).join("")
-        : '<p class="cempty">Aucune analyse archivée pour l’instant.</p>',
-    )
     .replace("{{VUES}}", () => [...brouillons, ...archives].map(({ slug, fiche }) => renderVue(slug, fiche)).join("\n\n\n"))
     .replace("{{REPONSES}}", () => reponsesJson);
   writeFileSync(OUTPUT_PATH, html);

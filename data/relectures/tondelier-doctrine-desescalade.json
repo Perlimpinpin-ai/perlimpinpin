@@ -128,6 +128,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Miser sur la désescalade » (24 caractères). Teasing proposé : « Unités de dialogue, fin des nasses, plus de LBD : le modèle nord-européen tiendrait-il face aux pillards du 17 octobre ? » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Tondelier/tondelier_doctrine_desescalade_etape3.json",
+      "reponses": []
+    }
   }
 }

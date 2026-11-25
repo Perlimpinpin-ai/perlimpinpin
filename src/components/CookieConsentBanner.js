@@ -73,7 +73,7 @@ export default function CookieConsentBanner() {
       aria-describedby="cookie-consent-description"
       tabIndex={-1}
       onKeyDown={handleKeyDown}
-      className="fixed inset-x-4 bottom-4 z-50 rounded-[28px] border border-white/70 bg-white/75 p-6 text-zinc-900 shadow-[0_12px_40px_rgb(0_0_0/0.18)] focus:outline-none sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[440px] sm:p-7"
+      className="print:hidden fixed inset-x-4 bottom-4 z-50 rounded-[28px] border border-white/70 bg-white/75 p-6 text-zinc-900 shadow-[0_12px_40px_rgb(0_0_0/0.18)] focus:outline-none sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[440px] sm:p-7"
       style={{
         WebkitBackdropFilter: "blur(20px) saturate(160%)",
         backdropFilter: "blur(20px) saturate(160%)",

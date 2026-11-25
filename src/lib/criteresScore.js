@@ -99,3 +99,21 @@ export function criteresPrincipaux(notation) {
     }),
   ];
 }
+
+// Courte explication pédagogique de chaque critère du barème 2026, affichée
+// sous le titre de sa carte dans la vue experte (« Analyse par critères »).
+// Clés : champ `critere` de contenuComplet.analyse_par_criteres. Texte écrit
+// pour le lecteur, fidèle à data/prompt-methodologie.md (qui fait foi).
+// Les anciens barèmes n'ont pas d'explication : rien n'est affiché.
+export const EXPLICATIONS_CRITERES = {
+  operationnalite_moyens:
+    "La mesure peut-elle être mise en œuvre ? Trois volets notés séparément sur 10 : le droit (Constitution, traités, lois), le budget, et les moyens humains. Un seul volet fragile plafonne l'ensemble à 10/30.",
+  efficacite:
+    "La mesure atteint-elle vraiment l'objectif qu'elle affiche ? On regarde si le lien entre le mécanisme et le résultat est direct, indirect ou faible, et ce que montrent les données et les expériences comparables.",
+  effets_rebonds_externalites:
+    "Que provoque la mesure à côté de son objectif ? Effets indésirables, coûts reportés sur d'autres, conséquences économiques ou environnementales : chacun est pesé selon sa gravité.",
+  degre_preparation:
+    "Le candidat a-t-il fait ses devoirs ? Mécanisme précis, chiffrage exploitable, et surtout chiffres exacts au regard des sources officielles.",
+  alignement_logique:
+    "La mesure est-elle cohérente ? Avec le reste du programme du candidat, avec ses positions et son bilan passés, et avec ce que permet réellement le poste visé.",
+};

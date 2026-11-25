@@ -12,13 +12,27 @@ export default function EditorBar({ editeur }) {
 
   if (editeur) {
     return (
-      <form action={verrouiller} className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-          Mode édition activé
+      <form action={verrouiller} className="flex flex-wrap items-center gap-3">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
+          {/* Cadenas ouvert */}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="4" y="11" width="16" height="10" rx="2" />
+            <path d="M8 11V7a4 4 0 0 1 7.8-1.2" />
+          </svg>
+          Mode édition
         </span>
         <button
           type="submit"
-          className="text-xs font-semibold underline underline-offset-2 transition-opacity hover:opacity-70"
+          className="text-xs font-medium text-zinc-500 underline underline-offset-2 transition-colors hover:text-zinc-800"
         >
           Se verrouiller
         </button>
@@ -39,7 +53,10 @@ export default function EditorBar({ editeur }) {
   }
 
   return (
-    <form action={formAction} className="flex flex-wrap items-center gap-2">
+    <form
+      action={formAction}
+      className="flex flex-wrap items-center justify-end gap-2"
+    >
       <label htmlFor="test-edit-code" className="sr-only">
         Code d&rsquo;édition
       </label>

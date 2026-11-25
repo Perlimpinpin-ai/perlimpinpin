@@ -1,6 +1,19 @@
 import { prisma } from "@/lib/prisma";
-import { creerMoteur } from "@/lib/recherche";
+import { creerMoteur, motsDuCorps } from "@/lib/recherche";
 import { resolveTheme, themeLabel } from "@/lib/themes";
+import { STATUTS_VERSION, numeroVersion } from "@/lib/versions-core";
+import { ORDRE_DERNIERES_PUBLICATIONS, dateChiffres, datePublication } from "@/lib/date-publication";
+
+// Numéro de version (V1, V2…) de l'analyse affichée, parmi les versions
+// publiées de la fiche (statut « publie » ou « remplacee », Club ouvert lot 5).
+// Sert seulement au numéro : aucune version remplacée n'est affichée ni comptée ailleurs.
+export async function getNumeroVersion(propositionId, analyseId) {
+  const versions = await prisma.analyse.findMany({
+    where: { propositionId, statut: { in: STATUTS_VERSION } },
+    select: { id: true, statut: true, createdAt: true },
+  });
+  return numeroVersion(versions, analyseId);
+}
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
   day: "numeric",
@@ -8,13 +21,8 @@ const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
   year: "numeric",
 });
 
-// Date courte (ex. 5/10/2026) pour la ligne « Analyse réalisée le … » de la fiche.
-const dateChiffresFormatter = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "numeric",
-  year: "numeric",
-  timeZone: "Europe/Paris",
-});
+// La date courte (19/11/2026) de la ligne « Analyse réalisée le … » de la fiche
+// vient de src/lib/date-publication.js (date de publication, heure de Paris).
 
 // Date courte (« 28 sept. 2026 ») pour la colonne « Dernières déclarations »
 // de la page d'accueil.
@@ -32,11 +40,50 @@ function displayTitle(proposition) {
   return text.length > 80 ? `${text.slice(0, 79).trimEnd()}…` : text;
 }
 
+// Clés du contenuComplet ignorées par la recherche plein texte : sources
+// (titres et liens de documents, trop de faux positifs) et textes des réseaux.
+const CLES_HORS_RECHERCHE = new Set(["sources_utilisees", "sources", "url", "reseaux", "reel", "reelPrecedent"]);
+
+// Tout le texte lisible d'une valeur JSON (chaînes, listes, objets imbriqués),
+// sans les liens.
+function textesJson(valeur, sortie = []) {
+  if (typeof valeur === "string") {
+    if (!/^https?:\/\//.test(valeur)) sortie.push(valeur);
+  } else if (Array.isArray(valeur)) {
+    for (const element of valeur) textesJson(element, sortie);
+  } else if (valeur && typeof valeur === "object") {
+    for (const [cle, element] of Object.entries(valeur)) {
+      if (!CLES_HORS_RECHERCHE.has(cle)) textesJson(element, sortie);
+    }
+  }
+  return sortie;
+}
+
+// Mots de tout le texte d'une analyse (sections de la fiche + champs
+// publiés), pour que la recherche trouve aussi un mot qui n'apparaît ni dans
+// le titre ni dans le résumé (ex. « prison »).
+function corpsAnalyse(analyse) {
+  return motsDuCorps(
+    textesJson([
+      analyse.teaser,
+      analyse.verdict,
+      analyse.cequiEstEtabli,
+      analyse.cequiEstProbable,
+      analyse.cequiEstDiscutable,
+      analyse.cequiEstInconnu,
+      analyse.contenuComplet,
+    ]).join(" "),
+  );
+}
+
 // Document indexé par le moteur de recherche (src/lib/recherche.js) pour une
 // analyse publiée (avec sa proposition et son candidat). id = id de
 // l'analyse (unique), propositionId = lien vers /declarations/[id].
+// `corps` (texte complet) seulement si l'analyse a été chargée avec son
+// contenuComplet : jamais pour l'index envoyé au navigateur (trop lourd).
 function documentRecherche(analyse) {
   return {
+    ...(analyse.contenuComplet !== undefined ? { corps: corpsAnalyse(analyse) } : {}),
     id: analyse.id,
     propositionId: analyse.proposition.id,
     titre: displayTitle(analyse.proposition),
@@ -54,7 +101,7 @@ function documentRecherche(analyse) {
 export async function getIndexRecherche() {
   const analyses = await prisma.analyse.findMany({
     where: { statut: "publie" },
-    orderBy: { createdAt: "desc" },
+    orderBy: ORDRE_DERNIERES_PUBLICATIONS,
     select: {
       id: true,
       resumeAccueil: true,
@@ -71,6 +118,52 @@ export async function getIndexRecherche() {
     },
   });
   return analyses.map(documentRecherche);
+}
+
+// Moteur plein texte (titre, résumé ET texte complet des analyses) pour
+// /api/recherche : complète les suggestions de la page d'accueil quand l'index
+// léger du navigateur trouve peu de choses. Construit au plus une fois toutes
+// les 5 minutes par instance du serveur, pour ne pas relire toutes les
+// analyses en base à chaque frappe.
+const DUREE_MOTEUR_COMPLET_MS = 5 * 60 * 1000;
+let moteurComplet = null;
+
+export async function getMoteurRechercheComplet() {
+  if (moteurComplet && Date.now() - moteurComplet.date < DUREE_MOTEUR_COMPLET_MS) {
+    return moteurComplet.promesse;
+  }
+  const promesse = prisma.analyse
+    .findMany({
+      where: { statut: "publie" },
+      orderBy: ORDRE_DERNIERES_PUBLICATIONS,
+      select: {
+        id: true,
+        resumeAccueil: true,
+        verdict: true,
+        teaser: true,
+        cequiEstEtabli: true,
+        cequiEstProbable: true,
+        cequiEstDiscutable: true,
+        cequiEstInconnu: true,
+        contenuComplet: true,
+        proposition: {
+          select: {
+            id: true,
+            titre: true,
+            texteOriginal: true,
+            theme: true,
+            candidat: { select: { nom: true } },
+          },
+        },
+      },
+    })
+    .then((analyses) => creerMoteur(analyses.map(documentRecherche)));
+  moteurComplet = { date: Date.now(), promesse };
+  // En cas d'échec (base indisponible), on réessaiera au prochain appel.
+  promesse.catch(() => {
+    if (moteurComplet?.promesse === promesse) moteurComplet = null;
+  });
+  return promesse;
 }
 
 // Le champ `theme` des propositions contient le slug d'un des 12 thèmes de
@@ -145,7 +238,7 @@ const DATE_MAX = 8.64e15;
 export async function getFeaturedRotation(dossiers = []) {
   const analyses = await prisma.analyse.findMany({
     where: { statut: "publie" },
-    orderBy: { createdAt: "desc" },
+    orderBy: ORDRE_DERNIERES_PUBLICATIONS,
     include: {
       proposition: { include: { candidat: true } },
     },
@@ -160,7 +253,7 @@ export async function getFeaturedRotation(dossiers = []) {
     dateLabel: dateFormatter.format(analyse.proposition.dateDeclaration),
     score: analyse.scoreFaisabilite,
     verdictDescription: analyse.resumeAccueil ?? analyse.verdict,
-    dateSort: analyse.createdAt,
+    dateSort: datePublication(analyse),
   }));
 
   for (const dossier of dossiers) {
@@ -237,7 +330,7 @@ export async function getPublishedDeclarations({ candidat, theme, sort, q } = {}
       ? [{ scoreFaisabilite: "asc" }]
       : sort === "score_desc"
         ? [{ scoreFaisabilite: "desc" }]
-        : [{ createdAt: "desc" }];
+        : ORDRE_DERNIERES_PUBLICATIONS;
 
   const [analysesCandidat, allPublished, rankRows, allCandidats] = await Promise.all([
     // Filtre thème appliqué après coup (voir cleTheme), pour accepter aussi
@@ -262,11 +355,12 @@ export async function getPublishedDeclarations({ candidat, theme, sort, q } = {}
     // (la série recommençait à 021 au lieu de 001). Calculé par Postgres via
     // ROW_NUMBER(), jamais en chargeant toutes les lignes pour les compter
     // côté JS, et indépendant du filtre/tri courant de la page (le rang
-    // d'une analyse ne doit pas changer selon la vue affichée) — sur
-    // createdAt, pas sur dateDeclaration (date de la déclaration du
-    // candidat, sans rapport avec l'ordre de publication de nos analyses).
+    // d'une analyse ne doit pas changer selon la vue affichée) — sur la
+    // date de publication (publieLe, repli createdAt), pas sur
+    // dateDeclaration (date de la déclaration du candidat, sans rapport
+    // avec l'ordre de publication de nos analyses).
     prisma.$queryRaw`
-      SELECT id, ROW_NUMBER() OVER (ORDER BY "createdAt" ASC) AS rang
+      SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE("publieLe", "createdAt") ASC, id ASC) AS rang
       FROM "Analyse"
       WHERE statut = 'publie'
     `,
@@ -493,7 +587,7 @@ export async function getCandidatAvecDeclarations(id) {
       },
     }),
     prisma.$queryRaw`
-      SELECT id, ROW_NUMBER() OVER (ORDER BY "createdAt" ASC) AS rang
+      SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE("publieLe", "createdAt") ASC, id ASC) AS rang
       FROM "Analyse"
       WHERE statut = 'publie'
     `,
@@ -531,11 +625,13 @@ export async function getCandidatAvecDeclarations(id) {
 }
 
 // Compte les votes like/dislike par Analyse, filtré depuis `sinceDate`
-// (ou sur toute la période si `sinceDate` est omis).
+// (ou sur toute la période si `sinceDate` est omis). Seules les analyses
+// PUBLIÉES comptent : une version « remplacee » (revue du dimanche) ne doit
+// jamais apparaître dans le classement de /prix-perlimpinpin.
 async function getVoteCountsByAnalyse(sinceDate) {
   const rows = await prisma.feedback.groupBy({
     by: ["analyseId", "type"],
-    where: sinceDate ? { createdAt: { gte: sinceDate } } : undefined,
+    where: { analyse: { statut: "publie" }, ...(sinceDate ? { createdAt: { gte: sinceDate } } : {}) },
     _count: { _all: true },
   });
 
@@ -845,10 +941,11 @@ export async function getDeclarationDetail(propositionId, inclureBrouillons = fa
     dateDeclaration: proposition.dateDeclaration,
     candidat: proposition.candidat,
     analyse,
-    // Date de génération affichée en haut de la fiche ("Perlimpinpin
-    // {version} · généré le ..."), à partir de analyse.createdAt — distincte
-    // de dateLabel ci-dessus, qui est la date de la déclaration elle-même.
-    generationDateLabel: analyse ? dateChiffresFormatter.format(analyse.createdAt) : null,
+    // Date « Analyse réalisée le … » de la fiche : date de PUBLICATION
+    // (publieLe = moment du clic « Publier », repli createdAt ; pour un
+    // brouillon relu sur /test, sa date de génération) — distincte de
+    // dateLabel ci-dessus, qui est la date de la déclaration elle-même.
+    generationDateLabel: analyse ? dateChiffres(datePublication(analyse)) : null,
     feedbackCounts,
     voteMesureCounts,
   };

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { nombresHorsFiche } from "../../src/lib/nombres-fiche.js";
 import {
   LONGUEUR_X_MAX,
   MARQUEURS_PAR_TWEET,
@@ -38,10 +39,10 @@ import {
 // barème, deux consommateurs différents : ce fichier valide côté pipeline
 // d'analyse, score.js affiche côté site).
 export const APPRECIATION_BANDS = [
-  { min: 85, max: 100, label: "exemplaire" },
-  { min: 70, max: 84, label: "solide et chiffré" },
-  { min: 55, max: 69, label: "plausible sous condition" },
-  { min: 35, max: 54, label: "partiellement fondé" },
+  { min: 80, max: 100, label: "exemplaire" },
+  { min: 65, max: 79, label: "solide et chiffré" },
+  { min: 50, max: 64, label: "plausible sous condition" },
+  { min: 35, max: 49, label: "partiellement fondé" },
   { min: 20, max: 34, label: "fragile" },
   { min: 0, max: 19, label: "irréaliste" },
 ];
@@ -130,6 +131,60 @@ function computePlafondDeclencheurAttendu({
   const fragiles = sousComposantes.filter((item) => item.note < 3);
   if (fragiles.length === 0) return null;
   return fragiles.reduce((lowest, item) => (item.note < lowest.note ? item : lowest)).nom;
+}
+
+// --- Score calculé par le code (Club ouvert, lot 4) ---------------------------
+// Règle du Club (novembre 2026) : « le score est toujours calculé par le code,
+// jamais par un modèle ». Pour les NOUVELLES versions produites par la revue
+// du dimanche, les champs dérivés de notation_detaillee (total
+// Opérationnalité & Moyens, plafond, score_total, appreciation) sont
+// recalculés ici à partir des notes des critères, avec exactement les règles
+// que checkNotationCoherence vérifie (CALCUL de data/prompt-methodologie.md).
+// Les fiches déjà publiées ne sont pas modifiées : scripts/rapport-scores.js
+// compare seulement, en lecture seule.
+// Renvoie null si une note de critère manque (ancien barème) : pas de calcul.
+const NOTES_CRITERES = [
+  "operationnalite_juridique",
+  "operationnalite_budgetaire",
+  "operationnalite_moyens_humains",
+  "efficacite",
+  "effets_rebonds_externalites",
+  "degre_preparation",
+  "alignement_logique",
+];
+
+export function calculerScore(notation) {
+  if (!notation || NOTES_CRITERES.some((cle) => !Number.isInteger(notation[cle]))) return null;
+  const sousTotal =
+    notation.operationnalite_juridique + notation.operationnalite_budgetaire + notation.operationnalite_moyens_humains;
+  const plafondDeclencheur = computePlafondDeclencheurAttendu(notation);
+  const plafondApplique = plafondDeclencheur !== null;
+  const operationnaliteTotal = plafondApplique ? Math.min(sousTotal, 10) : sousTotal;
+  const scoreTotal = Math.max(
+    0,
+    Math.min(
+      100,
+      operationnaliteTotal +
+        notation.efficacite +
+        notation.effets_rebonds_externalites +
+        notation.degre_preparation +
+        notation.alignement_logique,
+    ),
+  );
+  return {
+    operationnalite_moyens_total: operationnaliteTotal,
+    plafond_applique: plafondApplique,
+    plafond_declencheur: plafondDeclencheur,
+    score_total: scoreTotal,
+    appreciation: computeAppreciation(scoreTotal),
+  };
+}
+
+// notation_detaillee dont les champs dérivés sont remplacés par le calcul du
+// code (les notes et qualifications des critères restent celles de l'analyse).
+export function appliquerScoreCode(notation) {
+  const calcul = calculerScore(notation);
+  return calcul ? { ...notation, ...calcul } : null;
 }
 
 // Revérifie la cohérence arithmétique de notation_detaillee (CALCUL, voir
@@ -471,30 +526,9 @@ export function validateVersionBasique(raw, sourcesUtilisees) {
   return { valid: true, errors: [], versionBasique: zodResult.data };
 }
 
-// Contrôle de fidélité : tout nombre écrit dans la version basique doit
-// figurer dans la fiche finale. Les espaces (y compris insécables et fines)
-// servant de séparateurs de milliers sont retirés des deux côtés avant
-// comparaison ; la virgule décimale est conservée telle quelle. Ne contrôle
-// pas les arrondis en toutes lettres (« plus d'un tiers »), laissés au prompt
-// et à la relecture.
-// Le même découpage est appliqué aux deux textes : « fin 2021 560 000 »
-// donne bien « 2021 » et « 560000 », jamais « 2021560000 ». Comparer des
-// nombres entiers (et non des sous-chaînes) évite aussi de trouver « 200 »
-// dans « 2000 » ou « 1,8 » dans « 1,85 ».
-const NOMBRE_REGEX = /\d{1,3}(?:[   ]\d{3})+(?:,\d+)?|\d+(?:,\d+)?/g;
-
-function extraireNombres(text) {
-  return [...text.matchAll(NOMBRE_REGEX)].map((match) => match[0].replace(/[   ]/g, ""));
-}
-
-// Nombres des textes absents de la fiche finale (même règle pour la version
-// basique et les publications X).
-function nombresHorsFiche(textes, ficheFinale) {
-  const nombres = new Set(textes.filter((texte) => typeof texte === "string").flatMap(extraireNombres));
-  const reference = new Set(extraireNombres(JSON.stringify(ficheFinale)));
-  return [...nombres].filter((nombre) => !reference.has(nombre));
-}
-
+// Contrôle de fidélité des chiffres : extraireNombres et nombresHorsFiche
+// (src/lib/nombres-fiche.js), même règle pour la version basique, les
+// publications X et le Reel.
 export function checkChiffresVersionBasique(versionBasique, ficheFinale) {
   return nombresHorsFiche(
     [

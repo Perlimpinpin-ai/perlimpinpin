@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Header from "@/components/Header";
+import EncartDon from "@/components/EncartDon";
 import { getScoreBands } from "@/lib/score";
 import MethodeAnalysisSteps from "@/components/MethodeAnalysisSteps";
 import TexteRiche from "@/components/TexteRiche";
@@ -439,13 +440,25 @@ export default async function MethodePage() {
           </div>
 
           {/* Ce que Perlimpinpin n'est pas (Bloc F) */}
-          <div className="mt-16 mb-16 max-w-2xl">
-            <h2 className="text-2xl font-bold text-zinc-900">
-              {t["nonpas.titre"]}
-            </h2>
-            <Paragraphes
-              texte={t["nonpas.texte"]}
-              className="mt-4 text-sm leading-relaxed text-zinc-600"
+          {/* À côté (grand écran) ou en dessous (mobile) : l'encart de don,
+              au moment où le lecteur vient de lire nos garde-fous et ce que
+              nous ne sommes pas. */}
+          <div className="mt-16 mb-16 flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-bold text-zinc-900">
+                {t["nonpas.titre"]}
+              </h2>
+              <Paragraphes
+                texte={t["nonpas.texte"]}
+                className="mt-4 text-sm leading-relaxed text-zinc-600"
+              />
+            </div>
+            <EncartDon
+              titre="Notre méthode est publique."
+              texte="Notre indépendance dépend de vous."
+              emplacement="methode"
+              apparition
+              className="lg:mt-1 lg:w-[320px] lg:shrink-0"
             />
           </div>
         </div>

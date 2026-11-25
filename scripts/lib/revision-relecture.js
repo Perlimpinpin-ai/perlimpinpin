@@ -11,7 +11,7 @@
 // Repris du robot des étapes 2 et 3 (branche robot-pipeline, jamais fusionnée) :
 // contrôle du candidat, anti-doublon par texte et par objectif_court, résumé.
 
-import { THEMES } from "../../src/lib/themes.js";
+import { THEMES_SITE, TABLE_THEMES, themeFiche } from "./themes-fiche.js";
 import { instantParis, partiesParis } from "../relecture.js";
 
 export const SITE_URL = "https://perlimpinpin.ai";
@@ -21,28 +21,15 @@ export class RevisionError extends Error {}
 
 // ---------- thème ----------
 
-export const THEMES_SITE = THEMES.map((t) => t.name);
-
-// Thèmes des fiches (13 catégories d'objectif, scoring.js) absents de la liste
-// des thèmes du site (src/lib/themes.js) : correspondance explicite.
-export const TABLE_THEMES = {
-  "Santé": "Santé & Hôpital",
-  "Emploi et chômage": "Emploi & Chômage",
-  "Éducation": "Éducation nationale",
-  "Énergie et climat": "Énergie & Climat",
-  "Alimentation et agriculture": "Alimentation & Agriculture",
-  "Fiscalité et pouvoir d'achat": "Perspectives économiques, pouvoir d'achat, inflation & fiscalité",
-  "Dette et finances publiques": "Perspectives économiques, pouvoir d'achat, inflation & fiscalité",
-  "Sécurité et justice": "Sécurité & Justice",
-  "Numérique et intelligence artificielle": "IA & Numérique",
-};
+// Table des thèmes : scripts/lib/themes-fiche.js (partagée avec la file d'attente
+// des fiches d'étape 1).
+export { THEMES_SITE, TABLE_THEMES };
 
 // { theme, remplace } : remplace = true si la table a servi (signalé dans le résumé).
 export function themeDuSite(theme) {
-  const t = String(theme ?? "").trim();
-  if (THEMES_SITE.includes(t)) return { theme: t, remplace: false };
-  if (TABLE_THEMES[t]) return { theme: TABLE_THEMES[t], remplace: true };
-  throw new RevisionError(`Thème inconnu : « ${t} ». Ajoute-le à TABLE_THEMES (scripts/lib/revision-relecture.js).`);
+  const r = themeFiche(theme);
+  if (r) return r;
+  throw new RevisionError(`Thème inconnu : « ${String(theme ?? "").trim()} ». Ajoute-le à TABLE_THEMES (scripts/lib/themes-fiche.js).`);
 }
 
 // ---------- source et candidat ----------

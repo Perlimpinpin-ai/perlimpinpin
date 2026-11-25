@@ -69,7 +69,7 @@
     "alignement_logique": 9,
     "qualification_alignement": "SOLIDE",
     "score_total": 54,
-    "appreciation": "partiellement fondé"
+    "appreciation": "plausible sous condition"
   },
   "verdict_final": "Ce qui tient : le diagnostic est juste et partagé, du Sénat à la recherche sur les foules, la révision de doctrine ne rencontre aucun obstacle juridique, et le candidat défend cette ligne avec constance depuis 2020.\n\nCe qui ne tient pas : la proposition s'arrête à l'objectif. Elle ne désigne ni tactique, ni arme, ni unité, ni moyen, et ne dit pas comment arbitrer entre protection des jeunes et protection des policiers. Son efficacité et ses risques ne peuvent donc pas être évalués. La note repose sur une lecture retenue par l'analyse : une doctrine qui distingue mieux pacifiques et casseurs.",
   "sources_utilisees": [
@@ -122,6 +122,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Revoir le maintien de l'ordre » (29 caractères). Teasing proposé : « Protéger les lycéens sans exposer les policiers : l'objectif fait l'unanimité. Reste à savoir comment. » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Roussel/roussel_revoir_doctrine_maintien_ordre_etape3.json",
+      "reponses": []
+    }
   }
 }

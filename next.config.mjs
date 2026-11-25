@@ -10,8 +10,60 @@ const nextConfig = {
     // Aperçu et envoi du mail d'annonce : candidat, parti et titre des fiches en relecture.
     "/api/relectures/annonce/apercu": ["./data/relectures/*.json"],
     "/api/relectures/annonce/envoyer": ["./data/relectures/*.json"],
+    // « Mes commentaires » : titre des anciennes fiches relues et réponses archivées.
+    "/api/relectures/mes-commentaires": ["./data/relectures/*.json"],
+    // Alerte e-mail à chaque nouveau commentaire : titre et candidat des fiches en relecture.
+    "/api/relectures/comments": ["./data/relectures/*.json"],
     // Cartes des publications X : police Inter et portraits bleus lus sur disque.
     "/api/carte/[id]": ["./public/fonts/*.otf", "./public/portraits-bleus/*.png"],
+    // Slides des carrousels Instagram : polices Source Serif 4 et Geist Mono
+    // (.ttf), Inter (.otf), portraits bleus (repli),
+    // et les illustrations des candidats (celles des vignettes du site, prises
+    // en pleine taille dans public/photos/ ; dossier des vignettes embarqué aussi),
+    // et la couverture en collage : portraits noir et blanc, photos et
+    // stickers des thèmes (scripts/images-couverture.js).
+    "/api/carrousel/[id]": [
+      "./public/fonts/*.ttf",
+      "./public/fonts/*.otf",
+      "./public/portraits-bleus/*.png",
+      "./public/portraits-nb/*.png",
+      "./public/carrousel/themes/*",
+      "./public/photos/*.jpg",
+      "./public/photos/vignettes/*.webp",
+    ],
+    // Bouton « Générer le récit » (Server Action de la page) : prompt lu à
+    // l'exécution ; la page vérifie aussi la présence des images du candidat.
+    "/test/reseaux/[id]": [
+      "./data/prompt-recit.md",
+      "./public/photos/*.jpg",
+      "./public/portraits-bleus/*.png",
+      "./public/portraits-nb/*.png",
+      "./public/carrousel/themes/*",
+    ],
+    // Images des Reels : polices Geist, fonds et portraits bleus lus sur disque.
+    "/test/reels/[id]/image": ["./public/fonts/*.ttf", "./public/reel/*.png", "./public/portraits-bleus/*.png"],
+    // Bouton « Générer le Reel » (Server Actions de ces pages) : prompt lu à
+    // l'exécution ; la page d'une fiche vérifie aussi la présence du portrait.
+    "/test/reels": ["./data/prompt-reel.md", "./public/reel/cartes/*.json"],
+    // Storyboard v4 : la page contrôle le storyboard (cartes disponibles,
+    // photos tramées, crédits, simulations de data/reel-demo/) ; la route des
+    // images lit en plus les polices et les fonds (scripts/reel-ressources.js).
+    "/test/reels/[id]": [
+      "./data/prompt-reel.md",
+      "./data/reel-demo/**/*",
+      "./public/portraits-bleus/*.png",
+      "./public/reel/cartes/*.json",
+      "./public/reel/photos/**/*.png",
+      "./public/illustrations/credits.json",
+    ],
+    "/test/reels/[id]/storyboard": [
+      "./data/reel-demo/**/*",
+      "./public/fonts/reel/*",
+      "./public/reel/v4/*.png",
+      "./public/reel/cartes/*.json",
+      "./public/reel/photos/**/*.png",
+      "./public/illustrations/credits.json",
+    ],
   },
   // Next.js ne résout pas automatiquement /relectures vers
   // public/relectures/index.html (pas de fallback "clean URL" sur les

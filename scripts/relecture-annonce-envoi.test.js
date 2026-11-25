@@ -81,8 +81,8 @@ async function envoyer(body, { code, prisma = fauxPrisma(), transport = fauxTran
     creerTransport: (c) => transport.creer(c),
     copierEnvoyes: async (message, options) => {
       copies.push({ message, options });
-      if (!copieReussie) options.log.error(`${options.prefixe} copie Envoyés impossible (ECONNREFUSED)`);
-      return copieReussie;
+      if (!copieReussie) options.log.error(`${options.prefixe} copie dans Envoyés en échec : ECONNREFUSED`);
+      return { statut: copieReussie ? "copie" : "echec" };
     },
     attendre: async (ms) => { pauses.push(ms); },
     log: { log: (m) => journal.push(m), error: (m) => journal.push(m) },
@@ -219,6 +219,6 @@ test("copie impossible : l'envoi reste un succès, journal sans adresse", async 
   const r = await envoyer({ mode: "reel", confirmation: "oui" }, { copieReussie: false });
   assert.equal(r.status, 200);
   assert.deepEqual(r.body, { envoyes: 2, echecs: [], restants: 0 });
-  assert.ok(r.journal.includes("[annonce] copie Envoyés impossible (ECONNREFUSED)"));
+  assert.ok(r.journal.includes("[annonce] copie dans Envoyés en échec : ECONNREFUSED"));
   assert.ok(!r.journal.join("\n").includes("@"));
 });

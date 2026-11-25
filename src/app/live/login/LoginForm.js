@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect } from "react";
 import { login } from "./actions";
 
@@ -31,9 +32,17 @@ export default function LoginForm({ next = "/live" }) {
         />
       </div>
       <div>
-        <label htmlFor="live-password" className="text-sm font-medium text-zinc-700">
-          Mot de passe
-        </label>
+        <div className="flex items-baseline justify-between gap-3">
+          <label htmlFor="live-password" className="text-sm font-medium text-zinc-700">
+            Mot de passe
+          </label>
+          <Link
+            href="/live/login/mot-de-passe-oublie"
+            className="text-[13px] text-zinc-500 underline decoration-zinc-300 underline-offset-4 hover:text-zinc-900 hover:decoration-zinc-900"
+          >
+            Mot de passe oublié ?
+          </Link>
+        </div>
         <input
           id="live-password"
           name="password"

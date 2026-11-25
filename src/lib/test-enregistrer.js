@@ -141,6 +141,7 @@ export async function enregistrerTexteCore(entree, { isEditor, prisma, dryRun })
           updatedAt: versionSuivante,
           ...(derives.teaser !== undefined ? { teaser: derives.teaser } : {}),
           ...(derives.verdict !== undefined ? { verdict: derives.verdict } : {}),
+          ...(derives.resumeAccueil !== undefined ? { resumeAccueil: derives.resumeAccueil } : {}),
         },
       });
       if (count !== 1) throw new ModificationRefusee(CONFLIT);

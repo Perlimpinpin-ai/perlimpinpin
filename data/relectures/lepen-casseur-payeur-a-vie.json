@@ -69,7 +69,7 @@
     "alignement_logique": 5,
     "qualification_alignement": "INCERTAIN",
     "score_total": 51,
-    "appreciation": "partiellement fondé"
+    "appreciation": "plausible sous condition"
   },
   "verdict_final": "Ce qui tient : le principe est juridiquement praticable, puisque le gouvernement porte déjà un projet presque identique validé par le Conseil d'État, et il ne coûte rien à l'État. Rendre coûteux le fait de rester après les sommations peut aider à isoler le noyau violent.\n\nCe qui ne tient pas : l'efficacité attendue d'une dette « à vie ». Les auteurs sont rarement identifiés et souvent insolvables, et la menace d'une dette lointaine pèse peu sur de jeunes casseurs. L'absence de plafond, seul apport propre de la proposition, est aussi ce qui l'expose le plus à une censure. La note repose sur une lecture retenue par l'analyse, faute de précision de la candidate : une responsabilité solidaire sans plafond annoncé.",
   "sources_utilisees": [
@@ -127,6 +127,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Faire payer les casseurs à vie » (30 caractères). Teasing proposé : « Un projet de loi presque identique est déjà au Sénat, avec un plafond de 10 000 euros. Que change vraiment la version de la candidate ? » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-27",
+      "version_suivante": "data/analyses finales/LePen/lepen_casseur_payeur_a_vie_etape3.json",
+      "reponses": []
+    }
   }
 }

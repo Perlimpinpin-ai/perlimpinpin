@@ -1,3 +1,4 @@
+import EDUCATION_JEUNESSE from "../../data/hors-series/education-jeunesse.json" with { type: "json" };
 import MOUVEMENT_SOCIAL from "../../data/hors-series/mouvement-social.json" with { type: "json" };
 import RN_PLAN_BUDGETAIRE from "../../data/hors-series/rn-plan-budgetaire.json" with { type: "json" };
 import { getFichesPubliees } from "./queries";
@@ -10,11 +11,11 @@ import { getFichesPubliees } from "./queries";
 // l'ajouter à la liste (le plus récent en premier). Un dossier dont le JSON
 // porte `visible: false` reste hors du registre (page accessible par son
 // adresse seulement).
-const HORS_SERIES = [MOUVEMENT_SOCIAL, RN_PLAN_BUDGETAIRE].filter((hs) => hs.visible !== false);
+const HORS_SERIES = [EDUCATION_JEUNESSE, MOUVEMENT_SOCIAL, RN_PLAN_BUDGETAIRE].filter((hs) => hs.visible !== false);
 
 // Dossiers servis par leur propre route (src/app/dossiers/<slug>/), leur JSON
 // n'ayant pas la structure lue par le gabarit /dossiers/[slug].
-const ROUTES_DEDIEES = new Set(["mouvement-social"]);
+const ROUTES_DEDIEES = new Set(["education-jeunesse", "mouvement-social"]);
 
 const PAR_SLUG = new Map(HORS_SERIES.map((hs) => [hs.slug, hs]));
 
@@ -37,8 +38,9 @@ export function getHorsSeries() {
 // Dossier à fiches (`fiches`, plan budgétaire RN) : statuts écrits dans le
 // JSON. Dossier à propositions (`propositions[].ficheId`, mouvement social) :
 // une fiche compte comme publiée dès que son analyse l'est en base (lecture
-// seule, getFichesPubliees), sans toucher au JSON. Tant qu'aucune ne l'est,
-// la phrase est `accueil.messageSansFiche`.
+// seule, getFichesPubliees), sans toucher au JSON ; si `accueil.fichesPrevues`
+// dépasse le nombre de fiches déjà rattachées, le reste compte « à venir ».
+// Tant qu'aucune n'est publiée, la phrase est `accueil.messageSansFiche`.
 export async function avancementHorsSerie(hs) {
   let statuts;
   if (hs.fiches) {
@@ -52,6 +54,10 @@ export async function avancementHorsSerie(hs) {
       console.error(`[dossier ${hs.slug}] lecture des fiches impossible :`, erreur.message);
     }
     statuts = ids.map((id) => (fiches[id] ? "publiee" : "a_venir"));
+    const prevues = hs.accueil?.fichesPrevues;
+    if (Number.isInteger(prevues) && prevues > statuts.length) {
+      statuts = statuts.concat(Array(prevues - statuts.length).fill("a_venir"));
+    }
   }
   const avancement = {
     statuts,

@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import EncartDon from "@/components/EncartDon";
 import ShareButton from "@/components/ShareButton";
 import SectionHeading from "@/components/SectionHeading";
 import TexteRiche from "@/components/TexteRiche";
@@ -132,6 +133,15 @@ export default async function AProposPage() {
                 <Paragraphes texte={t[`section${n}.texte`]} />
               </Section>
             ))}
+
+            <EncartDon
+              titre="Pas de pub, pas de parti, pas d’actionnaire."
+              texte="Juste des citoyens qui financent la vérification."
+              emplacement="a-propos"
+              format="bandeau"
+              apparition
+              className="mt-8"
+            />
           </div>
         </article>
       </main>

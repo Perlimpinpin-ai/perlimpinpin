@@ -66,11 +66,22 @@ export function lireSession({ secret, valeur, maintenant = Date.now() }) {
 }
 
 // Pages de l'espace adhérents accessibles sans être connecté.
-const PAGES_PUBLIQUES = new Set(["/relectures/connexion", "/relectures/inscription", "/relectures/deconnexion"]);
+const PAGES_PUBLIQUES = new Set([
+  "/relectures/connexion",
+  "/relectures/inscription",
+  "/relectures/deconnexion",
+  "/relectures/mot-de-passe-oublie",
+  "/relectures/nouveau-mot-de-passe",
+  // Adhésion au Club (lot « Club ouvert ») : départ vers HelloAsso, page de
+  // retour après paiement, choix du mot de passe depuis le mail de bienvenue.
+  "/relectures/adherer",
+  "/relectures/merci",
+  "/relectures/activer",
+]);
 
 // Le proxy doit-il exiger une session pour ce chemin ? Protégé par défaut : tout
 // /relectures (y compris /relectures/index.html, servi depuis public/) sauf les
-// trois pages ci-dessus. Comparaison en minuscules et sans « / » final, pour
+// pages ci-dessus. Comparaison en minuscules et sans « / » final, pour
 // qu'une variante d'écriture de l'URL ne contourne pas la protection.
 function normaliserChemin(pathname) {
   return pathname.toLowerCase().replace(/\/+$/, "");

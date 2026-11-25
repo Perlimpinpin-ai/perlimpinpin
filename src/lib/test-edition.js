@@ -236,6 +236,21 @@ export const CHAMPS_EDITABLES = {
       champCritere(critere, libelle),
     ]),
   ),
+  // Phrase de la carte « à la une » du carrousel d'accueil. Recopiée dans la
+  // colonne Analyse.resumeAccueil, que lit la page d'accueil (comme
+  // buildResumeAccueil dans scripts/analyze.js à la génération).
+  teaser_accueil: {
+    libelle: "Phrase d'accueil (carrousel)",
+    multiligne: true,
+    unParagraphe: true,
+    sansGras: true,
+    messageSansGras: "La phrase d'accueil s'affiche sans gras : retirez les **.",
+    aide:
+      "Affichée sous le titre dans le carrousel de la page d'accueil. 200 caractères au plus, sans gras. Elle doit se comprendre seule : nommez qui et quand (« Macron en 2022 »), jamais « la même promesse ».",
+    min: 20,
+    max: 200,
+    derives: (valeur) => ({ resumeAccueil: valeur }),
+  },
   verdict_final: {
     libelle: "Verdict final",
     multiligne: true,
@@ -290,7 +305,7 @@ export const CHAMPS_EDITABLES = {
     unParagraphe: true,
     sansGras: true,
     messageSansGras: "La mesure initiale s'affiche sans gras : retirez les **.",
-    aide: "Mesure, citation et source, en un seul paragraphe. Pas de gras.",
+    aide: "La mesure seule, en un seul paragraphe : ni citation ni source (elles restent sur /relectures). Pas de gras.",
     min: 10,
     max: 3000,
     derives: sansDerive,

@@ -11,15 +11,24 @@ import MesureObjectifBanner from "@/components/MesureObjectifBanner";
 import MonoTag from "@/components/MonoTag";
 import EtapeRaisonnement from "@/components/EtapeRaisonnement";
 import SupportBanner from "@/components/SupportBanner";
+import EncartDon from "@/components/EncartDon";
 import Editable from "@/app/test/Editable";
 import { CRITERES_ANALYSE } from "@/lib/test-edition";
-import { getDeclarationDetail } from "@/lib/queries";
+import { getDeclarationDetail, getNumeroVersion } from "@/lib/queries";
+import { datePublication } from "@/lib/date-publication";
+import HistoriqueVersions from "@/components/HistoriqueVersions";
 import { getScoreBadge, PLAFOND_DECLENCHEUR_LABELS } from "@/lib/score";
 import { vignettePhoto } from "@/lib/photo-vignette";
 import { renderRichText, renderSourceString } from "@/lib/fiche-rendu";
 import { lireVersionBasique } from "@/lib/version-basique";
 import VueBasique, { TOC_SECTIONS_BASIQUE, ID_SOURCES_EXPERT, ScriptVueInitiale } from "@/components/VueBasique";
 import { VueAnalyseProvider, BasculeVue, Vue } from "@/components/VueAnalyseProvider";
+import AnnotationsFiche from "@/components/AnnotationsFiche";
+import RemarqueGenerale from "@/components/RemarqueGenerale";
+import EncartAnalyseOuverte from "@/components/EncartAnalyseOuverte";
+import { attributsZone, slugFiche } from "@/lib/fiche-annotations-core";
+import { EXPLICATIONS_CRITERES } from "@/lib/criteresScore";
+import ActionsFiche from "@/components/ActionsFiche";
 
 // ISR : chaque fiche est calculée à sa première visite, puis servie depuis le
 // cache du CDN et recalculée au plus toutes les 5 minutes (nouvelle analyse,
@@ -70,7 +79,9 @@ function buildClaimReviewJsonLd(declaration) {
   return {
     "@context": "https://schema.org",
     "@type": "ClaimReview",
-    datePublished: analyse.createdAt.toISOString(),
+    // Date de publication de l'analyse (clic « Publier ») ; la date de la
+    // déclaration du candidat est celle de itemReviewed ci-dessous.
+    datePublished: datePublication(analyse).toISOString(),
     url: `https://perlimpinpin.ai/declarations/${declaration.id}`,
     claimReviewed: declaration.texteOriginal,
     itemReviewed: {
@@ -550,10 +561,13 @@ function CriteriaCard({
   plafondDeclencheur,
   texte,
   margeCrayon = false,
+  explication = null,
+  annotation = null,
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 ${
+      {...attributsZone(Boolean(annotation), annotation?.cle, annotation?.label)}
+      className={`${annotation ? "anno-zone " : ""}rounded-xl border p-4 ${
         isGardeFou ? "border-amber-200 bg-amber-50/50" : "border-blue-100 bg-blue-50/40"
       }${margeCrayon ? " pr-12" : ""}`}
     >
@@ -597,7 +611,15 @@ function CriteriaCard({
           ) : null}
         </p>
       </div>
-      <p className="mt-3 max-w-[68ch] text-sm leading-7 text-zinc-600">{renderRichText(texte)}</p>
+      {/* Explication du critère pour le lecteur (barème 2026), hors zone annotable. */}
+      {explication ? <p className="mt-2 max-w-[68ch] text-xs leading-5 text-zinc-500">{explication}</p> : null}
+      {annotation ? (
+        <div className="body">
+          <p className="mt-3 max-w-[68ch] text-sm leading-7 text-zinc-600">{renderRichText(texte)}</p>
+        </div>
+      ) : (
+        <p className="mt-3 max-w-[68ch] text-sm leading-7 text-zinc-600">{renderRichText(texte)}</p>
+      )}
     </div>
   );
 }
@@ -609,7 +631,7 @@ function CriteriaCard({
 // `edition` (/test/[id]) : crayon sur le TEXTE de chaque critère du tableau
 // structuré (jamais sur sa note). Un critère en double n'a de crayon que sur sa
 // première carte (c'est celle que l'enregistrement retrouve).
-function CriteresCards({ criteres, notation, edition = null }) {
+function CriteresCards({ criteres, notation, edition = null, annotable = false }) {
   if (Array.isArray(criteres)) {
     if (criteres.length === 0) return <TextOrList value={null} />;
     return (
@@ -636,6 +658,12 @@ function CriteresCards({ criteres, notation, edition = null }) {
                 plafondDeclencheur={item.plafond_declencheur}
                 texte={item.texte}
                 margeCrayon={Boolean(editionCarte)}
+                explication={EXPLICATIONS_CRITERES[item.critere]}
+                annotation={
+                  annotable && typeof item.critere === "string"
+                    ? { cle: `analyse_par_criteres.${item.critere}`, label: item.titre ?? CRITERES_ANALYSE[item.critere] ?? item.critere }
+                    : null
+                }
               />
             </Editable>
           );
@@ -663,6 +691,7 @@ function CriteresCards({ criteres, notation, edition = null }) {
           isGardeFou={false}
           vetoApplique={false}
           texte={criteres[key]}
+          annotation={annotable ? { cle: `analyse_par_criteres.${key}`, label } : null}
         />
       ))}
     </div>
@@ -890,8 +919,11 @@ function VueExpertSi({ actif, children }) {
 // blocs qui écrivent en base (vote, feedback) et le lien de retour pointe vers
 // la liste des brouillons. Sur le site public, `preview` reste faux : rien ne change.
 // `edition` : { analyseId, versionAttendue, mesurePubliee } pour un éditeur (crayon
-// sur le titre, le résumé, la mesure initiale…), sinon null.
-export default async function DeclarationDetailPage({ params, preview = false, edition = null }) {
+// sur le titre, le résumé, la mesure initiale…), sinon null. Avec `correction: true`
+// (/test/publiees/[id]), seuls les champs corrigeables d'une fiche publiée ont un crayon.
+// `publiee` (avec `preview`) : /test/publiees/[id] montre la version EN LIGNE, même
+// si un brouillon plus récent existe.
+export default async function DeclarationDetailPage({ params, preview = false, publiee = false, edition = null }) {
   const { id } = await params;
   const propositionId = Number(id);
 
@@ -901,7 +933,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
 
   // Site public : dernière analyse publiée, 404 s'il n'y en a pas (brouillon
   // seul). `preview` (/test/[id]) : dernière analyse, brouillon compris.
-  const declaration = await getDeclarationDetailCached(propositionId, preview);
+  const declaration = await getDeclarationDetailCached(propositionId, preview && !publiee);
 
   if (!declaration || !declaration.analyse) {
     notFound();
@@ -946,11 +978,27 @@ export default async function DeclarationDetailPage({ params, preview = false, e
   const versionBasique = lireVersionBasique(contenu, propositionId);
   const EnveloppeVue = versionBasique ? VueAnalyseProvider : Fragment;
   const sectionsBasique = versionBasique ? TOC_SECTIONS_BASIQUE : undefined;
+  // Boutons « Partager » et « PDF » (à côté de la bascule basique/expert).
+  // Le partage pointe toujours vers l'adresse publique ; masqué sur l'aperçu.
+  const titrePartage = typeof contenu.titre_fiche === "string" && contenu.titre_fiche ? contenu.titre_fiche : declaration.titre;
+  const actionsFiche = (
+    <ActionsFiche
+      chemin={`/declarations/${propositionId}`}
+      texte={`${titrePartage} — ${analyse.scoreFaisabilite}/100 sur Perlimpinpin`}
+      partage={!preview}
+    />
+  );
   // Mesure initiale (colonne de la proposition, partagée par ses analyses) :
   // pas de crayon si une version de la mesure est déjà publiée.
   const editionMesure = edition && !edition.mesurePubliee ? edition : null;
   // Fiche sans bandeau « Mesure initiale » : le crayon de la mesure passe sur la citation.
   const editionExtrait = contenu.mesure_vers_objectif ? null : editionMesure;
+  // Vue experte annotable par le Club : fiche publiée seulement (pas l'aperçu
+  // /test ni le mode édition, qui relisent des brouillons).
+  const annotable = !preview && !edition;
+  // Numéro de version (V1, V2…) visible de tous : rang de la version affichée
+  // parmi les versions publiées de la fiche (Club ouvert, lot 5).
+  const numeroVersionFiche = preview ? null : await getNumeroVersion(propositionId, analyse.id);
 
   // Étapes du « raisonnement complet », dans l'ordre d'affichage. Seules les
   // étapes réellement présentes sont gardées, puis numérotées sans trou au
@@ -974,47 +1022,50 @@ export default async function DeclarationDetailPage({ params, preview = false, e
     contenu.sources_utilisees.every((source) => typeof source === "string");
   const editionSources = sourcesEditables ? edition : null;
   const etapesRaisonnement = [
-    !isV4 && { titre: "Mesure reformulée", contenu: section("mesure_reformulee") },
+    !isV4 && { titre: "Mesure reformulée", cle: "mesure_reformulee", contenu: section("mesure_reformulee") },
     !isV4 && {
       titre: "Mise en contexte dans le programme",
-      contenu: section("contexte_programme"),
+      cle: "contexte_programme", contenu: section("contexte_programme"),
     },
     !isV4 && {
       id: "contexte",
       titre: "Contexte national",
-      contenu: section("contexte_national", { splitParagraphs: true }),
+      cle: "contexte_national", contenu: section("contexte_national", { splitParagraphs: true }),
     },
     !isV4 && {
       titre: "Contexte international",
-      contenu: section("contexte_international", { splitParagraphs: true }),
+      cle: "contexte_international", contenu: section("contexte_international", { splitParagraphs: true }),
     },
     !isV4 &&
       contenu.impact_environnement && {
         titre: "Impact environnemental",
-        contenu: section("impact_environnement"),
+        cle: "impact_environnement", contenu: section("impact_environnement"),
       },
     {
       id: "analyse-criteres",
       titre: "Analyse par critères",
-      contenu: <CriteresCards criteres={contenu.analyse_par_criteres} notation={notation} edition={edition} />,
+      contenu: (
+        <CriteresCards criteres={contenu.analyse_par_criteres} notation={notation} edition={edition} annotable={annotable} />
+      ),
     },
-    !isV4 && { titre: "Longévité des effets", contenu: section("analyse_longevites") },
+    !isV4 && { titre: "Longévité des effets", cle: "analyse_longevites", contenu: section("analyse_longevites") },
     !isV4 &&
       contenu.impact_temporel_et_sectoriel && {
         titre: "Impact temporel et sectoriel",
-        contenu: section("impact_temporel_et_sectoriel"),
+        cle: "impact_temporel_et_sectoriel", contenu: section("impact_temporel_et_sectoriel"),
       },
-    !isV4 && { titre: "Ce qui est établi", contenu: section("ce_qui_est_etabli") },
-    !isV4 && { titre: "Ce qui est probable", contenu: section("ce_qui_est_probable") },
-    !isV4 && { titre: "Ce qui est discutable", contenu: section("ce_qui_est_discutable") },
-    !isV4 && { titre: "Ce qui est inconnu", contenu: section("ce_qui_est_inconnu") },
+    !isV4 && { titre: "Ce qui est établi", cle: "ce_qui_est_etabli", contenu: section("ce_qui_est_etabli") },
+    !isV4 && { titre: "Ce qui est probable", cle: "ce_qui_est_probable", contenu: section("ce_qui_est_probable") },
+    !isV4 && { titre: "Ce qui est discutable", cle: "ce_qui_est_discutable", contenu: section("ce_qui_est_discutable") },
+    !isV4 && { titre: "Ce qui est inconnu", cle: "ce_qui_est_inconnu", contenu: section("ce_qui_est_inconnu") },
     !isV4 && {
       id: "angles-morts",
       titre: "Angles morts et effets de bord",
-      contenu: section("angles_morts"),
+      cle: "angles_morts", contenu: section("angles_morts"),
     },
     {
       id: "verdict",
+      cle: "verdict_final",
       titre: "Verdict final",
       contenu: (
         <VerdictBody
@@ -1050,7 +1101,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
       />
       <Header />
 
-      <main className="w-full px-6 py-12 sm:px-8 sm:py-16">
+      <main className="w-full px-6 py-12 sm:px-8 sm:py-16 print:p-0">
         <EnveloppeVue>
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr] lg:items-start lg:gap-x-8">
           {/* Colonne principale : tout le contenu de lecture, empilé dans
@@ -1060,9 +1111,27 @@ export default async function DeclarationDetailPage({ params, preview = false, e
           <div className="flex flex-col gap-6">
             {/* En-tête */}
             <div>
+              {/* Bandeau de marque, seulement dans le PDF (bouton « PDF ») :
+                  logo, slogan et adresse du site, filet jaune (accent de la
+                  charte). */}
+              <div className="mb-2 hidden items-end justify-between gap-6 border-b-2 border-yellow-400 pb-3 print:flex">
+                <div>
+                  <img
+                    src="/logo/perlimpinpin-logo.png"
+                    alt="Perlimpinpin"
+                    width={615}
+                    height={72}
+                    className="h-6 w-auto"
+                  />
+                  <p className="mt-1.5 text-sm text-zinc-500">
+                    Ce que valent vraiment les promesses politiques
+                  </p>
+                </div>
+                <span className="text-sm font-semibold text-zinc-700">perlimpinpin.ai</span>
+              </div>
               <Link
-                href={preview ? "/test" : "/declarations"}
-                className="text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800"
+                href={publiee ? "/test/publiees" : preview ? "/test" : "/declarations"}
+                className="text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800 print:hidden"
               >
                 ← Retour
               </Link>
@@ -1102,6 +1171,29 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 </h1>
               </Editable>
 
+              {/* Phrase du carrousel d'accueil : absente de la fiche publique,
+                  affichée seulement en mode édition (brouillon sur /test)
+                  pour pouvoir la relire et la corriger avant publication. */}
+              {edition ? (
+                <div className="mt-3 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2">
+                  <span className="block text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+                    {"Phrase d'accueil (carrousel)"}
+                  </span>
+                  <Editable
+                    edition={edition}
+                    champ="teaser_accueil"
+                    valeurBrute={typeof contenu.teaser_accueil === "string" ? contenu.teaser_accueil : ""}
+                    multiligne
+                  >
+                    <p className="min-h-8 pr-11 pt-1 text-sm leading-snug text-zinc-600">
+                      {typeof contenu.teaser_accueil === "string" && contenu.teaser_accueil.trim()
+                        ? contenu.teaser_accueil
+                        : "Aucune phrase d'accueil sur cette fiche."}
+                    </p>
+                  </Editable>
+                </div>
+              ) : null}
+
               <div className="mt-6 flex items-center gap-3">
                 <img
                   src={vignettePhoto(declaration.candidat.photoUrl) || "/avatar-placeholder.svg"}
@@ -1132,6 +1224,7 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 sectionsBasique={sectionsBasique}
                 versionMethodologie={analyse.versionMethodologie}
                 generationDateLabel={declaration.generationDateLabel}
+                numeroVersion={preview ? null : numeroVersionFiche}
               />
             </div>
 
@@ -1140,8 +1233,16 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 expert (contenu inchangé, non réindenté). */}
             {versionBasique ? (
               <>
-                <BasculeVue />
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center print:hidden">
+                  <BasculeVue />
+                  {actionsFiche}
+                </div>
                 <Vue nom="basique">
+                  {/* Encadré « ouverte à la critique » aussi en vue basique, avec
+                      un lien vers la vue experte (seule annotable). */}
+                  {annotable ? (
+                    <EncartAnalyseOuverte vue="basique" retour={`/declarations/${propositionId}`} />
+                  ) : null}
                   {/* Crayons seulement si la version basique est en base (pas
                       celle lue en local dans data/versions-basiques-dev). */}
                   <VueBasique
@@ -1151,8 +1252,13 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                   />
                 </Vue>
               </>
-            ) : null}
+            ) : (
+              actionsFiche
+            )}
 
+            {/* Annotations du Club (fiche publiée uniquement, jamais en aperçu /test) :
+                data-view délimite la zone annotable, voir AnnotationsFiche. */}
+            <div className="contents" {...(annotable ? { "data-view": slugFiche(propositionId) } : {})}>
             <VueExpertSi actif={Boolean(versionBasique)}>
             {/* Résumé : simples paragraphes, sans titre ni carte.
                 Texte intégral de contenu.resume_court (pas analyse.teaser,
@@ -1165,8 +1271,26 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               valeurBrute={contenu.resume_court}
               multiligne
             >
-              <section aria-label="Résumé de l'analyse" className={`max-w-[68ch]${edition ? " pr-11" : ""}`}>
-                <TeaserParagraphs text={contenu.resume_court} />
+              <section
+                aria-label="Résumé de l'analyse"
+                className={`max-w-[68ch]${edition ? " pr-11" : ""}${annotable ? " anno-zone" : ""}`}
+                {...attributsZone(annotable, "resume_court", "Résumé")}
+              >
+                {/* Encadré « analyse ouverte à la critique » en haut de la vue
+                    experte (hors zone annotable : il ne compte pas dans le texte
+                    du résumé ; absent du PDF). */}
+                {annotable ? (
+                  <EncartAnalyseOuverte
+                    retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+                  />
+                ) : null}
+                {annotable ? (
+                  <div className="body">
+                    <TeaserParagraphs text={contenu.resume_court} />
+                  </div>
+                ) : (
+                  <TeaserParagraphs text={contenu.resume_court} />
+                )}
               </section>
             </Editable>
 
@@ -1335,7 +1459,13 @@ export default async function DeclarationDetailPage({ params, preview = false, e
 
               <div className="mt-3 divide-y divide-zinc-200">
                 {etapesRaisonnement.map((etape, index) => (
-                  <EtapeRaisonnement key={etape.titre} numero={index + 1} titre={etape.titre} id={etape.id}>
+                  <EtapeRaisonnement
+                    key={etape.titre}
+                    numero={index + 1}
+                    titre={etape.titre}
+                    id={etape.id}
+                    annotation={annotable && etape.cle ? { cle: etape.cle, label: etape.titre } : null}
+                  >
                     {etape.contenu}
                   </EtapeRaisonnement>
                 ))}
@@ -1349,8 +1479,37 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 <FiabiliteSection contenu={contenu} edition={edition} />
               </div>
             ) : null}
+            {/* « Une remarque sur l'ensemble de l'analyse ? » (Club), en bas de
+                la vue experte ; fiche publiée uniquement. */}
+            {annotable ? (
+              <div>
+                <RemarqueGenerale
+                  propositionId={propositionId}
+                  analyseId={analyse.id}
+                  retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+                />
+              </div>
+            ) : null}
             </VueExpertSi>
+            </div>
+            {annotable ? (
+              <AnnotationsFiche
+                propositionId={propositionId}
+                analyseId={analyse.id}
+                retour={versionBasique ? `/declarations/${propositionId}?vue=expert` : `/declarations/${propositionId}`}
+              />
+            ) : null}
             {versionBasique ? <ScriptVueInitiale /> : null}
+
+            {/* Historique des versions (Club ouvert, lot 5) : numéro visible de
+                tous, détail réservé aux adhérents (chargé par le navigateur). */}
+            {annotable ? (
+              <HistoriqueVersions
+                propositionId={propositionId}
+                numeroVersion={numeroVersionFiche}
+                retour={`/declarations/${propositionId}`}
+              />
+            ) : null}
 
             {/* Vote sur la mesure elle-même, juste après la Fiabilité de
                 l'analyse — la maquette 413 (public/maquettes) montre "Et
@@ -1360,25 +1519,61 @@ export default async function DeclarationDetailPage({ params, preview = false, e
                 "doublon" — c'est en fait cette position-ci, pas l'autre,
                 qui correspond à la maquette). */}
             {!preview ? (
+              <div className="print:hidden">
               <VoteMesureWidget
                 propositionId={declaration.id}
                 initialAccord={declaration.voteMesureCounts.accord}
                 initialDesaccord={declaration.voteMesureCounts.desaccord}
               />
+              </div>
             ) : null}
 
             {/* "Je trouve cette analyse pertinente" (qualité de l'analyse),
                 distinct du vote sur la mesure elle-même ci-dessus. */}
             {!preview ? (
+              <div className="print:hidden">
               <FeedbackWidget
                 analyseId={analyse.id}
                 initialLikes={declaration.feedbackCounts.likes}
                 initialDislikes={declaration.feedbackCounts.dislikes}
               />
+              </div>
             ) : null}
 
+            {/* Pied de fiche, seulement dans le PDF : où lire l'analyse
+                complète (toutes les sources, vue expert) et la méthode. */}
+            <div className="hidden break-inside-avoid border-t-2 border-yellow-400 pt-4 text-sm leading-relaxed text-zinc-600 print:block">
+              <img
+                src="/logo/perlimpinpin-logo.png"
+                alt="Perlimpinpin"
+                width={615}
+                height={72}
+                className="h-5 w-auto"
+              />
+              <p className="mt-1.5 text-zinc-500">Ce que valent vraiment les promesses politiques.</p>
+              <p className="mt-3">
+                Analyse complète et toutes les sources :{" "}
+                <span className="font-semibold text-zinc-900">perlimpinpin.ai/declarations/{propositionId}</span>
+              </p>
+              <p>
+                Notre méthode : <span className="font-semibold text-zinc-900">perlimpinpin.ai/methode</span>
+              </p>
+              {/* Même formulaire de don que l'encart « Je soutiens »
+                  (EncartDon) ; lien cliquable dans le PDF, adresse lisible
+                  sur papier. */}
+              <p>
+                Soutenez Perlimpinpin à partir de 2 € :{" "}
+                <a
+                  href="https://www.helloasso.com/associations/perlimpinpin-ai/formulaires/2"
+                  className="font-semibold text-zinc-900"
+                >
+                  helloasso.com/associations/perlimpinpin-ai/formulaires/2
+                </a>
+              </p>
+            </div>
+
             {/* Bandeau de confiance : voir TRUST_ITEMS plus haut. */}
-            <div className="grid grid-cols-1 gap-6 rounded-2xl border border-zinc-200 bg-white p-6 sm:grid-cols-3 sm:p-8">
+            <div className="grid grid-cols-1 gap-6 rounded-2xl border border-zinc-200 bg-white p-6 sm:grid-cols-3 sm:p-8 print:hidden">
               {TRUST_ITEMS.map((item, index) => (
                 <div key={item.title}>
                   <MonoTag>{String(index + 1).padStart(2, "0")}</MonoTag>
@@ -1398,24 +1593,56 @@ export default async function DeclarationDetailPage({ params, preview = false, e
               Masquée en dessous de lg : sur mobile, la même carte est
               affichée plus haut, juste au-dessus du résumé (voir
               l'en-tête de colonne principale). */}
-          <aside className="hidden lg:sticky lg:top-24 lg:block">
-            <StickyScoreCard
-              score={analyse.scoreFaisabilite}
-              badge={badge}
-              sections={tocSections}
-              sectionsBasique={sectionsBasique}
-              versionMethodologie={analyse.versionMethodologie}
-              generationDateLabel={declaration.generationDateLabel}
-              enBrefNotation={isNouveauBaremeV5 ? notation : null}
-            />
+          {/* L'aside occupe toute la hauteur de la colonne (self-stretch) :
+              la carte reste collée en haut de l'écran pendant la lecture
+              (sticky dans le bloc flex-1), puis, arrivé en bas de l'analyse,
+              elle remonte et laisse apparaître en fondu l'encart de don. */}
+          <aside className="hidden lg:flex lg:flex-col lg:self-stretch">
+            <div className="flex-1">
+              <div className="lg:sticky lg:top-24">
+                <StickyScoreCard
+                  score={analyse.scoreFaisabilite}
+                  badge={badge}
+                  sections={tocSections}
+                  sectionsBasique={sectionsBasique}
+                  versionMethodologie={analyse.versionMethodologie}
+                  generationDateLabel={declaration.generationDateLabel}
+                  numeroVersion={preview ? null : numeroVersionFiche}
+                  enBrefNotation={isNouveauBaremeV5 ? notation : null}
+                />
+              </div>
+            </div>
+            {!preview ? (
+              <EncartDon
+                titre="Vous venez de vérifier une promesse."
+                texte="Aidez-nous à vérifier toutes les autres."
+                emplacement="fiche"
+                pleineLargeur
+                apparition
+                className="mt-6"
+              />
+            ) : null}
           </aside>
         </div>
         </EnveloppeVue>
 
         {/* Bandeau "Rejoignez-nous" en bas de chaque analyse (même bandeau
             que la page d'accueil, avec un texte propre aux analyses). */}
+        {/* Sur mobile (pas de colonne latérale), l'encart de don est posé
+            juste avant le bandeau du bas. */}
         {!preview ? (
-          <div className="mx-auto mt-10 w-full max-w-6xl">
+          <div className="mx-auto mt-10 w-full max-w-6xl lg:hidden print:hidden">
+            <EncartDon
+              titre="Vous venez de vérifier une promesse."
+              texte="Aidez-nous à vérifier toutes les autres."
+              emplacement="fiche-mobile"
+              pleineLargeur
+              apparition
+            />
+          </div>
+        ) : null}
+        {!preview ? (
+          <div className="mx-auto mt-10 w-full max-w-6xl print:hidden">
             <SupportBanner
               embedded
               title={"Vous n’êtes pas d’accord avec cette analyse ?"}

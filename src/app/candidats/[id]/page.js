@@ -3,6 +3,69 @@ import Header from "@/components/Header";
 import DeclarationCarte from "@/components/DeclarationCarte";
 import { getCandidatAvecDeclarations } from "@/lib/queries";
 import { getScoreBadge } from "@/lib/score";
+import { getContenuCandidat } from "@/lib/contenus-candidats";
+
+// Blocs éditoriaux « Parcours », « Positions clés » et « Citation marquante »
+// (src/lib/contenus-candidats.js). Rien n'est affiché pour un candidat sans
+// contenu.
+function BlocContenu({ titre, children }) {
+  return (
+    <section className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-6">
+      <h2 className="text-lg font-bold text-zinc-900">{titre}</h2>
+      {children}
+    </section>
+  );
+}
+
+function ContenusCandidat({ contenu }) {
+  const { parcours, positions, citation } = contenu;
+
+  return (
+    <>
+      {parcours?.length ? (
+        <BlocContenu titre="Parcours">
+          <div className="flex flex-col gap-3 text-base leading-relaxed text-zinc-700">
+            {parcours.map((paragraphe) => (
+              <p key={paragraphe}>{paragraphe}</p>
+            ))}
+          </div>
+        </BlocContenu>
+      ) : null}
+
+      {positions ? (
+        <BlocContenu titre="Positions clés">
+          <div className="flex flex-col gap-3 text-base leading-relaxed text-zinc-700">
+            {positions.intro ? <p>{positions.intro}</p> : null}
+            {positions.items?.length ? (
+              <ul className="flex list-disc flex-col gap-2 pl-5 marker:text-yellow-400">
+                {positions.items.map(({ titre, texte }) => (
+                  <li key={titre}>
+                    <strong className="font-semibold text-zinc-900">{titre}</strong> : {texte}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {positions.conclusion ? <p>{positions.conclusion}</p> : null}
+          </div>
+        </BlocContenu>
+      ) : null}
+
+      {citation ? (
+        <BlocContenu titre="Citation marquante">
+          <figure className="flex flex-col gap-3">
+            <blockquote className="border-l-4 border-yellow-400 bg-yellow-50/60 px-5 py-4 font-serif text-xl leading-relaxed text-zinc-900">
+              {citation.texte}
+            </blockquote>
+            <figcaption className="text-sm text-zinc-700">
+              {citation.auteur}
+              {citation.contexte ? `, ${citation.contexte}` : null}
+            </figcaption>
+          </figure>
+        </BlocContenu>
+      ) : null}
+    </>
+  );
+}
 
 function LienHatvp({ url }) {
   if (!url) return "Pas de fiche HATVP en ligne";
@@ -154,6 +217,7 @@ export default async function CandidatDetailPage({ params }) {
   }
 
   const { declarations } = candidat;
+  const contenu = getContenuCandidat(candidat.nom);
   const badge =
     candidat.scoreMoyen == null ? null : getScoreBadge(candidat.scoreMoyen);
 
@@ -209,6 +273,8 @@ export default async function CandidatDetailPage({ params }) {
               </div>
             </div>
           </div>
+
+          {contenu ? <ContenusCandidat contenu={contenu} /> : null}
 
           <section className="flex flex-col gap-4">
             <h2 className="text-lg font-bold text-zinc-900">

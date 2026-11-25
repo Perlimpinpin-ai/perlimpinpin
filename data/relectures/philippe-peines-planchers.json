@@ -132,6 +132,11 @@
         "titre": "Titre et accroche",
         "texte": "Titre court proposé : « Peines planchers pour les casseurs ». Accroche : « La France a déjà essayé, de 2007 à 2014, et l'a mesuré de près. Mais la plupart des personnes jugées après le 17 octobre n'avaient jamais été condamnées… » Ces formulations vous semblent-elles fidèles et assez neutres ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/Philippe/philippe_peines_planchers_etape3.json",
+      "reponses": []
+    }
   }
 }

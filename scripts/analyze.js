@@ -7,7 +7,15 @@ import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
 import { cleanContenu } from "./lib/clean-text.js";
+import { MODE_LOT, envoyerEnLot, sanitizeContentBlocks } from "./lib/claude-lot.js";
 import { PARTIES_PAR_TWEET, ecrirePartie, lirePartie } from "../src/lib/reseaux.js";
+import {
+  TARIF_CLAUDE_SONNET,
+  construireMessageReel,
+  fichePourReel as fichePourReelCore,
+  genererReelCore,
+  requeteReel,
+} from "../src/lib/reel-generation.js";
 import {
   validateEtape1Structure,
   validateFicheCompleteStructure,
@@ -234,25 +242,6 @@ function readWithInactivityTimeout(reader, timeoutMs) {
   });
 }
 
-// Un pause_turn (limite d'itérations du tool serveur atteinte) peut couper
-// le flux en plein milieu d'un bloc, ex. un bloc "thinking" tout juste
-// démarré, sans texte. Renvoyer un tel bloc incomplet dans le tour suivant
-// fait échouer la validation de l'API ("each thinking block must contain
-// thinking"). On retire les blocs visiblement incomplets avant de
-// reconstruire l'historique de conversation.
-function sanitizeContentBlocks(blocks) {
-  return blocks.filter((block) => {
-    if (!block) return false;
-    if (block.type === "thinking") {
-      return typeof block.thinking === "string" && block.thinking.length > 0;
-    }
-    if (block.type === "text") {
-      return typeof block.text === "string" && block.text.length > 0;
-    }
-    return true;
-  });
-}
-
 async function readStreamedMessage(response, { inactivityTimeoutMs = STREAM_INACTIVITY_TIMEOUT_MS } = {}) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -331,6 +320,37 @@ async function readStreamedMessage(response, { inactivityTimeoutMs = STREAM_INAC
 
   message.content = sanitizeContentBlocks(blocks);
   return message;
+}
+
+// Point d'entrée unique des appels Claude. Avec CLAUDE_LOT=1, passe par
+// l'API Message Batches (moitié prix, voir scripts/lib/claude-lot.js) ; si
+// le lot est annulé, expiré ou trop long, repli sur l'appel direct. Sans
+// CLAUDE_LOT, appel direct en streaming, comme avant. `label` reprend le
+// libellé des messages d'erreur (ex. « étape 3 bis »).
+async function envoyerMessageClaude(body, label) {
+  if (MODE_LOT) {
+    const message = await envoyerEnLot(body, {
+      label,
+      baseUrl: ANTHROPIC_BASE_URL,
+      headers: ANTHROPIC_HEADERS,
+      fetchImpl: fetchWithTimeout,
+    });
+    if (message) return message;
+    console.log("  ↪ repli en appel direct (prix normal)");
+  }
+
+  const response = await fetchWithTimeout(`${ANTHROPIC_BASE_URL}/messages`, {
+    method: "POST",
+    headers: ANTHROPIC_HEADERS,
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Erreur API Anthropic, ${label} (${response.status}) : ${errorBody}`);
+  }
+
+  return readStreamedMessage(response);
 }
 
 // Filet de secours si le modèle enrobe malgré tout le JSON (bloc de code,
@@ -515,10 +535,8 @@ ${JSON.stringify(invalidJson, null, 2)}
 
 Retourne uniquement le JSON corrigé, structuré exactement comme l'original (mêmes clés, même forme), sans texte avant ni après, sans bloc de code.`;
 
-  const response = await fetchWithTimeout(`${ANTHROPIC_BASE_URL}/messages`, {
-    method: "POST",
-    headers: ANTHROPIC_HEADERS,
-    body: JSON.stringify({
+  return envoyerMessageClaude(
+    {
       model: "claude-sonnet-5",
       // 16000 : un JSON d'étape 1 ou de fiche_complete riche (recherches,
       // sources, 4-5 critères détaillés) peut dépasser largement 8000
@@ -529,15 +547,9 @@ Retourne uniquement le JSON corrigé, structuré exactement comme l'original (m�
       thinking: { type: "disabled" },
       messages: [{ role: "user", content: instruction }],
       stream: true,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Erreur API Anthropic, réparation JSON (${label}) (${response.status}) : ${errorBody}`);
-  }
-
-  return readStreamedMessage(response);
+    },
+    `réparation JSON (${label})`,
+  );
 }
 
 // Avertit sans jamais bloquer ni tronquer : titre_fiche/teaser_accueil plus
@@ -575,7 +587,7 @@ function validateEtape1Local(rawAnalyse, label) {
 }
 
 // Même principe pour fiche_complete (étape 3, schéma à 5 critères).
-async function validateFicheCompleteWithRepair(rawFiche, label) {
+async function validateFicheCompleteWithRepair(rawFiche, label, reponseComplete = null) {
   const first = validateFicheCompleteStructure(rawFiche);
   if (first.valid) {
     warnNotationCoherence(first.fiche.notation_detaillee, label);
@@ -590,6 +602,12 @@ async function validateFicheCompleteWithRepair(rawFiche, label) {
   const second = validateFicheCompleteStructure(repairedRaw);
 
   if (!second.valid) {
+    const dump = join(__dirname, "..", "logs", `fiche-invalide-${Date.now()}.json`);
+    try {
+      mkdirSync(dirname(dump), { recursive: true });
+      writeFileSync(dump, JSON.stringify({ label, erreurs: second.errors, brut: rawFiche, repare: repairedRaw, reponseComplete }, null, 2));
+      console.error(`  JSON brut sauvegardé dans ${dump}`);
+    } catch {}
     throw new Error(`${label} : structure toujours invalide après tentative de réparation.\n${second.errors.join("\n")}`);
   }
 
@@ -604,6 +622,54 @@ async function validateFicheCompleteWithRepair(rawFiche, label) {
 // {{reponse_etape_1}} interpolé avec le JSON complet de l'étape 1.
 
 const MISTRAL_BASE_URL = "https://api.mistral.ai/v1";
+
+// Texte d'un contenu Mistral : chaîne, ou tableau de blocs
+// ({ type: "thinking" | "text", … }) dont seuls les blocs texte portent le JSON.
+export function texteContenuMistral(content) {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content.filter((b) => b?.type === "text").map((b) => b.text ?? "").join("");
+  }
+  return "";
+}
+
+// Lecture d'une réponse Mistral streamée (SSE au format OpenAI : lignes
+// « data: {…} », puis « data: [DONE] »). Le délai d'inactivité s'applique
+// entre deux morceaux, pas à la durée totale : une génération longue mais
+// active n'est plus interrompue (timeouts à 60 puis 180 s en non streamé,
+// fiches Zemmour et Retailleau du 16 novembre 2026).
+export async function lireFluxMistral(response, { inactivityTimeoutMs = STREAM_INACTIVITY_TIMEOUT_MS } = {}) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let texte = "";
+  let usage = {};
+  let fini = false;
+
+  const traiterLigne = (line) => {
+    if (!line.startsWith("data:")) return;
+    const payload = line.slice("data:".length).trim();
+    if (!payload) return;
+    if (payload === "[DONE]") {
+      fini = true;
+      return;
+    }
+    const event = JSON.parse(payload);
+    texte += texteContenuMistral(event.choices?.[0]?.delta?.content);
+    if (event.usage) usage = event.usage;
+  };
+
+  while (!fini) {
+    const { done, value } = await readWithInactivityTimeout(reader, inactivityTimeoutMs);
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) traiterLigne(line.trim());
+  }
+  if (buffer.trim()) traiterLigne(buffer.trim());
+  return { texte, usage };
+}
 
 async function callMistralJson(userMessage) {
   if (!process.env.MISTRAL_API_KEY) {
@@ -621,6 +687,7 @@ async function callMistralJson(userMessage) {
       messages: [{ role: "user", content: userMessage }],
       response_format: { type: "json_object" },
       temperature: 0.2,
+      stream: true,
     }),
   });
 
@@ -628,8 +695,7 @@ async function callMistralJson(userMessage) {
     throw new Error(`Erreur API Mistral (${response.status}) : ${await response.text()}`);
   }
 
-  const data = await response.json();
-  const raw = data.choices?.[0]?.message?.content;
+  const { texte: raw, usage } = await lireFluxMistral(response);
   if (!raw) {
     throw new Error("Réponse Mistral vide ou mal formée.");
   }
@@ -641,7 +707,7 @@ async function callMistralJson(userMessage) {
     throw new Error(`JSON Mistral invalide : ${error.message}`);
   }
 
-  return { parsed, usage: data.usage ?? {} };
+  return { parsed, usage };
 }
 
 // Message de l'étape 2. Avec des commentaires : gabarit complet (point 6),
@@ -709,6 +775,12 @@ export function outilRechercheWeb(maxUses) {
 // donc ne relit pas ce cache.
 const CACHE_5_MIN = { type: "ephemeral" };
 
+// Le JSON doit être le dernier texte écrit (voir reunirTexteFinal), complet.
+export const CONSIGNE_ORDRE_RECHERCHES =
+  "Fais toutes tes recherches web d'abord. Écris ensuite le JSON complet de l'étape 3, une seule fois, " +
+  "en dernier, sans recherche après lui ni phrase avant ou après : fiche_complete entière (tous ses blocs, " +
+  "y compris ceux que tu ne modifies pas) et revision_relecture.";
+
 export function construireRequeteEtape3(etape1, mistralResult, commentaires = null) {
   const vars = {
     reponse_etape_1: JSON.stringify(etape1, null, 2),
@@ -735,6 +807,7 @@ export function construireRequeteEtape3(etape1, mistralResult, commentaires = nu
         content: [
           { type: "text", text: fillTemplate(ARBITRAGE_TEMPLATE_AVEC_COMMENTAIRES, vars) },
           { type: "text", text: blocCommentaires(commentaires), cache_control: CACHE_5_MIN },
+          { type: "text", text: CONSIGNE_ORDRE_RECHERCHES },
         ],
       },
     ],
@@ -743,18 +816,7 @@ export function construireRequeteEtape3(etape1, mistralResult, commentaires = nu
 }
 
 async function appelerEtape3(body) {
-  const response = await fetchWithTimeout(`${ANTHROPIC_BASE_URL}/messages`, {
-    method: "POST",
-    headers: ANTHROPIC_HEADERS,
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Erreur API Anthropic, étape 3 (${response.status}) : ${errorBody}`);
-  }
-
-  return readStreamedMessage(response);
+  return envoyerMessageClaude(body, "étape 3");
 }
 
 const recherchesDe = (usage) => usage?.server_tool_use?.web_search_requests ?? 0;
@@ -768,26 +830,44 @@ async function appelerEtape3AvecRecherche(body) {
   let messages = body.messages;
   let usage = {};
   let recherches = 0;
+  const contenus = []; // tous les tours : le JSON peut avoir été écrit avant une pause.
   for (let tour = 0; ; tour++) {
     const data = await appelerEtape3({ ...body, messages });
     usage = addUsage(usage, data.usage);
     recherches += recherchesDe(data.usage);
+    contenus.push(...data.content);
     if (data.stop_reason !== "pause_turn") {
-      return { ...data, content: reunirTexteFinal(data.content), usage, recherchesWeb: recherches };
+      return { ...data, content: reunirTexteFinal(contenus), usage, recherchesWeb: recherches };
     }
     if (tour >= MAX_REPRISES_PAUSE) throw new Error("Étape 3 : recherche web interrompue trop de fois (pause_turn).");
     messages = [...messages, { role: "assistant", content: data.content }];
   }
 }
 
-// Texte écrit après le dernier bloc de recherche, réuni en un seul bloc.
+// Texte final de l'étape 3 avec recherche web, réuni en un seul bloc.
+// Par défaut : le texte écrit après la dernière recherche. Mais le modèle
+// écrit parfois le JSON, lance encore une recherche, puis ne met après
+// qu'une phrase (ex. 4 novembre 2026, Mélenchon carburant : « Le JSON
+// final… », sans aucun JSON → « Unexpected token 'L' »). Dans ce cas, on
+// reprend le dernier passage de texte, entre deux recherches, qui contient
+// un objet JSON.
 export function reunirTexteFinal(content) {
-  const dernierOutil = content.findLastIndex((b) => b.type === "server_tool_use" || b.type === "web_search_tool_result");
-  const texte = content
-    .slice(dernierOutil + 1)
-    .filter((b) => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  const estOutil = (b) => b.type === "server_tool_use" || b.type === "web_search_tool_result";
+  const passages = [];
+  let courant = "";
+  for (const b of content) {
+    if (estOutil(b)) {
+      if (courant) passages.push(courant);
+      courant = "";
+    } else if (b.type === "text") courant += b.text;
+  }
+  if (courant || passages.length === 0) passages.push(courant);
+  const dernier = passages.at(-1);
+  const avecJson = passages.findLast((t) => t.includes("{") && t.includes("}"));
+  const texte = dernier.includes("{") || !avecJson ? dernier : avecJson;
+  if (texte !== dernier) {
+    console.error("  ↺  Étape 3 : pas de JSON après la dernière recherche web, JSON écrit avant elle repris.");
+  }
   return [...content.filter((b) => b.type !== "text"), ...(texte ? [{ type: "text", text: texte }] : [])];
 }
 
@@ -811,7 +891,8 @@ async function corrigerRevision(etape1, mistralResult, commentaires, reponsePrec
       content:
         "Ta réponse a été refusée : le champ revision_relecture ne respecte pas le format demandé.\n" +
         `${errors.map((error) => `- ${error}`).join("\n")}\n` +
-        "Renvoie le JSON complet de l'étape 3, corrigé, au même format : une réponse par commentaire, avec le même commentaire_id, et retenu à true ou false.",
+        "Renvoie le JSON complet de l'étape 3, corrigé, au même format : une réponse par commentaire, avec le même commentaire_id, et retenu à true ou false. " +
+        "Recopie fiche_complete en entier, avec ses 5 objets analyse_par_criteres, et fais toutes tes recherches web AVANT d'écrire le JSON.",
     },
   ];
   return appelerEtape3AvecRecherche(body);
@@ -831,24 +912,16 @@ const PROMPT_VERSION_BASIQUE_PATH = join(__dirname, "..", "data", "prompt-versio
 const TENTATIVES_VERSION_BASIQUE = 3;
 
 async function callVersionBasique(userMessage) {
-  const response = await fetchWithTimeout(`${ANTHROPIC_BASE_URL}/messages`, {
-    method: "POST",
-    headers: ANTHROPIC_HEADERS,
-    body: JSON.stringify({
+  return envoyerMessageClaude(
+    {
       model: "claude-sonnet-5",
       max_tokens: 8000,
       thinking: { type: "disabled" },
       messages: [{ role: "user", content: userMessage }],
       stream: true,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Erreur API Anthropic, étape 3 bis (${response.status}) : ${errorBody}`);
-  }
-
-  return readStreamedMessage(response);
+    },
+    "étape 3 bis",
+  );
 }
 
 // Somme de deux usages : nombres additionnés, y compris dans les objets
@@ -970,30 +1043,22 @@ Renvoie le JSON complet, en gardant tel quel tout ce qui n'est pas cité ci-dess
 const PROMPT_RESEAUX_PATH = join(__dirname, "..", "data", "prompt-reseaux.md");
 
 async function callReseaux(userMessage) {
-  const response = await fetchWithTimeout(`${ANTHROPIC_BASE_URL}/messages`, {
-    method: "POST",
-    headers: ANTHROPIC_HEADERS,
-    body: JSON.stringify({
+  return envoyerMessageClaude(
+    {
       model: "claude-sonnet-5",
       max_tokens: 4000,
       thinking: { type: "disabled" },
       messages: [{ role: "user", content: userMessage }],
       stream: true,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`Erreur API Anthropic, étape 3 ter (${response.status}) : ${errorBody}`);
-  }
-
-  return readStreamedMessage(response);
+    },
+    "étape 3 ter",
+  );
 }
 
 // Fiche envoyée au modèle : la fiche finale, sans les ajouts des étapes
 // suivantes (version basique, anciennes publications, révision).
 export function fichePourReseaux(ficheFinale) {
-  const { version_basique: _basique, reseaux: _reseaux, revision: _revision, ...fiche } = ficheFinale ?? {};
+  const { version_basique: _basique, reseaux: _reseaux, reel: _reel, reelPrecedent: _reelPrecedent, revision: _revision, ...fiche } = ficheFinale ?? {};
   return fiche;
 }
 
@@ -1145,6 +1210,44 @@ ${JSON.stringify(derniere, (cle, valeur) => (CHAMPS_DU_CODE.has(cle) ? undefined
   return { reseaux: null, usage, errors, derniere: derniereAssemblee };
 }
 
+// --- Reel vidéo, à la demande (Claude) -----------------------------------------
+// Script de voix off d'un Reel vertical (9 scènes, environ 1 min 30), écrit à
+// partir de la fiche finale avec le prompt data/prompt-reel-v3.md (format v3,
+// 9 scènes fixes ; le storyboard v4 de /test/reels utilise data/prompt-reel.md).
+// Ne fait PLUS partie du pipeline automatique : il est généré à la demande
+// par scripts/reel.js (le bouton de /test/reels produit le storyboard v4). La logique
+// (deux essais, contrôle controlerReel) est partagée avec le site :
+// src/lib/reel-generation.js.
+const PROMPT_REEL_PATH = join(__dirname, "..", "data", "prompt-reel-v3.md");
+
+function lirePromptReel() {
+  return readFileSync(PROMPT_REEL_PATH, "utf-8");
+}
+
+// Fiche envoyée au modèle (et référence du contrôle des chiffres).
+export const fichePourReel = fichePourReelCore;
+
+// Message du premier essai : le prompt, puis la fiche. Exporté pour
+// l'estimation de coût sans appel (scripts/reel.js --simulation).
+export function messageReel(ficheFinale, precedents = []) {
+  return construireMessageReel(lirePromptReel(), ficheFinale, precedents);
+}
+
+// Retourne { reel, usage, errors, avertissements, derniere } (voir
+// genererReelCore). `candidatNom` et `score` ne sont pas envoyés au modèle.
+// `precedents` : derniers Reels générés (variantes et relances à éviter).
+export async function genererReel(ficheFinale, { candidatNom, score, precedents = [] }) {
+  return genererReelCore({
+    ficheFinale,
+    candidatNom,
+    score,
+    precedents,
+    prompt: lirePromptReel(),
+    appeler: (message) => envoyerMessageClaude(requeteReel(message), "Reel"),
+    analyser: (data) => cleanContenu(extractJson(data)),
+  });
+}
+
 // --- Estimation de coût -----------------------------------------------------
 
 // Tarifs approximatifs (USD / million de tokens), à ajuster si Anthropic ou
@@ -1154,10 +1257,13 @@ ${JSON.stringify(derniere, (cle, valeur) => (CHAMPS_DU_CODE.has(cle) ? undefined
 // Jusqu'au 21/10/2026, 3 $ / 15 $ (tarif Sonnet 4.6) : les coûts enregistrés
 // avant surestiment la part Claude de moitié.
 const PRICING = {
-  claudeSonnet: { input: 2, cacheWrite: 2.5, cacheRead: 0.2, output: 10 },
+  claudeSonnet: TARIF_CLAUDE_SONNET,
   mistralLarge: { input: 2, output: 6 },
 };
 
+// Mode lot (CLAUDE_LOT=1) : moitié prix quand usage.service_tier vaut
+// "batch". addUsage garde la dernière valeur texte : une étape qui mélange un
+// appel en lot et un repli direct est donc estimée approximativement.
 function estimateClaudeCost(usage = {}) {
   const {
     input_tokens = 0,
@@ -1165,7 +1271,9 @@ function estimateClaudeCost(usage = {}) {
     cache_read_input_tokens = 0,
     output_tokens = 0,
   } = usage;
+  const facteur = usage.service_tier === "batch" ? 0.5 : 1;
   return (
+    facteur *
     (input_tokens * PRICING.claudeSonnet.input +
       cache_creation_input_tokens * PRICING.claudeSonnet.cacheWrite +
       cache_read_input_tokens * PRICING.claudeSonnet.cacheRead +
@@ -1206,23 +1314,29 @@ function estimateMistralCost(usage) {
 // recherchesWeb : seulement avec des commentaires du Club (recherche web de
 // l'étape 3) ; absent, le coût garde exactement sa forme habituelle.
 // usage3ter (publications X) : absent, le coût garde sa forme d'avant l'étape 3 ter.
-export function buildCoutPipeline({ usage2, usage3, usage3bis, usage3ter, recherchesWeb }) {
+// modeLot : seulement avec CLAUDE_LOT=1 ; sans, le coût garde sa forme habituelle.
+// usage3quater (Reel, scripts/reel.js seulement) : absent, le coût garde sa forme habituelle.
+export function buildCoutPipeline({ usage2, usage3, usage3bis, usage3ter, usage3quater, recherchesWeb }) {
   const coutEtape2 = estimateMistralCost(usage2);
   const coutEtape3 = estimateClaudeCost(usage3);
   const coutEtape3bis = estimateClaudeCost(usage3bis);
   const avecReseaux = usage3ter !== undefined;
   const coutEtape3ter = avecReseaux ? estimateClaudeCost(usage3ter) : 0;
+  const avecReel = usage3quater !== undefined;
+  const coutEtape3quater = avecReel ? estimateClaudeCost(usage3quater) : 0;
   const avecRecherche = recherchesWeb !== undefined;
   const coutRecherches = avecRecherche ? recherchesWeb * COUT_RECHERCHE_WEB : 0;
   // Absent quand le cache n'a pas servi : coutPipeline garde sa forme d'avant.
   const cacheEtape3 = bilanCache(usage3);
 
   return {
+    ...(MODE_LOT ? { modeLot: true } : {}),
     tokensEtape1: null,
     tokensEtape2: usage2,
     tokensEtape3: usage3,
     tokensEtape3bis: usage3bis,
     ...(avecReseaux ? { tokensEtape3ter: usage3ter } : {}),
+    ...(avecReel ? { tokensEtape3quater: usage3quater } : {}),
     ...(avecRecherche ? { recherchesWeb } : {}),
     ...(cacheEtape3 ? { cacheEtape3 } : {}),
     coutEstimeParEtape: {
@@ -1230,9 +1344,10 @@ export function buildCoutPipeline({ usage2, usage3, usage3bis, usage3ter, recher
       etape3: Number(coutEtape3.toFixed(4)),
       etape3bis: Number(coutEtape3bis.toFixed(4)),
       ...(avecReseaux ? { etape3ter: Number(coutEtape3ter.toFixed(4)) } : {}),
+      ...(avecReel ? { etape3quater: Number(coutEtape3quater.toFixed(4)) } : {}),
       ...(avecRecherche ? { recherchesWeb: Number(coutRecherches.toFixed(4)) } : {}),
     },
-    coutEstimeTotal: Number((coutEtape2 + coutEtape3 + coutEtape3bis + coutEtape3ter + coutRecherches).toFixed(4)),
+    coutEstimeTotal: Number((coutEtape2 + coutEtape3 + coutEtape3bis + coutEtape3ter + coutEtape3quater + coutRecherches).toFixed(4)),
     note: "tokensEtape1 non disponible : étape 1 réalisée manuellement, hors pipeline automatisé.",
   };
 }
@@ -1259,10 +1374,70 @@ function loadEtape1(input) {
 // retrouver (elle ne reçoit que fiche_complete). On reprend donc celui de la
 // racine, seulement s'il manque : c'est de toute façon lui qui prime ensuite
 // (voir `parsed` dans runPipeline), comme dans scripts/import-etape3.js.
+// Même chose pour analyse_par_criteres, que le modèle place parfois à la
+// racine plutôt que dans fiche_complete (16 novembre 2026, fiches Attal
+// enseignants et Zemmour droit du sol : « expected array, received undefined »).
 export function ficheCompleteAvecVerdictRacine(arbitrage3) {
   const fiche = arbitrage3?.fiche_complete ?? {};
-  if (fiche.verdict_final !== undefined || arbitrage3?.verdict_final === undefined) return fiche;
-  return { ...fiche, verdict_final: arbitrage3.verdict_final };
+  const manquants = ["verdict_final", "analyse_par_criteres"].filter(
+    (cle) => fiche[cle] === undefined && arbitrage3?.[cle] !== undefined,
+  );
+  if (!manquants.length) return fiche;
+  const complete = { ...fiche };
+  for (const cle of manquants) complete[cle] = arbitrage3[cle];
+  return complete;
+}
+
+// Réponse d'étape 3 renvoyée après un refus de revision_relecture : le modèle
+// la réécrit en entier et peut en perdre une partie (ex. 4 novembre 2026,
+// fiche Mélenchon carburant : fiche_complete sans analyse_par_criteres →
+// « structure toujours invalide après tentative de réparation », la
+// réparation ne pouvant pas réinventer les 5 critères). La correction ne
+// portait que sur revision_relecture : si la nouvelle fiche_complete est
+// invalide alors que la première était valide, on garde la première, et les
+// champs de la racine absents de la nouvelle réponse sont repris.
+export function fusionnerReponseCorrigee(premiere, corrigee) {
+  const fusion = { ...(premiere ?? {}), ...(corrigee ?? {}) };
+  const ficheCorrigee = validateFicheCompleteStructure(ficheCompleteAvecVerdictRacine(corrigee));
+  const fichePremiere = validateFicheCompleteStructure(ficheCompleteAvecVerdictRacine(premiere));
+  if (!ficheCorrigee.valid && fichePremiere.valid) {
+    console.error("  ↺  Étape 3 : fiche_complete de la réponse corrigée invalide, celle de la première réponse est conservée.");
+    fusion.fiche_complete = premiere.fiche_complete;
+    if (fusion.verdict_final === undefined) fusion.verdict_final = premiere.verdict_final;
+  }
+  return fusion;
+}
+
+// Révision (commentaires du Club) : la fiche relue est réécrite en entier,
+// avec recherches web, et le modèle en omet parfois un bloc qu'il n'a pas
+// modifié (ex. 4 novembre 2026, Mélenchon carburant : mesure_vers_objectif
+// absent → « structure toujours invalide après tentative de réparation »).
+// Un bloc de texte manquant est repris, dans l'ordre : à la racine de la
+// réponse s'il y a été placé, sinon tel qu'il était dans la fiche relue.
+// Jamais pour la notation (analyse_par_criteres, notation_detaillee,
+// verdict_final) : elle doit venir de la nouvelle réponse.
+export const BLOCS_TEXTE_RECONDUCTIBLES = [
+  "mesure_reformulee", "mesure_vers_objectif", "nature_et_existant", "contexte_programme",
+  "contexte_national", "contexte_international", "impact_environnement", "analyse_longevites",
+  "impact_temporel_et_sectoriel", "ce_qui_est_etabli", "ce_qui_est_probable", "ce_qui_est_discutable",
+  "ce_qui_est_inconnu", "angles_morts", "sources_utilisees", "niveau_de_confiance", "limites",
+];
+
+export function completerAvecFicheRelue(fiche, arbitrage3, ficheRelue) {
+  const complete = { ...(fiche ?? {}) };
+  const repris = [];
+  for (const cle of BLOCS_TEXTE_RECONDUCTIBLES) {
+    if (complete[cle] !== undefined) continue;
+    if (arbitrage3?.[cle] !== undefined) {
+      complete[cle] = arbitrage3[cle];
+      repris.push(`${cle} (racine de la réponse)`);
+    } else if (ficheRelue?.[cle] !== undefined) {
+      complete[cle] = ficheRelue[cle];
+      repris.push(`${cle} (fiche relue, inchangé)`);
+    }
+  }
+  if (repris.length) console.error(`  ↺  Étape 3 : bloc(s) absent(s) de fiche_complete, repris : ${repris.join(", ")}.`);
+  return complete;
 }
 
 // --- Orchestration du pipeline (étapes 2 et 3) ------------------------------
@@ -1276,7 +1451,7 @@ export function ficheCompleteAvecVerdictRacine(arbitrage3) {
 // construireRequeteEtape3). L'étape 3 doit alors produire revision_relecture.
 //
 // candidatNom (facultatif) : nécessaire à l'étape 3 ter (publications X).
-async function runPipeline(etape1Input, { commentaires = null, candidatNom = null } = {}) {
+export async function runPipeline(etape1Input, { commentaires = null, candidatNom = null } = {}) {
   const etape1 = validateEtape1Local(loadEtape1(etape1Input), "Étape 1");
   console.log(
     `✓ Étape 1 chargée et validée (score initial : ${etape1.notation_detaillee.score_total}/100${etape1.notation_detaillee.plafond_applique ? `, plafond appliqué — déclencheur : ${etape1.notation_detaillee.plafond_declencheur}` : ""}).`,
@@ -1310,7 +1485,7 @@ async function runPipeline(etape1Input, { commentaires = null, candidatNom = nul
       const data3bis = await corrigerRevision(etape1, mistralResult, commentaires, arbitrage3, revision.errors, recherchesWeb);
       data3 = { ...data3bis, usage: addUsage(data3.usage, data3bis.usage) };
       recherchesWeb += data3bis.recherchesWeb;
-      arbitrage3 = extractJson(data3bis);
+      arbitrage3 = fusionnerReponseCorrigee(arbitrage3, extractJson(data3bis));
       revision = validateRevisionRelecture(arbitrage3.revision_relecture, ids);
       if (!revision.valid) {
         throw new Error(`Étape 3 : revision_relecture toujours invalide après une nouvelle tentative.\n${revision.errors.join("\n")}`);
@@ -1321,8 +1496,9 @@ async function runPipeline(etape1Input, { commentaires = null, candidatNom = nul
   }
 
   const auditArbitrage = Array.isArray(arbitrage3.auditArbitrage) ? [...arbitrage3.auditArbitrage] : [];
-  const rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
-  const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3");
+  let rawFicheComplete = cleanContenu(ficheCompleteAvecVerdictRacine(arbitrage3));
+  if (commentaires) rawFicheComplete = completerAvecFicheRelue(rawFicheComplete, arbitrage3, etape1);
+  const ficheComplete = await validateFicheCompleteWithRepair(rawFicheComplete, "Étape 3", arbitrage3);
 
   // titre_fiche/resume_court/teaser_accueil/verdict_final sont produits à la
   // racine de la réponse d'étape 3 (rédaction finale) — verdict_final y est
@@ -1903,6 +2079,10 @@ function printCoutPipeline(coutPipeline) {
   if (coutPipeline.tokensEtape3ter !== undefined) {
     console.log(`  Étape 3 ter (Claude, publications X) : ~$${coutPipeline.coutEstimeParEtape.etape3ter}`);
     printUsage(coutPipeline.tokensEtape3ter ?? {});
+  }
+  if (coutPipeline.tokensEtape3quater !== undefined) {
+    console.log(`  Reel (Claude, script) : ~$${coutPipeline.coutEstimeParEtape.etape3quater}`);
+    printUsage(coutPipeline.tokensEtape3quater ?? {});
   }
   console.log(`  Coût total estimé (toutes étapes automatisées) : ~$${coutPipeline.coutEstimeTotal}`);
   console.log(`  Note : ${coutPipeline.note}`);

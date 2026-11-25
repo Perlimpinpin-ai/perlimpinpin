@@ -143,7 +143,24 @@ model Analyse {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Date de mise en ligne : moment exact du clic « Publier » (/test, /test/revue,
+  // scripts/publish.js). Ordre des listes de « dernières publications » et date
+  // « Analyse réalisée le … ». Nul tant que l'analyse n'a jamais été publiée.
+  // Rien à voir avec Proposition.dateDeclaration (date de la déclaration du
+  // candidat), qui n'est jamais modifiée par la publication.
+  publieLe DateTime?
+
   feedbacks Feedback[]
+  // Annotations du Club posées sur cette version de la fiche publiée
+  // (RelectureComment.analyseId). Relation inverse, sans colonne ici.
+  annotations RelectureComment[]
+  // Revue du dimanche (relations inverses, sans colonne ici) : révisions
+  // proposées à partir de cette version, et décisions qui l'ont publiée.
+  revisionsProposees RevisionProposee[] @relation("RevisionSource")
+  decisionsPublication DecisionRevision[] @relation("RevisionPubliee")
+  // Annotations archivées avec cette version, ou réaccrochées sur elle
+  // (TraitementAnnotation.analyseId). Relation inverse, sans colonne ici.
+  traitementsAnnotations TraitementAnnotation[]
 }
 
 model Feedback {
@@ -388,9 +405,177 @@ model RelectureComment {
   // de la fiche (+20 PerlimpinPOINTS). Mis à true uniquement par
   // scripts/marquer-retenus.js, jamais remis à false automatiquement.
   retenu       Boolean   @default(false)
+  // --- Club ouvert (nov. 2026) : annotations sur les fiches PUBLIÉES ---
+  // Pour ces annotations, ficheSlug vaut « fiche-<id de la Proposition> »
+  // (clé stable d'une version à l'autre) et sectionId est la clé du contenu
+  // annoté (ex. « contexte_national », « analyse_par_criteres.efficacite »).
+  // analyseId : version précise de la fiche (Analyse) affichée au moment de
+  // l'annotation ; sert à l'archivage par version. Nul pour les commentaires
+  // de /relectures (brouillons) et ceux d'avant ce champ. Une analyse n'est
+  // jamais supprimée ; si elle l'était, l'annotation resterait (SetNull).
+  analyseId    Int?
+  analyse      Analyse?  @relation(fields: [analyseId], references: [id], onDelete: SetNull)
+  // Accord de l'adhérent pour être crédité par son prénom dans l'historique
+  // des versions (case cochée à l'annotation). Nul = question non posée
+  // (commentaires anciens) : traité comme un refus.
+  creditAccord Boolean?
+  // Tris successifs de la revue du dimanche (relation inverse, sans colonne ici).
+  tris         TriAnnotation[]
+  // Clôture / réaccrochage (lot 5, relation inverse, sans colonne ici).
+  traitements  TraitementAnnotation[]
 
   @@index([ficheSlug, sectionId])
   @@index([adherentId])
+  @@index([analyseId])
+}
+
+// =====================================================================
+// Revue du dimanche (Club ouvert, lot 4). Toutes ces tables sont en
+// ÉCRITURE PAR AJOUT SEULEMENT : aucune ligne n'est jamais modifiée ni
+// supprimée par le code. Un changement (reclassement, décision) est une
+// nouvelle ligne ; la plus récente fait foi.
+// =====================================================================
+
+// Un passage de revue : la revue hebdomadaire (clôture le dimanche à 8 h,
+// heure de Paris) ou un « traiter maintenant » sur une seule fiche.
+model RevueLot {
+  id            Int      @id @default(autoincrement())
+  // "hebdo" | "urgence"
+  type          String
+  // Urgence : la fiche traitée (id de la Proposition). Nul pour la revue hebdomadaire.
+  propositionId Int?
+  // Fin de la fenêtre : seules les annotations créées avant cet instant sont traitées.
+  clotureAt     DateTime
+  createdAt     DateTime @default(now())
+
+  etapes    RevueEtape[]
+  tris      TriAnnotation[]
+  revisions RevisionProposee[]
+
+  @@index([createdAt])
+}
+
+// Journal d'avancement d'un passage de revue (affiché sur la page admin) :
+// "tri_soumis", "tri_recu", "revision_soumise", "revision_recue",
+// "etapes_2_3", "termine", "echec".
+model RevueEtape {
+  id         Int      @id @default(autoincrement())
+  revueLotId Int
+  revueLot   RevueLot @relation(fields: [revueLotId], references: [id])
+  etape      String
+  // Identifiant du lot de l'API Message Batches d'Anthropic, s'il y en a un
+  batchId    String?
+  // Détails sans donnée personnelle (compteurs, message d'erreur, coût)
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([revueLotId, createdAt])
+}
+
+// Classement d'une annotation. Le plus récent fait foi : « modele » au tri
+// automatique, « arno » quand Arno reclasse sur la page admin.
+model TriAnnotation {
+  id            Int              @id @default(autoincrement())
+  commentId     String
+  comment       RelectureComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  // "hors_sujet" (hors sujet ou abusif) | "question" | "desaccord_sans_argument"
+  // | "argument_ou_source" (seule catégorie qui déclenche une révision)
+  categorie     String
+  // Raison du classement, en une phrase
+  justification String?
+  // Réponse de l'équipe proposée pour l'adhérent (relue par Arno avant envoi)
+  reponse       String?
+  // "modele" | "arno"
+  source        String
+  revueLotId    Int?
+  revueLot      RevueLot?        @relation(fields: [revueLotId], references: [id])
+  createdAt     DateTime         @default(now())
+
+  @@index([commentId, createdAt])
+  @@index([revueLotId])
+}
+
+// Nouvelle version proposée d'une fiche, en attente de la validation
+// d'Arno. Rien n'est publié sans une DecisionRevision « publiee », créée
+// uniquement quand Arno a tapé « oui ».
+model RevisionProposee {
+  id              Int      @id @default(autoincrement())
+  revueLotId      Int
+  revueLot        RevueLot @relation(fields: [revueLotId], references: [id])
+  propositionId   Int
+  // Version publiée à partir de laquelle la révision a été faite
+  analyseSourceId Int
+  analyseSource   Analyse  @relation("RevisionSource", fields: [analyseSourceId], references: [id])
+  // contenuComplet complet de la version proposée (score recalculé par le code)
+  contenuPropose  Json
+  // { scoreAvant, scoreApres, raison, criteresModifies: [{ critere, ancienneNote,
+  //   nouvelleNote, raison }] } : affiché à Arno, puis repris dans l'historique
+  resume          Json
+  // Ids des annotations « argument_ou_source » prises en compte
+  commentIds      Json
+  // true si un critère a changé et que les Étapes 2 et 3 ont été relancées
+  etapes23        Boolean  @default(false)
+  // Tokens et coût estimé, comme Analyse.coutPipeline
+  coutPipeline    Json?
+  createdAt       DateTime @default(now())
+
+  decisions DecisionRevision[]
+
+  @@index([propositionId, createdAt])
+  @@index([revueLotId])
+}
+
+// Décision d'Arno sur une révision proposée. « publiee » : créée seulement
+// après la saisie de « oui » ; analysePublieeId = la nouvelle version créée.
+model DecisionRevision {
+  id               Int              @id @default(autoincrement())
+  revisionId       Int
+  revision         RevisionProposee @relation(fields: [revisionId], references: [id])
+  // "publiee" | "rejetee"
+  decision         String
+  analysePublieeId Int?
+  analysePubliee   Analyse?         @relation("RevisionPubliee", fields: [analysePublieeId], references: [id])
+  createdAt        DateTime         @default(now())
+
+  traitements TraitementAnnotation[]
+
+  @@index([revisionId, createdAt])
+}
+
+// Suite donnée à une annotation (Club ouvert, lot 5). ÉCRITURE PAR AJOUT
+// SEULEMENT : la ligne la plus récente fait foi.
+//   - « traitee » : annotation close et archivée, avec la réponse de l'équipe
+//     (visible des adhérents) et « retenu » (+20 PerlimpinPOINTS). Créée quand
+//     Arno publie ou rejette une révision de la fiche, ou valide les réponses
+//     d'une fiche sans révision ;
+//   - « reaccrochee » : annotation pas encore traitée, reportée sur la
+//     nouvelle version publiée : au même passage s'il existe encore
+//     (rattachement « passage »), sinon au bloc de la fiche (« section »).
+model TraitementAnnotation {
+  id           Int                @id @default(autoincrement())
+  commentId    String
+  comment      RelectureComment   @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  // "traitee" | "reaccrochee"
+  etat         String
+  // Traitée : version avec laquelle elle est archivée (celle qui était en
+  // ligne au moment de la décision). Réaccrochée : la nouvelle version.
+  analyseId    Int?
+  analyse      Analyse?           @relation(fields: [analyseId], references: [id], onDelete: SetNull)
+  // Décision d'Arno qui l'a close (nulle pour une validation des réponses sans révision)
+  decisionId   Int?
+  decision     DecisionRevision?  @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+  // Catégorie qui faisait foi au moment de la clôture
+  categorie    String?
+  // Réponse de l'équipe telle que validée
+  reponse      String?
+  // Annotation qui a fait évoluer la fiche (+20 PerlimpinPOINTS)
+  retenu       Boolean            @default(false)
+  // Réaccrochée : "passage" (le passage cité existe encore) | "section"
+  rattachement String?
+  createdAt    DateTime           @default(now())
+
+  @@index([commentId, createdAt])
+  @@index([analyseId])
 }
 
 // Chronomètre de relecture d'une fiche en brouillon (/relectures), rattaché
@@ -435,6 +620,34 @@ model Adherent {
   desinscritMailsRelectureAt DateTime?
 
   commentaires RelectureComment[]
+  // Mesures proposées à l'analyse depuis l'espace du Club (relation inverse, sans colonne ici).
+  propositionsClub PropositionClub[]
+}
+
+// Mesure proposée à l'analyse par un adhérent (onglet « Proposer une mesure »
+// de /relectures, nov. 2026). Écriture par le code : create uniquement. Arno
+// fait évoluer `statut`, `reponse` et `propositionId` à la main (Prisma Studio) ;
+// l'adhérent les voit dans son espace.
+model PropositionClub {
+  id            Int       @id @default(autoincrement())
+  // Auteur. Si le compte est supprimé, la proposition reste (SetNull).
+  adherentId    Int?
+  adherent      Adherent? @relation(fields: [adherentId], references: [id], onDelete: SetNull)
+  candidat      String
+  mesure        String
+  // Lien vers la déclaration ou le programme (facultatif)
+  source        String?
+  // Pourquoi l'analyser (facultatif)
+  pourquoi      String?
+  // "recue" | "retenue" | "analysee" | "non_retenue"
+  statut        String    @default("recue")
+  // Mot de l'équipe, affiché à l'adhérent
+  reponse       String?
+  // Fiche publiée qui en est issue (id de Proposition), une fois analysée
+  propositionId Int?
+  createdAt     DateTime  @default(now())
+
+  @@index([adherentId, createdAt])
 }
 
 // Textes modifiables des pages publiques (ex. /nous-rejoindre), édités depuis
@@ -453,4 +666,53 @@ model TexteSite {
   updatedAt DateTime @updatedAt
 
   @@id([page, cle])
+}
+
+// Essai RATÉ de connexion au Club (/relectures/connexion), pour limiter les
+// tentatives répétées : 5 par quart d'heure pour une même adresse e-mail, 10
+// pour une même IP (voir src/lib/limite-connexion-core.js). ÉCRITURE PAR AJOUT
+// SEULEMENT. Ni e-mail ni IP en clair : empreintes SHA-256 salées avec
+// AUTH_SECRET. Les lignes de plus d'un quart d'heure ne servent plus.
+model TentativeConnexion {
+  id        Int      @id @default(autoincrement())
+  // "relectures" (seul espace concerné pour l'instant)
+  espace    String
+  cleEmail  String?
+  cleIp     String?
+  createdAt DateTime @default(now())
+
+  @@index([cleEmail, createdAt])
+  @@index([cleIp, createdAt])
+}
+
+// File d'attente des fiches d'étape 1 (nov. 2026) : analyses d'étape 1 faites
+// dans Claude, en attente des étapes 2 et 3. Alimentée par la page /test/depot
+// (source "depot"), par une insertion SQL faite par Claude (source "claude")
+// ou par `npm run file-attente:import` (source "import"). Traitée par
+// `npm run file-attente` (scripts/traiter-file-attente.js), qui refait le
+// contrôle (src/lib/controle-fiche-etape1.js) avant tout appel payant et crée
+// la fiche finale en brouillon sur /test. Aucune ligne n'est supprimée par le
+// code : « Retirer » passe la fiche en "ignoree".
+// Les noms de colonnes sont fixés : Claude y écrit directement en SQL.
+model FicheEtape1 {
+  id           Int       @id @default(autoincrement())
+  // Nom de la fiche : minuscules, chiffres, tirets
+  slug         String    @unique
+  // Fiche d'étape 1 complète, bloc `relecture` compris
+  contenu      Json
+  // "en_attente" | "en_cours" | "traitee" | "erreur" | "ignoree"
+  statut       String    @default("en_attente")
+  // "depot" | "claude" | "import"
+  source       String
+  deposePar    String?
+  // Liste des erreurs de contrôle ou de pipeline (tableau de textes)
+  erreurs      Json?
+  // Analyse créée en brouillon sur /test
+  analyseId    Int?
+  // Coût réel des étapes 2 et 3 (même format que Analyse.coutPipeline)
+  coutPipeline Json?
+  createdAt    DateTime  @default(now())
+  traiteeAt    DateTime?
+
+  @@index([statut, createdAt])
 }

@@ -127,6 +127,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Renforcer les polices municipales » (33 caractères). Teasing proposé : « Plus de 3 000 communes concernées, mais la police municipale n'a pas le droit de faire du maintien de l'ordre. » Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-28",
+      "version_suivante": "data/analyses finales/DeVillepin/villepin_contrats_polices_municipales_etape3.json",
+      "reponses": []
+    }
   }
 }

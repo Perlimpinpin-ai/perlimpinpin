@@ -141,6 +141,11 @@
         "titre": "Titre court et phrase de teasing",
         "texte": "Titre proposé : « Couper certains réseaux en émeute » (33 caractères). Teasing proposé : « Le précédent cité par le candidat a été annulé par le juge, et les vidéos ont continué de circuler pendant le blocage. » (118 caractères). Vous conviennent-ils ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-27",
+      "version_suivante": "data/analyses finales/Attal/attal_blocage_reseaux_sociaux_emeutes_etape3.json",
+      "reponses": []
+    }
   }
 }

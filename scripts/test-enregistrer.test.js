@@ -581,3 +581,24 @@ test("catégorie vidée : null enregistré ; simulation → « La valeur serait 
     { ok: true, simulation: true, message: "[Simulation] La valeur serait effacée." },
   );
 });
+
+test("phrase d'accueil : contenu + colonne resumeAccueil (lue par le carrousel), proposition intacte", async () => {
+  const { prisma, journal, appels } = fausseBase({ ecrituresAutorisees: true });
+  const phrase = "6 milliards par an pour les enseignants, sans recette en face. Macron avait promis la même hausse en 2022.";
+  const resultat = await enregistrerTexteCore(entree({ champ: "teaser_accueil", valeur: phrase }), {
+    isEditor: editeur,
+    prisma,
+    dryRun: false,
+  });
+
+  assert.equal(resultat.ok, true);
+  assert.equal(resultat.champ, "teaser_accueil");
+  assert.equal(resultat.apres, phrase);
+  assert.deepEqual(journal.filter((a) => /update|\$transaction/.test(a)), ["$transaction", "tx.analyse.updateMany"]);
+  const [, args] = appels[0];
+  assert.deepEqual(args.where, { id: 7, statut: "brouillon", updatedAt: new Date(VERSION) });
+  assert.deepEqual(Object.keys(args.data).sort(), ["contenuComplet", "resumeAccueil", "updatedAt"]);
+  assert.equal(args.data.resumeAccueil, phrase);
+  assert.equal(args.data.contenuComplet.teaser_accueil, phrase);
+  assert.deepEqual(args.data.contenuComplet.notation_detaillee, CONTENU.notation_detaillee);
+});

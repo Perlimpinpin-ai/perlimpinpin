@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import ArrowIcon from "./ArrowIcon";
 
 // Dupliqué depuis declarations/[id]/page.js : ce composant vit côté client
@@ -83,8 +84,38 @@ function ParagraphedContent({ value }) {
 // Repli ascendant : si `value` est encore une chaîne ou un tableau simple
 // (fiches publiées avant ce format), tout est affiché directement, sans
 // accordéon — jamais de crash sur une ancienne fiche.
+//
+// Le texte complet reste TOUJOURS dans la page (masqué par `hidden` quand
+// l'accordéon est fermé) : les annotations du Club (public/club/annotations.js)
+// sont ancrées par position dans le texte de la section, qui ne doit donc pas
+// changer selon que l'accordéon est ouvert ou fermé. Un passage annoté dans
+// un accordéon fermé l'ouvre via l'évènement « club-deplier » (AnnotationsFiche).
 export default function AccordionSection({ value, splitParagraphs = false }) {
   const [open, setOpen] = useState(false);
+  const racine = useRef(null);
+
+  useEffect(() => {
+    const el = racine.current;
+    if (!el) return undefined;
+    const deplier = () => setOpen(true);
+    el.addEventListener("club-deplier", deplier);
+    return () => el.removeEventListener("club-deplier", deplier);
+  }, []);
+  // Impression / export PDF (bouton « PDF » ou Ctrl+P) : tout est déplié le
+  // temps de l'impression, puis l'état d'avant est rétabli. flushSync : le
+  // contenu doit être dans le DOM avant que le navigateur ne mette en page.
+  const [impression, setImpression] = useState(false);
+  useEffect(() => {
+    const avant = () => flushSync(() => setImpression(true));
+    const apres = () => setImpression(false);
+    window.addEventListener("beforeprint", avant);
+    window.addEventListener("afterprint", apres);
+    return () => {
+      window.removeEventListener("beforeprint", avant);
+      window.removeEventListener("afterprint", apres);
+    };
+  }, []);
+  const deplie = open || impression;
 
   if (!value) {
     return <p className="text-zinc-400">Non renseigné.</p>;
@@ -96,7 +127,7 @@ export default function AccordionSection({ value, splitParagraphs = false }) {
   const { synthese, texte } = value;
 
   return (
-    <div>
+    <div ref={racine} data-accordeon={open ? "ouvert" : "ferme"}>
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
@@ -106,14 +137,14 @@ export default function AccordionSection({ value, splitParagraphs = false }) {
         <p className="flex-1 font-medium text-slate-700">{renderRichText(synthese)}</p>
         <ArrowIcon
           direction="down"
-          className={`mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-transform ${deplie ? "rotate-180" : ""}`}
         />
       </button>
-      {open ? (
-        <div className="mt-3 border-t border-zinc-100 pt-3">
-          {splitParagraphs ? <ParagraphedContent value={texte} /> : <TextOrListContent value={texte} />}
-        </div>
-      ) : null}
+      {/* Texte toujours présent (ancrage des annotations du Club), masqué tant
+          que l'accordéon est fermé ; déplié aussi le temps d'une impression. */}
+      <div hidden={!deplie} className="mt-3 border-t border-zinc-100 pt-3">
+        {splitParagraphs ? <ParagraphedContent value={texte} /> : <TextOrListContent value={texte} />}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import Header from "@/components/Header";
 import { getLiveUser } from "@/lib/live-auth";
 import { postLoginPath } from "@/lib/live-redirect";
 import LoginForm from "./LoginForm";
+import LoginShell from "./LoginShell";
 
 export const metadata = {
   title: "Connexion — Décryptage en direct",
@@ -18,19 +18,8 @@ export default async function LiveLoginPage({ searchParams }) {
   if (await getLiveUser()) redirect(redirectTo);
 
   return (
-    <div className="flex min-h-screen flex-col bg-page-gradient font-sans">
-      <Header />
-
-      <main className="mx-auto w-full max-w-md flex-1 px-6 py-16 sm:px-8">
-        <h1 className="font-sans tracking-[-0.035em] text-3xl font-extrabold leading-tight text-zinc-900">
-          Décryptage en direct
-        </h1>
-        <p className="mt-2 text-sm text-zinc-500">Accès réservé à l&apos;équipe éditoriale. Connectez-vous avec votre compte personnel.</p>
-
-        <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6">
-          <LoginForm next={redirectTo} />
-        </div>
-      </main>
-    </div>
+    <LoginShell intro="Accès réservé à l'équipe éditoriale. Connectez-vous avec votre compte personnel.">
+      <LoginForm next={redirectTo} />
+    </LoginShell>
   );
 }

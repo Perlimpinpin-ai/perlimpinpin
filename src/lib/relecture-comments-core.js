@@ -1,4 +1,5 @@
 import { formatClosedAt, isRelectureClosed } from "./relecture.js";
+import { estSlugFiche, propositionDuSlug, sectionIdValide } from "./fiche-annotations-core.js";
 
 // Logique de POST /api/relectures/comments, sans Next ni Prisma : la base est
 // passée en paramètres (trouverFiche, creer) pour pouvoir tester avec
@@ -37,7 +38,20 @@ export function parseAnnotation(data) {
 // { status, body } à renvoyer. `adherent` : { id, nom } de getAdherent(), ou null.
 // Le nom de l'auteur vient TOUJOURS du compte : un authorName envoyé par la page
 // est ignoré.
-export async function posterCommentaire({ adherent, data, trouverFiche, creer, maintenant = new Date() }) {
+//
+// Fiche PUBLIÉE (ficheSlug « fiche-<id> », voir fiche-annotations-core.js) :
+// `trouverFichePubliee(propositionId)` renvoie { analyseId } de la version
+// publiée, ou null. Annotations toujours ouvertes (pas de chrono) ; la page
+// envoie la version affichée (analyseId) : si une nouvelle version a été
+// publiée entre-temps, on refuse (409) pour que l'adhérent recharge.
+export async function posterCommentaire({
+  adherent,
+  data,
+  trouverFiche,
+  trouverFichePubliee = async () => null,
+  creer,
+  maintenant = new Date(),
+}) {
   if (!adherent) return { status: 401, body: SESSION_EXPIREE };
   if (!data || typeof data !== "object") return { status: 400, body: { error: "JSON invalide." } };
 
@@ -52,6 +66,36 @@ export async function posterCommentaire({ adherent, data, trouverFiche, creer, m
 
   const annotation = parseAnnotation(data);
   if (annotation?.error) return { status: 400, body: { error: annotation.error } };
+
+  if (estSlugFiche(ficheSlug)) {
+    const propositionId = propositionDuSlug(ficheSlug);
+    if (!propositionId || !sectionIdValide(sectionId)) {
+      return { status: 400, body: { error: "Fiche ou passage invalide." } };
+    }
+    const publiee = await trouverFichePubliee(propositionId);
+    if (!publiee) return { status: 404, body: { error: "Fiche introuvable." } };
+    if (data.analyseId !== publiee.analyseId) {
+      return {
+        status: 409,
+        body: { error: "Cette fiche vient d'être mise à jour. Rechargez la page pour annoter la nouvelle version." },
+      };
+    }
+    if (data.creditAccord !== undefined && typeof data.creditAccord !== "boolean") {
+      return { status: 400, body: { error: "Accord de crédit invalide." } };
+    }
+    const comment = await creer({
+      ficheSlug,
+      sectionId,
+      sectionLabel,
+      authorName: adherent.nom,
+      adherentId: adherent.id,
+      body,
+      analyseId: publiee.analyseId,
+      creditAccord: data.creditAccord === true,
+      ...annotation,
+    });
+    return { status: 201, body: { ...comment, authorName: adherent.pseudo || adherent.nom } };
+  }
 
   // Relecture terminée (échéance du chrono passée) : la fiche reste lisible,
   // mais on n'accepte plus de commentaire, quoi que fasse la page.

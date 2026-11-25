@@ -221,7 +221,7 @@ export default function VueBasique({ versionBasique, sourcesUtilisees, edition =
         {sources.length > 0 ? (
           <LienVersExpert
             cible={ID_SOURCES_EXPERT}
-            className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-900 transition-colors hover:text-zinc-600 print:hidden"
           >
             Voir toutes les sources ({sources.length})
             <span aria-hidden="true">→</span>

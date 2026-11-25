@@ -58,7 +58,9 @@ async function main() {
 
   await prisma.analyse.update({
     where: { id: analyseId },
-    data: { statut: "publie" },
+    // publieLe : date de publication (moment du lancement), comme le bouton
+    // « Publier » de /test (src/lib/test-publier.js).
+    data: { statut: "publie", publieLe: new Date() },
   });
 
   const { _avg } = await prisma.analyse.aggregate({

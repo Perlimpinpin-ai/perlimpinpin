@@ -11,7 +11,10 @@
 //      (--auto --seuil-score 0 : création seule, jamais d'upsert).
 //   4. Écrit la sortie de l'étape 3 et l'avis Mistral dans data/analyses finales/,
 //      le bloc relecture.archive (construit par le code) dans la fiche, puis
-//      reconstruit public/relectures/index.html.
+//      reconstruit public/relectures/index.html. Relie la fiche aux dossiers
+//      qui la citent (`propositions[].fiche` = slug dans data/hors-series/) :
+//      l'id de la proposition créée y est écrit dans `ficheId`, pour que la
+//      page du dossier affiche l'analyse dès sa publication.
 //   5. Écrit dans <dossier> (défaut : tmp/revision-<slug>) : rapport.md (corps
 //      de la PR et résumé du job), fichiers.txt (fichiers à commiter).
 //
@@ -27,6 +30,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { SLUG_PATTERN, erreursVersionSuivante } from "./relecture.js";
 import { verifierArchive } from "./build-relectures.js";
+import { relierFicheAuxDossiers } from "./lib/dossiers-fiches.js";
 import {
   RevisionError, cheminsSorties, commentairesPourModele, construireArchive, dateParis, rapportMarkdown,
   sourceDepuisRelecture, themeDuSite, trouverDoublon, verifierCandidat,
@@ -143,7 +147,11 @@ export async function reviser(slug, { sortie, root = ROOT, lire = lireBase, lanc
 
   build();
 
-  const fichiers = [`data/relectures/${slug}.json`, "public/relectures/index.html", sorties.etape3, sorties.mistral];
+  // Lien avec les dossiers qui citent cette fiche (ficheId = proposition créée).
+  const dossiers = relierFicheAuxDossiers({ root, slug, propositionId: resultat.propositionId });
+  if (dossiers.length) log(`✓ Fiche reliée au(x) dossier(s) : ${dossiers.join(", ")} (proposition #${resultat.propositionId}).`);
+
+  const fichiers = [`data/relectures/${slug}.json`, "public/relectures/index.html", sorties.etape3, sorties.mistral, ...dossiers];
   writeFileSync(path.join(sortie, "fichiers.txt"), `${fichiers.join("\n")}\n`);
   const rapport = rapportMarkdown({ slug, relecture, notationAvant: ficheRelue.notation_detaillee, resultat, commentaires, theme, avertissements });
   writeFileSync(path.join(sortie, "rapport.md"), rapport);

@@ -46,6 +46,7 @@ test("liste blanche : titre_fiche, resume_court et les champs de la version basi
     "proposition.theme",
     "resume_court",
     "sources_utilisees",
+    "teaser_accueil",
     "titre_fiche",
     "verdict_conclusion",
     "verdict_final",
@@ -581,6 +582,20 @@ test("verdict final : paragraphes acceptés, colonne verdict dérivée ; conclus
   assert.deepEqual(derives, { verdict });
   assert.match(validerTexte("verdict_conclusion", "Une conclusion\n\nen deux.").message, /un seul paragraphe/);
   assert.deepEqual(appliquerModification(FICHE, "verdict_conclusion", "Autre conclusion.").derives, {});
+});
+
+test("phrase d'accueil : 200 caractères au plus, un paragraphe, sans gras, colonne resumeAccueil dérivée", () => {
+  const phrase = "6 milliards par an pour les enseignants, sans recette en face. Macron avait promis la même hausse en 2022.";
+  assert.deepEqual(validerTexte("teaser_accueil", phrase), { ok: true, valeur: phrase });
+  const { contenu, derives } = appliquerModification(FICHE, "teaser_accueil", phrase);
+  assert.equal(contenu.teaser_accueil, phrase);
+  assert.deepEqual(derives, { resumeAccueil: phrase });
+  // Champ absent de la fiche : il est ajouté à la racine.
+  const { teaser_accueil: _absent, ...sansPhrase } = FICHE;
+  assert.equal(appliquerModification(sansPhrase, "teaser_accueil", phrase).contenu.teaser_accueil, phrase);
+  assert.equal(validerTexte("teaser_accueil", "x".repeat(201)).ok, false);
+  assert.match(validerTexte("teaser_accueil", "Une phrase\n\nen deux paragraphes, assez longue.").message, /un seul paragraphe/);
+  assert.match(validerTexte("teaser_accueil", "Une phrase avec du **gras**, assez longue.").message, /sans gras/);
 });
 
 test("sources : une par ligne, sans gras, cohérence avec les sources principales de la version basique", () => {

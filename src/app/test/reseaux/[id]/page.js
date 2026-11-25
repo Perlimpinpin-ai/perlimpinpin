@@ -3,10 +3,15 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import EditorBar from "../../EditorBar";
+import CarrouselInstagram from "../../CarrouselInstagram";
 import PublicationsX from "../../PublicationsX";
 
 // Toujours recalculée à chaque visite (comme les autres pages /test).
 export const dynamic = "force-dynamic";
+
+// Le bouton « Générer le récit » appelle Claude (30 s à 2 min, deux essais au
+// plus) : durée maximale portée à 300 s, comme /test/reels.
+export const maxDuration = 300;
 
 // Page de travail, pas une page du site public.
 export const metadata = {
@@ -14,8 +19,8 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-// Page de partage d'une fiche : les trois publications X, prêtes à poster à
-// la main (rien n'est publié automatiquement). Réservée aux personnes
+// Page de partage d'une fiche : les trois publications X et le carrousel
+// Instagram, prêts à poster à la main (rien n'est publié automatiquement). Réservée aux personnes
 // déverrouillées sur /test (même code d'édition). Lecture seule.
 // Analyse affichée : la dernière publiée, sinon le dernier brouillon ; avec
 // ?brouillon=1, toujours le dernier brouillon (fiche en cours de révision).
@@ -26,7 +31,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
 
   const configuree = editionConfiguree();
   const editeur = configuree && (await isEditor());
-  const { publiee, brouillon } = await searchParams;
+  const { publiee, brouillon, photo } = await searchParams;
 
   const proposition = editeur
     ? await prisma.proposition.findUnique({
@@ -35,6 +40,7 @@ export default async function PartageReseauxPage({ params, searchParams }) {
           id: true,
           titre: true,
           texteOriginal: true,
+          theme: true,
           candidat: { select: { nom: true, photoUrl: true } },
           analyses: {
             ...(brouillon === "1" ? { where: { statut: "brouillon" } } : {}),
@@ -93,11 +99,20 @@ export default async function PartageReseauxPage({ params, searchParams }) {
                 ) : null}
               </p>
               <p className="rounded-xl border border-zinc-200 bg-white p-3 text-sm">
-                Calendrier conseillé : carte le jour J, chiffre à J+2, tient / tient pas à J+4.
+                Calendrier conseillé : carte, carrousel et tweet long le jour J, chiffre à J+2, tient / tient pas à J+4.
               </p>
             </header>
 
             <PublicationsX proposition={proposition} analyse={analyse} brouillon={estBrouillon} partage />
+
+            {/* Numéroté après les formats X affichés (la carte seule sans textes réseaux). */}
+            <CarrouselInstagram
+              proposition={proposition}
+              analyse={analyse}
+              brouillon={estBrouillon}
+              numero={analyse.contenuComplet?.reseaux ? 4 : 2}
+              photo={typeof photo === "string" ? photo : null}
+            />
           </>
         )}
       </div>

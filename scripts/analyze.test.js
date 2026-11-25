@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { callMistralQualityControl, ficheCompleteAvecVerdictRacine } from "./analyze.js";
+import { callMistralQualityControl, ficheCompleteAvecVerdictRacine, fusionnerReponseCorrigee, completerAvecFicheRelue, lireFluxMistral, texteContenuMistral } from "./analyze.js";
 import { validateFicheCompleteStructure } from "./lib/scoring.js";
 
 // Échec du robot de révision sur le-pen-contribution-ue-5-milliards (10 octobre
@@ -42,6 +42,16 @@ describe("Étape 3 — verdict_final placé seulement à la racine", () => {
     assert.equal(validateFicheCompleteStructure(fiche).valid, false);
     assert.deepEqual(ficheCompleteAvecVerdictRacine({}), {});
   });
+
+  test("analyse_par_criteres seulement à la racine : repris dans fiche_complete", () => {
+    const arbitrage3 = sortieReelle();
+    arbitrage3.analyse_par_criteres = arbitrage3.fiche_complete.analyse_par_criteres;
+    delete arbitrage3.fiche_complete.analyse_par_criteres;
+    assert.equal(validateFicheCompleteStructure(arbitrage3.fiche_complete).valid, false);
+    const fiche = ficheCompleteAvecVerdictRacine(arbitrage3);
+    assert.equal(fiche.analyse_par_criteres, arbitrage3.analyse_par_criteres);
+    assert.equal(validateFicheCompleteStructure(fiche).valid, true);
+  });
 });
 
 // CAS 10 de la spec ("Mistral indisponible -> le pipeline continue") :
@@ -65,5 +75,96 @@ describe("CAS 10 — résilience Mistral", () => {
     } finally {
       if (original !== undefined) process.env.MISTRAL_API_KEY = original;
     }
+  });
+});
+
+// Échec du robot de révision (4 novembre 2026, Mélenchon carburant) : après un
+// refus de revision_relecture, la réponse corrigée avait perdu
+// analyse_par_criteres → étape 3 bloquée. La correction ne visait que
+// revision_relecture : la fiche_complete valide de la 1re réponse est gardée.
+describe("Étape 3 — réponse corrigée qui perd analyse_par_criteres", () => {
+  const sortieReelle = () =>
+    JSON.parse(readFileSync(new URL("../data/analyses finales/Zemmour/zemmour_rsa_trois_ans_etape3.json", import.meta.url), "utf8"));
+
+  test("garde la fiche_complete valide de la première réponse et la revision corrigée", () => {
+    const premiere = { ...sortieReelle(), revision_relecture: { synthese: "x" } };
+    const corrigee = structuredClone(sortieReelle());
+    delete corrigee.fiche_complete.analyse_par_criteres;
+    corrigee.revision_relecture = { synthese: "ok", reponses: [], notes_pour_arno: "" };
+    const fusion = fusionnerReponseCorrigee(premiere, corrigee);
+    assert.equal(fusion.revision_relecture, corrigee.revision_relecture);
+    assert.ok(validateFicheCompleteStructure(ficheCompleteAvecVerdictRacine(fusion)).valid);
+  });
+
+  test("garde la nouvelle fiche_complete quand elle est valide", () => {
+    const premiere = sortieReelle();
+    const corrigee = sortieReelle();
+    corrigee.fiche_complete.marqueur = 1;
+    assert.equal(fusionnerReponseCorrigee(premiere, corrigee).fiche_complete, corrigee.fiche_complete);
+  });
+});
+
+// Échec du robot de révision (4 novembre 2026, Mélenchon carburant, 2e essai) :
+// fiche_complete sans mesure_vers_objectif. Le bloc est repris de la fiche relue.
+describe("Étape 3 (révision) — bloc de texte omis par le modèle", () => {
+  const sortieReelle = () =>
+    JSON.parse(readFileSync(new URL("../data/analyses finales/Zemmour/zemmour_rsa_trois_ans_etape3.json", import.meta.url), "utf8"));
+
+  test("mesure_vers_objectif absent : repris de la fiche relue, la fiche redevient valide", () => {
+    const ficheRelue = sortieReelle().fiche_complete;
+    const arbitrage3 = sortieReelle();
+    delete arbitrage3.fiche_complete.mesure_vers_objectif;
+    assert.equal(validateFicheCompleteStructure(arbitrage3.fiche_complete).valid, false);
+    const fiche = completerAvecFicheRelue(arbitrage3.fiche_complete, arbitrage3, ficheRelue);
+    assert.deepEqual(fiche.mesure_vers_objectif, ficheRelue.mesure_vers_objectif);
+    assert.ok(validateFicheCompleteStructure(fiche).valid);
+  });
+
+  test("placé à la racine de la réponse : c'est celui-là qui est pris", () => {
+    const arbitrage3 = sortieReelle();
+    const nouveau = { ...arbitrage3.fiche_complete.mesure_vers_objectif, objectif_court: "Nouveau" };
+    delete arbitrage3.fiche_complete.mesure_vers_objectif;
+    arbitrage3.mesure_vers_objectif = nouveau;
+    assert.equal(completerAvecFicheRelue(arbitrage3.fiche_complete, arbitrage3, sortieReelle().fiche_complete).mesure_vers_objectif, nouveau);
+  });
+
+  test("la notation n'est jamais reprise de la fiche relue", () => {
+    const arbitrage3 = sortieReelle();
+    delete arbitrage3.fiche_complete.analyse_par_criteres;
+    delete arbitrage3.fiche_complete.notation_detaillee;
+    const fiche = completerAvecFicheRelue(arbitrage3.fiche_complete, arbitrage3, sortieReelle().fiche_complete);
+    assert.equal(fiche.analyse_par_criteres, undefined);
+    assert.equal(fiche.notation_detaillee, undefined);
+  });
+});
+
+// Étape 2 en streaming (16 novembre 2026) : la réponse non streamée de Mistral
+// dépassait 180 s sur certaines fiches. Faux flux SSE, sans réseau.
+describe("Étape 2 — lecture du flux Mistral", () => {
+  const fauxFlux = (morceaux) => ({
+    body: new ReadableStream({
+      start(c) {
+        for (const m of morceaux) c.enqueue(new TextEncoder().encode(m));
+        c.close();
+      },
+    }),
+  });
+  const evt = (delta, extra = {}) => `data: ${JSON.stringify({ choices: [{ delta }], ...extra })}\n\n`;
+
+  test("assemble le texte, y compris coupé au milieu d'une ligne, et garde l'usage final", async () => {
+    const tout = evt({ role: "assistant", content: "" }) + evt({ content: '{"avis":' }) + evt({ content: ' "solide"}' }) +
+      evt({ content: "" }, { usage: { prompt_tokens: 10, completion_tokens: 5 } }) + "data: [DONE]\n\n";
+    const coupe = [tout.slice(0, 37), tout.slice(37, 90), tout.slice(90)];
+    const { texte, usage } = await lireFluxMistral(fauxFlux(coupe));
+    assert.equal(texte, '{"avis": "solide"}');
+    assert.deepEqual(usage, { prompt_tokens: 10, completion_tokens: 5 });
+  });
+
+  test("blocs thinking ignorés, blocs texte gardés", async () => {
+    const flux = evt({ content: [{ type: "thinking", thinking: [{ type: "text", text: "je réfléchis" }] }] }) +
+      evt({ content: [{ type: "text", text: '{"a":1}' }] }) + "data: [DONE]\n\n";
+    const { texte } = await lireFluxMistral(fauxFlux([flux]));
+    assert.equal(texte, '{"a":1}');
+    assert.equal(texteContenuMistral(null), "");
   });
 });

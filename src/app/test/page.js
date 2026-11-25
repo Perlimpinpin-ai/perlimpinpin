@@ -7,6 +7,7 @@ import { themeLabel } from "@/lib/themes";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import CorbeilleBouton from "./CorbeilleBouton";
 import EditorBar from "./EditorBar";
+import OutilsTuiles from "./OutilsTuiles";
 import RestaurerBouton from "./RestaurerBouton";
 
 // Toujours recalculée à chaque visite : on veut voir les brouillons du moment,
@@ -97,43 +98,42 @@ export default async function TestPage() {
       <main className="w-full px-6 py-12 sm:px-8 sm:py-16">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
           <div>
-            <MonoTag>Brouillons</MonoTag>
+            {/* Barre d'état : sur-titre à gauche, mode édition à droite. Le
+                mode édition n'apparaît que si le code d'édition est configuré
+                sur ce serveur. */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <MonoTag>Brouillons</MonoTag>
+              {configuree ? (
+                <div className="text-zinc-700">
+                  <EditorBar editeur={editeur} />
+                </div>
+              ) : null}
+            </div>
             <h1 className="mt-2 text-[clamp(1.875rem,1.2rem+2.6vw,3.75rem)] font-extrabold tracking-tight text-zinc-900">
               Analyses en brouillon
             </h1>
             <p className="mt-2 max-w-xl text-base text-zinc-500">
-              Ces analyses ne sont pas publiées : elles n&rsquo;apparaissent
-              nulle part sur le site public. Cette page sert à les relire avant
+              Non publiées, invisibles sur le site public. Relecture avant
               publication.
             </p>
-            {/* Mode édition : n'apparaît que si le code d'édition est configuré
-                sur ce serveur. */}
-            {configuree ? (
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-zinc-700">
-                <EditorBar editeur={editeur} />
-                {/* Publications X des fiches : pour les personnes déverrouillées. */}
-                {editeur ? (
-                  <Link
-                    href="/test/reseaux"
-                    className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-xs font-semibold text-zinc-800 transition-colors hover:bg-zinc-100"
-                  >
-                    Publications réseaux sociaux →
-                  </Link>
-                ) : null}
-              </div>
-            ) : null}
           </div>
+
+          {/* Outils, pour les personnes déverrouillées seulement. */}
+          {editeur ? <OutilsTuiles /> : null}
+
+          <section className="flex flex-col gap-4 border-t border-zinc-200 pt-6">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-900">
+              À relire
+              <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-semibold text-zinc-600">
+                {brouillons.length}
+              </span>
+            </h2>
 
           {brouillons.length === 0 ? (
             <p className="rounded-xl border border-zinc-200 bg-white/60 p-6 text-sm text-zinc-500">
               Aucun brouillon pour le moment.
             </p>
           ) : (
-            <>
-              <p className="text-sm font-semibold text-zinc-700">
-                {brouillons.length} brouillon{brouillons.length > 1 ? "s" : ""}
-              </p>
-
               <ul className="flex flex-col gap-3">
                 {brouillons.map((analyse) => {
                   const { proposition } = analyse;
@@ -180,7 +180,13 @@ export default async function TestPage() {
                       {/* Hors du lien (un bouton ne peut pas être dans un <a>) :
                           posé dans le bas de la carte, en mode édition seulement. */}
                       {editeur ? (
-                        <div className="absolute bottom-3 right-5">
+                        <div className="absolute bottom-3 right-5 flex items-center gap-4">
+                          <Link
+                            href={`/test/reels/${proposition.id}?brouillon=1`}
+                            className="text-xs font-semibold text-zinc-700 underline underline-offset-2 hover:opacity-70"
+                          >
+                            Reel
+                          </Link>
                           <CorbeilleBouton
                             analyseId={analyse.id}
                             titre={displayTitle(proposition)}
@@ -191,8 +197,8 @@ export default async function TestPage() {
                   );
                 })}
               </ul>
-            </>
           )}
+          </section>
 
           {/* Corbeille : en mode édition seulement, repliée par défaut. Le
               navigateur garde la section ouverte quand la page est recalculée

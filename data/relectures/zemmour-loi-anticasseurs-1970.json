@@ -127,6 +127,11 @@
         "titre": "Titre et accroche",
         "texte": "Titre court proposé : « Le retour de la loi anti-casseurs ». Accroche : « Abrogée en 1981, elle a surtout servi contre des syndicalistes et des agriculteurs. Et l'essentiel de ce qu'elle punissait l'est déjà aujourd'hui… » Ces formulations vous semblent-elles fidèles et neutres ?"
       }
-    ]
+    ],
+    "archive": {
+      "date": "2026-10-27",
+      "version_suivante": "data/analyses finales/Zemmour/zemmour_loi_anticasseurs_1970_etape3.json",
+      "reponses": []
+    }
   }
 }

@@ -1,10 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect } from "react";
 import { connexion } from "../actions";
 import { buttonClass, inputClass, labelClass } from "../ui";
 
-export default function ConnexionForm() {
+// `retour` : fiche d'où vient l'adhérent (déjà vérifiée par la page), renvoyée
+// au serveur dans un champ caché et revérifiée par l'action.
+export default function ConnexionForm({ retour = null }) {
   const [state, formAction, pending] = useActionState(connexion, null);
 
   // Connexion réussie : le cookie est posé, on charge /relectures (fichier
@@ -15,6 +18,7 @@ export default function ConnexionForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
+      {retour ? <input type="hidden" name="retour" value={retour} /> : null}
       <div>
         <label htmlFor="relecture-email" className={labelClass}>
           Adresse e-mail
@@ -31,9 +35,17 @@ export default function ConnexionForm() {
         />
       </div>
       <div>
-        <label htmlFor="relecture-password" className={labelClass}>
-          Mot de passe
-        </label>
+        <div className="flex items-baseline justify-between gap-3">
+          <label htmlFor="relecture-password" className={labelClass}>
+            Mot de passe
+          </label>
+          <Link
+            href="/relectures/mot-de-passe-oublie"
+            className="text-[13px] text-zinc-500 underline decoration-zinc-300 underline-offset-4 hover:text-zinc-900 hover:decoration-zinc-900"
+          >
+            Mot de passe oublié ?
+          </Link>
+        </div>
         <input
           id="relecture-password"
           name="password"

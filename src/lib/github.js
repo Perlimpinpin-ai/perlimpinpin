@@ -1,6 +1,6 @@
-// Tous les appels à l'API GitHub du site (dépôt Perlimpinpin2027/perlimpinpin),
+// Tous les appels à l'API GitHub du site (dépôt Perlimpinpin-ai/perlimpinpin),
 // avec le jeton GITHUB_DISPATCH_TOKEN (variable Vercel). Permissions du jeton
-// (fine-grained, ce seul dépôt) : Actions, Contents et Pull requests en
+// (fine-grained, propriétaire Perlimpinpin-ai, ce seul dépôt) : Actions, Contents et Pull requests en
 // « Read and write ».
 //
 // - declencherRevision : bouton « Envoyer en révision » (/relectures), lance
@@ -12,7 +12,16 @@
 // Logique sans Next.js : fetch est injectable (tests : scripts/github.test.js,
 // scripts/relecture-revision.test.js).
 
-export const DEPOT = "Perlimpinpin2027/perlimpinpin";
+// Dépôt : celui auquel le projet Vercel est relié (variables système
+// VERCEL_GIT_REPO_OWNER / VERCEL_GIT_REPO_SLUG), pour qu'un déplacement du
+// dépôt (Perlimpinpin2027 → Perlimpinpin-ai, novembre 2026) ne casse plus les
+// boutons. GITHUB_DEPOT (« propriétaire/nom ») force une autre valeur.
+export function depotGitHub(env = process.env) {
+  if (env.GITHUB_DEPOT) return env.GITHUB_DEPOT;
+  if (env.VERCEL_GIT_REPO_OWNER && env.VERCEL_GIT_REPO_SLUG) return `${env.VERCEL_GIT_REPO_OWNER}/${env.VERCEL_GIT_REPO_SLUG}`;
+  return "Perlimpinpin-ai/perlimpinpin";
+}
+export const DEPOT = depotGitHub();
 export const WORKFLOW = "revision-relecture.yml";
 export const SLUG_PATTERN = /^[a-z0-9-]{1,120}$/;
 const PROPRIETAIRE = DEPOT.split("/")[0];
@@ -36,7 +45,7 @@ function entetes(token) {
 function erreurGitHub(action, status) {
   if (status === 401) return `GitHub a refusé le jeton (${action}, 401) : GITHUB_DISPATCH_TOKEN invalide ou expiré.`;
   if (status === 403 || status === 404) {
-    return `GitHub a refusé ${action} (${status}) : vérifie les permissions du jeton GITHUB_DISPATCH_TOKEN (Actions, Contents et Pull requests en « Read and write »).`;
+    return `GitHub a refusé ${action} (${status}) sur ${DEPOT} : le jeton GITHUB_DISPATCH_TOKEN doit avoir pour propriétaire ${PROPRIETAIRE}, donner accès à ce dépôt et les permissions Actions, Contents et Pull requests en « Read and write » (dépôt déplacé ? recréer le jeton, puis redéployer).`;
   }
   return `GitHub a répondu ${status} (${action}).`;
 }
@@ -68,9 +77,39 @@ export async function declencherRevision({ slug, token, fetchImpl = fetch }) {
     headers: { ...entetes(token), "Content-Type": "application/json" },
     body: JSON.stringify({ ref: "main", inputs: { slug }, return_run_details: true }),
   });
-  if (!r.ok) throw new Error(`GitHub a refusé le déclenchement (${r.status}).`);
+  if (!r.ok) throw new Error(erreurGitHub("le déclenchement", r.status));
   const res = r.status === 200 ? await r.json().catch(() => ({})) : {};
   return { lien: res.html_url || LIEN_WORKFLOW, dejaLance: false };
+}
+
+// ---------- « Traiter maintenant » (page admin /test/revue, Club ouvert) ----------
+
+export const WORKFLOW_REVUE = "revue-dimanche.yml";
+const API_WORKFLOW_REVUE = `${API_DEPOT}/actions/workflows/${WORKFLOW_REVUE}`;
+const LIEN_WORKFLOW_REVUE = `https://github.com/${DEPOT}/actions/workflows/${WORKFLOW_REVUE}`;
+
+// Lance la revue d'UNE fiche (workflow revue-dimanche.yml, entrée « fiche »).
+// Le run s'intitule « Revue fiche <id> » : pas de second lancement tant qu'il
+// est en attente ou en cours. Branche : GITHUB_REVUE_REF, sinon main.
+// Renvoie { lien, dejaLance }.
+export async function declencherRevue({ propositionId, token, fetchImpl = fetch, ref = process.env.GITHUB_REVUE_REF || "main" }) {
+  if (!Number.isSafeInteger(propositionId) || propositionId <= 0) throw new Error("Fiche invalide.");
+  if (!token) throw new Error("GITHUB_DISPATCH_TOKEN absent : envoi impossible.");
+  for (const status of ["queued", "in_progress"]) {
+    const r = await fetchImpl(`${API_WORKFLOW_REVUE}/runs?status=${status}&per_page=50`, { headers: entetes(token) });
+    if (!r.ok) throw new Error(erreurGitHub("la liste des revues en cours", r.status));
+    const { workflow_runs: runs = [] } = await r.json();
+    const run = runs.find((x) => x.display_title === `Revue fiche ${propositionId}`);
+    if (run) return { lien: run.html_url || LIEN_WORKFLOW_REVUE, dejaLance: true };
+  }
+  const r = await fetchImpl(`${API_WORKFLOW_REVUE}/dispatches`, {
+    method: "POST",
+    headers: { ...entetes(token), "Content-Type": "application/json" },
+    body: JSON.stringify({ ref, inputs: { fiche: String(propositionId) }, return_run_details: true }),
+  });
+  if (!r.ok) throw new Error(erreurGitHub("le lancement de la revue", r.status));
+  const res = r.status === 200 ? await r.json().catch(() => ({})) : {};
+  return { lien: res.html_url || LIEN_WORKFLOW_REVUE, dejaLance: false };
 }
 
 // ---------- PR de révision (bouton « Publier » de /test) ----------

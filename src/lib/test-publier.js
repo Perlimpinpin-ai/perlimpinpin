@@ -16,6 +16,14 @@
 // se fait normalement, sans tentative de fusion.
 // Les appels à GitHub sont passés en paramètre (github.verifier,
 // github.fusionner : voir src/lib/github.js).
+//
+// Date de publication (Analyse.publieLe) : le moment du clic, pris côté serveur
+// (`maintenant`, injectable pour les tests), écrit dans la même transaction que
+// le statut. Un second clic trouve une analyse qui n'est plus un brouillon et
+// est refusé : la date n'est jamais réécrite. « Réessayer la fusion » ne touche
+// pas à la date (la fiche est déjà publiée).
+
+import { dateEtHeure } from "./date-publication.js";
 
 const NON_AUTORISE = "Non autorisé.";
 
@@ -53,7 +61,7 @@ async function fusionner(slug, numero, github) {
 
 const AVERTISSEMENT_FUSION = "Fiche publiée, mais les réponses aux commentaires n'ont pas pu être publiées";
 
-export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun, github }) {
+export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun, github, maintenant = () => new Date() }) {
   // 1. Accès : avant tout, sans toucher à la base.
   if (!(await isEditor())) return refus(NON_AUTORISE);
 
@@ -125,6 +133,9 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
     pr = { ...verification.pr, dejaFusionnee: Boolean(verification.dejaFusionnee) };
   }
 
+  // Moment du clic, côté serveur (jamais une date venue du navigateur).
+  const publieLe = maintenant();
+
   // 6. Simulation : on calcule la future moyenne, on n'écrit RIEN.
   if (dryRun) {
     const publiees = await prisma.analyse.findMany({
@@ -141,7 +152,8 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
     return {
       ok: true,
       simulation: true,
-      message: `[Simulation] Cette analyse serait publiée et la moyenne de ${candidat.nom} deviendrait ${Number(moyenne.toFixed(1))}/100.${fusion}`,
+      message: `[Simulation] Cette analyse serait publiée le ${dateEtHeure(publieLe)} (heure de Paris) et la moyenne de ${candidat.nom} deviendrait ${Number(moyenne.toFixed(1))}/100.${fusion}`,
+      publieLe: publieLe.toISOString(),
       ...(pr ? { lienPR: pr.lien } : {}),
     };
   }
@@ -152,7 +164,7 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
     const candidatMisAJour = await prisma.$transaction(async (tx) => {
       const { count } = await tx.analyse.updateMany({
         where: { id: analyse.id, statut: "brouillon" },
-        data: { statut: "publie" },
+        data: { statut: "publie", publieLe },
       });
       // Quelqu'un l'a déjà publiée (ou modifiée) entre-temps : on annule.
       if (count !== 1) {
@@ -177,7 +189,9 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
       simulation: false,
       analyseId: analyse.id,
       propositionId: analyse.propositionId,
+      candidatId,
       candidatNom: candidatMisAJour.nom,
+      publieLe: publieLe.toISOString(),
     };
     if (!pr) return publie;
     if (pr.dejaFusionnee) return { ...publie, revision: { slug, fusionnee: true, dejaFusionnee: true, lienPR: pr.lien } };
