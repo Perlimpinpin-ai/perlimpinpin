@@ -68,19 +68,26 @@ function requete(body, code = CODE) {
   });
 }
 
-async function envoyer(body, { code, prisma = fauxPrisma(), transport = fauxTransport(), env = ENV } = {}) {
+// Copie dans le dossier Envoyés simulée : `copieReussie` = ce que renvoie le dépôt.
+async function envoyer(body, { code, prisma = fauxPrisma(), transport = fauxTransport(), env = ENV, copieReussie = true } = {}) {
   const pauses = [];
   const journal = [];
+  const copies = [];
   const res = await traiterEnvoi({
     request: requete(body, code),
     prisma,
     lireFiche: () => FICHE,
     env,
     creerTransport: (c) => transport.creer(c),
+    copierEnvoyes: async (message, options) => {
+      copies.push({ message, options });
+      if (!copieReussie) options.log.error(`${options.prefixe} copie dans Envoyés en échec : ECONNREFUSED`);
+      return { statut: copieReussie ? "copie" : "echec" };
+    },
     attendre: async (ms) => { pauses.push(ms); },
     log: { log: (m) => journal.push(m), error: (m) => journal.push(m) },
   });
-  return { ...res, prisma, transport, pauses, journal };
+  return { ...res, prisma, transport, pauses, journal, copies };
 }
 
 test("refus sans code comité (401), rien n'est envoyé", async () => {
@@ -173,4 +180,45 @@ test("texte retouché vide : refus (400), rien n'est envoyé", async () => {
   const r = await envoyer({ mode: "test", sujet: "Sujet", corps: "   " });
   assert.equal(r.status, 400);
   assert.equal(r.transport.envois.length, 0);
+});
+
+test("envoi réel : une seule copie dans Envoyés, avec les adresses servies", async () => {
+  const transport = fauxTransport({ echouePour: ["camille@exemple.test"] });
+  const r = await envoyer(
+    { mode: "reel", confirmation: "oui", sujet: "Sujet du comité", corps: "Texte du comité." },
+    { prisma: fauxPrisma({ adherents: [...ADHERENTS, { id: 4, email: "zoe@exemple.test", nom: "Zoé C.", desinscritMailsRelectureAt: null }] }), transport },
+  );
+  assert.equal(r.body.envoyes, 2);
+  assert.equal(r.copies.length, 1);
+  const { message, options } = r.copies[0];
+  assert.equal(options.prefixe, "[annonce]");
+  assert.equal(options.env, ENV);
+  // L'échec (camille) n'est pas dans la liste.
+  assert.ok(message.text.startsWith("Envoyé à 2 adhérents : sans-prenom@exemple.test, zoe@exemple.test\n\nBonjour,\n"));
+  assert.ok(message.html.includes("Envoyé à 2 adhérents : sans-prenom@exemple.test, zoe@exemple.test"));
+  assert.ok(message.text.includes("Texte du comité."));
+  assert.equal(message.subject, "Sujet du comité");
+  assert.equal(message.from, EXPEDITEUR);
+  assert.equal(message.to, REPONDRE_A);
+});
+
+test("mode test : aucune copie dans Envoyés", async () => {
+  const r = await envoyer({ mode: "test" });
+  assert.equal(r.body.envoyes, 1);
+  assert.equal(r.copies.length, 0);
+});
+
+test("aucun mail parti : aucune copie", async () => {
+  const transport = fauxTransport({ echouePour: ["camille@exemple.test", "sans-prenom@exemple.test"] });
+  const r = await envoyer({ mode: "reel", confirmation: "oui" }, { transport });
+  assert.equal(r.body.envoyes, 0);
+  assert.equal(r.copies.length, 0);
+});
+
+test("copie impossible : l'envoi reste un succès, journal sans adresse", async () => {
+  const r = await envoyer({ mode: "reel", confirmation: "oui" }, { copieReussie: false });
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.body, { envoyes: 2, echecs: [], restants: 0 });
+  assert.ok(r.journal.includes("[annonce] copie dans Envoyés en échec : ECONNREFUSED"));
+  assert.ok(!r.journal.join("\n").includes("@"));
 });
