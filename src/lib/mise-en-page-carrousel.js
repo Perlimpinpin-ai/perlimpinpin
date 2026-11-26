@@ -114,6 +114,19 @@ export const ZONES_COUVERTURE = [
   { nom: "la photo du candidat", x: 470, y: 744 - 16, largeur: LARGEUR - 470, hauteur: HAUTEUR - 744 + 16 },
   { nom: "le papier jaune", x: 0, y: BAS_COUVERTURE - 400 - 16, largeur: 560, hauteur: 400 + 16 },
 ];
+// Photo du candidat sur la couverture « une mesure » (charte RS, page 11) :
+// environ 45 % de la largeur (47 % avec le liseré), en bas à droite.
+export const PHOTO_COUVERTURE = { largeur: Math.round(0.47 * LARGEUR), droite: 26, ecartTexte: 24, grain: 0.5 };
+
+// Position de la photo détourée : { gauche, haut, largeur, hauteur }.
+export function placementCandidat({ largeur, hauteur }, boites = []) {
+  const l = PHOTO_COUVERTURE.largeur;
+  const h = Math.round((l * hauteur) / largeur);
+  const gauche = LARGEUR - PHOTO_COUVERTURE.droite - l;
+  const sousLeTexte = boites.filter((b) => b.x < gauche + l && b.x + b.largeur > gauche).reduce((max, b) => Math.max(max, b.y + b.hauteur + PHOTO_COUVERTURE.ecartTexte), 0);
+  return { gauche, haut: Math.max(BAS_COUVERTURE - h, sousLeTexte), largeur: l, hauteur: h };
+}
+
 const PLACE_PICTO = PICTO + 40;
 
 // --- Coupure des lignes ------------------------------------------------------------

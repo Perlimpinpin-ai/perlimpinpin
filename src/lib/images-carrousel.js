@@ -29,7 +29,16 @@ export function existe(chemin) {
 const cache = new Map();
 const tailles = new Map();
 
-// Largeur et hauteur d'un PNG (en-tête IHDR), sans le décoder.
+// Silhouette grise de la charte (aucune photo gardée pour le candidat), en data URI.
+export const SILHOUETTE_GRISE = `data:image/svg+xml;base64,${Buffer.from(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="600" viewBox="0 0 500 600"><rect width="500" height="600" fill="#C9C4BA"/><circle cx="250" cy="215" r="112" fill="#8E8A82"/><path d="M40 600 C40 440 120 358 250 358 C380 358 460 440 460 600 Z" fill="#8E8A82"/></svg>',
+).toString("base64")}`;
+
+// Largeur et hauteur d'un PNG de public/ (en-tête IHDR), sans le décoder.
+export function taillePngPublic(chemin) {
+  return taillePng(chemin);
+}
+
 async function taillePng(chemin) {
   if (!tailles.has(chemin)) {
     tailles.set(

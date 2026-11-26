@@ -31,7 +31,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join } from "node:path";
 import sharp from "sharp";
 import { CATEGORIES_COMMONS, nomDepuisSlug } from "../src/lib/candidats-commons.js";
-import { PHOTOS_CANDIDATS } from "../src/lib/photos-candidats.js";
+import { PHOTOS_COMMONS } from "../src/lib/photos-candidats.js";
 import { API_COMMONS, CANDIDATES_MIN, candidatesDepuisPages, entreesDepot, entreesPhotos, LARGEUR_MIN, meilleuresCandidates, modeleCredits, reecrireListePhotos, userAgent } from "./lib/commons.js";
 
 const DOSSIER = join("data", "photos-candidats");
@@ -132,7 +132,7 @@ async function telechargerSelection() {
   const fichier = join(DOSSIER, "selection", `${slug}.json`);
   if (!existsSync(fichier)) throw new Error(`Pas de sélection : cochez d'abord des photos sur /test/photos-candidats (${fichier}).`);
   const { retenues = [] } = JSON.parse(readFileSync(fichier, "utf-8"));
-  const nouvelles = entreesPhotos(slug, retenues, PHOTOS_CANDIDATS);
+  const nouvelles = entreesPhotos(slug, retenues, PHOTOS_COMMONS);
   const parId = new Map(retenues.map((r) => [r.id, r]));
   mkdirSync(join(DOSSIER, "originaux", slug), { recursive: true });
   for (const photo of nouvelles) {
@@ -143,7 +143,7 @@ async function telechargerSelection() {
     console.log(`✓ ${slug}/${photo.n}.jpg ← ${source.titre} (${source.auteur}, ${source.licence})`);
   }
   const bibliotheque = join("src", "lib", "photos-candidats.js");
-  writeFileSync(bibliotheque, reecrireListePhotos(readFileSync(bibliotheque, "utf-8"), [...PHOTOS_CANDIDATS, ...nouvelles]), "utf-8");
+  writeFileSync(bibliotheque, reecrireListePhotos(readFileSync(bibliotheque, "utf-8"), [...PHOTOS_COMMONS, ...nouvelles]), "utf-8");
   console.log(`\n${nouvelles.length} photo(s) ajoutée(s) à ${bibliotheque}. Étape suivante : python scripts/detourer-candidats.py --photos ${slug}`);
 }
 
@@ -154,7 +154,7 @@ async function importerDepot() {
   if (!existsSync(fichierCredits)) throw new Error(`Pas de ${fichierCredits} : lancez d'abord --preparer-dossiers, déposez les photos et remplissez credits.json.`);
   const credits = JSON.parse(readFileSync(fichierCredits, "utf-8"));
   const presents = readdirSync(dossier).filter((f) => f !== "credits.json");
-  const { nouvelles, refusees } = entreesDepot(slug, credits, presents, PHOTOS_CANDIDATS);
+  const { nouvelles, refusees } = entreesDepot(slug, credits, presents, PHOTOS_COMMONS);
   // Taille contrôlée avant toute écriture ; numéros attribués aux seules retenues.
   const retenues = [];
   for (const photo of nouvelles) {
@@ -162,7 +162,7 @@ async function importerDepot() {
     if ((width ?? 0) < LARGEUR_MIN) refusees.push({ fichier: photo.depot, raison: `${width} px de large (${LARGEUR_MIN} au moins)` });
     else retenues.push(photo);
   }
-  let n = PHOTOS_CANDIDATS.filter((p) => p.slug === slug).reduce((max, p) => Math.max(max, p.n), 0);
+  let n = PHOTOS_COMMONS.filter((p) => p.slug === slug).reduce((max, p) => Math.max(max, p.n), 0);
   const gardees = [];
   mkdirSync(join(DOSSIER, "originaux", slug), { recursive: true });
   for (const { depot, ...photo } of retenues) {
@@ -178,7 +178,7 @@ async function importerDepot() {
     return;
   }
   const bibliotheque = join("src", "lib", "photos-candidats.js");
-  writeFileSync(bibliotheque, reecrireListePhotos(readFileSync(bibliotheque, "utf-8"), [...PHOTOS_CANDIDATS, ...gardees]), "utf-8");
+  writeFileSync(bibliotheque, reecrireListePhotos(readFileSync(bibliotheque, "utf-8"), [...PHOTOS_COMMONS, ...gardees]), "utf-8");
   console.log(`\n${gardees.length} photo(s) ajoutée(s) à ${bibliotheque}. Étape suivante : python scripts/detourer-candidats.py --photos ${slug}`);
 }
 

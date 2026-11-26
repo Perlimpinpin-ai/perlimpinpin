@@ -2,14 +2,14 @@ import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
-import { slugCandidat } from "./carte.js";
+import { empreinte, slugCandidat } from "./carte.js";
 import { resolveTheme } from "./themes.js";
 import { couleursCandidat } from "./charte-rs.js";
 import { assemblerProgramme, assemblerThematique, controlerProgramme, controlerThematique, messageProgramme, messageThematique, selectionProgramme, selectionThematique } from "./carrousel-formats.js";
 import { debordementsFormat } from "./mise-en-page-formats.js";
 import { mesureurCarrousel } from "./metriques-polices.js";
-import { choisirPhoto, creditsPhoto } from "./photos-candidats.js";
-import { cheminVignetteNb, existe, imagePrete, CHEMIN_GRAIN } from "./images-carrousel.js";
+import { choisirPhoto, creditACompleter, creditsPhoto, fichierPhoto } from "./photos-candidats.js";
+import { existe, imagePrete, CHEMIN_GRAIN, SILHOUETTE_GRISE, taillePngPublic } from "./images-carrousel.js";
 
 // Carrousels « analyse de programme » et « thématique », côté serveur :
 // lecture des fiches PUBLIÉES (lecture seule, jamais d'écriture en base),
@@ -93,49 +93,68 @@ export function demoThematique() {
 
 // --- Photos ----------------------------------------------------------------------------
 
-// Photo d'un candidat : photo Commons validée (bibliothèque cochée sur
-// /test/photos-candidats) si elle existe, avec son crédit ; sinon la vignette
-// du site. Jamais de photo générée ni retouchée.
-export function photoCandidat(candidat) {
-  const slug = slugCandidat(candidat);
-  const photo = choisirPhoto({ slug, graine: "format" });
-  if (photo && existe(photo.fichier)) {
-    const credit = creditsPhoto(photo);
-    return { chemin: photo.fichier, credit: credit?.court ?? null, complet: credit?.complet ?? null, sansCredit: !credit };
-  }
-  return { chemin: cheminVignetteNb(candidat), credit: null, complet: null, sansCredit: false };
+// Graine du tirage des photos d'un carrousel : la réponse du modèle (le même
+// carrousel garde les mêmes photos d'un rendu à l'autre).
+export function grainePhotos(etat) {
+  return empreinte(JSON.stringify(etat?.reponse ?? null));
 }
 
-function credits(candidats) {
-  const photos = candidats.map((c) => ({ nom: c.nom, ...photoCandidat(c) }));
+// Photo d'un candidat : tirée parmi ses photos gardées (/test/photos-candidats),
+// avec son crédit, dans le fichier du format (`variante` : "programme",
+// liseré jaune ; "thematique", médaillon) ; aucune photo gardée : silhouette
+// grise de la charte. Jamais de photo générée ni retouchée.
+export function photoCandidat(candidat, { variante = "programme", graine = "" } = {}) {
+  const slug = slugCandidat(candidat);
+  const photo = choisirPhoto({ slug, graine: `${graine}-${slug}` });
+  const chemin = fichierPhoto(photo, variante);
+  if (photo && existe(chemin)) {
+    const credit = creditsPhoto(photo);
+    return { chemin, detoure: variante === "programme" && Boolean(photo.deposee), credit: credit?.court ?? null, complet: credit?.complet ?? null, sansCredit: !credit, aCompleter: creditACompleter(photo) };
+  }
+  return { chemin: null, silhouette: true, credit: null, complet: null, sansCredit: false, aCompleter: false };
+}
+
+function credits(candidats, options) {
+  const photos = candidats.map((c) => ({ nom: c.nom, ...photoCandidat(c, options) }));
   const sans = photos.filter((p) => p.sansCredit).map((p) => p.nom);
+  const avertissements = [
+    ...photos.filter((p) => p.silhouette).map((p) => ({ cle: "photo", fort: true, message: `Aucune photo gardée de ${p.nom} : silhouette grise. Cochez « Garder » sur /test/photos-candidats (onglet « Photos déposées »).` })),
+    ...photos.filter((p) => p.aCompleter).map((p) => ({ cle: "crédits", message: `Crédit photo à compléter (${p.nom}) : à saisir sur /test/photos-candidats.` })),
+  ];
   return {
     courts: [...new Set(photos.map((p) => p.credit).filter(Boolean))],
     blocage: sans.length ? `Crédit manquant pour la photo de ${sans.join(", ")} (auteur ou licence) : pas d’archive.` : null,
+    avertissements,
+    aCompleter: photos.some((p) => p.aCompleter),
   };
+}
+
+function avecPhotos(resultat, c) {
+  if (!resultat.slides?.length) return resultat;
+  return { ...resultat, avertissements: [...c.avertissements, ...resultat.avertissements], controles: { ...resultat.controles, creditPhotoACompleter: c.aCompleter } };
 }
 
 // --- Assemblage ------------------------------------------------------------------------
 
 // Carrousel « programme » à partir de l'état ({ ordres, reponse }) et des fiches lues.
-export function carrouselProgramme({ candidat, fiches, ordres, reponse, pictos }) {
+export function carrouselProgramme({ candidat, fiches, ordres, reponse, pictos, graine = "" }) {
   const selection = selectionProgramme(fiches, ordres);
   if (selection.erreurs.length) return { erreurs: selection.erreurs, slides: [] };
   const controle = controlerProgramme(reponse, { candidatNom: candidat.nom, fiches: selection.fiches });
   if (!controle.valide) return { erreurs: controle.erreurs, slides: [] };
-  const c = credits([candidat]);
+  const c = credits([candidat], { variante: "programme", graine });
   const resultat = assemblerProgramme({ candidatNom: candidat.nom, photoUrl: candidat.photoUrl, fiches: selection.fiches, programme: controle.programme, credits: c.courts, blocageCredits: c.blocage, ...(pictos ? { pictos } : {}) });
-  return finaliser(resultat, controle.avertissements);
+  return avecPhotos(finaliser(resultat, controle.avertissements), c);
 }
 
-export function carrouselThematique({ theme, candidats, reponse, couleursThemes, pictos }) {
+export function carrouselThematique({ theme, candidats, reponse, couleursThemes, pictos, graine = "" }) {
   const selection = selectionThematique(theme, candidats);
   if (selection.erreurs.length) return { erreurs: selection.erreurs, slides: [] };
   const controle = controlerThematique(reponse, { theme, candidats: selection.candidats });
   if (!controle.valide) return { erreurs: controle.erreurs, slides: [] };
-  const c = credits(selection.candidats);
+  const c = credits(selection.candidats, { variante: "thematique", graine });
   const resultat = assemblerThematique({ theme, candidats: selection.candidats, thematique: controle.thematique, credits: c.courts, blocageCredits: c.blocage, ...(couleursThemes ? { couleursThemes } : {}), ...(pictos ? { pictos } : {}) });
-  return finaliser(resultat, controle.avertissements);
+  return avecPhotos(finaliser(resultat, controle.avertissements), c);
 }
 
 function finaliser(resultat, avertissementsModele) {
@@ -146,12 +165,20 @@ function finaliser(resultat, avertissementsModele) {
   return { ...resultat, controles: { ...resultat.controles, grain: existe(CHEMIN_GRAIN) }, avertissements, debordements, blocage, erreurs: [] };
 }
 
-// Images d'une slide : grain, portrait(s) (data URI).
-export async function imagesFormat(slide, { candidat = null, candidats = [] } = {}) {
+// Images d'une slide : grain, portrait(s) (data URI). Programme : le détouré
+// liseré jaune (`portraitDetoure` : { image, largeur, hauteur }) ; thématique :
+// les médaillons. Aucune photo gardée : silhouette grise.
+export async function imagesFormat(slide, { candidat = null, candidats = [], graine = "" } = {}) {
   const grain = await imagePrete(CHEMIN_GRAIN);
-  if (candidat) return { grain, portrait: await imagePrete(photoCandidat(candidat).chemin) };
+  const image = async (photo) => (photo.silhouette ? SILHOUETTE_GRISE : imagePrete(photo.chemin));
+  if (candidat) {
+    const photo = photoCandidat(candidat, { variante: "programme", graine });
+    const portrait = await image(photo);
+    const taille = photo.detoure ? await taillePngPublic(photo.chemin) : null;
+    return { grain, portrait, portraitDetoure: taille && portrait ? { image: portrait, ...taille } : null };
+  }
   const besoin = slide.type === "couverture" ? candidats : slide.type === "candidat" ? candidats.filter((c) => c.nom === slide.nom) : [];
-  const portraits = Object.fromEntries(await Promise.all(besoin.map(async (c) => [c.nom, await imagePrete(photoCandidat(c).chemin)])));
+  const portraits = Object.fromEntries(await Promise.all(besoin.map(async (c) => [c.nom, await image(photoCandidat(c, { variante: "thematique", graine }))])));
   return { grain, portraits };
 }
 
@@ -224,6 +251,7 @@ export function candidatsChoisis(contexte, choix) {
 // Carrousel à partir de l'état de l'URL (null si l'état est illisible).
 export function carrouselDepuisEtat(format, contexte, etat) {
   if (!etat?.reponse) return null;
-  if (format === "programme") return carrouselProgramme({ candidat: contexte.candidat, fiches: contexte.fiches, ordres: etat.ordres ?? {}, reponse: etat.reponse, pictos: contexte.pictos });
-  return carrouselThematique({ theme: contexte.theme, candidats: candidatsChoisis(contexte, etat.choix), reponse: etat.reponse, couleursThemes: contexte.couleursThemes, pictos: contexte.pictos });
+  const graine = grainePhotos(etat);
+  if (format === "programme") return carrouselProgramme({ candidat: contexte.candidat, fiches: contexte.fiches, ordres: etat.ordres ?? {}, reponse: etat.reponse, pictos: contexte.pictos, graine });
+  return carrouselThematique({ theme: contexte.theme, candidats: candidatsChoisis(contexte, etat.choix), reponse: etat.reponse, couleursThemes: contexte.couleursThemes, pictos: contexte.pictos, graine });
 }

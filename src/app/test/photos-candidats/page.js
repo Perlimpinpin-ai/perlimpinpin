@@ -4,9 +4,10 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { editionConfiguree, isEditor } from "@/lib/test-auth";
 import { CATEGORIES_COMMONS, nomDepuisSlug } from "@/lib/candidats-commons";
-import { PHOTOS_MIN, photosDuCandidat } from "@/lib/photos-candidats";
+import { fichierPhoto, PHOTOS_CONSEILLEES, PHOTOS_DEPOSEES, PHOTOS_MIN, photosDuCandidat } from "@/lib/photos-candidats";
 import EditorBar from "../EditorBar";
 import SelectionPhotos from "./SelectionPhotos";
+import PhotosDeposees from "./PhotosDeposees";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,8 @@ async function lireJson(chemin) {
 export default async function PhotosCandidatsPage({ searchParams }) {
   const configuree = editionConfiguree();
   const editeur = configuree && (await isEditor());
-  const { candidat: demande } = await searchParams;
+  const { candidat: demande, onglet: ongletDemande } = await searchParams;
+  const onglet = ongletDemande === "commons" ? "commons" : "deposees";
   const slugs = Object.keys(CATEGORIES_COMMONS);
   const slug = slugs.includes(demande ?? "") ? demande : "teddy-riner";
   const dossier = join(process.cwd(), "data", "photos-candidats");
@@ -48,6 +50,15 @@ export default async function PhotosCandidatsPage({ searchParams }) {
   const selection = editeur ? await lireJson(join(dossier, "selection", `${slug}.json`)) : null;
   const bibliotheque = photosDuCandidat(slug);
   const detourees = bibliotheque.filter((p) => existsSync(join(process.cwd(), "public", p.fichier))).length;
+  // Photos déposées à la main (scripts/preparer-photos-candidats.py) : aperçus des fichiers préparés.
+  const deposees = PHOTOS_DEPOSEES.filter((p) => p.slug === slug)
+    .sort((a, b) => a.n - b.n)
+    .map((p) => ({
+      ...p,
+      lisere: encodeURI(`/${fichierPhoto({ ...p, deposee: true }, "mesure")}`),
+      medaillon: encodeURI(`/${fichierPhoto({ ...p, deposee: true }, "thematique")}`),
+    }));
+  const gardeesDe = (s) => PHOTOS_DEPOSEES.filter((p) => p.slug === s && p.garder).length;
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-8 text-zinc-900 sm:px-8">
@@ -61,9 +72,9 @@ export default async function PhotosCandidatsPage({ searchParams }) {
         <header className="flex flex-col gap-2">
           <h1 className="text-2xl font-bold tracking-tight">Photos des candidats</h1>
           <p className="max-w-3xl text-sm text-zinc-600">
-            Photos libres de Wikimedia Commons pour la couverture du carrousel détaillé (détourées en noir et blanc devant le bloc de couleur) et
-            la fenêtre du candidat dans les Reels. Une photo différente est tirée à chaque carrousel. Cochez celles à garder : rien n’entre dans la
-            bibliothèque sans cette validation.
+            Photos des candidats pour les couvertures des carrousels (« une mesure », « programme », « thématique ») et la fenêtre des Reels. Une
+            photo est tirée au hasard à chaque carrousel parmi les photos gardées. Onglet « Photos déposées » : les photos de photos-sources/, préparées
+            par scripts/preparer-photos-candidats.py ; rien n’entre dans le tirage sans la case « Garder ».
           </p>
         </header>
 
@@ -82,36 +93,78 @@ export default async function PhotosCandidatsPage({ searchParams }) {
               </ul>
             </section>
 
+            <nav className="flex gap-1 border-b border-zinc-200 text-sm">
+              {[
+                ["deposees", "Photos déposées"],
+                ["commons", "Wikimedia Commons"],
+              ].map(([cle, libelle]) => (
+                <Link
+                  key={cle}
+                  href={`/test/photos-candidats?candidat=${slug}&onglet=${cle}`}
+                  className={`-mb-px rounded-t-lg border px-4 py-2 font-semibold ${onglet === cle ? "border-zinc-200 border-b-zinc-50 bg-zinc-50" : "border-transparent text-zinc-500 hover:text-zinc-900"}`}
+                >
+                  {libelle}
+                </Link>
+              ))}
+            </nav>
+
             <nav className="flex flex-wrap gap-2 text-xs">
               {slugs.map((s) => {
-                const nombre = photosDuCandidat(s).length;
+                const nombre = onglet === "deposees" ? gardeesDe(s) : photosDuCandidat(s).length;
+                const seuil = onglet === "deposees" ? PHOTOS_CONSEILLEES : PHOTOS_MIN;
                 return (
                   <Link
                     key={s}
-                    href={`/test/photos-candidats?candidat=${s}`}
+                    href={`/test/photos-candidats?candidat=${s}&onglet=${onglet}`}
                     className={`rounded-full border px-3 py-1 font-semibold ${s === slug ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-300 bg-white hover:bg-zinc-100"}`}
                   >
-                    {nomDepuisSlug(s)}{" "}
-                    <span className={s === slug ? "text-zinc-300" : nombre < PHOTOS_MIN ? "text-amber-600" : "text-zinc-400"}>· {nombre}</span>
+                    {nomDepuisSlug(s)} <span className={s === slug ? "text-zinc-300" : nombre < seuil ? "text-amber-600" : "text-zinc-400"}>· {nombre}</span>
                   </Link>
                 );
               })}
             </nav>
 
-            <section className="flex flex-col gap-1 text-sm">
-              <h2 className="font-semibold">
-                {nomDepuisSlug(slug)}{" "}
-                <span className="font-normal text-zinc-500">
-                  · {bibliotheque.length} photo(s) dans la bibliothèque, {detourees} détourée(s) (au moins {PHOTOS_MIN})
-                </span>
-              </h2>
-              <p className="text-xs text-zinc-500">
-                Catégorie {CATEGORIES_COMMONS[slug]}
-                {propositions ? ` · recherche du ${new Date(propositions.chercheLe).toLocaleString("fr-FR")} : ${propositions.fichiersVus} fichiers vus, ${propositions.ecartees} écartés par les filtres` : ""}
-              </p>
-            </section>
+            {onglet === "deposees" ? (
+              <>
+                <section className="flex flex-col gap-1 text-sm">
+                  <h2 className="font-semibold">
+                    {nomDepuisSlug(slug)}{" "}
+                    <span className="font-normal text-zinc-500">
+                      · {deposees.length} photo(s) préparée(s), {gardeesDe(slug)} gardée(s) dans le tirage
+                    </span>
+                  </h2>
+                  <p className="text-xs text-zinc-500">
+                    Neutralité (charte RS) : pas de grimace, pas d’yeux fermés, pas de bouche ouverte en pleine phrase, pas de logo de parti, personne d’autre dans le détourage.
+                    Les compteurs des candidats ci-dessus comptent les photos gardées (avertissement sous {PHOTOS_CONSEILLEES}).
+                  </p>
+                </section>
+                <PhotosDeposees key={`${slug}-${deposees.map((p) => `${p.n}${p.garder ? "g" : ""}`).join("-")}`} slug={slug} photos={deposees} />
+              </>
+            ) : (
+              <>
+                <section className="flex flex-col gap-1 text-sm">
+                  <h2 className="font-semibold">
+                    {nomDepuisSlug(slug)}{" "}
+                    <span className="font-normal text-zinc-500">
+                      · {bibliotheque.length} photo(s) dans la bibliothèque, {detourees} détourée(s) (au moins {PHOTOS_MIN})
+                    </span>
+                  </h2>
+                  <p className="text-xs text-zinc-500">
+                    Catégorie {CATEGORIES_COMMONS[slug]}
+                    {propositions
+                      ? ` · recherche du ${new Date(propositions.chercheLe).toLocaleString("fr-FR")} : ${propositions.fichiersVus} fichiers vus, ${propositions.ecartees} écartés par les filtres`
+                      : ""}
+                  </p>
+                </section>
 
-            <SelectionPhotos key={`${slug}-${propositions?.chercheLe ?? "vide"}`} slug={slug} candidates={propositions?.candidates ?? []} dejaRetenues={(selection?.retenues ?? []).map((r) => r.id)} />
+                <SelectionPhotos
+                  key={`${slug}-${propositions?.chercheLe ?? "vide"}`}
+                  slug={slug}
+                  candidates={propositions?.candidates ?? []}
+                  dejaRetenues={(selection?.retenues ?? []).map((r) => r.id)}
+                />
+              </>
+            )}
           </>
         )}
       </div>

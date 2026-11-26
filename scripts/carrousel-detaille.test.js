@@ -189,8 +189,8 @@ test("bibliothèque de photos : entrées numérotées, liste réécrite, tirage 
     [5, "carrousel/candidats/teddy-riner/5.png"],
   ]);
   assert.equal(entrees[0].modification, "photo modifiée : détourage, noir et blanc");
-  const source = `a\n${REPERE_DEBUT}\nexport const PHOTOS_CANDIDATS = [];\n${REPERE_FIN}\nb`;
-  assert.match(reecrireListePhotos(source, entrees), /^a\n\/\/ DEBUT LISTE PHOTOS\nexport const PHOTOS_CANDIDATS = \[\n {2}\{"id":"commons-1"/);
+  const source = `a\n${REPERE_DEBUT}\nexport const PHOTOS_COMMONS = [];\n${REPERE_FIN}\nb`;
+  assert.match(reecrireListePhotos(source, entrees), /^a\n\/\/ DEBUT LISTE PHOTOS\nexport const PHOTOS_COMMONS = \[\n {2}\{"id":"commons-1"/);
   const liste = [...entrees, { ...entrees[0], id: "x", n: 1 }, { ...entrees[0], id: "y", n: 2 }, { ...entrees[0], id: "z", slug: "autre", n: 1 }];
   assert.deepEqual(photosDuCandidat("teddy-riner", liste).map((p) => p.n), [1, 2, 4, 5]);
   assert.equal(choisirPhoto({ slug: "teddy-riner", graine: "a", liste }), choisirPhoto({ slug: "teddy-riner", graine: "a", liste }));
@@ -286,11 +286,11 @@ test("carrousel : photo Commons tirée ou demandée, crédit sur la couverture, 
   const sansCredit = carrouselRecit(donnees({ photos: [{ id: "c3", slug: "fabien-roussel", n: 1, fichier: "f.png", auteur: "", licence: "CC BY 2.0" }] }));
   assert.match(sansCredit.blocageArchive, /Crédit manquant pour la photo 1/);
   assert.equal(sansCredit.controles.creditsPresents, false);
-  // Aucune photo : vignette, pas de blocage.
+  // Aucune photo gardée : silhouette grise, avertissement rouge, pas de blocage.
   const sans = carrouselRecit(donnees({ photos: [], handlesInstagram: {} }));
   assert.equal(sans.slides[0].photo, null);
   assert.equal(sans.blocageArchive, null);
-  assert.ok(sans.avertissements.some((a) => a.cle === "photo" && /vignette actuelle/.test(a.message)));
+  assert.ok(sans.avertissements.some((a) => a.cle === "photo" && a.fort && /silhouette grise/.test(a.message)));
   assert.ok(!/@/.test(sans.legende));
   // Candidat absent du registre : pas de carrousel, couleurs du nuancier proposées.
   const hors = carrouselRecit(donnees({ couleursCarrousel: {} }));

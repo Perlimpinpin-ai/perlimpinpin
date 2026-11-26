@@ -4,7 +4,7 @@ import { dataUriPicto } from "@/lib/pictos-charte";
 import { HAUT_ZONE, BAS_ZONE, LARGEUR, LARGEUR_UTILE, MARGE, STYLES } from "@/lib/mise-en-page-carrousel";
 import { GEO, positionsCartes } from "@/lib/mise-en-page-formats";
 import { FinCharte, TitreCouverture } from "./CarrouselMesure";
-import { BandeBillet, Carte, couleursBande, EnTete, Etiquette, FAMILLES, Fond, GRAIN, GRAISSES, H, Jauge, Lignes, PastilleVerdict, Picto, Pied, PixelsLegers, Portrait } from "./Primitives";
+import { BandeBillet, Carte, PhotoGrain, prechargerImages, couleursBande, EnTete, Etiquette, FAMILLES, Fond, GRAIN, GRAISSES, H, Jauge, Lignes, PastilleVerdict, Picto, Pied, PixelsLegers, Portrait } from "./Primitives";
 
 // Carrousel « analyse de programme » (10 slides, charte RS page 15) : SEULE
 // LA PARTIE DONNÉES SE REMPLIT. Données : slides assemblées par
@@ -17,6 +17,19 @@ import { BandeBillet, Carte, couleursBande, EnTete, Etiquette, FAMILLES, Fond, G
 //  3 à 8. une slide par mesure ; 9. notre avis ; 10. fin au pluriel.
 
 const COLONNE = { display: "flex", flexDirection: "column", width: LARGEUR_UTILE };
+
+// Photo détourée au centre, liseré jaune déjà posé (charte RS, page 11),
+// posée en bas de la zone photo ; grain ajouté sur la silhouette seulement.
+function PhotoDetouree({ photo, zone, grain }) {
+  const echelle = Math.min(zone.largeur / photo.largeur, zone.hauteur / photo.hauteur);
+  const l = Math.round(photo.largeur * echelle);
+  const h = Math.round(photo.hauteur * echelle);
+  return (
+    <div style={{ position: "absolute", left: zone.x + Math.round((zone.largeur - l) / 2), top: zone.y + zone.hauteur - h, width: l, height: h, display: "flex" }}>
+      <PhotoGrain image={photo.image} grain={grain} largeur={l} hauteur={h} opacite={0.5} />
+    </div>
+  );
+}
 
 function Couverture({ slide, mise, couleur, images }) {
   const p = GEO.photo;
@@ -31,7 +44,7 @@ function Couverture({ slide, mise, couleur, images }) {
           <Lignes b={mise.sousTitre} couleur={rgba(couleur.texte, 0.9)} />
         </div>
       </div>
-      <Portrait src={images.portrait} x={p.x} y={p.y} largeur={p.largeur} hauteur={p.hauteur} lisere={MARQUE.jaune} />
+      {images.portraitDetoure ? <PhotoDetouree photo={images.portraitDetoure} zone={p} grain={images.grain} /> : <Portrait src={images.portrait} x={p.x} y={p.y} largeur={p.largeur} hauteur={p.hauteur} lisere={MARQUE.jaune} />}
       {positionsCartes().map((pos, i) => {
         const c = slide.cartes[i];
         const picto = c?.picto ? dataUriPicto(c.picto, { taille: 3, couleur: couleur.accentCreme, etincelles: false }) : null;
@@ -221,7 +234,13 @@ export function CarrouselProgramme({ slide, mise, couleur, images = {} }) {
       </Papier>
     );
   }
-  return <div style={{ position: "relative", display: "flex", width: LARGEUR, height: H, overflow: "hidden", fontFamily: FAMILLES.titre }}>{contenu}</div>;
+  const precharges = slide.type === "couverture" && images.portraitDetoure ? prechargerImages([images.portraitDetoure.image, images.grain]) : null;
+  return (
+    <div style={{ position: "relative", display: "flex", width: LARGEUR, height: H, overflow: "hidden", fontFamily: FAMILLES.titre }}>
+      {precharges}
+      {contenu}
+    </div>
+  );
 }
 
 export const STYLES_PROGRAMME = STYLES;

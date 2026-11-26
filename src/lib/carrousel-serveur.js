@@ -75,7 +75,9 @@ function avertissementsImagesRecit(candidat, illustration, photo) {
   if (photo && !existe(photo.fichier)) {
     avertissements.push({
       cle: "photo",
-      message: `Photo ${photo.n} de ${candidat.nom} pas encore détourée (public/${photo.fichier}) : vignette actuelle à la place. La préparer : python scripts/detourer-candidats.py --photos ${slugCandidat(candidat)}.`,
+      message: photo.deposee
+        ? `Photo ${photo.n} de ${candidat.nom} pas encore préparée (public/${photo.fichier}). La préparer : .venv-photos/Scripts/python scripts/preparer-photos-candidats.py ${slugCandidat(candidat)}.`
+        : `Photo ${photo.n} de ${candidat.nom} pas encore détourée (public/${photo.fichier}) : vignette actuelle à la place. La préparer : python scripts/detourer-candidats.py --photos ${slugCandidat(candidat)}.`,
     });
   }
   if (illustration && !existe(cheminIllustrationTraitee(illustration.fichier))) {

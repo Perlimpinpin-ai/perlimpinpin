@@ -225,6 +225,32 @@ export function Portrait({ src, x, y, largeur, hauteur, rond = false, fond = MAR
   );
 }
 
+// Images utilisées DANS un SVG (PhotoGrain) : Satori ne précharge les
+// <image> d'un SVG que s'il les voit depuis la racine de l'arbre, pas à
+// l'intérieur d'un composant. Appeler cette fonction (pas <Composant />) à la
+// racine de la slide : <img> invisibles qui les préchargent.
+export function prechargerImages(sources) {
+  return [...new Set(sources.filter(Boolean))].map((src, i) => <img key={`pre-${i}`} src={src} alt="" width={1} height={1} style={{ display: "none" }} />);
+}
+
+// Photo détourée (PNG transparent, liseré déjà posé) avec le grain de la
+// charte posé AU RENDU sur la silhouette seulement : masque alpha SVG (rendu
+// par resvg ; le maskImage CSS de Satori ne suit pas la taille affichée).
+export function PhotoGrain({ image, grain, largeur, hauteur, opacite = 0.32 }) {
+  const id = `silhouette-${largeur}-${hauteur}`;
+  return (
+    <svg width={largeur} height={hauteur} viewBox={`0 0 ${largeur} ${hauteur}`}>
+      <defs>
+        <mask id={id} maskUnits="userSpaceOnUse" x="0" y="0" width={largeur} height={hauteur} mask-type="alpha">
+          <image href={image} x="0" y="0" width={largeur} height={hauteur} preserveAspectRatio="none" />
+        </mask>
+      </defs>
+      <image href={image} x="0" y="0" width={largeur} height={hauteur} preserveAspectRatio="none" />
+      {grain ? <image href={grain} x="0" y="0" width={L} height={H} preserveAspectRatio="none" opacity={opacite} mask={`url(#${id})`} /> : null}
+    </svg>
+  );
+}
+
 // Picto pixel art (data URI préparé par src/lib/pictos-charte.js).
 export function Picto({ picto, x, y, style = {} }) {
   if (!picto) return null;

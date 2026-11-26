@@ -18,16 +18,16 @@ import { piedCarrousel } from "@/lib/carrousel-recit";
 // Images d'une slide du carrousel détaillé (data URI), toutes déjà prêtes
 // (scripts/preparer-images-carrousel.js, scripts/detourer-candidats.py) :
 // aucun traitement d'image ici. Grain du papier, pictogramme ; couverture :
-// papier jaune déchiré, illustration déjà teintée et tramée, photo Commons du
-// candidat déjà détourée (noir et blanc, grain, liseré), sinon la vignette
-// actuelle en tirage.
+// papier jaune déchiré, illustration déjà teintée et tramée, photo du
+// candidat déjà détourée (noir et blanc, liseré blanc ; le grain est posé au
+// rendu), sinon la silhouette grise de la charte (aucune photo gardée).
 async function imagesDetaille(slide, candidat, couleur) {
   const couverture = slide.type === "couverture";
   const surCouleur = slide.type === "fin";
   const [grain, papier, portrait, illustration] = await Promise.all([
     imagePrete(CHEMIN_GRAIN),
     couverture ? imagePrete(CHEMIN_PAPIER) : null,
-    couverture ? imageCandidatPrete({ detoure: slide.photo?.fichier ?? null, vignette: cheminVignetteNb(candidat) }) : null,
+    couverture ? (slide.photo ? imageCandidatPrete({ detoure: slide.photo.fichier, vignette: cheminVignetteNb(candidat) }) : { silhouette: true }) : null,
     couverture && slide.illustration ? imagePrete(cheminIllustrationTraitee(slide.illustration.fichier)) : null,
   ]);
   return { grain, papier, candidat: portrait, illustration, picto: PICTOS[slide.type] ? dataUriPicto(PICTOS[slide.type], { taille: 6, fondSombre: surCouleur && !couleur.clair, couleur: surCouleur ? couleur.accent : couleur.accentCreme }) : null };

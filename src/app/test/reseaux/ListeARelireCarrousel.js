@@ -113,6 +113,7 @@ export default function ListeARelireCarrousel({ candidatNom, couleur, couleurAtt
                           ? "(vérifié par le code)"
                           : "(à cocher à la main)"}
                     </span>
+                    {item.alerte ? <span className="ml-2 rounded bg-orange-100 px-1.5 py-0.5 text-xs font-semibold text-orange-800">{item.alerte}</span> : null}
                   </span>
                 </label>
               </li>

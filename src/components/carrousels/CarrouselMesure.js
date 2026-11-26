@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element -- next/og (Satori) ne connaît que <img>. */
 import { COULEURS_PASTILLES } from "@/lib/recit";
 import { MARQUE, VERDICTS, melange, rgba, verdictDe } from "@/lib/charte-rs";
-import { ECARTS, HAUT_ZONE, HAUTEUR, BAS_ZONE, LARGEUR, LARGEUR_UTILE, MARGE, PICTO, STYLES, TEXTES_FIN, COUVERTURE } from "@/lib/mise-en-page-carrousel";
-import { BandeBillet, BoutonJaune, Carte, couleursBande, EnTete, Etiquette, FAMILLES, Fond, GRAIN, GRAISSES, Lignes, PastilleVerdict, Pied } from "./Primitives";
+import { ECARTS, HAUT_ZONE, HAUTEUR, BAS_ZONE, LARGEUR, LARGEUR_UTILE, MARGE, PICTO, STYLES, TEXTES_FIN, COUVERTURE, PHOTO_COUVERTURE, placementCandidat } from "@/lib/mise-en-page-carrousel";
+import { BandeBillet, BoutonJaune, Carte, couleursBande, EnTete, Etiquette, FAMILLES, Fond, GRAIN, GRAISSES, Lignes, PastilleVerdict, PhotoGrain, Pied, prechargerImages } from "./Primitives";
 
 // Carrousel « une mesure » (8 slides 1080 × 1350, charte RS pages 13 et 14) :
 // SEULE LA PARTIE DONNÉES SE REMPLIT. Ce composant ne reçoit que des données
@@ -51,7 +51,6 @@ const C = COUVERTURE;
 const BAS = HAUTEUR - C.bande;
 const PAPIER = { gauche: 0, haut: BAS - 400, largeur: 560, hauteur: 400 };
 const ILLUSTRATION = { gauche: 24, haut: BAS - 340, largeur: 500, hauteur: 330 };
-const BOITE_CANDIDAT = { gauche: 520, droite: LARGEUR + 40, haut: 690, bas: BAS };
 const BLOC = `508,792 ${LARGEUR},744 ${LARGEUR},${BAS} 470,${BAS}`;
 
 // Titre : mots dans la couleur du texte ; chaque suite de mots surlignés forme
@@ -102,12 +101,31 @@ export function TitreCouverture({ b, couleur, centre = false }) {
   );
 }
 
-// Candidat détouré (liseré blanc déjà posé par scripts/detourer-candidats.py),
-// sinon la vignette en tirage avec un liseré blanc.
-function Candidat({ candidat }) {
+// Candidat sur la couverture (charte RS, page 11) :
+//  - photo déposée ou Commons, détourée, liseré blanc déjà posé
+//    (scripts/preparer-photos-candidats.py) : environ 45 % de la largeur,
+//    ancrée en bas à droite, buste coupé par le bas de la slide (la bande
+//    « billet de banque » passe par-dessus), devant le bloc d'accent ; jamais
+//    sur une ligne du titre ou du sous-titre (`boites`, mesurées par
+//    src/lib/mise-en-page-carrousel.js) : si la tête y monterait, la photo
+//    descend et le buste est coupé plus bas. Grain ajouté ici, sur la
+//    silhouette seulement (masque) ;
+//  - aucune photo gardée : silhouette grise de la charte ;
+//  - repli : la vignette en tirage avec un liseré blanc.
+function SilhouetteGrise() {
+  const l = PHOTO_COUVERTURE.largeur;
+  const h = 560;
+  return (
+    <svg width={l} height={h} viewBox="0 0 500 560" style={{ position: "absolute", left: LARGEUR - PHOTO_COUVERTURE.droite - l, top: BAS - h }}>
+      <circle cx="250" cy="170" r="112" fill={MARQUE.gris} stroke={MARQUE.blanc} strokeWidth="11" />
+      <path d="M40 560 C40 400 120 318 250 318 C380 318 460 400 460 560 Z" fill={MARQUE.gris} stroke={MARQUE.blanc} strokeWidth="11" />
+    </svg>
+  );
+}
+
+function Candidat({ candidat, boites, grain }) {
   if (!candidat) return null;
-  const boiteL = BOITE_CANDIDAT.droite - BOITE_CANDIDAT.gauche;
-  const boiteH = BOITE_CANDIDAT.bas - BOITE_CANDIDAT.haut;
+  if (candidat.silhouette) return <SilhouetteGrise />;
   if (!candidat.detoure) {
     return (
       <div style={{ position: "absolute", left: 640, top: 850, display: "flex", padding: 10, backgroundColor: MARQUE.blanc, boxShadow: `0 14px 30px ${rgba(MARQUE.encre, 0.3)}`, transform: "rotate(-4deg)" }}>
@@ -115,10 +133,12 @@ function Candidat({ candidat }) {
       </div>
     );
   }
-  const echelle = Math.min(boiteL / candidat.largeur, boiteH / candidat.hauteur);
-  const l = Math.round(candidat.largeur * echelle);
-  const h = Math.round(candidat.hauteur * echelle);
-  return <img src={candidat.image} alt="" width={l} height={h} style={{ position: "absolute", left: BOITE_CANDIDAT.gauche + Math.round((boiteL - l) / 2), top: BOITE_CANDIDAT.bas - h, width: l, height: h }} />;
+  const p = placementCandidat(candidat, boites);
+  return (
+    <div style={{ position: "absolute", left: p.gauche, top: p.haut, width: p.largeur, height: Math.max(0, BAS - p.haut), display: "flex", overflow: "hidden" }}>
+      <PhotoGrain image={candidat.image} grain={grain} largeur={p.largeur} hauteur={p.hauteur} opacite={PHOTO_COUVERTURE.grain} />
+    </div>
+  );
 }
 
 function Couverture({ slide, mise, couleur, images, controle = false }) {
@@ -142,7 +162,7 @@ function Couverture({ slide, mise, couleur, images, controle = false }) {
       {images.illustration ? (
         <img src={images.illustration} alt="" width={ILLUSTRATION.largeur} height={ILLUSTRATION.hauteur} style={{ position: "absolute", left: ILLUSTRATION.gauche, top: ILLUSTRATION.haut, width: ILLUSTRATION.largeur, height: ILLUSTRATION.hauteur }} />
       ) : null}
-      <Candidat candidat={images.candidat} />
+      <Candidat candidat={images.candidat} boites={mise.boites} grain={images.grain} />
       {controle ? null : (
         <div style={{ position: "absolute", left: C.marge, top: hautCredits - 16 - 52, height: 52, display: "flex", alignItems: "center", padding: "0 20px", borderRadius: 6, backgroundColor: MARQUE.carte, fontFamily: FAMILLES.mono, fontSize: 26, color: MARQUE.encre }}>
           <span>Glissez</span>
@@ -432,7 +452,13 @@ export function CarrouselMesure({ slide, mise, couleur, images: imagesFournies =
       </Papier>
     );
   }
-  return <div style={{ position: "relative", display: "flex", width: LARGEUR, height: HAUTEUR, overflow: "hidden", fontFamily: FAMILLES.titre }}>{contenu}</div>;
+  const precharges = slide.type === "couverture" && images.candidat?.detoure ? prechargerImages([images.candidat.image, images.grain]) : null;
+  return (
+    <div style={{ position: "relative", display: "flex", width: LARGEUR, height: HAUTEUR, overflow: "hidden", fontFamily: FAMILLES.titre }}>
+      {precharges}
+      {contenu}
+    </div>
+  );
 }
 
 export const elementSlideDetaille = CarrouselMesure;

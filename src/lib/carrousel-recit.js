@@ -13,7 +13,7 @@ import { listeVerifications } from "./verifications-charte.js";
 import { nomDeFamille } from "./ecriture-charte.js";
 import { creditLegende, creditVisible, illustrationsProposees } from "./illustrations.js";
 import { limiterMotsGras } from "./texte-gras.js";
-import { choisirPhoto, creditsPhoto, PHOTOS_CANDIDATS, PHOTOS_MIN, photosDuCandidat } from "./photos-candidats.js";
+import { choisirPhoto, creditACompleter, creditsPhoto, fichierPhoto, PHOTOS_CANDIDATS, PHOTOS_MIN, photosDuCandidat } from "./photos-candidats.js";
 
 // Carrousel détaillé en 8 slides (7 sans mesure comparable), sa légende, ses
 // crédits et le tweet long, assemblés à partir de contenuComplet.reseaux_recit
@@ -149,18 +149,20 @@ export function carrouselRecit(donnees) {
     { theme, contenu: { reseaux_recit: { illustration: stocke.illustration, illustration_mots_cles: recit.illustration_mots_cles, illustration_sujet: recit.illustration_sujet } }, propositionId, demandee: donnees.illustrationDemandee ?? null, liste: donnees.illustrations },
     avertissements,
   );
-  // Photo du candidat (Wikimedia Commons) : celle demandée, sinon celle
-  // retenue à la génération (hors des 2 derniers carrousels du candidat),
-  // sinon un tirage stable pour cette version ; aucune photo : vignette actuelle.
+  // Photo du candidat (photos déposées gardées sur /test/photos-candidats, ou
+  // Commons) : celle demandée (« Changer de photo »), sinon celle retenue à la
+  // génération (hors des 2 derniers carrousels du candidat), sinon un tirage
+  // stable pour cette version ; aucune photo gardée : silhouette grise.
   const slug = slugCandidat({ nom: candidatNom, photoUrl });
   const listePhotos = donnees.photos ?? PHOTOS_CANDIDATS;
   const photosCandidat = photosDuCandidat(slug, listePhotos);
   const photo = choisirPhoto({ slug, demandee: donnees.photoDemandee ?? null, retenue: stocke.photo ?? null, graine: `${propositionId}-${stocke.genereLe ?? ""}`, liste: listePhotos });
   if (photosCandidat.length === 0) {
-    avertissements.push({ cle: "photo", message: `Aucune photo de ${candidatNom} dans la bibliothèque (src/lib/photos-candidats.js) : vignette actuelle sur la couverture. Les chercher : node scripts/chercher-photos-candidats.js ${slug}, puis /test/photos-candidats.` });
+    avertissements.push({ cle: "photo", fort: true, message: `Aucune photo gardée de ${candidatNom} : silhouette grise sur la couverture. Cochez « Garder » sur /test/photos-candidats (onglet « Photos déposées »).` });
   } else if (photosCandidat.length < PHOTOS_MIN) {
     avertissements.push({ cle: "photo", message: `Seulement ${photosCandidat.length} photo(s) de ${candidatNom} (${PHOTOS_MIN} au moins) : la couverture changera peu d’un carrousel à l’autre.` });
   }
+  if (creditACompleter(photo)) avertissements.push({ cle: "crédits", message: `Crédit photo à compléter (photo n° ${photo.n} de ${candidatNom}, ${photo.origine}) : à saisir sur /test/photos-candidats.` });
   const credits = creditsPhotos({ illustration, photo });
   // Contrôle bloquant : pas d'archive sans le crédit de chaque photo utilisée.
   const blocageArchive = photo && !creditsPhoto(photo) ? `Crédit manquant pour la photo ${photo.n} de ${candidatNom} (auteur ou licence) : pas d’archive.` : illustration && !illustration.auteur ? "Crédit manquant pour l’image de thème : pas d’archive." : null;
@@ -193,7 +195,7 @@ export function carrouselRecit(donnees) {
   const [avisTexte, ...pointsAvis] = limiterMotsGras([recit.avis.avis, ...tientCoince].map(nom));
   const nbTient = Math.min(3, recit.avis.tient.length);
   const brutes = [
-    { type: "couverture", photo: photo ? { n: photo.n, fichier: photo.fichier } : null, theme: resolveTheme(theme), question: remplirTweet(recit.couverture.question, { NOM: nomInsecable(candidatNom), CANDIDAT: nomInsecable(candidatNom) }), sousTitre: SOUS_TITRE_COUVERTURE, illustration, credits: credits.courts },
+    { type: "couverture", photo: photo ? { n: photo.n, fichier: fichierPhoto(photo, "mesure") } : null, theme: resolveTheme(theme), question: remplirTweet(recit.couverture.question, { NOM: nomInsecable(candidatNom), CANDIDAT: nomInsecable(candidatNom) }), sousTitre: SOUS_TITRE_COUVERTURE, illustration, credits: credits.courts },
     {
       type: "constat",
       titre: constatTitre,
@@ -244,6 +246,7 @@ export function carrouselRecit(donnees) {
     insecables: true, // appliqués par le code avant le rendu (src/lib/ecriture-charte.js)
     couleurRegistre: true,
     creditsPresents: !blocageArchive && (!photo || Boolean(creditsPhoto(photo))),
+    creditPhotoACompleter: creditACompleter(photo),
     sansResteMaquette: !erreurSur(/reste de maquette/),
     finConforme: true, // fin écrite par le code (TEXTES_FIN, formules fixes)
   };

@@ -4,7 +4,7 @@ import { isEditor } from "@/lib/test-auth";
 import { policesCharteRS } from "@/lib/og-ressources";
 import { mesureurCarrousel } from "@/lib/metriques-polices";
 import { miseEnPageFormat } from "@/lib/mise-en-page-formats";
-import { candidatsChoisis, carrouselDepuisEtat, contexteProgramme, contexteThematique, decoderEtat, imagesFormat } from "@/lib/carrousel-formats-serveur";
+import { candidatsChoisis, carrouselDepuisEtat, contexteProgramme, contexteThematique, decoderEtat, grainePhotos, imagesFormat } from "@/lib/carrousel-formats-serveur";
 import { CarrouselProgramme } from "@/components/carrousels/CarrouselProgramme";
 import { CarrouselThematique } from "@/components/carrousels/CarrouselThematique";
 
@@ -30,10 +30,11 @@ export async function rendreFormat(format, cle, request) {
   const carrousel = carrouselDepuisEtat(format, contexte, etat);
   const slide = carrousel?.slides.find((s) => s.numero === numero);
   if (!slide) return introuvable();
-  const images = await imagesFormat(slide, format === "programme" ? { candidat: contexte.candidat } : { candidats: candidatsChoisis(contexte, etat.choix) });
+  const images = await imagesFormat(slide, format === "programme" ? { candidat: contexte.candidat, graine: grainePhotos(etat) } : { candidats: candidatsChoisis(contexte, etat.choix), graine: grainePhotos(etat) });
   const mise = miseEnPageFormat(slide, mesureurCarrousel());
   const Composant = format === "programme" ? CarrouselProgramme : CarrouselThematique;
-  return new ImageResponse(<Composant slide={slide} mise={mise} couleur={carrousel.couleur} images={images} />, {
+  // Appel direct (pas <Composant />) : Satori voit ainsi depuis la racine les images à précharger.
+  return new ImageResponse(Composant({ slide, mise, couleur: carrousel.couleur, images }), {
     width: 1080,
     height: 1350,
     fonts: await policesCharteRS(),
