@@ -8,7 +8,8 @@ import { cleanContenu } from "../../../../scripts/lib/clean-text.js";
 import { appelerClaude, cleApiConfiguree, lirePromptRecit } from "@/lib/claude-reel";
 import { jsonDepuisTexte } from "@/lib/reel-generation";
 import { genererRecitCore, requeteRecit } from "@/lib/recit-generation";
-import { estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "@/lib/recit-action-core";
+import { changerPhotoCore, estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "@/lib/recit-action-core";
+import { photosTirage } from "@/lib/photos-candidats-serveur";
 import { historiqueImages } from "@/lib/banque-images";
 import { DEMO_ACTIVE, genererDemo, ID_DEMO, prismaDemo } from "@/lib/carrousel-demo";
 import { debordementsDuRecit } from "@/lib/carrousel-serveur";
@@ -74,7 +75,7 @@ function genererReel(contenu, { candidatNom, score, propositionId, motsClesIllus
 function dependances(propositionId, brouillon) {
   if (propositionId === ID_DEMO) {
     if (!DEMO_ACTIVE) return null;
-    return { id: 1, brouillon: true, prisma: prismaDemo(), dryRun: false, cleConfiguree: true, generer: genererDemo, sauvegarder: async () => null, imagesRecentes: null };
+    return { id: 1, brouillon: true, prisma: prismaDemo(), dryRun: false, cleConfiguree: true, generer: genererDemo, sauvegarder: async () => null, imagesRecentes: null, photos: photosTirage("mesure") };
   }
   return {
     id: Number(propositionId),
@@ -85,6 +86,8 @@ function dependances(propositionId, brouillon) {
     generer: genererReel,
     sauvegarder,
     imagesRecentes,
+    // Tirage des photos : les dossiers préparés présents sur le disque, moins les écartées.
+    photos: photosTirage("mesure"),
   };
 }
 
@@ -114,6 +117,12 @@ export async function regenererAvecRemarquesAction(propositionId, brouillon = fa
   const d = dependances(propositionId, brouillon);
   if (!d) return INTROUVABLE;
   return protege(() => regenererAvecRemarquesCore(d.id, { ...d, isEditor, remarque, cible }));
+}
+
+export async function changerPhotoAction(propositionId, brouillon = false) {
+  const d = dependances(propositionId, brouillon);
+  if (!d) return INTROUVABLE;
+  return protege(() => changerPhotoCore(d.id, { ...d, isEditor }));
 }
 
 export async function revenirAuPrecedentAction(propositionId, brouillon = false) {

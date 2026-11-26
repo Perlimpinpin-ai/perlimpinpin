@@ -7,7 +7,7 @@ import { carrouselRecit, controleHashtags, hashtagsDe, legendeRecit, listeARelir
 import { COULEURS_CARROUSEL_CANDIDATS, couleurCarrousel, memeCouleurQueDerniers } from "../src/lib/couleurs-carrousel.js";
 import { couleurDominante, couleursCarrousel, couleursPresqueIdentiques, JAUNE_SURLIGNAGE } from "../src/lib/couleur-dominante.js";
 import { contraste, distanceCouleurs } from "../src/lib/couleurs-candidats.js";
-import { choisirPhoto, creditsPhoto, photosDuCandidat, photoSuivante } from "../src/lib/photos-candidats.js";
+import { choisirPhoto, creditsPhoto, photosDuCandidat } from "../src/lib/photos-candidats.js";
 import { candidatesDepuisPages, entreesPhotos, licenceAcceptee, meilleuresCandidates, reecrireListePhotos, REPERE_DEBUT, REPERE_FIN, scorePhoto, texteBrut, userAgent } from "./lib/commons.js";
 import { CATEGORIES_COMMONS } from "../src/lib/candidats-commons.js";
 import { handleInstagram, handleInstagramVerifie } from "../src/lib/handles-instagram.js";
@@ -196,9 +196,6 @@ test("bibliothèque de photos : entrées numérotées, liste réécrite, tirage 
   assert.equal(choisirPhoto({ slug: "teddy-riner", graine: "a", liste }), choisirPhoto({ slug: "teddy-riner", graine: "a", liste }));
   assert.equal(choisirPhoto({ slug: "teddy-riner", demandee: "4", liste }).n, 4);
   assert.equal(choisirPhoto({ slug: "inconnu", liste }), null);
-  assert.equal(photoSuivante([1, 2, 4, 5], 1, 2), 4);
-  assert.equal(photoSuivante([1, 2, 4, 5], 5, null), 1);
-  assert.equal(photoSuivante([3], 3, 3), 3);
   assert.deepEqual(creditsPhoto(entrees[0]), {
     court: "Photo : Nicolas Richoffer, CC BY-SA 4.0, Wikimedia Commons",
     complet: "Photo : Nicolas Richoffer, CC BY-SA 4.0, Wikimedia Commons (photo modifiée : détourage, noir et blanc) https://commons.wikimedia.org/wiki/File:1",

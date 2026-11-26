@@ -4,7 +4,7 @@ import { construireMessageRecit, estimationCoutRecit } from "./recit-generation.
 import { cibleValide, contenuAvecRecit, contenuAvecRetour, contenuRevenuAuPrecedent, entreeRetour, remarqueNettoyee } from "./recit.js";
 import { slideDeCible } from "./carrousel-recit.js";
 import { aleaFiche, choisirIllustration, motsClesDisponibles } from "./illustrations.js";
-import { choisirPhoto } from "./photos-candidats.js";
+import { choisirPhoto, PHOTOS_CANDIDATS } from "./photos-candidats.js";
 import { slugCandidat } from "./carte.js";
 
 // Logique des boutons du carrousel détaillé de /test/reseaux/<id> :
@@ -53,11 +53,13 @@ async function ecrire({ prisma, analyse, contenu, contenuNouveau, sauvegarder })
 //  - image de thème : tirage dans le thème (ou le dossier de secours),
 //    orienté par les mots-clés du modèle, hors des images des 2 derniers
 //    carrousels du même thème ;
-//  - photo du candidat : hors des photos de ses 2 derniers carrousels.
+//  - photo du candidat : au hasard parmi `photos` (photos préparées non
+//    écartées, lues sur le disque par l'appelant), hors de celle de son
+//    carrousel précédent.
 // `imagesRecentes({ theme, slug })` → { illustrations, photos } (le plus
 // récent d'abord). Renvoie { illustration (fichier), photo (numéro) }, null
 // pour ce qui manque à la bibliothèque.
-async function imagesRetenues({ proposition, recit, imagesRecentes }) {
+async function imagesRetenues({ proposition, recit, imagesRecentes, photos = PHOTOS_CANDIDATS }) {
   const slug = slugCandidat({ nom: proposition.candidat?.nom, photoUrl: proposition.candidat?.photoUrl });
   const recentes = imagesRecentes ? await imagesRecentes({ theme: proposition.theme, slug }) : null;
   const graine = `${proposition.id}-${recit.genereLe ?? ""}`;
@@ -68,7 +70,7 @@ async function imagesRetenues({ proposition, recit, imagesRecentes }) {
     recentes: recentes?.illustrations ?? [],
     alea: aleaFiche(graine),
   });
-  const photo = choisirPhoto({ slug, recentes: recentes?.photos ?? [], graine });
+  const photo = choisirPhoto({ slug, recentes: recentes?.photos ?? [], graine, liste: photos });
   return { illustration: illustration?.fichier ?? null, photo: photo?.n ?? null };
 }
 
@@ -101,7 +103,7 @@ export async function estimerRecitCore(propositionId, { brouillon, isEditor, pri
 //  - l'ancien carrousel gardé sous `precedent`, le journal `retours` conservé.
 // Renvoie { ok: true, simulation?, message, cout?, avertissements?, sauvegarde? }
 // ou { ok: false, erreur, cout? }.
-export async function genererRecitPourFicheCore(propositionId, { brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, imagesRecentes = null }) {
+export async function genererRecitPourFicheCore(propositionId, { brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, imagesRecentes = null, photos = PHOTOS_CANDIDATS }) {
   const fiche = await cibleFiche(propositionId, { brouillon, isEditor, prisma });
   if (fiche.erreur) return fiche.erreur;
   const { proposition, analyse } = fiche;
@@ -130,7 +132,7 @@ export async function genererRecitPourFicheCore(propositionId, { brouillon, isEd
     return { ok: false, erreur: `Carrousel détaillé refusé après deux essais, rien n’est écrit. ${raisons}`, cout };
   }
 
-  const recit = avecImages(resultat.recit, await imagesRetenues({ proposition, recit: resultat.recit, imagesRecentes }));
+  const recit = avecImages(resultat.recit, await imagesRetenues({ proposition, recit: resultat.recit, imagesRecentes, photos }));
   const { ecrit, sauvegarde } = await ecrire({ prisma, analyse, contenu, contenuNouveau: contenuAvecRecit(contenu, recit), sauvegarder });
   if (!ecrit) {
     return { ok: false, erreur: "La fiche a été modifiée pendant la génération : rien n’est écrit. Recommencez.", cout };
@@ -152,7 +154,7 @@ export async function genererRecitPourFicheCore(propositionId, { brouillon, isEd
 //  - acceptée : la version actuelle passe sous `precedent` ; refusée : rien
 //    ne change dans le carrousel. Dans les deux cas, la remarque est ajoutée
 //    au journal `retours` (date, slide visée, résultat).
-export async function regenererAvecRemarquesCore(propositionId, { remarque, cible, brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, imagesRecentes = null }) {
+export async function regenererAvecRemarquesCore(propositionId, { remarque, cible, brouillon, isEditor, prisma, dryRun, cleConfiguree, generer, sauvegarder, imagesRecentes = null, photos = PHOTOS_CANDIDATS }) {
   const fiche = await cibleFiche(propositionId, { brouillon, isEditor, prisma });
   if (fiche.erreur) return fiche.erreur;
   const { proposition, analyse } = fiche;
@@ -199,7 +201,7 @@ export async function regenererAvecRemarquesCore(propositionId, { remarque, cibl
 
   // Images de couverture : gardées, sauf si la couverture (ou tout) est réécrite.
   const changeImage = cible === "toutes" || cible === "couverture";
-  const images = changeImage ? await imagesRetenues({ proposition, recit: resultat.recit, imagesRecentes }) : { illustration: precedent.illustration ?? null, photo: precedent.photo ?? null };
+  const images = changeImage ? await imagesRetenues({ proposition, recit: resultat.recit, imagesRecentes, photos }) : { illustration: precedent.illustration ?? null, photo: precedent.photo ?? null };
   const recit = avecImages(resultat.recit, images);
   const retour = entreeRetour({ ...base, resultat: "acceptée", details: resultat.avertissements ?? [] });
   const { ecrit, sauvegarde } = await ecrire({ prisma, analyse, contenu, contenuNouveau: contenuAvecRecit(contenu, recit, retour), sauvegarder });
@@ -211,6 +213,33 @@ export async function regenererAvecRemarquesCore(propositionId, { remarque, cibl
     avertissements: resultat.avertissements ?? [],
     sauvegarde,
   };
+}
+
+// « Changer de photo » : tire au hasard une autre photo du candidat (pas
+// celle affichée ; hors de celle de son carrousel précédent quand c'est
+// possible) et la mémorise dans reseaux_recit.photo : le rendu la garde
+// ensuite. Aucun appel, aucun coût ; rien d'autre ne change dans le carrousel.
+// `alea` : graine du tirage (injectée pour les tests).
+export async function changerPhotoCore(propositionId, { brouillon, isEditor, prisma, sauvegarder, imagesRecentes = null, photos = PHOTOS_CANDIDATS, alea = () => String(Math.random()) }) {
+  const fiche = await cibleFiche(propositionId, { brouillon, isEditor, prisma });
+  if (fiche.erreur) return fiche.erreur;
+  const { proposition, analyse } = fiche;
+  const contenu = analyse.contenuComplet ?? {};
+  const stocke = contenu.reseaux_recit;
+  if (!stocke) return { ok: false, erreur: "Pas encore de carrousel détaillé." };
+  const slug = slugCandidat({ nom: proposition.candidat?.nom, photoUrl: proposition.candidat?.photoUrl });
+  // Photo affichée : même choix que le rendu (src/lib/carrousel-recit.js).
+  const actuelle = choisirPhoto({ slug, retenue: stocke.photo ?? null, graine: `${propositionId}-${stocke.genereLe ?? ""}`, liste: photos });
+  const recentes = imagesRecentes ? ((await imagesRecentes({ theme: proposition.theme, slug }))?.photos ?? []) : [];
+  // Le carrousel de cette fiche est en tête de l'historique : le précédent est le suivant.
+  const autres = actuelle && String(recentes[0]) === String(actuelle.n) ? recentes.slice(1) : recentes;
+  const nouvelle = choisirPhoto({ slug, recentes: autres, eviter: actuelle ? [actuelle.n] : [], graine: `${propositionId}-${alea()}`, liste: photos });
+  if (!nouvelle) return { ok: false, erreur: "Aucune photo préparée pour ce candidat." };
+  if (actuelle && nouvelle.n === actuelle.n) return { ok: false, erreur: "Une seule photo dans le tirage pour ce candidat : rien à changer." };
+  const contenuNouveau = { ...contenu, reseaux_recit: { ...stocke, photo: nouvelle.n } };
+  const { ecrit, sauvegarde } = await ecrire({ prisma, analyse, contenu, contenuNouveau, sauvegarder });
+  if (!ecrit) return { ok: false, erreur: "La fiche a été modifiée entre-temps : rien n’est écrit. Rechargez la page." };
+  return { ok: true, photo: nouvelle.n, message: `Photo n° ${nouvelle.n} retenue pour ce carrousel.`, sauvegarde };
 }
 
 // « Revenir à la version précédente » : échange la version actuelle et la

@@ -118,13 +118,52 @@ export const ZONES_COUVERTURE = [
 // environ 45 % de la largeur (47 % avec le liseré), en bas à droite.
 export const PHOTO_COUVERTURE = { largeur: Math.round(0.47 * LARGEUR), droite: 26, ecartTexte: 24, grain: 0.5 };
 
-// Position de la photo détourée : { gauche, haut, largeur, hauteur }.
-export function placementCandidat({ largeur, hauteur }, boites = []) {
-  const l = PHOTO_COUVERTURE.largeur;
-  const h = Math.round((l * hauteur) / largeur);
-  const gauche = LARGEUR - PHOTO_COUVERTURE.droite - l;
-  const sousLeTexte = boites.filter((b) => b.x < gauche + l && b.x + b.largeur > gauche).reduce((max, b) => Math.max(max, b.y + b.hauteur + PHOTO_COUVERTURE.ecartTexte), 0);
-  return { gauche, haut: Math.max(BAS_COUVERTURE - h, sousLeTexte), largeur: l, hauteur: h };
+// Silhouette normalisée (photo mesurée : cadrage.json, écrit par
+// scripts/preparer-photos-candidats.py --mesurer), calée sur la couverture
+// modèle Teddy Riner : chaque photo est mise à la même taille de tête
+// (TETE_COUVERTURE px du haut du crâne au bas du visage, même valeur que
+// dans le script), le visage centré sur `centreVisage` ; le haut du crâne
+// arrive juste sous le texte qu'il croise (le sous-titre, en pratique), sans
+// le toucher ; `hautTete` s'il ne croise aucune ligne. Le buste descend
+// jusqu'au bas de la slide ; une photo trop courte pour l'atteindre descend
+// d'autant (jamais de buste qui flotte). Aucune coupe à gauche : une épaule
+// large passe sur le papier jaune (« Glissez » et le crédit restent devant).
+export const TETE_COUVERTURE = 300;
+const TETE_MARGE = 1.15; // tête jusqu'à 15 % plus grande pour un portrait serré
+export const SILHOUETTE_COUVERTURE = { centreVisage: 745, hautTete: 712, gaucheMin: 0 };
+
+// Position de la photo détourée : { gauche, haut, largeur, hauteur } (zone
+// visible, coupée au bas de la slide) et `image` : { x, y, largeur, hauteur }
+// (la photo entière, relative à cette zone). `cadrage` : mesures de la
+// photo (sinon : 47 % de la largeur, en bas à droite, comme avant).
+export function placementCandidat({ largeur, hauteur, cadrage = null }, boites = []) {
+  const ecart = PHOTO_COUVERTURE.ecartTexte;
+  const sous = (x0, x1) => boites.filter((b) => b.x < x1 && b.x + b.largeur > x0).reduce((max, b) => Math.max(max, b.y + b.hauteur + ecart), 0);
+  if (!cadrage?.visage) {
+    const l = PHOTO_COUVERTURE.largeur;
+    const h = Math.round((l * hauteur) / largeur);
+    const gauche = LARGEUR - PHOTO_COUVERTURE.droite - l;
+    const haut = Math.max(BAS_COUVERTURE - h, sous(gauche, gauche + l));
+    return { gauche, haut, largeur: l, hauteur: Math.max(0, BAS_COUVERTURE - haut), image: { x: 0, y: 0, largeur: l, hauteur: h } };
+  }
+  const v = cadrage.visage;
+  const S = SILHOUETTE_COUVERTURE;
+  let echelle = TETE_COUVERTURE / Math.max(1, v.y + v.h - cadrage.sommet);
+  // Haut du crâne : sous les lignes de texte qui croisent la tête (largeur du visage + 20 % de chaque côté).
+  const demiTete = 0.7 * v.l * echelle;
+  let hautTete = sous(S.centreVisage - demiTete, S.centreVisage + demiTete) || S.hautTete;
+  // Le buste doit atteindre le bas de la slide : photo courte (portrait
+  // serré) agrandie jusqu'à TETE_MARGE, puis descendue s'il le faut encore.
+  const sousLeCrane = (e) => (cadrage.hauteur - cadrage.sommet) * e;
+  if (hautTete + sousLeCrane(echelle) < BAS_COUVERTURE) echelle = Math.min(echelle * TETE_MARGE, (BAS_COUVERTURE - hautTete) / (cadrage.hauteur - cadrage.sommet));
+  if (hautTete + sousLeCrane(echelle) < BAS_COUVERTURE) hautTete = Math.round(BAS_COUVERTURE - sousLeCrane(echelle));
+  const l = Math.round(cadrage.largeur * echelle);
+  const h = Math.ceil(cadrage.hauteur * echelle) + 1;
+  const xImage = Math.round(S.centreVisage - (v.x + v.l / 2) * echelle);
+  const yImage = hautTete - Math.round(cadrage.sommet * echelle);
+  const gauche = Math.max(S.gaucheMin, xImage);
+  const haut = Math.max(0, yImage);
+  return { gauche, haut, largeur: LARGEUR - gauche, hauteur: Math.max(0, BAS_COUVERTURE - haut), image: { x: xImage - gauche, y: yImage - haut, largeur: l, hauteur: h }, hautTete, echelle };
 }
 
 const PLACE_PICTO = PICTO + 40;

@@ -495,7 +495,7 @@ test("carrousel 6 slides : couleur absente → style neutre et avertissement ; p
 
 // --- Bouton « Générer le récit » (base et appel simulés) ---------------------------
 
-import { estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "../src/lib/recit-action-core.js";
+import { changerPhotoCore, estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "../src/lib/recit-action-core.js";
 
 function fausseBase(contenu, { modifiee = false } = {}) {
   const ecritures = [];
@@ -659,6 +659,25 @@ test("action retour arrière : échange des versions sans appel, refusé sans ve
   assert.match(sans.erreur, /Pas de version précédente/);
 });
 
+test("action : « Changer de photo » tire une autre photo côté serveur et la mémorise dans le carrousel", async () => {
+  const photos = [1, 2, 3].map((n) => ({ slug: "fabien-roussel", n, deposee: true, credit: "X" }));
+  const db = fausseBase({ ...FICHE, reseaux_recit: { couverture: "v1", photo: 2, genereLe: "2026-11-01" } });
+  const options = { isEditor: async () => true, prisma: db, sauvegarder: async () => null, photos };
+  // Carrousel précédent du candidat (après celui de cette fiche) : la 3 ; il ne reste que la 1.
+  const r = await changerPhotoCore(42, { ...options, imagesRecentes: async () => ({ photos: [2, 3] }), alea: () => "a" });
+  assert.ok(r.ok);
+  assert.equal(r.photo, 1);
+  const ecrit = db.ecritures[0].data.contenuComplet.reseaux_recit;
+  assert.equal(ecrit.photo, 1);
+  assert.equal(ecrit.couverture, "v1", "rien d'autre ne change");
+  assert.equal(ecrit.precedent, undefined, "pas de nouvelle version");
+  // Une seule photo : rien à changer, rien d'écrit.
+  const seule = fausseBase({ ...FICHE, reseaux_recit: { couverture: "v1", photo: 1 } });
+  const r2 = await changerPhotoCore(42, { ...options, prisma: seule, photos: photos.slice(0, 1) });
+  assert.equal(r2.ok, false);
+  assert.equal(seule.ecritures.length, 0);
+  assert.equal((await changerPhotoCore(42, { ...options, isEditor: async () => false })).ok, false);
+});
 
 test("action : estimation d'une régénération avec remarques plus chère (message avec la version précédente)", async () => {
   const { recit } = controlerRecit(reponse(), CONTEXTE);

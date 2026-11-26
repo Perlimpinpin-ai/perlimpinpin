@@ -20,7 +20,7 @@ import { piedCarrousel } from "@/lib/carrousel-recit";
 // aucun traitement d'image ici. Grain du papier, pictogramme ; couverture :
 // papier jaune déchiré, illustration déjà teintée et tramée, photo du
 // candidat déjà détourée (noir et blanc, liseré blanc ; le grain est posé au
-// rendu), sinon la silhouette grise de la charte (aucune photo gardée).
+// rendu), sinon la silhouette grise de la charte (aucune photo préparée non écartée).
 async function imagesDetaille(slide, candidat, couleur) {
   const couverture = slide.type === "couverture";
   const surCouleur = slide.type === "fin";

@@ -9,6 +9,7 @@ import { assemblerProgramme, assemblerThematique, controlerProgramme, controlerT
 import { debordementsFormat } from "./mise-en-page-formats.js";
 import { mesureurCarrousel } from "./metriques-polices.js";
 import { choisirPhoto, creditACompleter, creditsPhoto, fichierPhoto } from "./photos-candidats.js";
+import { photosTirage } from "./photos-candidats-serveur.js";
 import { existe, imagePrete, CHEMIN_GRAIN, SILHOUETTE_GRISE, taillePngPublic } from "./images-carrousel.js";
 
 // Carrousels « analyse de programme » et « thématique », côté serveur :
@@ -99,17 +100,18 @@ export function grainePhotos(etat) {
   return empreinte(JSON.stringify(etat?.reponse ?? null));
 }
 
-// Photo d'un candidat : tirée parmi ses photos gardées (/test/photos-candidats),
-// avec son crédit, dans le fichier du format (`variante` : "programme",
-// liseré jaune ; "thematique", médaillon) ; aucune photo gardée : silhouette
-// grise de la charte. Jamais de photo générée ni retouchée.
+// Photo d'un candidat : tirée au rendu parmi ses photos préparées non
+// écartées (src/lib/photos-candidats-serveur.js), même tirage que le
+// carrousel « une mesure », avec son crédit, dans le fichier du format
+// (`variante` : "programme", liseré jaune ; "thematique", médaillon) ;
+// aucune photo : silhouette grise de la charte. Jamais de photo générée ni retouchée.
 export function photoCandidat(candidat, { variante = "programme", graine = "" } = {}) {
   const slug = slugCandidat(candidat);
-  const photo = choisirPhoto({ slug, graine: `${graine}-${slug}` });
+  const photo = choisirPhoto({ slug, graine: `${graine}-${slug}`, liste: photosTirage(variante) });
   const chemin = fichierPhoto(photo, variante);
   if (photo && existe(chemin)) {
     const credit = creditsPhoto(photo);
-    return { chemin, detoure: variante === "programme" && Boolean(photo.deposee), credit: credit?.court ?? null, complet: credit?.complet ?? null, sansCredit: !credit, aCompleter: creditACompleter(photo) };
+    return { chemin, n: photo.n, detoure: variante === "programme" && Boolean(photo.deposee), credit: credit?.court ?? null, complet: credit?.complet ?? null, sansCredit: !credit, aCompleter: creditACompleter(photo) };
   }
   return { chemin: null, silhouette: true, credit: null, complet: null, sansCredit: false, aCompleter: false };
 }
@@ -118,7 +120,7 @@ function credits(candidats, options) {
   const photos = candidats.map((c) => ({ nom: c.nom, ...photoCandidat(c, options) }));
   const sans = photos.filter((p) => p.sansCredit).map((p) => p.nom);
   const avertissements = [
-    ...photos.filter((p) => p.silhouette).map((p) => ({ cle: "photo", fort: true, message: `Aucune photo gardée de ${p.nom} : silhouette grise. Cochez « Garder » sur /test/photos-candidats (onglet « Photos déposées »).` })),
+    ...photos.filter((p) => p.silhouette).map((p) => ({ cle: "photo", fort: true, message: `Aucune photo préparée (non écartée) de ${p.nom} : silhouette grise. Déposez des photos dans photos-sources/ et lancez scripts/preparer-photos-candidats.py.` })),
     ...photos.filter((p) => p.aCompleter).map((p) => ({ cle: "crédits", message: `Crédit photo à compléter (${p.nom}) : à saisir sur /test/photos-candidats.` })),
   ];
   return {
@@ -167,7 +169,7 @@ function finaliser(resultat, avertissementsModele) {
 
 // Images d'une slide : grain, portrait(s) (data URI). Programme : le détouré
 // liseré jaune (`portraitDetoure` : { image, largeur, hauteur }) ; thématique :
-// les médaillons. Aucune photo gardée : silhouette grise.
+// les médaillons. Aucune photo préparée non écartée : silhouette grise.
 export async function imagesFormat(slide, { candidat = null, candidats = [], graine = "" } = {}) {
   const grain = await imagePrete(CHEMIN_GRAIN);
   const image = async (photo) => (photo.silhouette ? SILHOUETTE_GRISE : imagePrete(photo.chemin));

@@ -31,10 +31,10 @@ export async function enregistrerSelectionPhotosAction(slug, ids) {
   }
 }
 
-// Onglet « Photos déposées » : `choix` = [{ n, garder, credit }] pour le
+// Onglet « Photos déposées » : `choix` = [{ n, ecarter, credit }] pour le
 // candidat. Réécrit la liste PHOTOS_DEPOSEES de src/lib/photos-candidats.js
-// (fichier du dépôt, à commiter ensuite) : seules les photos gardées entrent
-// dans le tirage. Poste local seulement (disque inscriptible), jamais en base.
+// (fichier du dépôt, à commiter ensuite) : toute photo préparée entre dans
+// le tirage, sauf les écartées. Poste local seulement (disque inscriptible), jamais en base.
 export async function enregistrerPhotosDeposeesAction(slug, choix) {
   if (!(await isEditor())) return { ok: false, erreur: "Mode édition requis : déverrouillez /test." };
   if (!Object.hasOwn(CATEGORIES_COMMONS, slug)) return { ok: false, erreur: "Candidat inconnu." };
@@ -47,7 +47,7 @@ export async function enregistrerPhotosDeposeesAction(slug, choix) {
     const liste = JSON.parse(bloc.slice(bloc.indexOf("["), bloc.lastIndexOf("]") + 1));
     const nouvelle = appliquerChoixDeposees(liste, slug, choix);
     await writeFile(fichier, reecrireListeDeposees(source, nouvelle), "utf-8");
-    return { ok: true, gardees: nouvelle.filter((p) => p.slug === slug && p.garder).length };
+    return { ok: true, gardees: nouvelle.filter((p) => p.slug === slug && !p.ecarter).length };
   } catch (error) {
     return { ok: false, erreur: `Enregistrement impossible : ${error.message}` };
   }

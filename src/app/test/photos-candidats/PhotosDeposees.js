@@ -7,15 +7,15 @@ import { enregistrerPhotosDeposeesAction } from "./actions";
 
 // Onglet « Photos déposées » de /test/photos-candidats : pour chaque photo
 // préparée par scripts/preparer-photos-candidats.py, le détouré liseré blanc
-// (couverture « une mesure ») et le médaillon côte à côte, la case « Garder »
-// (décochée par défaut) et le crédit. Seules les photos gardées entrent dans
-// le tirage. `photos` : [{ slug, n, origine, prepareLe, source, credit,
-// garder, liseré, medaillon }] (adresses des aperçus).
+// (couverture « une mesure ») et le médaillon côte à côte, la case « Écarter »
+// (décochée par défaut) et le crédit. Toute photo préparée entre dans le
+// tirage, sauf celles écartées. `photos` : [{ slug, n, origine, prepareLe,
+// source, credit, ecarter, raison?, lisere, medaillon }] (adresses des aperçus).
 export default function PhotosDeposees({ slug, photos }) {
-  const [choix, setChoix] = useState(() => Object.fromEntries(photos.map((p) => [p.n, { garder: p.garder === true, credit: p.credit ?? CREDIT_A_COMPLETER }])));
+  const [choix, setChoix] = useState(() => Object.fromEntries(photos.map((p) => [p.n, { ecarter: p.ecarter === true, credit: p.credit ?? CREDIT_A_COMPLETER }])));
   const [retour, setRetour] = useState(null);
   const [occupe, setOccupe] = useState(false);
-  const gardees = Object.values(choix).filter((c) => c.garder).length;
+  const gardees = Object.values(choix).filter((c) => !c.ecarter).length;
 
   function changer(n, valeur) {
     setChoix((avant) => ({ ...avant, [n]: { ...avant[n], ...valeur } }));
@@ -29,7 +29,7 @@ export default function PhotosDeposees({ slug, photos }) {
       photos.map((p) => ({ n: p.n, ...choix[p.n] })),
     );
     setOccupe(false);
-    setRetour(r.ok ? { ok: true, texte: `Enregistré : ${r.gardees} photo(s) gardée(s) dans src/lib/photos-candidats.js.` } : { ok: false, texte: r.erreur });
+    setRetour(r.ok ? { ok: true, texte: `Enregistré : ${r.gardees} photo(s) dans le tirage (src/lib/photos-candidats.js).` } : { ok: false, texte: r.erreur });
   }
 
   if (!photos.length) {
@@ -45,16 +45,16 @@ export default function PhotosDeposees({ slug, photos }) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className={`rounded-full px-3 py-1 font-semibold ${gardees < PHOTOS_CONSEILLEES ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-900"}`}>
-          {gardees} gardée(s) sur {photos.length}
+          {gardees} dans le tirage sur {photos.length}
         </span>
-        {gardees < PHOTOS_CONSEILLEES ? <span className="text-xs font-semibold text-amber-700">Moins de {PHOTOS_CONSEILLEES} photos gardées : la couverture changera peu d’un carrousel à l’autre.</span> : null}
+        {gardees < PHOTOS_CONSEILLEES ? <span className="text-xs font-semibold text-amber-700">Moins de {PHOTOS_CONSEILLEES} photos dans le tirage : la couverture changera peu d’un carrousel à l’autre.</span> : null}
       </div>
       <ul className="grid gap-4 md:grid-cols-2">
         {photos.map((p) => {
           const c = choix[p.n];
           const aCompleter = !c.credit.trim() || c.credit.trim().toLowerCase() === CREDIT_A_COMPLETER;
           return (
-            <li key={p.n} className={`flex flex-col gap-3 rounded-xl border bg-white p-3 text-sm ${c.garder ? "border-emerald-500 ring-2 ring-emerald-200" : "border-zinc-200"}`}>
+            <li key={p.n} className={`flex flex-col gap-3 rounded-xl border bg-white p-3 text-sm ${c.ecarter ? "border-red-300 opacity-60" : "border-zinc-200"}`}>
               <div className="flex gap-3">
                 <div className="flex h-56 flex-1 items-end justify-center overflow-hidden rounded-lg bg-[#2b4a8b]">
                   <img src={p.lisere} alt={`Détouré n° ${p.n}`} className="max-h-full max-w-full object-contain" />
@@ -66,8 +66,9 @@ export default function PhotosDeposees({ slug, photos }) {
                 </div>
               </div>
               <label className="flex items-center gap-2 font-semibold">
-                <input type="checkbox" checked={c.garder} onChange={(e) => changer(p.n, { garder: e.target.checked })} className="h-4 w-4" />
-                Garder
+                <input type="checkbox" checked={c.ecarter} onChange={(e) => changer(p.n, { ecarter: e.target.checked })} className="h-4 w-4" />
+                Écarter
+                {c.ecarter && p.raison ? <span className="text-xs font-normal text-red-700">({p.raison})</span> : null}
                 <span className="ml-auto font-mono text-xs font-normal text-zinc-500">n° {p.n}</span>
               </label>
               <label className="flex flex-col gap-1 text-xs">

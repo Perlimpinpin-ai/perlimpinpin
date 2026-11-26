@@ -8,6 +8,7 @@ import { lireVersionBasique } from "./version-basique.js";
 import { debordementsCarrousel, messageDebordement } from "./mise-en-page-carrousel.js";
 import { mesureurCarrousel } from "./metriques-polices.js";
 import { CHEMIN_GRAIN, CHEMIN_PAPIER, cheminIllustrationTraitee } from "./images-carrousel.js";
+import { photosTirage } from "./photos-candidats-serveur.js";
 
 // Carrousels Instagram d'une proposition et de son analyse, tels que les
 // voient la route des images (src/app/api/carrousel/[id]) et la page de
@@ -99,7 +100,7 @@ function avertissementsImagesRecit(candidat, illustration, photo) {
 // Chaque slide est mesurée (src/lib/mise-en-page-carrousel.js) : un texte
 // qui déborde ou un titre mal coupé devient un avertissement fort.
 export function recitDe(proposition, analyse, { precedent = false, photo = null, image = null } = {}) {
-  const recit = carrouselRecit({ ...donnees(proposition, analyse), precedent, photoDemandee: photo, illustrationDemandee: image });
+  const recit = carrouselRecit({ ...donnees(proposition, analyse), precedent, photoDemandee: photo, illustrationDemandee: image, photos: photosTirage("mesure") });
   if (!recit) return recit;
   recit.avertissements.push(...avertissementsImagesRecit(proposition.candidat, recit.illustration, recit.photo));
   // Grain obligatoire sur tous les fonds (charte RS, page 10).

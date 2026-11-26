@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join, parse } from "node:path";
 import { slugCandidat } from "./carte.js";
+import { cadrageDuFichier } from "./photos-candidats-serveur.js";
 
 // Images déjà prêtes du carrousel détaillé (préparées une fois, en local, par
 // scripts/preparer-images-carrousel.js et scripts/detourer-candidats.py) :
@@ -29,7 +30,7 @@ export function existe(chemin) {
 const cache = new Map();
 const tailles = new Map();
 
-// Silhouette grise de la charte (aucune photo gardée pour le candidat), en data URI.
+// Silhouette grise de la charte (aucune photo préparée non écartée pour le candidat), en data URI.
 export const SILHOUETTE_GRISE = `data:image/svg+xml;base64,${Buffer.from(
   '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="600" viewBox="0 0 500 600"><rect width="500" height="600" fill="#C9C4BA"/><circle cx="250" cy="215" r="112" fill="#8E8A82"/><path d="M40 600 C40 440 120 358 250 358 C380 358 460 440 460 600 Z" fill="#8E8A82"/></svg>',
 ).toString("base64")}`;
@@ -51,12 +52,13 @@ async function taillePng(chemin) {
   return tailles.get(chemin);
 }
 
-// Image du candidat pour la couverture : { image, detoure, largeur, hauteur }
-// (photo détourée déjà traitée, sinon la vignette en tirage), ou null.
+// Image du candidat pour la couverture : { image, detoure, largeur, hauteur,
+// cadrage } (photo détourée déjà traitée, avec la tête mesurée par
+// cadrage.json quand il existe ; sinon la vignette en tirage), ou null.
 export async function imageCandidatPrete({ detoure, vignette }) {
   if (detoure && existe(detoure)) {
     const [image, taille] = await Promise.all([imagePrete(detoure), taillePng(detoure)]);
-    if (image && taille) return { image, detoure: true, ...taille };
+    if (image && taille) return { image, detoure: true, ...taille, cadrage: cadrageDuFichier(detoure) };
   }
   const image = vignette ? await imagePrete(vignette) : null;
   return image ? { image, detoure: false } : null;

@@ -21,11 +21,10 @@ import { choisirEnRotation } from "./rotation-images.js";
 // testées par scripts/carrousel-detaille.test.js.
 
 export const PHOTOS_MIN = 3;
-// Sous ce nombre de photos gardées, avertissement sur /test/photos-candidats.
+// Sous ce nombre de photos dans le tirage, avertissement sur /test/photos-candidats.
 export const PHOTOS_CONSEILLEES = 4;
-// Photo du dernier carrousel de chaque candidat, mémorisée dans le navigateur
-// (clé + slug) au téléchargement de l'archive, pour ne pas la reprendre.
-export const CLE_DERNIERE_PHOTO = "perlimpinpin.carrousel.dernierePhoto.";
+// Le tirage évite la photo du carrousel précédent du même candidat.
+export const CARROUSELS_EXCLUS_PHOTO = 1;
 
 // --- Liste de la bibliothèque --------------------------------------------------------
 // Écrite par scripts/chercher-photos-candidats.js --telecharger : ne pas modifier à la
@@ -42,9 +41,10 @@ export const PHOTOS_COMMONS = [];
 // noir et blanc (sans retouche du visage), 5 fichiers par photo dans
 // public/carrousel/candidats/<slug>/<n>/ (VARIANTES_PHOTO). La liste entre
 // les repères est écrite par ce script ; /test/photos-candidats (onglet
-// « Photos déposées ») y coche `garder` et y corrige `credit` ; `source` se
-// corrige à la main. Seules les photos gardées entrent dans le tirage.
-// Chaque entrée : { slug, n, origine (fichier d'origine), prepareLe, source, credit, garder }.
+// « Photos déposées ») y coche `ecarter` et y corrige `credit` ; `source` se
+// corrige à la main. TOUTE photo préparée entre dans le tirage, sauf celles
+// marquées `ecarter: true` (`raison` : pourquoi, facultatif).
+// Chaque entrée : { slug, n, origine (fichier d'origine), prepareLe, source, credit, ecarter, raison? }.
 // DEBUT PHOTOS DEPOSEES
 export const PHOTOS_DEPOSEES = [
   {
@@ -54,7 +54,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "david-lisnard",
@@ -63,7 +63,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "david-lisnard",
@@ -72,7 +72,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "david-lisnard",
@@ -81,7 +81,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "dominique-de-villepin",
@@ -90,7 +90,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "dominique-de-villepin",
@@ -99,7 +99,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "dominique-de-villepin",
@@ -108,7 +108,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "dominique-de-villepin",
@@ -117,7 +117,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "dominique-de-villepin",
@@ -126,7 +126,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "edouard-philippe",
@@ -135,7 +135,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "edouard-philippe",
@@ -144,7 +144,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "edouard-philippe",
@@ -153,7 +153,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "edouard-philippe",
@@ -162,7 +162,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "eric-zemmour",
@@ -171,7 +171,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "eric-zemmour",
@@ -180,7 +180,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "eric-zemmour",
@@ -189,7 +189,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "fabien-roussel",
@@ -198,7 +198,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "fabien-roussel",
@@ -207,7 +207,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "fabien-roussel",
@@ -216,7 +216,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "fabien-roussel",
@@ -225,7 +225,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "fabien-roussel",
@@ -234,7 +234,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "fabien-roussel",
@@ -243,7 +243,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "gabriel-attal",
@@ -252,7 +252,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "gabriel-attal",
@@ -261,7 +261,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "gabriel-attal",
@@ -270,7 +270,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "gabriel-attal",
@@ -279,7 +279,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "jean-luc-melenchon",
@@ -288,7 +288,8 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": true,
+    "raison": "deuxième personne dans le détourage"
   },
   {
     "slug": "jean-luc-melenchon",
@@ -297,7 +298,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "jean-luc-melenchon",
@@ -306,7 +307,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "jean-luc-melenchon",
@@ -315,7 +316,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "jean-luc-melenchon",
@@ -324,7 +325,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "jean-luc-melenchon",
@@ -333,7 +334,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "marine-le-pen",
@@ -342,7 +343,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "marine-le-pen",
@@ -351,7 +352,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "marine-tondelier",
@@ -360,7 +361,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "marine-tondelier",
@@ -369,7 +370,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "raphael-glucksmann",
@@ -378,7 +379,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "raphael-glucksmann",
@@ -387,7 +388,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "raphael-glucksmann",
@@ -396,7 +397,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "raphael-glucksmann",
@@ -405,7 +406,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "raphael-glucksmann",
@@ -414,7 +415,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "teddy-riner",
@@ -423,7 +424,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "teddy-riner",
@@ -432,7 +433,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   },
   {
     "slug": "teddy-riner",
@@ -441,7 +442,8 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": true,
+    "raison": "deuxième personne dans le détourage"
   },
   {
     "slug": "teddy-riner",
@@ -450,7 +452,7 @@ export const PHOTOS_DEPOSEES = [
     "prepareLe": "2026-11-26",
     "source": "à compléter",
     "credit": "à compléter",
-    "garder": false
+    "ecarter": false
   }
 ];
 // FIN PHOTOS DEPOSEES
@@ -483,9 +485,24 @@ export function fichierPhoto(photo, variante = "mesure") {
   return `${dossierPhoto(photo)}/${VARIANTES_PHOTO[variante] ?? VARIANTES_PHOTO.mesure}`;
 }
 
-// Photos déposées cochées « Garder », prêtes pour le tirage.
-export function photosGardees(liste = PHOTOS_DEPOSEES) {
-  return liste.filter((p) => p.garder === true).map((p) => ({ ...p, id: `depot-${p.slug}-${p.n}`, deposee: true, fichier: fichierPhoto({ ...p, deposee: true }) }));
+function entreeTirage(p) {
+  return { ...p, id: `depot-${p.slug}-${p.n}`, deposee: true, fichier: fichierPhoto({ ...p, deposee: true }) };
+}
+
+// Photos déposées du tirage : toutes les photos préparées, sauf les écartées.
+//  - `surDisque` : [{ slug, n }] des dossiers préparés trouvés dans
+//    public/carrousel/candidats/<slug>/<n>/ (lus au rendu par
+//    src/lib/photos-candidats-serveur.js) ; une photo préparée absente de la
+//    liste entre aussi (crédit « à compléter ») ;
+//  - sans `surDisque` (tests, navigateur) : les photos de la liste non écartées.
+export function photosDuTirage(surDisque = null, liste = PHOTOS_DEPOSEES) {
+  const ecartee = (p) => p?.ecarter === true;
+  if (!Array.isArray(surDisque)) return liste.filter((p) => !ecartee(p)).map(entreeTirage);
+  const parCle = new Map(liste.map((p) => [`${p.slug}/${p.n}`, p]));
+  return surDisque
+    .map(({ slug, n }) => parCle.get(`${slug}/${n}`) ?? { slug, n: Number(n), source: CREDIT_A_COMPLETER, credit: CREDIT_A_COMPLETER, ecarter: false })
+    .filter((p) => !ecartee(p))
+    .map(entreeTirage);
 }
 
 // Crédit encore à compléter (photo déposée) ?
@@ -496,7 +513,7 @@ export function creditACompleter(photo) {
 }
 
 // Choix de /test/photos-candidats (onglet « Photos déposées ») appliqués à la
-// liste : `choix` = [{ n, garder, credit }] pour le candidat `slug`. Les
+// liste : `choix` = [{ n, ecarter, credit }] pour le candidat `slug`. Les
 // autres candidats et les champs du script restent tels quels.
 export function appliquerChoixDeposees(liste, slug, choix) {
   const parN = new Map((Array.isArray(choix) ? choix : []).map((c) => [String(c.n), c]));
@@ -504,7 +521,9 @@ export function appliquerChoixDeposees(liste, slug, choix) {
     const c = p.slug === slug ? parN.get(String(p.n)) : null;
     if (!c) return p;
     const credit = String(c.credit ?? "").replace(/\s+/g, " ").trim().slice(0, 160);
-    return { ...p, garder: c.garder === true, credit: credit || CREDIT_A_COMPLETER };
+    const { raison, ...reste } = p;
+    const ecarter = c.ecarter === true;
+    return { ...reste, ecarter, ...(ecarter && raison ? { raison } : {}), credit: credit || CREDIT_A_COMPLETER };
   });
 }
 
@@ -518,23 +537,27 @@ export const PHOTOS_DEPOSEES = ${JSON.stringify(liste, null, 2)};
 ${source.slice(fin)}`;
 }
 
-// Bibliothèque du tirage : photos Commons et photos déposées gardées.
-export const PHOTOS_CANDIDATS = [...PHOTOS_COMMONS, ...photosGardees()];
+// Bibliothèque du tirage d'après la liste (photos Commons et photos déposées
+// non écartées). Au rendu, le tirage part des fichiers présents sur le
+// disque : photosTirage() de src/lib/photos-candidats-serveur.js.
+export const PHOTOS_CANDIDATS = [...PHOTOS_COMMONS, ...photosDuTirage()];
 
 export function photosDuCandidat(slug, liste = PHOTOS_CANDIDATS) {
   return liste.filter((p) => p.slug === slug).sort((a, b) => a.n - b.n);
 }
 
-// Photo de la couverture :
-//  - celle demandée (numéro n, bouton « Changer de photo ») ;
-//  - sinon celle retenue à la génération de cette version (numéro stocké
-//    dans contenuComplet.reseaux_recit.photo) ;
-//  - sinon un tirage stable pour cette version (graine), en écartant les
-//    photos des 2 derniers carrousels du candidat (`recentes` : numéros, le
-//    plus récent d'abord), ou la moins récemment utilisée
-//    (src/lib/rotation-images.js).
-// Renvoie la photo ou null (aucune photo : vignette actuelle).
-export function choisirPhoto({ slug, demandee = null, retenue = null, recentes = [], graine = "", liste = PHOTOS_CANDIDATS }) {
+// Photo de la couverture (et des autres formats) :
+//  - celle demandée (numéro n) ;
+//  - sinon celle retenue à la génération de ce carrousel (numéro stocké
+//    dans contenuComplet.reseaux_recit.photo : relancer le rendu garde la
+//    même photo) ;
+//  - sinon un tirage au hasard, stable pour une même graine, hors des
+//    photos `eviter` (numéros : la photo actuelle pour « Changer de photo »)
+//    et de celle du carrousel précédent du candidat (`recentes` : numéros,
+//    le plus récent d'abord) ; s'il n'en reste aucune, la moins récemment
+//    utilisée (src/lib/rotation-images.js).
+// Renvoie la photo ou null (aucune photo : silhouette grise).
+export function choisirPhoto({ slug, demandee = null, retenue = null, recentes = [], eviter = [], graine = "", liste = PHOTOS_CANDIDATS }) {
   const photos = photosDuCandidat(slug, liste);
   if (photos.length === 0) return null;
   for (const n of [demandee, retenue]) {
@@ -542,20 +565,9 @@ export function choisirPhoto({ slug, demandee = null, retenue = null, recentes =
     if (voulue) return voulue;
   }
   const alea = parseInt(empreinte(String(graine)).slice(0, 8), 16) / 0x100000000;
-  return choisirEnRotation(photos, { cle: (p) => p.n, recentes, alea });
-}
-
-// Photo suivante pour « Changer de photo », en évitant `eviter` (celle du
-// carrousel précédent du candidat) quand c'est possible.
-export function photoSuivante(numeros, actuelle, eviter = null) {
-  const liste = [...numeros].sort((a, b) => a - b);
-  if (liste.length <= 1) return liste[0] ?? null;
-  const depart = Math.max(0, liste.indexOf(Number(actuelle)));
-  for (let k = 1; k <= liste.length; k++) {
-    const n = liste[(depart + k) % liste.length];
-    if (n !== Number(eviter) || liste.length === 2) return n;
-  }
-  return liste[(depart + 1) % liste.length];
+  const exclues = new Set((eviter ?? []).map(String));
+  const permises = photos.filter((p) => !exclues.has(String(p.n)));
+  return choisirEnRotation(permises.length ? permises : photos, { cle: (p) => p.n, recentes, alea, exclus: CARROUSELS_EXCLUS_PHOTO });
 }
 
 // Crédits d'une photo : une seule ligne sur la couverture (« Photo : auteur,

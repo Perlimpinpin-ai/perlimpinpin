@@ -149,16 +149,17 @@ export function carrouselRecit(donnees) {
     { theme, contenu: { reseaux_recit: { illustration: stocke.illustration, illustration_mots_cles: recit.illustration_mots_cles, illustration_sujet: recit.illustration_sujet } }, propositionId, demandee: donnees.illustrationDemandee ?? null, liste: donnees.illustrations },
     avertissements,
   );
-  // Photo du candidat (photos déposées gardées sur /test/photos-candidats, ou
-  // Commons) : celle demandée (« Changer de photo »), sinon celle retenue à la
-  // génération (hors des 2 derniers carrousels du candidat), sinon un tirage
-  // stable pour cette version ; aucune photo gardée : silhouette grise.
+  // Photo du candidat (toutes les photos préparées non écartées, lues sur le
+  // disque au rendu par src/lib/photos-candidats-serveur.js, et Commons) :
+  // celle demandée, sinon celle retenue à la génération ou par « Changer de
+  // photo » (reseaux_recit.photo), sinon un tirage stable pour cette
+  // version ; aucune photo : silhouette grise.
   const slug = slugCandidat({ nom: candidatNom, photoUrl });
   const listePhotos = donnees.photos ?? PHOTOS_CANDIDATS;
   const photosCandidat = photosDuCandidat(slug, listePhotos);
   const photo = choisirPhoto({ slug, demandee: donnees.photoDemandee ?? null, retenue: stocke.photo ?? null, graine: `${propositionId}-${stocke.genereLe ?? ""}`, liste: listePhotos });
   if (photosCandidat.length === 0) {
-    avertissements.push({ cle: "photo", fort: true, message: `Aucune photo gardée de ${candidatNom} : silhouette grise sur la couverture. Cochez « Garder » sur /test/photos-candidats (onglet « Photos déposées »).` });
+    avertissements.push({ cle: "photo", fort: true, message: `Aucune photo préparée (non écartée) de ${candidatNom} : silhouette grise sur la couverture. Déposez des photos dans photos-sources/ et lancez scripts/preparer-photos-candidats.py.` });
   } else if (photosCandidat.length < PHOTOS_MIN) {
     avertissements.push({ cle: "photo", message: `Seulement ${photosCandidat.length} photo(s) de ${candidatNom} (${PHOTOS_MIN} au moins) : la couverture changera peu d’un carrousel à l’autre.` });
   }

@@ -7,6 +7,7 @@
     .venv-photos\\Scripts\\python scripts/preparer-photos-candidats.py              # tous les candidats
     .venv-photos\\Scripts\\python scripts/preparer-photos-candidats.py teddy-riner  # un candidat
     ... --forcer   refait aussi les photos déjà traitées (ou écartées)
+    ... --mesurer  mesure seulement le cadrage des photos déjà préparées (cadrage.json)
 
 Entrée : photos-sources/<dossier>/ (hors de public/, jamais commité, voir
 .gitignore), JPG, WEBP, AVIF ou PNG, noms quelconques. <dossier> est le slug
@@ -24,10 +25,13 @@ Pour chaque photo :
     grain est ajouté au rendu, pas ici ;
  5. sorties dans public/carrousel/candidats/<slug>/<n>/ (n : numéro stable,
     tiré du hash de l'original) : detoure.png, detoure-liseré-blanc.png,
-    detoure-liseré-jaune.png, medaillon.png, reel-trame.png ;
+    detoure-liseré-jaune.png, medaillon.png, reel-trame.png, et cadrage.json
+    (tête mesurée sur le détouré : la couverture normalise chaque silhouette,
+    même taille de tête, même position) ;
  6. fiche de la photo dans src/lib/photos-candidats.js (entre les repères
-    DEBUT/FIN PHOTOS DEPOSEES) : garder et credit gardent les valeurs déjà
-    saisies sur /test/photos-candidats (onglet « Photos déposées »).
+    DEBUT/FIN PHOTOS DEPOSEES) : ecarter et credit gardent les valeurs déjà
+    saisies sur /test/photos-candidats (onglet « Photos déposées »). Toute
+    photo préparée entre dans le tirage, sauf celles marquées « Écarter ».
 
 Rapport (gardées, écartées et raisons) : affiché, et écrit dans
 data/photos-candidats/rapport/<slug>.json (local). Relancé, le script ne
@@ -76,6 +80,10 @@ CREME = (0xF2, 0xE8, 0xD5)
 # 45 % de la largeur de la slide (486 px) : 11 px à l'affichage.
 LISERE_AFFICHE = 11
 LARGEUR_AFFICHEE = 0.45 * 1080
+# Hauteur de la tête (haut du crâne → bas de la boîte du visage) sur la
+# couverture « une mesure » : même valeur que TETE_COUVERTURE de
+# src/lib/mise-en-page-carrousel.js.
+TETE_COUVERTURE = 300
 DOUBLON_MAX = 6  # distance de Hamming maximale entre deux hash perceptuels (64 bits)
 
 
@@ -334,7 +342,84 @@ def traiter(image, session, cible: Path):
     largeur_reel = max(d_cadre - g_cadre, 3.2 * fl)
     boite = boite_4_5(centre_x, centre_y - 0.28 * largeur_reel * 5 / 4, largeur_reel, l_img, h_img)
     trame(image, boite).save(cible / "reel-trame.png", "PNG", optimize=True)
+    infos["cadrage"] = mesurer_cadrage(cible)
     return None, infos
+
+
+def mesurer_cadrage(dossier: Path):
+    """Tête de la silhouette dans detoure-liseré-blanc.png, écrite dans
+    cadrage.json : { largeur, hauteur, sommet (haut du crâne), visage
+    { x, y, l, h } (boîte OpenCV, sinon estimée par la silhouette), detecte,
+    autresVisages, gauche, droite (étendue de la silhouette) }. La couverture
+    du carrousel pose chaque photo à la même taille de tête
+    (src/lib/mise-en-page-carrousel.js, placementCandidat)."""
+    import numpy as np
+    from PIL import Image
+
+    detoure = Image.open(dossier / "detoure.png").convert("RGBA")
+    masque = np.array(detoure.getchannel("A"))
+    lignes = np.where(masque.max(axis=1) >= 128)[0]
+    colonnes = np.where(masque.max(axis=0) >= 128)[0]
+    haut = int(lignes[0])
+    gauche, droite = int(colonnes[0]), int(colonnes[-1])
+    hauteur = int(lignes[-1]) - haut + 1
+    gris = detoure.getchannel("R")
+    fond = Image.new("RGB", detoure.size, (128, 128, 128))
+    fond.paste(Image.merge("RGB", (gris, gris, gris)), mask=detoure.getchannel("A"))
+    tous = visages(fond, masque)
+    # même filtre qu'au détourage : un visage sous le haut du crâne
+    sommet = np.where((masque[haut : haut + max(2, hauteur // 20)] >= 128).any(axis=0))[0]
+    crane_x = (sommet[0] + sommet[-1]) / 2 if len(sommet) else (gauche + droite) / 2
+    trouves = [v for v in tous if abs(v[0] + v[2] / 2 - crane_x) <= 0.5 * v[2] and v[1] <= haut + 1.2 * v[3]]
+    autres = [v for v in tous if trouves and v != trouves[0] and v[2] >= 0.45 * trouves[0][2]]
+    if trouves:
+        fx, fy, fl, fh = trouves[0]
+    else:
+        largeurs = (masque[haut : haut + max(1, hauteur // 6)] >= 128).sum(axis=1)
+        fl = int(np.median(largeurs[len(largeurs) // 2 :])) if len(largeurs) else (droite - gauche) // 3
+        fh = int(fl * 1.0)
+        cols = np.where(masque[haut + fh // 2] >= 128)[0]
+        fx = int((cols[0] + cols[-1]) / 2 - fl / 2) if len(cols) else (gauche + droite) // 2 - fl // 2
+        fy = haut + int(0.3 * fh)
+    # Liseré blanc refait à l'échelle où la couverture affichera la photo
+    # (tête de TETE_COUVERTURE px, du crâne au bas du visage) : même liseré
+    # fin sur toutes les couvertures, quel que soit le cadrage d'origine.
+    tete = max(1, fy + fh - haut)
+    e = max(2, int(round(LISERE_AFFICHE * tete / TETE_COUVERTURE)))
+    lisere = avec_lisere(detoure, (255, 255, 255), e)
+    lisere.save(dossier / "detoure-liseré-blanc.png", "PNG", optimize=True)
+    ex = ey = e
+    cadrage = {
+        "largeur": lisere.width,
+        "hauteur": lisere.height,
+        "sommet": round(haut + ey),
+        "visage": {"x": round(fx + ex), "y": round(fy + ey), "l": int(fl), "h": int(fh)},
+        "detecte": bool(trouves),
+        "autresVisages": len(autres),
+        # épaule gauche coupée à la verticale par le cadre de la photo d'origine
+        # (portrait serré) : la silhouette touche le bord gauche sur plus de
+        # 15 % de sa hauteur ; ce bord se voit sur la couverture (le droit
+        # sort de la slide)
+        "coteCoupe": bool((masque[:, :2] >= 128).any(axis=1).mean() > 0.15),
+        "gauche": round(gauche + ex),
+        "droite": round(droite + ex),
+    }
+    (dossier / "cadrage.json").write_text(json.dumps(cadrage, ensure_ascii=False) + "\n", encoding="utf-8")
+    return cadrage
+
+
+def mesurer_tout(slugs):
+    """--mesurer : cadrage.json de chaque photo déjà préparée."""
+    for slug in slugs:
+        for dossier in sorted(p for p in (SORTIE / slug).glob("*") if p.is_dir() and p.name.isdigit()):
+            c = mesurer_cadrage(dossier)
+            v = c["visage"]
+            alerte = "" if c["detecte"] else "  (visage non détecté : tête estimée)"
+            if c["autresVisages"]:
+                alerte += f"  ⚠ {c['autresVisages']} autre(s) visage(s)"
+            if c["coteCoupe"]:
+                alerte += "  ⚠ épaule gauche coupée à la verticale (portrait serré)"
+            print(f"{slug} {dossier.name} : sommet {c['sommet']}, visage {v['l']}×{v['h']} en ({v['x']}, {v['y']}), image {c['largeur']}×{c['hauteur']}{alerte}")
 
 
 # --- Fiche src/lib/photos-candidats.js ----------------------------------------------------
@@ -368,7 +453,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Préparation des photos déposées des candidats.")
     parser.add_argument("slugs", nargs="*", metavar="SLUG", help="candidats à traiter (aucun : tous)")
     parser.add_argument("--forcer", action="store_true", help="retraiter aussi les photos déjà vues")
+    parser.add_argument("--mesurer", action="store_true", help="mesurer seulement le cadrage des photos déjà préparées (cadrage.json)")
     args = parser.parse_args()
+    if args.mesurer:
+        mesurer_tout(args.slugs or sorted(p.name for p in SORTIE.iterdir() if p.is_dir()))
+        return 0
 
     try:
         from rembg import new_session
@@ -449,7 +538,8 @@ def main() -> int:
                 "prepareLe": maintenant,
                 "source": ancienne["source"] if ancienne else "à compléter",
                 "credit": ancienne["credit"] if ancienne else "à compléter",
-                "garder": ancienne["garder"] if ancienne else False,
+                "ecarter": ancienne.get("ecarter", False) if ancienne else False,
+                **({"raison": ancienne["raison"]} if ancienne and ancienne.get("raison") else {}),
             }
             entrees = [e for e in entrees if not (e["slug"] == slug and e["n"] == n)] + [entree]
 

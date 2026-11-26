@@ -103,14 +103,14 @@ export function TitreCouverture({ b, couleur, centre = false }) {
 
 // Candidat sur la couverture (charte RS, page 11) :
 //  - photo déposée ou Commons, détourée, liseré blanc déjà posé
-//    (scripts/preparer-photos-candidats.py) : environ 45 % de la largeur,
+//    (scripts/preparer-photos-candidats.py) : silhouette normalisée d'après
+//    cadrage.json (même taille de tête, visage au même endroit, quel que
+//    soit le cliché ; placementCandidat de src/lib/mise-en-page-carrousel.js),
 //    ancrée en bas à droite, buste coupé par le bas de la slide (la bande
-//    « billet de banque » passe par-dessus), devant le bloc d'accent ; jamais
-//    sur une ligne du titre ou du sous-titre (`boites`, mesurées par
-//    src/lib/mise-en-page-carrousel.js) : si la tête y monterait, la photo
-//    descend et le buste est coupé plus bas. Grain ajouté ici, sur la
-//    silhouette seulement (masque) ;
-//  - aucune photo gardée : silhouette grise de la charte ;
+//    « billet de banque » passe par-dessus), devant le bloc d'accent ; le
+//    haut du crâne juste sous le sous-titre, jamais sur une ligne de texte
+//    (`boites`). Grain ajouté ici, sur la silhouette seulement (masque) ;
+//  - aucune photo préparée non écartée : silhouette grise de la charte ;
 //  - repli : la vignette en tirage avec un liseré blanc.
 function SilhouetteGrise() {
   const l = PHOTO_COUVERTURE.largeur;
@@ -135,8 +135,10 @@ function Candidat({ candidat, boites, grain }) {
   }
   const p = placementCandidat(candidat, boites);
   return (
-    <div style={{ position: "absolute", left: p.gauche, top: p.haut, width: p.largeur, height: Math.max(0, BAS - p.haut), display: "flex", overflow: "hidden" }}>
-      <PhotoGrain image={candidat.image} grain={grain} largeur={p.largeur} hauteur={p.hauteur} opacite={PHOTO_COUVERTURE.grain} />
+    <div style={{ position: "absolute", left: p.gauche, top: p.haut, width: p.largeur, height: p.hauteur, display: "flex", overflow: "hidden" }}>
+      <div style={{ position: "absolute", left: p.image.x, top: p.image.y, display: "flex" }}>
+        <PhotoGrain image={candidat.image} grain={grain} largeur={p.image.largeur} hauteur={p.image.hauteur} opacite={PHOTO_COUVERTURE.grain} />
+      </div>
     </div>
   );
 }

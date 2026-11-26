@@ -58,7 +58,7 @@ export default async function PhotosCandidatsPage({ searchParams }) {
       lisere: encodeURI(`/${fichierPhoto({ ...p, deposee: true }, "mesure")}`),
       medaillon: encodeURI(`/${fichierPhoto({ ...p, deposee: true }, "thematique")}`),
     }));
-  const gardeesDe = (s) => PHOTOS_DEPOSEES.filter((p) => p.slug === s && p.garder).length;
+  const gardeesDe = (s) => PHOTOS_DEPOSEES.filter((p) => p.slug === s && !p.ecarter).length;
 
   return (
     <main className="min-h-screen bg-zinc-50 px-6 py-8 text-zinc-900 sm:px-8">
@@ -73,8 +73,8 @@ export default async function PhotosCandidatsPage({ searchParams }) {
           <h1 className="text-2xl font-bold tracking-tight">Photos des candidats</h1>
           <p className="max-w-3xl text-sm text-zinc-600">
             Photos des candidats pour les couvertures des carrousels (« une mesure », « programme », « thématique ») et la fenêtre des Reels. Une
-            photo est tirée au hasard à chaque carrousel parmi les photos gardées. Onglet « Photos déposées » : les photos de photos-sources/, préparées
-            par scripts/preparer-photos-candidats.py ; rien n’entre dans le tirage sans la case « Garder ».
+            photo est tirée au hasard, côté serveur, à chaque carrousel. Onglet « Photos déposées » : les photos de photos-sources/, préparées par
+            scripts/preparer-photos-candidats.py ; toutes entrent dans le tirage, sauf celles cochées « Écarter ».
           </p>
         </header>
 
@@ -130,15 +130,15 @@ export default async function PhotosCandidatsPage({ searchParams }) {
                   <h2 className="font-semibold">
                     {nomDepuisSlug(slug)}{" "}
                     <span className="font-normal text-zinc-500">
-                      · {deposees.length} photo(s) préparée(s), {gardeesDe(slug)} gardée(s) dans le tirage
+                      · {deposees.length} photo(s) préparée(s), {gardeesDe(slug)} dans le tirage, {deposees.length - gardeesDe(slug)} écartée(s)
                     </span>
                   </h2>
                   <p className="text-xs text-zinc-500">
                     Neutralité (charte RS) : pas de grimace, pas d’yeux fermés, pas de bouche ouverte en pleine phrase, pas de logo de parti, personne d’autre dans le détourage.
-                    Les compteurs des candidats ci-dessus comptent les photos gardées (avertissement sous {PHOTOS_CONSEILLEES}).
+                    Les compteurs des candidats ci-dessus comptent les photos du tirage (avertissement sous {PHOTOS_CONSEILLEES}).
                   </p>
                 </section>
-                <PhotosDeposees key={`${slug}-${deposees.map((p) => `${p.n}${p.garder ? "g" : ""}`).join("-")}`} slug={slug} photos={deposees} />
+                <PhotosDeposees key={`${slug}-${deposees.map((p) => `${p.n}${p.ecarter ? "e" : ""}`).join("-")}`} slug={slug} photos={deposees} />
               </>
             ) : (
               <>

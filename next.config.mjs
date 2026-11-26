@@ -36,6 +36,9 @@ const nextConfig = {
       "./public/carrousel/themes/*",
       "./public/photos/*.jpg",
       "./public/photos/vignettes/*.webp",
+      // Photo du candidat tirée au rendu (src/lib/photos-candidats-serveur.js) :
+      // détouré liseré blanc et cadrage de chaque photo préparée.
+      "./public/carrousel/candidats/*/*/detoure-liser*-blanc.png", "./public/carrousel/candidats/*/*/cadrage.json",
     ],
     // Bouton « Générer le récit » (Server Action de la page) : prompt lu à
     // l'exécution ; la page vérifie aussi la présence des images du candidat.
@@ -45,6 +48,8 @@ const nextConfig = {
       "./public/portraits-bleus/*.png",
       "./public/portraits-nb/*.png",
       "./public/carrousel/themes/*",
+      // Tirage de la photo du candidat (génération, « Changer de photo »).
+      "./public/carrousel/candidats/*/*/detoure-liser*-blanc.png", "./public/carrousel/candidats/*/*/cadrage.json",
     ],
     // Carrousels « analyse de programme » et « thématique » (charte RS) :
     // prompts lus par les Server Actions, polices et images par les routes.
@@ -53,7 +58,7 @@ const nextConfig = {
     "/api/carrousel/programme/[slug]": ["./public/fonts/reel/*", "./public/fonts/carrousel/*", "./public/carrousel/*.png", "./public/carrousel/vignettes-nb/*.jpg", "./public/carrousel/candidats/**/*.png"],
     "/api/carrousel/thematique/[theme]": ["./public/fonts/reel/*", "./public/fonts/carrousel/*", "./public/carrousel/*.png", "./public/carrousel/vignettes-nb/*.jpg", "./public/carrousel/candidats/**/*.png"],
     // Images des Reels : polices Geist, fonds et portraits bleus lus sur disque.
-    "/test/reels/[id]/image": ["./public/fonts/*.ttf", "./public/reel/*.png", "./public/portraits-bleus/*.png"],
+    "/test/reels/[id]/image": ["./public/fonts/*.ttf", "./public/reel/*.png", "./public/portraits-bleus/*.png", "./public/carrousel/candidats/*/*/reel-trame.png"],
     // Bouton « Générer le Reel » (Server Actions de ces pages) : prompt lu à
     // l'exécution ; la page d'une fiche vérifie aussi la présence du portrait.
     "/test/reels": ["./data/prompt-reel.md", "./public/reel/cartes/*.json"],
@@ -67,6 +72,7 @@ const nextConfig = {
       "./public/reel/cartes/*.json",
       "./public/reel/photos/**/*.png",
       "./public/illustrations/credits.json",
+      "./public/carrousel/candidats/*/*/reel-trame.png",
     ],
     "/test/reels/[id]/storyboard": [
       "./data/reel-demo/**/*",
