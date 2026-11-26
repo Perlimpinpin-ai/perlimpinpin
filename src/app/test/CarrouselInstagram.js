@@ -9,6 +9,7 @@ import BoutonGenererRecit from "./reseaux/BoutonGenererRecit";
 import ListeARelireCarrousel from "./reseaux/ListeARelireCarrousel";
 import ChoixPhotoCandidat from "./reseaux/ChoixPhotoCandidat";
 import ChoixImageTheme from "./reseaux/ChoixImageTheme";
+import { creditsPhoto } from "@/lib/photos-candidats";
 import { COULEURS_CARROUSEL_CANDIDATS } from "@/lib/couleurs-carrousel";
 import TweetLong from "./reseaux/TweetLong";
 
@@ -99,7 +100,7 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
                   brouillon={brouillon}
                   nombre={recit.photos.length}
                   actuelle={recit.photo?.n ?? null}
-                  credit={recit.photo ? (recit.slides[0]?.credits?.[0] ?? null) : null}
+                  credit={creditsPhoto(recit.photo)?.court ?? null}
                 />
               ) : null}
               <BarreRemarques

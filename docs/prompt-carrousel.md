@@ -76,5 +76,5 @@ Prérequis : Node.js avec `npm i playwright`, Python avec `pip install pillow re
 - [ ] Chaque chiffre est sourcé ; la note n'est pas sur la couverture.
 - [ ] Aucun texte ne déborde, aucun titre n'est mal coupé.
 - [ ] La couleur est celle du candidat et diffère des 2 derniers carrousels.
-- [ ] Les photos sont créditées sur la couverture et dans `credits.txt`.
+- [ ] Les photos sont créditées sur la slide de fin, dans la légende et dans `credits.txt` (plus de crédit sur la couverture).
 - [ ] Le traitement est le même que pour les autres candidats.

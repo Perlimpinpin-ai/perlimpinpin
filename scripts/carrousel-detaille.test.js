@@ -253,21 +253,20 @@ function donnees(modifs = {}) {
   };
 }
 
-test("carrousel : photo Commons tirée ou demandée, crédit sur la couverture, la fin, credits.txt et la légende ; zip bloqué sans crédit ; candidat hors registre → refus", () => {
+test("carrousel : photo Commons tirée ou demandée, crédit sur la fin, credits.txt et la légende (pas sur la couverture) ; zip bloqué sans crédit ; candidat hors registre → refus", () => {
   const c = carrouselRecit(donnees({ photoDemandee: 2 }));
   assert.equal(c.couleur.fond, "#B33A2B");
   assert.equal(c.couleur.bloc, "#1C2A5E");
   assert.ok(c.couleurAttribuee);
   assert.deepEqual(c.slides[0].photo, { n: 2, fichier: "carrousel/candidats/fabien-roussel/2.png" });
-  assert.deepEqual(c.slides[0].credits, ["Photo : Anne Photo, CC BY 2.0, Wikimedia Commons"]);
-  assert.deepEqual(c.slides.at(-1).credits, c.slides[0].credits);
+  assert.equal(c.slides[0].credits, undefined, "plus de crédit sur la couverture");
+  assert.deepEqual(c.slides.at(-1).credits, ["Photo : Anne Photo, CC BY 2.0, Wikimedia Commons"]);
   assert.ok(c.credits.includes("Photo : A, Licence Pexels, Pexels https://pexels.com/1"));
   assert.match(c.credits, /Photo : Anne Photo, CC BY 2\.0, Wikimedia Commons \(photo modifiée : détourage, noir et blanc\) https:\/\/commons\.wikimedia\.org\/wiki\/File:2/);
   assert.match(c.legende, /Photo : Anne Photo, CC BY 2\.0, Wikimedia Commons/);
-  // Image de thème sous CC BY : crédit aussi sur la couverture (2e ligne) et la fin.
+  // Image de thème sous CC BY : crédit aussi sur la fin (2e ligne).
   const ccby = carrouselRecit(donnees({ photoDemandee: 2, illustrations: [{ fichier: "illustrations/economie/caisse.jpg", theme: "economie", motsCles: ["caisse"], source: "Wikimedia Commons", auteur: "Zoé Photo", licence: "CC BY-SA 4.0", lien: "https://commons.wikimedia.org/wiki/File:Caisse.jpg" }] }));
-  assert.deepEqual(ccby.slides[0].credits, ["Photo : Anne Photo, CC BY 2.0, Wikimedia Commons", "Photo : Zoé Photo, CC BY-SA 4.0, Wikimedia Commons"]);
-  assert.deepEqual(ccby.slides.at(-1).credits, ccby.slides[0].credits);
+  assert.deepEqual(ccby.slides.at(-1).credits, ["Photo : Anne Photo, CC BY 2.0, Wikimedia Commons", "Photo : Zoé Photo, CC BY-SA 4.0, Wikimedia Commons"]);
   assert.match(ccby.legende, /Photo : Zoé Photo, CC BY-SA 4\.0, Wikimedia Commons https:\/\/commons\.wikimedia\.org\/wiki\/File:Caisse\.jpg/);
   // Photo retenue à la génération (reseaux_recit.photo) : reprise tant qu'aucune autre n'est demandée.
   const retenue = carrouselRecit(donnees({ contenu: { ...FICHE, reseaux_recit: { ...donnees().contenu.reseaux_recit, photo: 1 } } }));
