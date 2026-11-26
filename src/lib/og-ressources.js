@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { slugCandidat } from "./carte.js";
+import { POLICES } from "./charte-rs.js";
 
 // Ressources des images next/og (cartes X, carrousel Instagram) : polices du
 // site et portrait bleu du candidat. Côté serveur seulement (lecture de
@@ -47,6 +48,18 @@ export function policesCarrousel() {
     })),
   );
   return policesCarrouselEnCache;
+}
+
+let policesCharteEnCache = null;
+
+// Polices des carrousels de la charte RS (src/lib/charte-rs.js, POLICES) :
+// Inter Display (500, 700, 900), DM Serif Display, JetBrains Mono, tirées des
+// kits (OFL). Silkscreen, réservée aux Reels, n'y figure pas.
+export function policesCharteRS() {
+  policesCharteEnCache ??= Promise.all(
+    Object.values(POLICES).map(async (p) => ({ name: p.famille, data: await readFile(join(process.cwd(), "public", p.fichier)), weight: p.graisse, style: "normal" })),
+  );
+  return policesCharteEnCache;
 }
 
 // Portrait bleu détouré (public/portraits-bleus/<slug>.png), en data URI.

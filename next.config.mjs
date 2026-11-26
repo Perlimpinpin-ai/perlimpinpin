@@ -22,7 +22,13 @@ const nextConfig = {
     // en pleine taille dans public/photos/ ; dossier des vignettes embarqué aussi),
     // et la couverture en collage : portraits noir et blanc, photos et
     // stickers des thèmes (scripts/images-couverture.js).
+    // Charte RS : Inter Display et JetBrains Mono (public/fonts/reel/), DM Serif
+    // Display (public/fonts/carrousel/), grain, papier, vignettes noir et blanc.
     "/api/carrousel/[id]": [
+      "./public/fonts/reel/*",
+      "./public/fonts/carrousel/*",
+      "./public/carrousel/*.png",
+      "./public/carrousel/vignettes-nb/*.jpg",
       "./public/fonts/*.ttf",
       "./public/fonts/*.otf",
       "./public/portraits-bleus/*.png",
@@ -40,6 +46,12 @@ const nextConfig = {
       "./public/portraits-nb/*.png",
       "./public/carrousel/themes/*",
     ],
+    // Carrousels « analyse de programme » et « thématique » (charte RS) :
+    // prompts lus par les Server Actions, polices et images par les routes.
+    "/test/reseaux/programme/[slug]": ["./data/prompt-programme.md", "./public/carrousel/candidats/**/*.png"],
+    "/test/reseaux/thematique/[theme]": ["./data/prompt-thematique.md", "./public/carrousel/candidats/**/*.png"],
+    "/api/carrousel/programme/[slug]": ["./public/fonts/reel/*", "./public/fonts/carrousel/*", "./public/carrousel/*.png", "./public/carrousel/vignettes-nb/*.jpg", "./public/carrousel/candidats/**/*.png"],
+    "/api/carrousel/thematique/[theme]": ["./public/fonts/reel/*", "./public/fonts/carrousel/*", "./public/carrousel/*.png", "./public/carrousel/vignettes-nb/*.jpg", "./public/carrousel/candidats/**/*.png"],
     // Images des Reels : polices Geist, fonds et portraits bleus lus sur disque.
     "/test/reels/[id]/image": ["./public/fonts/*.ttf", "./public/reel/*.png", "./public/portraits-bleus/*.png"],
     // Bouton « Générer le Reel » (Server Actions de ces pages) : prompt lu à

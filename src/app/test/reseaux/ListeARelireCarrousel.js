@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { memeCouleurQueDerniers } from "@/lib/couleurs-carrousel";
+import { avertissementsFil } from "@/lib/couleurs-carrousel";
 
 // Couleur du candidat et check-list « À relire avant de publier » du
 // carrousel détaillé (section 6 de docs/prompt-carrousel.md), sur
@@ -52,7 +52,11 @@ export default function ListeARelireCarrousel({ candidatNom, couleur, couleurAtt
   }
 
   const fondDe = (nom) => candidats.find((c) => c.nom === nom)?.fond ?? null;
-  const meme = memeCouleurQueDerniers(couleur?.fond, derniers.map(fondDe));
+  // Charte RS : même couleur qu'un des 2 derniers posts (bloquant), deux posts
+  // chauds (ou froids) de suite (avertissement simple).
+  const fil = avertissementsFil(couleur?.fond, derniers.map(fondDe));
+  const meme = fil.some((a) => a.cle === "meme");
+  const temperature = fil.find((a) => a.cle === "temperature");
   const renseignes = derniers.every(Boolean);
   const couleurOk = couleurAttribuee && renseignes && !meme;
 
@@ -64,7 +68,7 @@ export default function ListeARelireCarrousel({ candidatNom, couleur, couleurAtt
           {couleurAttribuee ? null : <span className="ml-1 font-semibold text-red-700">(pas encore attribuée)</span>}
         </span>
         <label className="flex flex-wrap items-center gap-2">
-          <span className="text-zinc-600">Couleurs des 2 derniers carrousels publiés :</span>
+          <span className="text-zinc-600">Couleurs des 2 derniers posts publiés :</span>
           {[0, 1].map((i) => (
             <span key={i} className="flex items-center gap-1">
               <Pastille fond={fondDe(derniers[i])} />
@@ -86,9 +90,10 @@ export default function ListeARelireCarrousel({ candidatNom, couleur, couleurAtt
           Même couleur qu’un des 2 derniers carrousels : attendez avant de publier, ou publiez d’abord un autre candidat.
         </p>
       ) : null}
+      {temperature ? <p className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">{temperature.message}</p> : null}
 
       <div className="rounded-xl border border-orange-300 bg-orange-50 p-4 text-sm text-orange-950">
-        <p className="font-semibold">À relire avant de publier</p>
+        <p className="font-semibold">Vérifications avant publication (charte RS, page 20)</p>
         <ul className="mt-2 flex flex-col gap-1.5">
           {items.map((item) => {
             const automatique = item.auto !== null;

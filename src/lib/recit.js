@@ -3,6 +3,7 @@ import { nombresHorsFiche } from "./nombres-fiche.js";
 import { longueurX, mentionneCandidat, nombreDeMots, remplirTweet } from "./reseaux.js";
 import { grasDesequilibre, MOTS_GRAS_MAX_PAR_SLIDE, nombreGras, nombreMotsGras, sansGras } from "./texte-gras.js";
 import { motCleNormalise } from "./illustrations.js";
+import { contientChiffre, contientPrenom, estRubrique, FORMULES, restesDeMaquette } from "./ecriture-charte.js";
 
 // Carrousel détaillé (8 slides) et tweet long d'une fiche, écrits par Claude
 // à la demande (bouton « Générer le carrousel détaillé » de
@@ -37,7 +38,7 @@ export const VALEUR_TUILE_MAX = 12;
 export const URL_INTENTION_MAX = 2000;
 
 // Sous-titre fixe de la couverture, écrit par le code.
-export const SOUS_TITRE_COUVERTURE = "Sa proposition : bonne idée… ou poudre de perlimpinpin ?";
+export const SOUS_TITRE_COUVERTURE = FORMULES.sousTitreCouverture;
 
 // Tournures qui sonnent « IA » (avertissement). Liste enrichissable : une
 // expression par entrée, comparée sans accents ni majuscules, en mots entiers.
@@ -165,7 +166,7 @@ export function contientConditionnel(t) {
 }
 
 // Libellés du barème (src/lib/score.js), cherchés comme mots entiers.
-function palierEcrit(t) {
+export function palierEcrit(t) {
   const sans = t.toLowerCase();
   return getScoreBands()
     .map((bande) => bande.label)
@@ -418,6 +419,25 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
   if (scoreEcrit(question, score) || /\bnot[ée]e?s?\b/i.test(question) || /\bverdict\b/i.test(question)) {
     erreurs.push(`couverture : la note ou le verdict apparaît (« ${question} ») : jamais sur la couverture.`);
   }
+  // Charte RS (page 4) : couverture avec le seul nom de famille (marqueur
+  // {NOM}, rempli par le code), pas d'intertitre de rubrique, aucun reste de maquette.
+  if (contientPrenom(recit.couverture.question, candidatNom)) {
+    erreurs.push(`couverture : prénom du candidat (« ${question} ») : seulement le nom de famille ({NOM}).`);
+  }
+  for (const [libelle, titre] of [
+    ["slide 2 (titre)", recit.constat.titre],
+    ["slide 3 (titre)", recit.note.titre],
+    ["slide 4 (titre)", recit.court_terme.titre],
+    ["slide 5 (titre)", recit.long_terme.titre],
+    ["ailleurs ou avant (titre)", recit.ailleurs?.titre ?? ""],
+    ["notre avis", recit.avis.avis],
+  ]) {
+    if (titre && estRubrique(titre)) erreurs.push(`${libelle} : « ${titre} » est un intertitre de rubrique : chaque titre apporte un fait, un chiffre ou une conséquence.`);
+  }
+  for (const [libelle, t2] of textes) {
+    const restes = restesDeMaquette(t2.replace(/\{(NOM|CANDIDAT)\}/g, ""));
+    if (restes.length) erreurs.push(`${libelle} : reste de maquette (${restes.join(", ")}).`);
+  }
   // Slide 2 : le constat d'abord, la proposition ensuite, avec le nom du candidat.
   for (const [libelle, t2] of [
     ["titre", recit.constat.titre],
@@ -462,6 +482,7 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     recit.couverture.question = sansGras(q);
   }
   // Slide 2.
+  if (!contientChiffre(recit.constat.titre)) avertissements.push(`slide 2 (titre) : « ${recit.constat.titre} » sans chiffre : un titre de constat chiffré informe mieux (« Retraites : un trou de 6,8 milliards en 2030. »).`);
   if (recit.constat.chiffres.length !== CHIFFRES_CONSTAT) avertissements.push(`slide 2 : ${recit.constat.chiffres.length} chiffre(s) clé(s), ${CHIFFRES_CONSTAT} attendus.`);
   const jaunes = recit.constat.chiffres.filter((ch) => ch.jaune).length;
   if (jaunes !== 1) {

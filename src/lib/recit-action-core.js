@@ -1,4 +1,5 @@
 import { analyseVisee } from "./reel-action-core.js";
+import { controleRegistre } from "./charte-rs.js";
 import { construireMessageRecit, estimationCoutRecit } from "./recit-generation.js";
 import { cibleValide, contenuAvecRecit, contenuAvecRetour, contenuRevenuAuPrecedent, entreeRetour, remarqueNettoyee } from "./recit.js";
 import { slideDeCible } from "./carrousel-recit.js";
@@ -111,6 +112,9 @@ export async function genererRecitPourFicheCore(propositionId, { brouillon, isEd
   if (!cleConfiguree) {
     return { ok: false, erreur: "ANTHROPIC_API_KEY n’est pas configurée sur ce serveur : génération impossible." };
   }
+  // Charte RS : candidat absent du registre des couleurs → pas de génération (aucun appel payant).
+  const horsRegistre = controleRegistre(proposition.candidat.nom);
+  if (horsRegistre) return { ok: false, erreur: horsRegistre };
 
   const contenu = analyse.contenuComplet ?? {};
   const resultat = await generer(contenu, {
@@ -167,6 +171,8 @@ export async function regenererAvecRemarquesCore(propositionId, { remarque, cibl
   if (!cleConfiguree) {
     return { ok: false, erreur: "ANTHROPIC_API_KEY n’est pas configurée sur ce serveur : génération impossible." };
   }
+  const horsRegistreRemarque = controleRegistre(proposition.candidat.nom);
+  if (horsRegistreRemarque) return { ok: false, erreur: horsRegistreRemarque };
 
   const libelleCible = cible === "toutes" ? "l’ensemble" : cible === "tweet" ? "le tweet long" : cible === "legende" ? "la légende" : `la slide ${slide.numero} (« ${slide.libelle} »)`;
   const resultat = await generer(contenu, {

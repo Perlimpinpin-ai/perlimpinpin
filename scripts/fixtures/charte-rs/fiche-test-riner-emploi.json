@@ -1,0 +1,67 @@
+{
+  "_note": "FICHE DE TEST (charte RS, démonstration locale) : pas une analyse publiée, textes et chiffres fabriqués pour tester le rendu.",
+  "titre_fiche": "Emploi : un service civique sportif pour 50 000 jeunes",
+  "theme": "emploi",
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Créer un service civique sportif de 8 mois pour 50 000 jeunes sans emploi ni formation.",
+      "texte": "Créer un service civique sportif de 8 mois pour 50 000 jeunes sans emploi ni formation."
+    },
+    "contexte_national": {
+      "synthese": "Environ 1,4 million de jeunes de 15 à 29 ans ne sont ni en emploi, ni en études, ni en formation (Insee, 2024). Le service civique accueille déjà environ 80 000 jeunes par an. Coût estimé : 350 millions d'euros par an.",
+      "texte": "Environ 1,4 million de jeunes de 15 à 29 ans ne sont ni en emploi, ni en études, ni en formation (Insee, 2024). Le service civique accueille déjà environ 80 000 jeunes par an. Coût estimé : 350 millions d'euros par an."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 16,
+        "note_max": 30,
+        "texte": "Opérationnalité & Moyens : 16 sur 30."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 13,
+        "note_max": 30,
+        "texte": "Efficacité : 13 sur 30."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 10,
+        "note_max": 20,
+        "texte": "Effets rebonds & Externalités : 10 sur 20."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 4,
+        "note_max": 10,
+        "texte": "Degré de préparation : 4 sur 10."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 5,
+        "note_max": 10,
+        "texte": "Alignement & Logique globale : 5 sur 10."
+      }
+    ],
+    "notation_detaillee": {
+      "operationnalite_moyens_total": 16,
+      "efficacite": 13,
+      "effets_rebonds_externalites": 10,
+      "degre_preparation": 4,
+      "alignement_logique": 5,
+      "score_total": 48
+    },
+    "verdict_final": "Un dispositif existant à élargir ; l'effet sur l'emploi reste incertain.",
+    "verdict_conclusion": "Un service civique sportif : utile, effet sur l'emploi incertain.",
+    "cout_estime": "environ 350 millions d'euros par an",
+    "sources_utilisees": [
+      "Insee, 2024",
+      "Agence du service civique, 2025"
+    ]
+  }
+}

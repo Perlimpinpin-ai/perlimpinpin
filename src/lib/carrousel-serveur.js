@@ -100,6 +100,8 @@ export function recitDe(proposition, analyse, { precedent = false, photo = null,
   const recit = carrouselRecit({ ...donnees(proposition, analyse), precedent, photoDemandee: photo, illustrationDemandee: image });
   if (!recit) return recit;
   recit.avertissements.push(...avertissementsImagesRecit(proposition.candidat, recit.illustration, recit.photo));
+  // Grain obligatoire sur tous les fonds (charte RS, page 10).
+  if (recit.controles) recit.controles.grain = existsSync(join(process.cwd(), "public", CHEMIN_GRAIN));
   recit.debordements = debordementsCarrousel(recit.slides, mesureurCarrousel());
   for (const d of recit.debordements) recit.avertissements.push({ cle: `slide ${d.numero}`, fort: true, message: messageDebordement(d) });
   // Un texte qui entre dans une zone réservée (pied de page, bande, collage)

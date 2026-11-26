@@ -1,0 +1,66 @@
+{
+  "_note": "FICHE DE TEST (charte RS, démonstration locale) : pas une analyse publiée, textes et chiffres fabriqués pour tester le rendu.",
+  "titre_fiche": "Climat : interdire les vols intérieurs de moins de 4 heures",
+  "theme": "energie-climat",
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Interdire les vols intérieurs quand un train fait le trajet en moins de 4 heures.",
+      "texte": "Interdire les vols intérieurs quand un train fait le trajet en moins de 4 heures."
+    },
+    "contexte_national": {
+      "synthese": "La loi Climat de 2021 interdit déjà les vols quand le train met moins de 2 h 30 ; 3 lignes seulement ont été supprimées. Les vols intérieurs pèsent environ 1 % des émissions de CO2 de la France.",
+      "texte": "La loi Climat de 2021 interdit déjà les vols quand le train met moins de 2 h 30 ; 3 lignes seulement ont été supprimées. Les vols intérieurs pèsent environ 1 % des émissions de CO2 de la France."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 9,
+        "note_max": 30,
+        "texte": "Opérationnalité & Moyens : 9 sur 30."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 8,
+        "note_max": 30,
+        "texte": "Efficacité : 8 sur 30."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 6,
+        "note_max": 20,
+        "texte": "Effets rebonds & Externalités : 6 sur 20."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 3,
+        "note_max": 10,
+        "texte": "Degré de préparation : 3 sur 10."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 4,
+        "note_max": 10,
+        "texte": "Alignement & Logique globale : 4 sur 10."
+      }
+    ],
+    "notation_detaillee": {
+      "operationnalite_moyens_total": 9,
+      "efficacite": 8,
+      "effets_rebonds_externalites": 6,
+      "degre_preparation": 3,
+      "alignement_logique": 4,
+      "score_total": 30
+    },
+    "verdict_final": "Le gain climatique serait faible, et le droit européen limite ces interdictions.",
+    "verdict_conclusion": "Moins de vols intérieurs : un gain faible, juridiquement fragile.",
+    "sources_utilisees": [
+      "Loi Climat et résilience, 2021",
+      "Citepa, 2025"
+    ]
+  }
+}

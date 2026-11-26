@@ -1,0 +1,130 @@
+{
+  "_note": "Réponse SIMULÉE (charte RS v1) pour la FICHE DE TEST scripts/fixtures/charte-rs/fiche-test-riner-retraites.json : celle de reponse-simulee-riner-retraites.json, titres réécrits selon la page 4 de la charte (fait, chiffre ou conséquence). Aucun appel à Claude.",
+  "reponse": {
+    "couverture": {
+      "question": "{NOM} veut-il placer ==vos retraites en Bourse ?=="
+    },
+    "constat": {
+      "titre": "Retraites : un trou de 6,8 milliards en 2030.",
+      "explication": "Les retraites pèsent 14 % du PIB. Et il y a de moins en moins d’actifs pour chaque retraité.",
+      "chiffres": [
+        {
+          "valeur": "6,8 Md€",
+          "detail": "de déficit prévu en 2030",
+          "jaune": true
+        },
+        {
+          "valeur": "14 %",
+          "detail": "du PIB va aux retraites"
+        },
+        {
+          "valeur": "2,5",
+          "detail": "personnes de 20 à 64 ans pour une de 65 ans ou plus en 2025"
+        },
+        {
+          "valeur": "1,6",
+          "detail": "seulement en 2070"
+        }
+      ],
+      "proposition": "La proposition de {NOM} : garder la retraite par répartition, mieux tenir compte de la pénibilité et **ne pas exclure une part de capitalisation**.",
+      "imprecisions": "Elle ne dit ni à quel âge partir, ni combien cotiser, ni quelle part placer.",
+      "sources": "Conseil d'orientation des retraites, rapport annuel 2026"
+    },
+    "note": {
+      "titre": "Le plan de {NOM} : un bon diagnostic, mais rien n’est chiffré.",
+      "explication": "Ajouter de la capitalisation à la répartition est une piste sérieuse. Mais le levier pour 2030 manque.",
+      "criteres": {
+        "operationnalite_moyens": "Une loi suffit, et la capitalisation existe déjà en France.",
+        "efficacite": "L'orientation est raisonnable, mais le levier principal manque.",
+        "effets_rebonds_externalites": "Une cotisation nouvelle pèserait sur le salaire net.",
+        "degre_preparation": "Ni âge, ni durée, ni taux, ni calendrier.",
+        "alignement_logique": "La capitalisation paierait trop tard pour le déficit de 2030."
+      }
+    },
+    "court_terme": {
+      "titre": "D’ici 2 ans, le trou de 6,8 milliards reste entier.",
+      "effets": [
+        {
+          "acteur": "Pour les salariés",
+          "texte": "Une cotisation nouvelle réduirait le **salaire net**, et un peu la consommation.",
+          "pastille": "risque"
+        },
+        {
+          "acteur": "Pour les entreprises",
+          "texte": "Si l'employeur payait cette cotisation, le coût du travail augmenterait.",
+          "pastille": "coûteux"
+        },
+        {
+          "acteur": "Pour l'État",
+          "texte": "Une capitalisation facultative coûterait surtout en avantages fiscaux, encore non chiffrés.",
+          "pastille": "incertain"
+        }
+      ]
+    },
+    "long_terme": {
+      "titre": "Son pari peut payer… mais dans 30 à 40 ans.",
+      "effets": [
+        {
+          "acteur": "Pour les retraités",
+          "texte": "Une part de leur pension suivrait les **rendements financiers**.",
+          "pastille": "débattu"
+        },
+        {
+          "acteur": "Pour l'économie",
+          "texte": "L'épargne accumulée irait vers les entreprises et pourrait soutenir l'investissement.",
+          "pastille": "possible"
+        },
+        {
+          "acteur": "Pour les comptes publics",
+          "texte": "La capitalisation ne paierait des pensions que dans plusieurs décennies.",
+          "pastille": "différé"
+        }
+      ]
+    },
+    "ailleurs": {
+      "titre": "Ce que propose {NOM} existe déjà aux Pays-Bas.",
+      "mesures": [
+        {
+          "lieu": "Pays-Bas",
+          "annee": "",
+          "fait": "La capitalisation s'y ajoute à la répartition, par des régimes collectifs complémentaires.",
+          "resultat": "Elle est financée par des cotisations en plus.",
+          "pastille": "positif"
+        },
+        {
+          "lieu": "Chili",
+          "annee": "1981",
+          "fait": "Le pays a détourné des cotisations vers la capitalisation.",
+          "resultat": "La transition a creusé un déficit public d'environ 3,25 % du PIB par an.",
+          "pastille": "négatif"
+        }
+      ],
+      "sources": "OCDE, présentation au Conseil d'orientation des retraites, novembre 2025"
+    },
+    "avis": {
+      "avis": "La direction est raisonnable, mais sans levier chiffré, son plan ne comble pas le déficit attendu dès 2030.",
+      "tient": [
+        "Le diagnostic démographique est juste.",
+        "Ajouter de la capitalisation sans prendre sur les cotisations évite de payer deux fois."
+      ],
+      "coince": [
+        "Aucun âge, aucune durée, aucun taux.",
+        "La capitalisation arriverait trop tard pour le déficit de 2030."
+      ]
+    },
+    "illustration_mots_cles": [],
+    "legende": {
+      "question": "{NOM} veut garder la retraite par répartition et n'exclut pas une part de capitalisation. Est-ce une bonne idée ?",
+      "avis": "Notre avis : la direction est raisonnable, mais il manque le levier qui comblerait le déficit attendu dès 2030.",
+      "effet": "L'effet principal : une cotisation nouvelle pèserait sur le salaire net, pour des pensions versées dans plusieurs décennies."
+    },
+    "tweet": {
+      "accroche": "Et si une partie de votre retraite dépendait demain des marchés financiers ?",
+      "promesse": "{CANDIDAT} veut garder la retraite par répartition, mieux tenir compte de la pénibilité, et il n'exclut pas une part de capitalisation.",
+      "exemple": "Prenons un salarié du privé. Si une cotisation nouvelle finançait cette capitalisation, son salaire net baisserait un peu dès maintenant, pour une pension complémentaire versée dans plusieurs décennies.",
+      "hic": "Mais attention : le système serait en déficit de 6,8 milliards d'euros en 2030, et la capitalisation ne paierait des pensions que bien plus tard. Le candidat ne donne ni âge, ni durée de cotisation, ni taux.",
+      "tient": "Ce qui tient : le diagnostic. Il y avait 2,5 personnes de 20 à 64 ans pour une personne de 65 ans ou plus en 2025, et il n'y en aurait plus qu'environ 1,6 en 2070.",
+      "appel": "Placer une part de nos retraites en Bourse : bonne idée ou risque ? Dites-le en commentaire."
+    }
+  }
+}

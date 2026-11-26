@@ -5,14 +5,15 @@ import { cacheControlCarte } from "@/lib/carte";
 import { HAUTEUR_SLIDE, LARGEUR_SLIDE } from "@/lib/carrousel";
 import { carrouselDe, recitDe } from "@/lib/carrousel-serveur";
 import { lireDemo } from "@/lib/carrousel-demo";
-import { illustrationCandidat, policesCarrousel, portraitBleu, portraitCadre, portraitNoirBlanc, stickerTheme } from "@/lib/og-ressources";
+import { illustrationCandidat, policesCarrousel, policesCharteRS, portraitBleu, portraitCadre, portraitNoirBlanc, stickerTheme } from "@/lib/og-ressources";
 import { illustrationTraitee, teinteIllustration } from "@/lib/traitement-illustration";
 import { elementSlide } from "./slides";
 import { elementSlideDetaille, PICTOS } from "./slides-detaille";
 import { miseEnPageSlide } from "@/lib/mise-en-page-carrousel";
 import { mesureurCarrousel } from "@/lib/metriques-polices";
 import { CHEMIN_GRAIN, CHEMIN_PAPIER, cheminIllustrationTraitee, cheminVignetteNb, imageCandidatPrete, imagePrete } from "@/lib/images-carrousel";
-import { dataUriIcone } from "@/lib/icones-pixel";
+import { dataUriPicto } from "@/lib/pictos-charte";
+import { piedCarrousel } from "@/lib/carrousel-recit";
 
 // Images d'une slide du carrousel détaillé (data URI), toutes déjà prêtes
 // (scripts/preparer-images-carrousel.js, scripts/detourer-candidats.py) :
@@ -20,16 +21,16 @@ import { dataUriIcone } from "@/lib/icones-pixel";
 // papier jaune déchiré, illustration déjà teintée et tramée, photo Commons du
 // candidat déjà détourée (noir et blanc, grain, liseré), sinon la vignette
 // actuelle en tirage.
-async function imagesDetaille(slide, candidat) {
+async function imagesDetaille(slide, candidat, couleur) {
   const couverture = slide.type === "couverture";
-  const fond = couverture || slide.type === "fin" ? "sombre" : "clair";
+  const surCouleur = slide.type === "fin";
   const [grain, papier, portrait, illustration] = await Promise.all([
     imagePrete(CHEMIN_GRAIN),
     couverture ? imagePrete(CHEMIN_PAPIER) : null,
     couverture ? imageCandidatPrete({ detoure: slide.photo?.fichier ?? null, vignette: cheminVignetteNb(candidat) }) : null,
     couverture && slide.illustration ? imagePrete(cheminIllustrationTraitee(slide.illustration.fichier)) : null,
   ]);
-  return { grain, papier, candidat: portrait, illustration, picto: PICTOS[slide.type] ? dataUriIcone(PICTOS[slide.type], { theme: fond, taille: 112 }) : null };
+  return { grain, papier, candidat: portrait, illustration, picto: PICTOS[slide.type] ? dataUriPicto(PICTOS[slide.type], { taille: 6, fondSombre: surCouleur && !couleur.clair, couleur: surCouleur ? couleur.accent : couleur.accentCreme }) : null };
 }
 
 // Slides 1080 × 1350 des carrousels Instagram :
@@ -101,13 +102,13 @@ export async function GET(request, { params }) {
   if (!slide) return introuvable();
 
   if (detaille) {
-    const images = await imagesDetaille(slide, proposition.candidat);
+    const images = await imagesDetaille(slide, proposition.candidat, couleur);
     return new ImageResponse(
-      elementSlideDetaille({ slide, mise: miseEnPageSlide(slide, mesureurCarrousel()), couleur, images, candidatNom: proposition.candidat.nom, sujet }),
+      elementSlideDetaille({ slide, mise: miseEnPageSlide(slide, mesureurCarrousel()), couleur, images, candidatNom: proposition.candidat.nom, sujet, pied: piedCarrousel(proposition.candidat.nom, proposition.theme) }),
       {
         width: LARGEUR_SLIDE,
         height: HAUTEUR_SLIDE,
-        fonts: await policesCarrousel(),
+        fonts: await policesCharteRS(),
         headers: {
           "Cache-Control":
             demo

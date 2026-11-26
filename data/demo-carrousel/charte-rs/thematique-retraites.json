@@ -1,0 +1,66 @@
+{
+  "_note": "Démonstration SIMULÉE du carrousel « thématique » (charte RS v1), thème Retraites : fiches locales (data/analyses finales/, Base documentaire pour Le Pen, copiée dans scripts/fixtures/charte-rs/), FICHE DE TEST pour Teddy Riner, Gabriel Attal sans proposition publiée. Réponse du modèle écrite à la main. Aucun appel à Claude.",
+  "theme": "retraites",
+  "candidats": [
+    { "nom": "Teddy Riner", "fiche": { "fichier": "scripts/fixtures/charte-rs/fiche-test-riner-retraites.json", "id": 9001 } },
+    { "nom": "Éric Zemmour", "fiche": { "fichier": "data/analyses finales/Zemmour/zemmour_retraite_capitalisation_etape1_v2.json", "id": 9101, "theme": "retraites" } },
+    { "nom": "Gabriel Attal", "fiche": null },
+    { "nom": "Dominique de Villepin", "fiche": { "fichier": "data/analyses finales/DeVillepin/villepin_retraites_partenaires_sociaux_etape1_v2.json", "id": 9102, "theme": "retraites" } },
+    { "nom": "Marine Le Pen", "fiche": { "fichier": "scripts/fixtures/charte-rs/fiche-lepen-retraite-60-62.json", "id": 9103, "theme": "retraites" } },
+    { "nom": "Raphaël Glucksmann", "fiche": { "fichier": "data/analyses finales/Glucksmann/glucksmann_retraites_penibilite_etape1_v2.json", "id": 9104, "theme": "retraites" } }
+  ],
+  "reponse": {
+    "constat": {
+      "titre": "Retraites : 6,8 milliards de déficit attendus en 2030.",
+      "chiffres": [
+        { "valeur": "6,8 Md€", "detail": "de déficit attendu en 2030" },
+        { "valeur": "14 %", "detail": "du PIB va aux retraites" },
+        { "valeur": "5 ans", "detail": "d'écart d'espérance de vie entre cadres et ouvriers" }
+      ],
+      "sources": "Conseil d'orientation des retraites, rapport annuel 2026"
+    },
+    "candidats": [
+      {
+        "nom": "Raphaël Glucksmann",
+        "titre": "Partir plus tôt dans les métiers pénibles, sans âge ni critère.",
+        "proposition": "Moduler l'âge de départ selon la pénibilité et la santé.",
+        "regard": "L'injustice est réelle, mais mesurer la pénibilité a déjà échoué ailleurs.",
+        "cout": null
+      },
+      {
+        "nom": "Marine Le Pen",
+        "titre": "Partir entre 60 et 62 ans, avec un financement qui ne tient pas.",
+        "proposition": "Abroger la réforme de 2023 et partir selon l'âge du premier emploi.",
+        "regard": "Un retour à 62 ans creuserait le déficit de 10,4 milliards en 2035.",
+        "cout": "10,4 Md€ de déficit en plus en 2035"
+      },
+      {
+        "nom": "Teddy Riner",
+        "titre": "Une part des retraites en Bourse : possible, pas financé.",
+        "proposition": "Garder la répartition et ne pas exclure une part de capitalisation.",
+        "regard": "Le diagnostic est juste, mais le trou de 6,8 milliards reste entier.",
+        "cout": null
+      },
+      {
+        "nom": "Dominique de Villepin",
+        "titre": "Confier les retraites aux syndicats et au patronat.",
+        "proposition": "Laisser syndicats et patronat décider des paramètres des retraites.",
+        "regard": "Faisable, puisqu'ils gèrent déjà l'Agirc-Arrco, mais rien sur le déficit.",
+        "cout": null
+      },
+      {
+        "nom": "Éric Zemmour",
+        "titre": "Passer à la capitalisation, sans part ni calendrier.",
+        "proposition": "Faire entrer peu à peu la capitalisation dans les retraites.",
+        "regard": "La transition coûterait des dizaines de milliards par an, sans financement.",
+        "cout": null
+      }
+    ],
+    "avis": { "avis": "Aucun candidat ne règle le déficit, mais certains plans sont plus prêts que d'autres." },
+    "legende": {
+      "question": "Retraites : que proposent les candidats, et qu'est-ce qui est vraiment faisable ?",
+      "avis": "Notre avis : aucun candidat ne règle le déficit, mais certains plans sont plus prêts que d'autres.",
+      "effet": "Le système serait en déficit de 6,8 milliards d'euros en 2030."
+    }
+  }
+}

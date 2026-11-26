@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { POLICES } from "./charte-rs.js";
 
 // Largeur réelle d'un texte dans les polices des carrousels, lue dans les
 // fichiers de police eux-mêmes (tables cmap, hmtx, head, hhea des .ttf/.otf) :
@@ -8,11 +9,15 @@ import { join } from "node:path";
 // (on ne réduit jamais la police). Le crénage est ignoré : une marge de 3 %
 // le couvre. Côté serveur seulement (lecture de public/fonts).
 
+// Polices de la charte RS (src/lib/charte-rs.js) : texte courant et titres
+// en Inter Display Medium, gras en Inter Display Bold, couverture en Inter
+// Display Black, sous-titres en DM Serif Display, étiquettes en JetBrains Mono.
 const FICHIERS = {
-  texte500: "Inter-Medium.otf",
-  texte800: "Inter-ExtraBold.otf",
-  mono: "GeistMono-Medium.ttf",
-  serif: "SourceSerif4-Semibold.ttf",
+  texte500: POLICES.titre.fichier,
+  texte800: POLICES.gras.fichier,
+  couverture: POLICES.couverture.fichier,
+  mono: POLICES.mono.fichier,
+  serif: POLICES.serif.fichier,
 };
 const MARGE_CRENAGE = 1.03;
 
@@ -94,8 +99,8 @@ export function largeurTexte(police, texte, taille, espacement = 0) {
 let polices = null;
 
 // Fonction de mesure des carrousels : mesurer(texte, taille, police =
-// "texte500" | "texte800" | "mono" | "serif", espacement en px) → largeur en px.
+// "texte500" | "texte800" | "couverture" | "mono" | "serif", espacement en px) → largeur en px.
 export function mesureurCarrousel(racine = process.cwd()) {
-  polices ??= Object.fromEntries(Object.entries(FICHIERS).map(([cle, fichier]) => [cle, lirePolice(readFileSync(join(racine, "public", "fonts", fichier)))]));
+  polices ??= Object.fromEntries(Object.entries(FICHIERS).map(([cle, fichier]) => [cle, lirePolice(readFileSync(join(racine, "public", fichier)))]));
   return (texte, taille, police = "texte500", espacement = 0) => largeurTexte(polices[police] ?? polices.texte500, texte, taille, espacement);
 }

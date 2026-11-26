@@ -1,0 +1,10 @@
+Police des carrousels de la charte RS (docs/charte-rs.pdf, v1, novembre 2026),
+sous licence SIL Open Font License 1.1 (../OFL.txt) :
+
+- DMSerifDisplay-Regular.ttf : DM Serif Display, Colophon Foundry / Frank Grießhammer
+  (https://github.com/googlefonts/dm-fonts). Sous-titres de couverture et accents éditoriaux.
+
+Tirée du gabarit du kit carrousel (kit-carrousel-perlimpinpin_2, police embarquée en
+woff2), décompressée en TTF par scripts/woff2-vers-ttf.js : le moteur de next/og
+(Satori) ne lit pas le woff2. Sous-ensemble latin : accents français compris.
+Les autres polices des carrousels (Inter Display, JetBrains Mono) sont dans ../reel/.

@@ -21,7 +21,8 @@ import { chargerRendu, controlerRendu } from "./lib/controle-rendu.js";
 const fiche = (id) => JSON.parse(readFileSync(new URL(`./fixtures/carrousel-fiche-${id}.json`, import.meta.url), "utf8"));
 const CREME = "#F3EDE0";
 
-// Textes plus courts (ce que la relance « raccourcir » doit obtenir du modèle).
+// Textes plus courts (ce que la relance « raccourcir » doit obtenir du modèle),
+// aux tailles de la charte RS (titres à 64 px).
 const COURTS = {
   34: {
     couverture: { question: "{NOM} veut-elle geler le prix du ==tabac== ?" },
@@ -31,7 +32,7 @@ const COURTS = {
       imprecisions: "Elle ne dit ni combien de temps, ni comment compenser.",
       sources: "Sénat, OFDT (2019).",
     },
-    note: { explication: "Simple à appliquer, mais contraire à l’outil le mieux démontré contre le tabagisme." },
+    note: { titre: "Le plan de {NOM} soulage les buralistes, pas la santé.", explication: "Simple à appliquer, mais contraire à l’outil le mieux démontré contre le tabagisme." },
   },
   105: {
     couverture: { question: "Mélenchon veut-il suspendre la règle des ==3 %== ?" },
@@ -41,7 +42,7 @@ const COURTS = {
       imprecisions: "Elle ne dit ni pour combien de temps, ni ce qui la remplacerait.",
       sources: "Insee, Eurostat.",
     },
-    note: { explication: "La règle a déjà été suspendue en 2020. Le vrai frein de la France reste le coût de sa dette." },
+    note: { titre: "Le plan de {NOM} vise une vraie faille, pas le vrai frein.", explication: "Déjà suspendue en 2020. Le vrai frein reste le coût de la dette." },
   },
 };
 

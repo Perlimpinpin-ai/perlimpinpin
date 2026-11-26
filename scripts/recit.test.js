@@ -219,7 +219,7 @@ function donneesRecit(modifs = {}) {
     score: 51,
     contenu: { ...FICHE, reseaux_recit: recit },
     handlesInstagram: {},
-    couleursCarrousel: { "Fabien Roussel": { fond: "#B33A2B", bloc: "#1C2A5E" } },
+    couleursCarrousel: { "Fabien Roussel": { nom: "Brique", fond: "#B33A2B", accent: "#1C2A5E" } },
     photos: [],
     ...modifs,
   };
@@ -232,7 +232,7 @@ test("carrousel détaillé : 8 slides, note, critères, sous-titre et fin par le
     ["couverture", "constat", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "avis", "fin"],
   );
   assert.equal(sujet, "Smic à 2 200 euros brut");
-  assert.equal(slides[0].question, "Fabien Roussel veut-il un ==Smic à 2 200 euros== ?");
+  assert.equal(slides[0].question, "Roussel veut-il un ==Smic à 2 200 euros== ?");
   assert.equal(slides[0].sousTitre, "Sa proposition : bonne idée… ou poudre de perlimpinpin ?");
   assert.equal(slides[0].fichier, "01-couverture.png");
   assert.equal(slides[1].fichier, "02-constat-et-proposition.png");
@@ -242,7 +242,7 @@ test("carrousel détaillé : 8 slides, note, critères, sous-titre et fin par le
   assert.deepEqual(slides[2].criteres.map((c) => `${c.note}/${c.max}`), ["18/30", "12/30", "9/20", "4/10", "8/10"]);
   assert.equal(slides[6].avis, "Le gain est réel, mais le coût pour les PME reste à chiffrer.");
   assert.deepEqual(slides[7].sources, ["Ministère du Travail, montants du Smic 2026", "Insee, salaires", "OCDE, Smic rapporté au salaire médian"]);
-  assert.deepEqual(couleur, { fond: "#B33A2B", bloc: "#1C2A5E" });
+  assert.deepEqual([couleur.fond, couleur.bloc], ["#B33A2B", "#1C2A5E"]);
   assert.match(legende, /^Fabien Roussel veut porter le Smic à 2 200 euros brut\. Est-ce tenable \?\n\nNotre avis : /);
   assert.match(legende, /lien en bio/);
   assert.match(tweet, /@Fabien_Roussel veut porter le Smic/);

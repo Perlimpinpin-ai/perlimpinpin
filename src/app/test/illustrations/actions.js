@@ -3,7 +3,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { isEditor } from "@/lib/test-auth";
-import { ILLUSTRATIONS, THEMES_ILLUSTRATIONS } from "@/lib/illustrations";
+import { ILLUSTRATIONS, SOURCES_AUTORISEES, sourceAutorisee, THEMES_ILLUSTRATIONS } from "@/lib/illustrations";
 import { candidatesSimulees } from "../../../../scripts/lib/illustrations-pexels.js";
 
 // Actions de /test/illustrations. Elles n'écrivent que des fichiers locaux
@@ -73,12 +73,17 @@ export async function enregistrerSelectionAction(theme, choix) {
 // moins de 400 Ko, version traitée pour la couverture) et les ajoute à
 // src/lib/illustrations.js (comme scripts/chercher-illustrations.js
 // <thème> --telecharger). Une image sans crédit complet est refusée.
-export async function garderSelectionAction(theme, choix) {
+// Charte RS (page 11) : la case « aucune personne identifiable » est
+// obligatoire, et seules les sources autorisées entrent dans la bibliothèque.
+export async function garderSelectionAction(theme, choix, sansPersonneIdentifiable = false) {
   const r = await refus(theme);
   if (r) return r;
+  if (sansPersonneIdentifiable !== true) return { ok: false, erreur: "Cochez d’abord « Aucune personne identifiable sur les images cochées » (charte RS)." };
   try {
     const retenues = await lireSelection(theme, choix);
     if (retenues.length === 0) return { ok: false, erreur: "Cochez d’abord au moins une image." };
+    const interdites = retenues.filter((c) => !sourceAutorisee(c.source));
+    if (interdites.length) return { ok: false, erreur: `Source non autorisée (${[...new Set(interdites.map((c) => c.source || "inconnue"))].join(", ")}) : seulement ${SOURCES_AUTORISEES.join(", ")}.` };
     await ecrireSelection(theme, retenues);
     const { garderIllustrations } = await import("../../../../scripts/lib/banque-images-fichiers.js");
     const { faites, erreurs } = await garderIllustrations({ racine: process.cwd(), theme, retenues, existantes: ILLUSTRATIONS });

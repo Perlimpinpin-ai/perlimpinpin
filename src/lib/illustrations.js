@@ -483,6 +483,15 @@ export function creditVisible(illustration) {
 }
 
 // Ligne de crédit pour la légende (toujours, quand une image est utilisée).
+// Sources autorisées pour les illustrations (charte RS, page 11). Interdit :
+// photos d'agences ou de médias, captures TV, images générées représentant
+// des personnes réelles. Jamais de personne identifiable.
+export const SOURCES_AUTORISEES = ["Wikimedia Commons", "Pexels", "Pixabay", "Unsplash"];
+
+export function sourceAutorisee(source) {
+  return SOURCES_AUTORISEES.some((s) => s.toLowerCase() === String(source ?? "").trim().toLowerCase());
+}
+
 export function creditLegende(illustration) {
   if (!illustration) return null;
   return `${lignePhoto(illustration)} ${illustration.lien ?? ""}`.trim();

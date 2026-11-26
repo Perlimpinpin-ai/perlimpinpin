@@ -1,9 +1,5 @@
-import { createRequire } from "node:module";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import sharp from "sharp";
+import { chargerComposants } from "./rendu-jsx.js";
 import { HAUTEUR, LARGEUR, ZONE_PIED, ZONES_COUVERTURE } from "../../src/lib/mise-en-page-carrousel.js";
 
 // Contrôle du rendu réel des slides du carrousel détaillé : la slide est
@@ -14,33 +10,18 @@ import { HAUTEUR, LARGEUR, ZONE_PIED, ZONES_COUVERTURE } from "../../src/lib/mis
 // pixel compté = un texte (ou une carte) qui entre dans la zone.
 // Utilisé par scripts/carrousel-rendu.test.js et le banc d'essai local.
 
-const RACINE = fileURLToPath(new URL("../..", import.meta.url));
-const require = createRequire(import.meta.url);
 
 // Zones réservées d'une slide.
 export function zonesReservees(type) {
   return type === "couverture" ? ZONES_COUVERTURE : [ZONE_PIED];
 }
 
-// Compile le rendu JSX des slides (next/og) en module ESM jouable par Node,
-// dans un dossier temporaire. Renvoie { elementSlideDetaille, ImageResponse },
+// Composant « une mesure » compilé hors de Next (scripts/lib/rendu-jsx.js). Renvoie { elementSlideDetaille, ImageResponse },
 // ou null si TypeScript (qui sert à compiler le JSX) est absent.
 export async function chargerRendu() {
-  let ts;
-  try {
-    ts = require("typescript");
-  } catch {
-    return null;
-  }
-  const lib = (nom) => pathToFileURL(join(RACINE, "src", "lib", `${nom}.js`)).href;
-  const source = readFileSync(join(RACINE, "src", "app", "api", "carrousel", "[id]", "slides-detaille.js"), "utf8").replace(/from "@\/lib\/([^"]+)"/g, (_, nom) => `from "${lib(nom)}"`);
-  const { outputText } = ts.transpileModule(source, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
-  const code = outputText.replace(/from "react\/jsx-runtime"/g, `from "${pathToFileURL(require.resolve("react/jsx-runtime")).href}"`);
-  const fichier = join(mkdtempSync(join(tmpdir(), "rendu-carrousel-")), "slides-detaille.mjs");
-  writeFileSync(fichier, code);
-  const { elementSlideDetaille } = await import(pathToFileURL(fichier).href);
-  const { ImageResponse } = await import(pathToFileURL(require.resolve("next/dist/compiled/@vercel/og/index.node.js")).href);
-  return { elementSlideDetaille, ImageResponse };
+  const charge = await chargerComposants();
+  if (!charge) return null;
+  return { elementSlideDetaille: charge.composants.CarrouselMesure, ImageResponse: charge.ImageResponse };
 }
 
 function rgb(hex) {

@@ -15,6 +15,8 @@ import { enregistrerSelectionAction, garderSelectionAction, rechercheSimuleeActi
 export default function SelectionIllustrations({ theme, candidates, dejaRetenues, simulation, localSeulement = false, dejaGardees = [] }) {
   const router = useRouter();
   const [coches, setCoches] = useState(() => new Set(dejaRetenues.map((c) => c.id)));
+  // Charte RS : jamais de personne identifiable sur une illustration (case obligatoire).
+  const [sansPersonne, setSansPersonne] = useState(false);
   const [mots, setMots] = useState(() => Object.fromEntries(candidates.map((c) => [c.id, dejaRetenues.find((r) => r.id === c.id)?.motCle ?? c.motCle])));
   const [retour, setRetour] = useState(null);
   const [occupe, setOccupe] = useState(false);
@@ -44,7 +46,7 @@ export default function SelectionIllustrations({ theme, candidates, dejaRetenues
 
   async function garder() {
     setOccupe(true);
-    const r = await garderSelectionAction(theme, [...coches].map((id) => ({ id, motCle: mots[id] })));
+    const r = await garderSelectionAction(theme, [...coches].map((id) => ({ id, motCle: mots[id] })), sansPersonne);
     setOccupe(false);
     setRetour(
       r.ok
@@ -122,7 +124,11 @@ export default function SelectionIllustrations({ theme, candidates, dejaRetenues
         })}
       </ul>
       <div className="sticky bottom-3 flex flex-wrap items-center gap-3 rounded-xl border border-zinc-200 bg-white/95 p-3 shadow-sm">
-        <button type="button" onClick={garder} disabled={occupe || localSeulement || simulation} className="rounded-full border border-zinc-900 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-white hover:opacity-80 disabled:opacity-60">
+        <label className="flex items-center gap-2 text-xs font-semibold">
+          <input type="checkbox" checked={sansPersonne} onChange={(e) => setSansPersonne(e.target.checked)} />
+          Aucune personne identifiable sur les images cochées (obligatoire)
+        </label>
+        <button type="button" onClick={garder} disabled={occupe || localSeulement || simulation || !sansPersonne} className="rounded-full border border-zinc-900 bg-zinc-900 px-4 py-1.5 text-xs font-semibold text-white hover:opacity-80 disabled:opacity-60">
           {occupe ? "…" : `Garder les images cochées (${coches.size})`}
         </button>
         <button type="button" onClick={enregistrer} disabled={occupe || localSeulement} className="rounded-full border border-zinc-300 bg-white px-4 py-1.5 text-xs font-semibold hover:bg-zinc-100 disabled:opacity-60">

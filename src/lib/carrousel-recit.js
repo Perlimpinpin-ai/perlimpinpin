@@ -1,13 +1,16 @@
 import { getScoreBadge } from "./score.js";
 import { empreinte, slugCandidat } from "./carte.js";
 import { criteresPrincipaux } from "./criteresScore.js";
-import { resolveTheme } from "./themes.js";
+import { getThemeBySlug, resolveTheme } from "./themes.js";
 import { remplirTweet, valeursReseaux } from "./reseaux.js";
 import { hashtagsLegende, illustrationCouverture, LEGENDE_MAX, scoreAffiche, sourcesPrincipales, sujetCourt, texteRepris } from "./carrousel.js";
 import { handleInstagramVerifie } from "./handles-instagram.js";
 import { controlerRecit, formatAncien, SOUS_TITRE_COUVERTURE } from "./recit.js";
 import { fichePourRecit } from "./recit-generation.js";
-import { couleurCarrousel, COULEUR_NEUTRE } from "./couleurs-carrousel.js";
+import { couleurCarrousel } from "./couleurs-carrousel.js";
+import { controleRegistre } from "./charte-rs.js";
+import { listeVerifications } from "./verifications-charte.js";
+import { nomDeFamille } from "./ecriture-charte.js";
 import { creditLegende, creditVisible, illustrationsProposees } from "./illustrations.js";
 import { limiterMotsGras } from "./texte-gras.js";
 import { choisirPhoto, creditsPhoto, PHOTOS_CANDIDATS, PHOTOS_MIN, photosDuCandidat } from "./photos-candidats.js";
@@ -86,11 +89,11 @@ export function creditsPhotos({ illustration, photo }) {
   return { courts, fin: courts, complets };
 }
 
-// Nom du candidat sur la couverture : le nom de famille (avec sa particule)
-// ne se coupe pas d'une ligne à l'autre (« Dominique / de Villepin »).
+// Nom du candidat sur la couverture (charte RS, page 4) : seulement le nom de
+// famille (« Riner veut-il… », « Villepin », « Le Pen »), qui ne se coupe pas
+// d'une ligne à l'autre.
 export function nomInsecable(candidatNom) {
-  const [prenom, ...reste] = String(candidatNom ?? "").trim().split(/\s+/);
-  return reste.length ? `${prenom} ${reste.join(" ")}` : (prenom ?? "");
+  return nomDeFamille(candidatNom).replace(/\s+/g, " ");
 }
 
 // Nom de l'archive : carrousel-<slug du candidat>-<thème>.zip.
@@ -132,12 +135,14 @@ export function carrouselRecit(donnees) {
 
   const nom = (t) => remplirTweet(t, { NOM: candidatNom, CANDIDAT: candidatNom });
 
-  // Couleur du candidat (src/lib/couleurs-carrousel.js).
+  // Couleur du candidat : registre de la charte RS (src/lib/charte-rs.js).
+  // Candidat absent du registre : pas de carrousel (proposition de couleurs).
   const couleurChoisie = couleurCarrousel(candidatNom, donnees.couleursCarrousel ? { table: donnees.couleursCarrousel } : {});
   if (!couleurChoisie) {
-    avertissements.push({ cle: "couleur", fort: true, message: `Pas de couleur attribuée à ${candidatNom} (src/lib/couleurs-carrousel.js) : couleur neutre provisoire.` });
+    avertissements.push({ cle: "couleur", fort: true, message: controleRegistre(candidatNom, donnees.couleursCarrousel ?? undefined) });
+    return vide({});
   }
-  const couleur = couleurChoisie ?? COULEUR_NEUTRE;
+  const couleur = couleurChoisie;
 
   // Image de thème : celle retenue à la génération de cette version, sinon tirage.
   const illustration = illustrationCouverture(
@@ -188,7 +193,7 @@ export function carrouselRecit(donnees) {
   const [avisTexte, ...pointsAvis] = limiterMotsGras([recit.avis.avis, ...tientCoince].map(nom));
   const nbTient = Math.min(3, recit.avis.tient.length);
   const brutes = [
-    { type: "couverture", photo: photo ? { n: photo.n, fichier: photo.fichier } : null, theme: resolveTheme(theme), question: remplirTweet(recit.couverture.question, { NOM: nomInsecable(candidatNom), CANDIDAT: candidatNom }), sousTitre: SOUS_TITRE_COUVERTURE, illustration, credits: credits.courts },
+    { type: "couverture", photo: photo ? { n: photo.n, fichier: photo.fichier } : null, theme: resolveTheme(theme), question: remplirTweet(recit.couverture.question, { NOM: nomInsecable(candidatNom), CANDIDAT: nomInsecable(candidatNom) }), sousTitre: SOUS_TITRE_COUVERTURE, illustration, credits: credits.courts },
     {
       type: "constat",
       titre: constatTitre,
@@ -228,12 +233,21 @@ export function carrouselRecit(donnees) {
 
   // Ce que la check-list « À relire avant de publier » vérifie d'elle-même.
   const erreurSur = (motif) => controle.erreurs.some((e) => motif.test(e));
+  const sommeCriteres = criteres.reduce((t, c) => t + (Number(c.note) || 0), 0);
   const controles = {
-    constatAvantProposition: !erreurSur(/^slide 2/),
+    constatAvantProposition: !erreurSur(/^slide 2 \((titre|explication|proposition)\) : (la proposition|le nom)/),
     chiffresSources: !erreurSur(/^Nombre\(s\) absent/) && Boolean(recit.constat.sources) && (!recit.ailleurs || Boolean(recit.ailleurs.sources)),
-    noteHorsCouverture: !erreurSur(/^couverture/),
+    sommeSousNotes: criteres.length > 0 && Math.round(sommeCriteres) === Math.round(Number(score)),
+    noteHorsCouverture: !erreurSur(/^couverture : la note/),
+    nomFamilleCouverture: !erreurSur(/^couverture : prénom/),
+    titresInformatifs: !erreurSur(/intertitre de rubrique/),
+    insecables: true, // appliqués par le code avant le rendu (src/lib/ecriture-charte.js)
+    couleurRegistre: true,
     creditsPresents: !blocageArchive && (!photo || Boolean(creditsPhoto(photo))),
+    sansResteMaquette: !erreurSur(/reste de maquette/),
+    finConforme: true, // fin écrite par le code (TEXTES_FIN, formules fixes)
   };
+  if (criteres.length && !controles.sommeSousNotes) avertissements.push({ cle: "slide « La note »", fort: true, message: `La somme des sous-notes (${sommeCriteres}) n’égale pas la note (${score}).` });
 
   const tweet = remplirTweet(recit.tweet_assemble, valeurs);
   const version = `${analyseId}-${precedent ? "p" : "r"}-${empreinte(JSON.stringify([candidatNom, slugCandidat({ nom: candidatNom, photoUrl }), couleur, sujet, slides]))}`;
@@ -266,18 +280,14 @@ export function ciblesRemarques(recit) {
   ];
 }
 
-// Check-list « À relire avant de publier » (section 6 du prompt) : chaque
-// point avec `auto` (true/false : coché ou non par le code), null (à cocher
-// à la main) ou "couleur" (vérifié dans le navigateur, d'après les couleurs
-// des 2 derniers carrousels publiés).
+// Check-list « Vérifications avant publication » (page 20 de la charte RS) :
+// src/lib/verifications-charte.js, commune aux trois formats.
 export function listeARelire({ controles = {}, debordements = [] }) {
-  return [
-    { cle: "constat", libelle: "Le constat vient avant la proposition, et le texte parle de sa proposition.", auto: controles.constatAvantProposition ?? false },
-    { cle: "sources", libelle: "Chaque chiffre vient de la fiche et est sourcé.", auto: controles.chiffresSources ?? false },
-    { cle: "note", libelle: "La note n’est pas sur la couverture.", auto: controles.noteHorsCouverture ?? false },
-    { cle: "debordement", libelle: "Aucun texte ne déborde, aucun titre n’est mal coupé.", auto: debordements.length === 0 },
-    { cle: "couleur", libelle: "La couleur est celle du candidat et diffère des 2 derniers carrousels.", auto: "couleur" },
-    { cle: "credits", libelle: "Les photos sont créditées sur la couverture et dans credits.txt.", auto: controles.creditsPresents ?? false },
-    { cle: "traitement", libelle: "Le traitement est le même que pour les autres candidats.", auto: null },
-  ];
+  return listeVerifications({ controles, debordements, format: "mesure" });
+}
+
+// Pied de page des slides (charte RS, page 14) : « Candidat · Thème ».
+export function piedCarrousel(candidatNom, theme) {
+  const t = getThemeBySlug(resolveTheme(theme));
+  return t ? `${candidatNom} · ${t.shortName ?? t.name}` : candidatNom;
 }

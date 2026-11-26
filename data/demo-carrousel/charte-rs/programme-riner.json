@@ -1,0 +1,95 @@
+{
+  "_note": "Démonstration SIMULÉE du carrousel « analyse de programme » (charte RS v1) sur 6 FICHES DE TEST de Teddy Riner (scripts/fixtures/charte-rs/fiche-test-riner-*.json, pas des analyses publiées). « ordre » : le champ de tri saisi à la main. Réponse du modèle écrite à la main. Aucun appel à Claude.",
+  "candidat": "Teddy Riner",
+  "fiches": [
+    {
+      "fichier": "scripts/fixtures/charte-rs/fiche-test-riner-retraites.json",
+      "id": 9001,
+      "ordre": 1
+    },
+    {
+      "fichier": "scripts/fixtures/charte-rs/fiche-test-riner-sante.json",
+      "id": 9002,
+      "ordre": 2
+    },
+    {
+      "fichier": "scripts/fixtures/charte-rs/fiche-test-riner-ecole.json",
+      "id": 9003,
+      "ordre": 3
+    },
+    {
+      "fichier": "scripts/fixtures/charte-rs/fiche-test-riner-logement.json",
+      "id": 9004,
+      "ordre": 4
+    },
+    {
+      "fichier": "scripts/fixtures/charte-rs/fiche-test-riner-emploi.json",
+      "id": 9005,
+      "ordre": 5
+    },
+    {
+      "fichier": "scripts/fixtures/charte-rs/fiche-test-riner-climat.json",
+      "id": 9006,
+      "ordre": 6
+    }
+  ],
+  "reponse": {
+    "ensemble": {
+      "titre": "Des idées sur le sport et la santé, des chiffres qui manquent ailleurs."
+    },
+    "mesures": [
+      {
+        "titre": "Une part des retraites en Bourse : possible, pas financé.",
+        "proposition": "Garder la répartition et ne pas exclure une part de capitalisation.",
+        "tient": "Le diagnostic démographique est juste.",
+        "coince": "Le trou de 6,8 milliards en 2030 reste entier.",
+        "source": "Conseil d'orientation des retraites, rapport annuel 2026"
+      },
+      {
+        "titre": "4 000 médecins de plus : finançable, mais lent.",
+        "proposition": "Une prime de 1 500 euros par mois pour les jeunes médecins des déserts médicaux.",
+        "tient": "Environ 72 millions d'euros par an : un coût modeste.",
+        "coince": "Il faut d'abord former ces médecins d'ici 2030.",
+        "source": "Assurance maladie, 2025"
+      },
+      {
+        "titre": "2 heures de sport en plus au collège : faisable.",
+        "proposition": "Ajouter 2 heures de sport par semaine, encadrées par des éducateurs.",
+        "tient": "Environ 10 000 éducateurs suffiraient, pour 400 millions d'euros par an.",
+        "coince": "L'emploi du temps des collégiens est déjà chargé.",
+        "source": "Ministère de l'Éducation nationale, 2025"
+      },
+      {
+        "titre": "100 000 logements sociaux par an : un rythme jamais tenu.",
+        "proposition": "Construire 500 000 logements sociaux en 5 ans.",
+        "tient": "Environ 2,7 millions de ménages attendent un logement social.",
+        "coince": "Il s'en est construit environ 82 000 en 2024, sans foncier identifié.",
+        "source": "Union sociale pour l'habitat, 2025"
+      },
+      {
+        "titre": "Un service civique sportif : utile, effet incertain.",
+        "proposition": "8 mois de service civique sportif pour 50 000 jeunes sans emploi ni formation.",
+        "tient": "Le service civique accueille déjà environ 80 000 jeunes par an.",
+        "coince": "Rien ne dit combien trouveraient ensuite un emploi.",
+        "source": "Insee, 2024"
+      },
+      {
+        "titre": "Moins de vols intérieurs : 1 % des émissions, un gain faible.",
+        "proposition": "Interdire les vols quand le train fait le trajet en moins de 4 heures.",
+        "tient": "La loi Climat de 2021 le fait déjà sous 2 h 30.",
+        "coince": "Le droit européen limite ces interdictions.",
+        "source": "Loi Climat et résilience, 2021"
+      }
+    ],
+    "avis": {
+      "avis": "Ses mesures sur la santé et le sport tiennent, celles qui coûtent le plus ne sont pas financées.",
+      "solide": "Une prime ciblée, au coût connu, là où il manque des médecins.",
+      "fragile": "Le gain pour le climat serait faible, et le droit européen bloque."
+    },
+    "legende": {
+      "question": "On a noté 6 mesures de Teddy Riner. Lesquelles tiennent la route ?",
+      "avis": "Notre avis : ses mesures sur la santé et le sport tiennent, celles qui coûtent le plus ne sont pas financées.",
+      "effet": "Sa mesure la plus solide : des médecins en plus dans les déserts médicaux."
+    }
+  }
+}

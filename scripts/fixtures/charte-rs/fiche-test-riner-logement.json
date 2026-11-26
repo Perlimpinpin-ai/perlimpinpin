@@ -1,0 +1,66 @@
+{
+  "_note": "FICHE DE TEST (charte RS, démonstration locale) : pas une analyse publiée, textes et chiffres fabriqués pour tester le rendu.",
+  "titre_fiche": "Logement : 500 000 logements sociaux en 5 ans",
+  "theme": "logement",
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Construire 500 000 logements sociaux en 5 ans, soit 100 000 par an.",
+      "texte": "Construire 500 000 logements sociaux en 5 ans, soit 100 000 par an."
+    },
+    "contexte_national": {
+      "synthese": "Environ 2,7 millions de ménages attendent un logement social (USH, 2025). Il s'en est construit environ 82 000 en 2024. Le coût public est estimé à 9 milliards d'euros par an.",
+      "texte": "Environ 2,7 millions de ménages attendent un logement social (USH, 2025). Il s'en est construit environ 82 000 en 2024. Le coût public est estimé à 9 milliards d'euros par an."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 12,
+        "note_max": 30,
+        "texte": "Opérationnalité & Moyens : 12 sur 30."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 13,
+        "note_max": 30,
+        "texte": "Efficacité : 13 sur 30."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 9,
+        "note_max": 20,
+        "texte": "Effets rebonds & Externalités : 9 sur 20."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 3,
+        "note_max": 10,
+        "texte": "Degré de préparation : 3 sur 10."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 4,
+        "note_max": 10,
+        "texte": "Alignement & Logique globale : 4 sur 10."
+      }
+    ],
+    "notation_detaillee": {
+      "operationnalite_moyens_total": 12,
+      "efficacite": 13,
+      "effets_rebonds_externalites": 9,
+      "degre_preparation": 3,
+      "alignement_logique": 4,
+      "score_total": 41
+    },
+    "verdict_final": "L'objectif est très au-dessus du rythme actuel, sans financement ni foncier identifiés.",
+    "verdict_conclusion": "100 000 logements sociaux par an : un rythme jamais tenu.",
+    "cout_estime": "environ 9 milliards d'euros par an",
+    "sources_utilisees": [
+      "Union sociale pour l'habitat, 2025"
+    ]
+  }
+}

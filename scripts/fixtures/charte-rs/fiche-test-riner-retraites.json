@@ -1,0 +1,67 @@
+{
+  "_note": "FICHE DE TEST (charte RS, démonstration locale) : pas une analyse publiée, textes et chiffres fabriqués pour tester le rendu.",
+  "titre_fiche": "Retraites : garder la répartition, ajouter une part de capitalisation",
+  "theme": "retraites",
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Garder la retraite par répartition, mieux tenir compte de la pénibilité et ne pas exclure une part de capitalisation.",
+      "texte": "Garder la retraite par répartition, mieux tenir compte de la pénibilité et ne pas exclure une part de capitalisation."
+    },
+    "contexte_national": {
+      "synthese": "Selon le Conseil d'orientation des retraites (rapport annuel 2026), le système serait en déficit de 6,8 milliards d'euros en 2030 à règles inchangées. Les retraites représentent 14 % du PIB. Il y avait 2,5 personnes de 20 à 64 ans pour une personne de 65 ans ou plus en 2025, et environ 1,6 en 2070. Aux Pays-Bas, la capitalisation s'ajoute à la répartition par des régimes collectifs complémentaires financés par des cotisations en plus. Le Chili a détourné en 1981 des cotisations vers la capitalisation : la transition a creusé un déficit public d'environ 3,25 % du PIB par an (OCDE, présentation au Conseil d'orientation des retraites, novembre 2025). La capitalisation ne rapporterait qu'au bout de 30 à 40 ans ; à court terme (0 à 2 ans), le trou de 6,8 milliards resterait entier.",
+      "texte": "Selon le Conseil d'orientation des retraites (rapport annuel 2026), le système serait en déficit de 6,8 milliards d'euros en 2030 à règles inchangées. Les retraites représentent 14 % du PIB. Il y avait 2,5 personnes de 20 à 64 ans pour une personne de 65 ans ou plus en 2025, et environ 1,6 en 2070. Aux Pays-Bas, la capitalisation s'ajoute à la répartition par des régimes collectifs complémentaires financés par des cotisations en plus. Le Chili a détourné en 1981 des cotisations vers la capitalisation : la transition a creusé un déficit public d'environ 3,25 % du PIB par an (OCDE, présentation au Conseil d'orientation des retraites, novembre 2025). La capitalisation ne rapporterait qu'au bout de 30 à 40 ans ; à court terme (0 à 2 ans), le trou de 6,8 milliards resterait entier."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 21,
+        "note_max": 30,
+        "texte": "Opérationnalité & Moyens : 21 sur 30."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 15,
+        "note_max": 30,
+        "texte": "Efficacité : 15 sur 30."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 13,
+        "note_max": 20,
+        "texte": "Effets rebonds & Externalités : 13 sur 20."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 1,
+        "note_max": 10,
+        "texte": "Degré de préparation : 1 sur 10."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 6,
+        "note_max": 10,
+        "texte": "Alignement & Logique globale : 6 sur 10."
+      }
+    ],
+    "notation_detaillee": {
+      "operationnalite_moyens_total": 21,
+      "efficacite": 15,
+      "effets_rebonds_externalites": 13,
+      "degre_preparation": 1,
+      "alignement_logique": 6,
+      "score_total": 56
+    },
+    "verdict_final": "La direction est raisonnable, mais sans levier chiffré, le plan ne comble pas le déficit attendu dès 2030. Une part de capitalisation, possible, n'est pas financée.",
+    "verdict_conclusion": "Une part des retraites en Bourse : possible, pas financé.",
+    "cout_estime": "non chiffré par le candidat",
+    "sources_utilisees": [
+      "Conseil d'orientation des retraites, rapport annuel 2026",
+      "OCDE, présentation au Conseil d'orientation des retraites, novembre 2025"
+    ]
+  }
+}

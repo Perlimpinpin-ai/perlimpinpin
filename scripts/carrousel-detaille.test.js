@@ -78,11 +78,17 @@ test("slides 4 et 5 : effet sans conditionnel → avertissement ; slide 3 sans l
 
 // --- Couleurs -------------------------------------------------------------------------
 
-test("couleurs : table du candidat { fond, bloc }, 2 derniers carrousels comparés par la couleur", () => {
+test("couleurs : registre de la charte RS { fond, accent }, 2 derniers carrousels comparés par la couleur", () => {
   assert.ok(Object.values(COULEURS_CARROUSEL_CANDIDATS).every((c) => /^#[0-9A-F]{6}$/i.test(c.fond) && /^#[0-9A-F]{6}$/i.test(c.bloc)));
-  assert.deepEqual(couleurCarrousel("teddy riner", { table: { "Teddy Riner": { fond: "#2a62b5", bloc: "#1c2a5e" } } }), { fond: "#2A62B5", bloc: "#1C2A5E" });
+  const riner = couleurCarrousel("teddy riner");
+  assert.equal(riner.fond, "#2C6A9E");
+  assert.equal(riner.bloc, "#E89A5B");
+  assert.equal(riner.texte, "#FFFFFF");
+  assert.equal(couleurCarrousel("Gabriel Attal").surlignage, "#FFFFFF");
+  assert.equal(couleurCarrousel("Dominique de Villepin").texte, "#1E1915");
+  assert.equal(couleurCarrousel("Dominique de Villepin").accentCreme, "#24566E");
   assert.equal(couleurCarrousel("Inconnu"), null);
-  assert.equal(couleurCarrousel("A", { table: { A: { fond: "bleu", bloc: "#000000" } } }), null);
+  assert.equal(couleurCarrousel("A", { table: { A: { fond: "bleu", accent: "#000000" } } }), null);
   assert.ok(memeCouleurQueDerniers("#2A62B5", ["#2B63B4", "#123456"]));
   assert.ok(!memeCouleurQueDerniers("#2A62B5", ["#B33A2B", "#2F6B35", "#2A62B5"]));
   assert.ok(!memeCouleurQueDerniers(null, ["#2A62B5"]));
@@ -240,7 +246,7 @@ function donnees(modifs = {}) {
     score: 51,
     contenu: { ...FICHE, reseaux_recit: recit },
     handlesInstagram: { "Fabien Roussel": { compte: "@fabien_roussel", verifie: true } },
-    couleursCarrousel: { "Fabien Roussel": { fond: "#B33A2B", bloc: "#1C2A5E" } },
+    couleursCarrousel: { "Fabien Roussel": { nom: "Brique", fond: "#B33A2B", accent: "#1C2A5E" } },
     photos: [
       { id: "c1", slug: "fabien-roussel", n: 1, fichier: "carrousel/candidats/fabien-roussel/1.png", auteur: "Jean Photo", licence: "CC BY-SA 4.0", lien: "https://commons.wikimedia.org/wiki/File:1", modification: "photo modifiée : détourage, noir et blanc" },
       { id: "c2", slug: "fabien-roussel", n: 2, fichier: "carrousel/candidats/fabien-roussel/2.png", auteur: "Anne Photo", licence: "CC BY 2.0", lien: "https://commons.wikimedia.org/wiki/File:2", modification: "photo modifiée : détourage, noir et blanc" },
@@ -250,9 +256,10 @@ function donnees(modifs = {}) {
   };
 }
 
-test("carrousel : photo Commons tirée ou demandée, crédit sur la couverture, la fin, credits.txt et la légende ; zip bloqué sans crédit ; couleur absente → neutre", () => {
+test("carrousel : photo Commons tirée ou demandée, crédit sur la couverture, la fin, credits.txt et la légende ; zip bloqué sans crédit ; candidat hors registre → refus", () => {
   const c = carrouselRecit(donnees({ photoDemandee: 2 }));
-  assert.deepEqual(c.couleur, { fond: "#B33A2B", bloc: "#1C2A5E" });
+  assert.equal(c.couleur.fond, "#B33A2B");
+  assert.equal(c.couleur.bloc, "#1C2A5E");
   assert.ok(c.couleurAttribuee);
   assert.deepEqual(c.slides[0].photo, { n: 2, fichier: "carrousel/candidats/fabien-roussel/2.png" });
   assert.deepEqual(c.slides[0].credits, ["Photo : Anne Photo, CC BY 2.0, Wikimedia Commons"]);
@@ -279,30 +286,39 @@ test("carrousel : photo Commons tirée ou demandée, crédit sur la couverture, 
   const sansCredit = carrouselRecit(donnees({ photos: [{ id: "c3", slug: "fabien-roussel", n: 1, fichier: "f.png", auteur: "", licence: "CC BY 2.0" }] }));
   assert.match(sansCredit.blocageArchive, /Crédit manquant pour la photo 1/);
   assert.equal(sansCredit.controles.creditsPresents, false);
-  // Aucune photo : vignette, pas de blocage ; couleur absente : neutre et avertissement fort.
-  const sans = carrouselRecit(donnees({ photos: [], couleursCarrousel: {}, handlesInstagram: {} }));
+  // Aucune photo : vignette, pas de blocage.
+  const sans = carrouselRecit(donnees({ photos: [], handlesInstagram: {} }));
   assert.equal(sans.slides[0].photo, null);
   assert.equal(sans.blocageArchive, null);
   assert.ok(sans.avertissements.some((a) => a.cle === "photo" && /vignette actuelle/.test(a.message)));
-  assert.deepEqual(sans.couleur, { fond: "#2B2A33", bloc: "#14131A" });
-  assert.equal(sans.couleurAttribuee, false);
-  assert.ok(sans.avertissements.some((a) => a.cle === "couleur" && a.fort));
   assert.ok(!/@/.test(sans.legende));
+  // Candidat absent du registre : pas de carrousel, couleurs du nuancier proposées.
+  const hors = carrouselRecit(donnees({ couleursCarrousel: {} }));
+  assert.equal(hors.slides.length, 0);
+  assert.ok(hors.avertissements.some((a) => a.cle === "couleur" && a.fort && /pas dans le registre/.test(a.message) && /nuancier/.test(a.message)));
 });
 
 
 test("check-list « À relire » : cochée par le code quand c'est vérifiable, sinon à la main", () => {
   const c = carrouselRecit(donnees());
   const items = listeARelire({ controles: c.controles, debordements: [] });
+  // Check-list de la page 20 de la charte RS.
   assert.deepEqual(items.map((i) => [i.cle, i.auto]), [
-    ["constat", true],
-    ["sources", true],
+    ["chiffres", true],
+    ["sousNotes", true],
     ["note", true],
+    ["constat", true],
+    ["titres", true],
+    ["lecture", null],
     ["debordement", true],
-    ["couleur", "couleur"],
+    ["couleur", false], // grain vérifié côté serveur (carrousel-serveur), absent ici
     ["credits", true],
+    ["photo", null],
     ["traitement", null],
+    ["restes", true],
+    ["fin", true],
   ]);
+  assert.equal(listeARelire({ controles: { ...c.controles, grain: true } }).find((i) => i.cle === "couleur").auto, "couleur");
   assert.equal(listeARelire({ controles: c.controles, debordements: [{}] }).find((i) => i.cle === "debordement").auto, false);
   // Un récit stocké qui ne passe plus les contrôles décoche le point concerné.
   const { recit } = controlerRecit(reponse(), CONTEXTE);

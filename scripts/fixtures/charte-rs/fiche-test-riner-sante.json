@@ -1,0 +1,66 @@
+{
+  "_note": "FICHE DE TEST (charte RS, démonstration locale) : pas une analyse publiée, textes et chiffres fabriqués pour tester le rendu.",
+  "titre_fiche": "Santé : 4 000 médecins de plus dans les déserts médicaux",
+  "theme": "sante",
+  "fiche_complete": {
+    "mesure_reformulee": {
+      "synthese": "Envoyer 4 000 jeunes médecins de plus dans les déserts médicaux d'ici 2030, avec une prime de 1 500 euros par mois.",
+      "texte": "Envoyer 4 000 jeunes médecins de plus dans les déserts médicaux d'ici 2030, avec une prime de 1 500 euros par mois."
+    },
+    "contexte_national": {
+      "synthese": "Environ 6 millions de Français n'ont pas de médecin traitant (Assurance maladie, 2025). Une prime de 1 500 euros par mois pour 4 000 médecins coûterait environ 72 millions d'euros par an.",
+      "texte": "Environ 6 millions de Français n'ont pas de médecin traitant (Assurance maladie, 2025). Une prime de 1 500 euros par mois pour 4 000 médecins coûterait environ 72 millions d'euros par an."
+    },
+    "analyse_par_criteres": [
+      {
+        "critere": "operationnalite_moyens",
+        "titre": "Opérationnalité & Moyens",
+        "note": 24,
+        "note_max": 30,
+        "texte": "Opérationnalité & Moyens : 24 sur 30."
+      },
+      {
+        "critere": "efficacite",
+        "titre": "Efficacité",
+        "note": 21,
+        "note_max": 30,
+        "texte": "Efficacité : 21 sur 30."
+      },
+      {
+        "critere": "effets_rebonds_externalites",
+        "titre": "Effets rebonds & Externalités",
+        "note": 14,
+        "note_max": 20,
+        "texte": "Effets rebonds & Externalités : 14 sur 20."
+      },
+      {
+        "critere": "degre_preparation",
+        "titre": "Degré de préparation",
+        "note": 6,
+        "note_max": 10,
+        "texte": "Degré de préparation : 6 sur 10."
+      },
+      {
+        "critere": "alignement_logique",
+        "titre": "Alignement & Logique globale",
+        "note": 7,
+        "note_max": 10,
+        "texte": "Alignement & Logique globale : 7 sur 10."
+      }
+    ],
+    "notation_detaillee": {
+      "operationnalite_moyens_total": 24,
+      "efficacite": 21,
+      "effets_rebonds_externalites": 14,
+      "degre_preparation": 6,
+      "alignement_logique": 7,
+      "score_total": 72
+    },
+    "verdict_final": "La mesure est finançable et ciblée ; elle dépend du nombre de médecins formés d'ici 2030.",
+    "verdict_conclusion": "Des médecins en plus là où il en manque : finançable, mais lent.",
+    "cout_estime": "environ 72 millions d'euros par an",
+    "sources_utilisees": [
+      "Assurance maladie, 2025"
+    ]
+  }
+}

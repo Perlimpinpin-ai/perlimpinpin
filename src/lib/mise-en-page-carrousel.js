@@ -1,5 +1,7 @@
 import { motsGras } from "./texte-gras.js";
 import { morceauxSurlignes } from "./recit.js";
+import { APPROCHE_COUVERTURE, TAILLES } from "./charte-rs.js";
+import { FORMULES, insecables } from "./ecriture-charte.js";
 
 // Mise en page du carrousel détaillé (8 slides 1080 × 1350, direction
 // artistique de docs/prompt-carrousel.md, section 4), calculée AVANT le rendu
@@ -31,24 +33,31 @@ export const BAS_ZONE = HAUTEUR - HAUTEUR_BANDE - 74; // 1220 : pied de page en 
 export const HAUTEUR_ZONE = BAS_ZONE - HAUT_ZONE;
 
 // Styles de texte : taille, interligne, police, espacement des lettres.
+// Tailles de la charte RS (src/lib/charte-rs.js, TAILLES) : couverture 96 à
+// 112 px (Inter Display Black, approche −3,5 %), titres 64 à 78 px (Inter
+// Display Medium), sous-titre 44 à 46 px (DM Serif Display), étiquettes et
+// sources 24 à 32 px (JetBrains Mono), texte courant 36 à 42 px.
 export const STYLES = {
-  couverture: { taille: 104, interligne: 1.06, police: "texte800", espacement: -4.4 },
-  sousTitre: { taille: 42, interligne: 1.45, police: "serif", espacement: 0 },
-  creditsCouverture: { taille: 24, interligne: 1.25, police: "texte500", espacement: 0 },
-  titre: { taille: 60, interligne: 1.1, police: "texte500", espacement: -1.8 },
-  titreAvis: { taille: 52, interligne: 1.14, police: "texte500", espacement: -1.4 },
-  titreFin: { taille: 66, interligne: 1.08, police: "texte500", espacement: -2 },
+  couverture: { taille: 96, interligne: 1.04, police: "couverture", espacement: Math.round(96 * APPROCHE_COUVERTURE * 100) / 100 },
+  sousTitre: { taille: 44, interligne: 1.4, police: "serif", espacement: 0 },
+  creditsCouverture: { taille: 24, interligne: 1.25, police: "mono", espacement: 0 },
+  titre: { taille: 64, interligne: 1.08, police: "texte500", espacement: -1.9 },
+  titreAvis: { taille: 64, interligne: 1.08, police: "texte500", espacement: -1.9 },
+  titreFin: { taille: 70, interligne: 1.06, police: "texte500", espacement: -2.1 },
+  bilan: { taille: 44, interligne: 1.3, police: "serif", espacement: 0 },
   courant: { taille: 38, interligne: 1.32, police: "texte500", espacement: 0 },
   secondaire: { taille: 30, interligne: 1.3, police: "texte500", espacement: 0 },
   critere: { taille: 26, interligne: 1.28, police: "texte500", espacement: 0 },
   petit: { taille: 24, interligne: 1.3, police: "texte500", espacement: 0 },
+  sources: { taille: 24, interligne: 1.35, police: "mono", espacement: 0 },
   etiquette: { taille: 24, interligne: 1.2, police: "mono", espacement: 1 },
   valeur: { taille: 56, interligne: 1.05, police: "texte800", espacement: -1.5 },
-  score: { taille: 172, interligne: 1, police: "texte800", espacement: -7 },
-  // Slide 3 (la note) : titre d'avis en taille de texte courant.
-  titreNote: { taille: 42, interligne: 1.2, police: "texte800", espacement: -0.8 },
+  score: { taille: 172, interligne: 1, police: "couverture", espacement: -7 },
+  // Slide 3 (la note) : titre d'avis à la taille des titres.
+  titreNote: { taille: 64, interligne: 1.08, police: "texte500", espacement: -1.9 },
   critereNom: { taille: 30, interligne: 1.2, police: "texte800", espacement: 0 },
 };
+if (STYLES.couverture.taille < TAILLES.couverture.min || STYLES.titre.taille < TAILLES.titre.min || STYLES.sousTitre.taille < TAILLES.serif.min || STYLES.courant.taille < TAILLES.courant.min) throw new Error("Tailles hors charte (src/lib/charte-rs.js)");
 
 // Espacements verticaux (px), partagés par la mesure et le rendu.
 export const ECARTS = {
@@ -59,7 +68,7 @@ export const ECARTS = {
   carte: 16,
   paddingCarte: 22,
   paddingCarteX: 30,
-  tuile: 156,
+  tuile: 146,
   tuileGap: 16,
   paddingTuile: 12,
   onglets: 72,
@@ -67,13 +76,13 @@ export const ECARTS = {
   enteteCarte: 44,
   barre: 10,
   // Slide 3 : critères (nom et sous-note, barre épaisse, de l'air entre eux).
-  apresScore: 24,
+  apresScore: 14,
   apresTitreNote: 16,
-  avantCriteres: 28,
+  avantCriteres: 22,
   critereLigne: 40,
   critereBarreEcart: 10,
   critereBarre: 18,
-  critereEcart: 22,
+  critereEcart: 16,
   bordCarte: 2, // bordures haute et basse des cartes (1 px chacune)
 };
 
@@ -81,14 +90,14 @@ export const ECARTS = {
 // zone de contenu. Aucun texte ne doit y entrer.
 export const ZONE_PIED = { nom: "le pied de page", x: 0, y: BAS_ZONE, largeur: LARGEUR, hauteur: HAUTEUR - BAS_ZONE };
 export const TITRES_LIGNES_MAX = 3;
-export const PICTO = 112;
+export const PICTO = 132; // picto pixel art (src/lib/pictos-charte.js, pixel de 6 px)
 
 // Couverture, calée sur le modèle Teddy Riner (docs/prompt-carrousel.md, section 4).
 export const COUVERTURE = {
   marge: 84,
-  hautTitre: 190,
+  hautTitre: 170,
   largeurTitre: 720,
-  ecartSousTitre: 44,
+  ecartSousTitre: 30,
   largeurSousTitre: 640,
   basTexte: 860, // le titre et le sous-titre s'arrêtent au-dessus du collage
   largeurCredits: LARGEUR - 2 * 84,
@@ -121,7 +130,7 @@ function espace(style, mesurer) {
 // Satori, et la typographie française préfère la courbe.
 // Les groupes de chiffres (« 2 200 ») restent ensemble : espace insécable.
 export function apostrophes(texte) {
-  return String(texte ?? "")
+  return insecables(texte)
     .replace(/'/g, "’")
     .replace(/(\d) (?=\d{3}\b)/g, "$1\u00A0")
     // Espace ins\u00E9cable avant : ; ! ? % \u20AC \u00BB et apr\u00E8s \u00AB (jamais une ligne qui
@@ -211,7 +220,7 @@ export function bloc(texte, style, largeur, mesurer, { equilibre = false, gras =
 }
 
 // Titre de couverture : mots avec surlignage jaune (==…==), lignes équilibrées.
-export function blocCouverture(question, mesurer) {
+export function blocCouverture(question, mesurer, { largeur = null } = {}) {
   const style = STYLES.couverture;
   const mots = [];
   for (const { texte, jaune } of morceauxSurlignes(apostrophes(question))) {
@@ -225,15 +234,23 @@ export function blocCouverture(question, mesurer) {
   // Colonne de 720 px comme le modèle ; toute la largeur (entre les marges de
   // la couverture) si le titre dépasserait 3 lignes : au-delà, le sous-titre
   // descendrait sur le collage. La taille ne change jamais.
-  let coupe = couperEquilibre(mots, COUVERTURE.largeurTitre - 2 * COUVERTURE.paddingSurlignage, e);
-  if (coupe.lignes.length > 3) coupe = couperEquilibre(mots, LARGEUR - 2 * COUVERTURE.marge - 2 * COUVERTURE.paddingSurlignage, e);
+  let coupe = couperEquilibre(mots, (largeur ?? COUVERTURE.largeurTitre) - 2 * COUVERTURE.paddingSurlignage, e);
+  if (!largeur && coupe.lignes.length > 3) coupe = couperEquilibre(mots, LARGEUR - 2 * COUVERTURE.marge - 2 * COUVERTURE.paddingSurlignage, e);
   const { lignes, malCoupe } = coupe;
   return { lignes, style, espace: e, hauteur: lignes.length * style.taille * style.interligne, malCoupe };
 }
 
 // --- Mise en page de chaque slide ------------------------------------------------------
 
-const hTexte = (b) => b.hauteur;
+// « Notre avis : la direction… » : minuscule après les deux-points, sauf nom propre
+// (premier mot hors de la liste des mots courants).
+const DEBUTS_COURANTS = /^(?:(?:L’|D’)(?=\p{L})|(?:Le|La|Les|Un|Une|Des|Son|Sa|Ses|Leur|Leurs|Ce|Cet|Cette|Ces|Il|Elle|Ils|Elles|On|Taxer|Ajouter|Placer|Garder|Créer|Interdire|Construire|Envoyer|Bonne|Mauvaise|Rien|Tout|Trop|Plus|Moins|Faute|Sans|Avec|Pour|Si|Mais|Aucun|Aucune)(?=\s|$))/u;
+export function avisMinuscule(texte) {
+  const t = String(texte ?? "");
+  return DEBUTS_COURANTS.test(t) ? t.charAt(0).toLowerCase() + t.slice(1) : t;
+}
+
+export const hTexte = (b) => b.hauteur;
 
 // Débordement : { bloc, raison, champs?, manque? } ; champs : clés du modèle
 // à raccourcir ; manque : hauteur à gagner (px).
@@ -260,7 +277,7 @@ export function seTouchent(a, b) {
 
 // Boîtes qui entrent dans une zone réservée → un débordement nommé, avec les
 // champs du modèle à raccourcir et la hauteur à gagner.
-function controleZones(boites, zones, champs, debordements) {
+export function controleZones(boites, zones, champs, debordements) {
   const touchees = boites.flatMap((b) => zones.filter((z) => seTouchent(b, z)).map((z) => ({ b, z })));
   if (!touchees.length) return;
   const manque = Math.max(...touchees.map(({ b, z }) => Math.ceil(b.y + b.hauteur - z.y)));
@@ -268,7 +285,7 @@ function controleZones(boites, zones, champs, debordements) {
   debordements.push({ bloc: noms.join(" ; "), raison: `${manque} px de trop`, champs, manque });
 }
 
-function controleTitre(b, nom, debordements, max = TITRES_LIGNES_MAX) {
+export function controleTitre(b, nom, debordements, max = TITRES_LIGNES_MAX) {
   if (b.malCoupe) debordements.push({ bloc: nom, raison: "titre mal coupé (mot seul en bout de ligne ou mot trop long)" });
   if (b.lignes.length > max) debordements.push({ bloc: nom, raison: `${b.lignes.length} lignes (${max} au plus)` });
 }
@@ -313,7 +330,7 @@ function miseEnPageConstat(slide, m) {
   const interieurCarte = LARGEUR_UTILE - 2 * ECARTS.paddingCarteX - 8;
   const proposition = bloc(slide.proposition, STYLES.courant, interieurCarte, m);
   const imprecisions = slide.imprecisions ? bloc(slide.imprecisions, STYLES.secondaire, interieurCarte, m) : null;
-  const sources = slide.sources ? bloc(`Source : ${slide.sources}`, STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
+  const sources = slide.sources ? bloc(`Source : ${slide.sources}`, STYLES.sources, LARGEUR_UTILE, m, { gras: false }) : null;
   const hauteurCarte = 2 * ECARTS.paddingCarte + ECARTS.bordCarte + hTexte(proposition) + (imprecisions ? 12 + hTexte(imprecisions) : 0);
   const { hauteur, boites } = empiler([
     ["étiquette « Le constat »", ECARTS.etiquette],
@@ -375,7 +392,7 @@ function miseEnPageAilleurs(slide, m) {
     resultatBloc: mesure.resultat ? bloc(mesure.resultat, STYLES.courant, interieur, m) : null,
   }));
   const hMesure = (x) => 2 * ECARTS.paddingCarte + ECARTS.bordCarte + 48 + 10 + hTexte(x.faitBloc) + (x.resultatBloc ? 8 + hTexte(x.resultatBloc) : 0);
-  const sources = slide.sources ? bloc(`Source : ${slide.sources}`, STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
+  const sources = slide.sources ? bloc(`Source : ${slide.sources}`, STYLES.sources, LARGEUR_UTILE, m, { gras: false }) : null;
   const { hauteur, boites } = empiler([
     ["étiquette « Ailleurs ou avant »", ECARTS.etiquette],
     ["titre", hTexte(titre), ECARTS.apresEtiquette],
@@ -388,39 +405,47 @@ function miseEnPageAilleurs(slide, m) {
 
 function miseEnPageAvis(slide, m) {
   const d = [];
-  const avis = bloc(slide.avis, STYLES.titreAvis, LARGEUR_UTILE, m, { equilibre: true });
+  // Titre « Notre avis : … », puis la formule fixe « Ce qui tient… et ce qui coince. »
+  const avis = bloc(`Notre avis : ${avisMinuscule(slide.avis)}`, STYLES.titreAvis, LARGEUR_UTILE, m, { equilibre: true });
   controleTitre(avis, "notre avis", d, 4);
+  const bilan = bloc(FORMULES.bilan, STYLES.bilan, LARGEUR_UTILE, m, { gras: false });
   const interieur = LARGEUR_UTILE - 2 * ECARTS.paddingCarteX - 36;
   const points = (liste) => liste.map((p) => bloc(p, STYLES.courant, interieur, m));
   const tient = points(slide.tient);
   const coince = points(slide.coince);
   const hCarte = (liste) => 2 * ECARTS.paddingCarte + ECARTS.bordCarte + ECARTS.enteteCarte + liste.reduce((t, p) => t + 12 + hTexte(p), 0);
   const { hauteur, boites } = empiler([
-    ["étiquette « Notre avis »", ECARTS.etiquette],
-    ["notre avis", hTexte(avis), ECARTS.apresEtiquette],
-    ["ce qui tient", hCarte(tient), 30],
+    ["notre avis", hTexte(avis)],
+    ["bilan", hTexte(bilan), ECARTS.apresTitre],
+    ["ce qui tient", hCarte(tient), 26],
     ["ce qui coince", hCarte(coince), ECARTS.carte],
   ]);
   controleZones(boites, [ZONE_PIED], [...slide.tient.map((_, i) => `avis.tient.${i}`), ...slide.coince.map((_, i) => `avis.coince.${i}`), "avis.avis"], d);
-  return { avis, tient, coince, hTient: hCarte(tient), hCoince: hCarte(coince), hauteur, boites, debordements: d };
+  return { avis, bilan, tient, coince, hTient: hCarte(tient), hCoince: hCarte(coince), hauteur, boites, debordements: d };
 }
 
 export const TEXTES_FIN = {
-  titre: "Une analyse réalisée par l’IA Perlimpinpin.",
+  titre: FORMULES.fin,
   texte: "Lisez l’analyse complète sur notre site et aidez-nous à l’améliorer : chaque correction ou source ajoutée la rend plus juste.",
-  bouton: "LIRE ET AMÉLIORER L’ANALYSE →",
+  bouton: "LIRE ET AMÉLIORER L’ANALYSE COMPLÈTE →",
   lien: "sur notre site · lien en bio",
   association: "Perlimpinpin est une association citoyenne et indépendante. **Rejoignez-nous !**",
-  enregistrer: "Enregistrez ce post pour le retrouver",
+  enregistrer: "Enregistrez ce post",
 };
 
-function miseEnPageFin(slide, m) {
+// Fin au pluriel (programme, thématique) : « Lire et améliorer les analyses ».
+export const TEXTES_FIN_PLURIEL = {
+  texte: "Lisez les analyses complètes sur notre site et aidez-nous à les améliorer : chaque correction ou source ajoutée les rend plus justes.",
+  bouton: "LIRE ET AMÉLIORER LES ANALYSES →",
+};
+
+export function miseEnPageFin(slide, m) {
   const d = [];
   const titre = bloc(TEXTES_FIN.titre, STYLES.titreFin, LARGEUR_UTILE, m, { equilibre: true });
-  const texte = bloc(TEXTES_FIN.texte, STYLES.courant, LARGEUR_UTILE, m);
+  const texte = bloc(slide.pluriel ? TEXTES_FIN_PLURIEL.texte : TEXTES_FIN.texte, STYLES.courant, LARGEUR_UTILE, m);
   const association = bloc(TEXTES_FIN.association, STYLES.courant, LARGEUR_UTILE, m);
-  const sources = slide.sources?.length ? bloc(`Sources : ${slide.sources.join(" · ")}`, STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
-  const credits = slide.credits?.length ? bloc(slide.credits.join(" · "), STYLES.petit, LARGEUR_UTILE, m, { gras: false }) : null;
+  const sources = slide.sources?.length ? bloc(`Sources : ${slide.sources.join(" · ")}`, STYLES.sources, LARGEUR_UTILE, m, { gras: false }) : null;
+  const credits = slide.credits?.length ? bloc(slide.credits.join(" · "), STYLES.sources, LARGEUR_UTILE, m, { gras: false }) : null;
   const { hauteur, boites } = empiler([
     ["titre", hTexte(titre)],
     ["texte", hTexte(texte), 30],
@@ -432,7 +457,7 @@ function miseEnPageFin(slide, m) {
     ["crédits photo", credits ? hTexte(credits) : 0, 10],
   ]);
   controleZones(boites, [ZONE_PIED], [], d);
-  return { titre, texte, association, sources, credits, hauteur, boites, debordements: d };
+  return { titre, texte, association, sources, credits, bouton: slide.pluriel ? TEXTES_FIN_PLURIEL.bouton : TEXTES_FIN.bouton, hauteur, boites, debordements: d };
 }
 
 const MISES_EN_PAGE = {
