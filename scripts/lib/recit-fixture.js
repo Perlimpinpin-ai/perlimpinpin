@@ -27,7 +27,7 @@ export function reponse(modifs = {}) {
   return {
     couverture: { question: "{NOM} veut-il un ==Smic à 2 200 euros== ?" },
     constat: {
-      titre: "Les bas salaires peinent à suivre les prix.",
+      titre: "Smic : 3 millions de salariés peinent à suivre les prix.",
       explication: "Le Smic brut est de 1 830 euros. Trois millions de salariés en dépendent.",
       chiffres: [
         { valeur: "1 830 €", detail: "de Smic brut par mois" },

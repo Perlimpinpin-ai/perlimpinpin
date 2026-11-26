@@ -155,7 +155,7 @@ export function reecrireListePhotos(source, photos) {
   const debut = source.indexOf(REPERE_DEBUT);
   const fin = source.indexOf(REPERE_FIN);
   if (debut < 0 || fin < 0) throw new Error("Repères de la liste introuvables dans src/lib/photos-candidats.js.");
-  const corps = photos.length ? `export const PHOTOS_CANDIDATS = [\n${photos.map((p) => `  ${JSON.stringify(p)},`).join("\n")}\n];` : "export const PHOTOS_CANDIDATS = [];";
+  const corps = photos.length ? `export const PHOTOS_COMMONS = [\n${photos.map((p) => `  ${JSON.stringify(p)},`).join("\n")}\n];` : "export const PHOTOS_COMMONS = [];";
   return `${source.slice(0, debut)}${REPERE_DEBUT}\n${corps}\n${source.slice(fin)}`;
 }
 
@@ -262,7 +262,7 @@ export function modeleCredits(slug) {
 // Entrées de la bibliothèque pour les photos déposées à la main.
 // `credits` : contenu de credits.json ({ photos: [...] } ou tableau) ;
 // `presents` : noms des fichiers présents dans le dossier ;
-// `existantes` : PHOTOS_CANDIDATS. Une photo sans crédit complet (auteur,
+// `existantes` : PHOTOS_COMMONS. Une photo sans crédit complet (auteur,
 // licence autorisée, page Commons) ou absente du dossier est refusée, avec
 // la raison. Renvoie { nouvelles: [{ ...entrée, depot }], refusees: [{ fichier, raison }] }.
 export function entreesDepot(slug, credits, presents, existantes = []) {

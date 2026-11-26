@@ -70,3 +70,8 @@ recovered-analysis-*.txt
 
 # Photos des candidats (Wikimedia Commons) : propositions, sélection, originaux téléchargés
 /data/photos-candidats/
+
+# Originaux des photos des candidats déposées à la main (jamais commités,
+# jamais servis par le site) : scripts/preparer-photos-candidats.py
+/photos-sources/
+/.venv-photos/
