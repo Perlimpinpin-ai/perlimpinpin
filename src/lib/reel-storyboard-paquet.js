@@ -23,7 +23,9 @@ import { TYPES_SCENES, formatTemps, morceauxDits, sansGras } from "./reel-storyb
 
 const deux = (n) => String(n).padStart(2, "0");
 
-export function nomArchiveStoryboard({ candidatNom, theme }) {
+export function nomArchiveStoryboard({ candidatNom, theme, format = "mesure" }) {
+  if (format === "programme") return `reel-programme-${slugTexte(candidatNom) || "candidat"}.zip`;
+  if (format === "thematique") return `reel-thematique-${slugTexte(theme) || "theme"}.zip`;
   return `reel-${slugTexte(candidatNom) || "candidat"}-${slugTexte(theme) || "theme"}.zip`;
 }
 
@@ -51,9 +53,12 @@ export function mediasStoryboard(scenes, url) {
 export function objetR(etat) {
   const noms = nomsFenetres({ candidatNom: etat.candidatNom, theme: etat.theme });
   return {
+    format: etat.format ?? "mesure",
     candidat: etat.candidatNom,
     theme: etat.theme,
     mode: etat.mode,
+    ...(etat.ctx?.mesures ? { mesures: etat.ctx.mesures.map(({ fiche: _f, ...m }) => m) } : {}),
+    ...(etat.ctx?.candidats ? { candidats: etat.ctx.candidats.map(({ fiche: _f, ...c }) => c) } : {}),
     photos: { nomCandidat: noms.candidat, nomIllustration: noms.illustration },
     couverture: { titre: etat.couverture.titre, question: etat.couverture.question },
     dureesEstimees: Boolean(etat.temps.estime),
@@ -68,8 +73,15 @@ export function ecartsTexte(etat) {
   return etat.ecarts.length ? `${etat.ecarts.join("\n")}\n` : "Aucun écart : la voix off suit le script.\n";
 }
 
+// credits.txt : une ligne par photo (charte p. 20 : « Photos créditées sur la
+// couverture et dans credits.txt »).
+export function creditsTexte(etat) {
+  const lignes = [...(etat.photos?.creditsCandidats ?? []), ...(etat.photos?.creditIllustration ? [`Image de thème : ${etat.photos.creditIllustration}`] : [])];
+  return `${lignes.length ? lignes.join("\n") : "Aucune photo."}\n`;
+}
+
 export function infosStoryboard(etat, { titre, propositionId, brouillon, palier, simulation = null }) {
-  const lien = brouillon ? `${URL_SITE}/test/${propositionId} (brouillon, non publié)` : `${URL_SITE}/declarations/${propositionId}`;
+  const lien = !propositionId ? URL_SITE : brouillon ? `${URL_SITE}/test/${propositionId} (brouillon, non publié)` : `${URL_SITE}/declarations/${propositionId}`;
   const date = etat.genereLe
     ? new Date(etat.genereLe).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" })
     : simulation
@@ -79,15 +91,16 @@ export function infosStoryboard(etat, { titre, propositionId, brouillon, palier,
     `Candidat : ${etat.candidatNom}`,
     `Fiche : ${titre}`,
     `Thème : ${etat.theme}`,
-    `Score : ${String(etat.score).replace(".", ",")}/100 (${palier})`,
+    `Format : ${etat.format ?? "mesure"}`,
+    ...(etat.score === null || etat.score === undefined ? [] : [`Score : ${String(etat.score).replace(".", ",")}/100 (${palier})`]),
     `Lien : ${lien}`,
     `Mode : ${etat.mode === "A" ? "A, script écrit par Claude" : "B, script et voix off de l’équipe"}${simulation ? " (simulation, aucun appel à Claude)" : ""}`,
     `Storyboard généré le : ${date}`,
     `Durée : ${formatTemps(etat.temps.duree)}${etat.temps.estime ? " (estimée à 3 mots par seconde)" : " (calée sur la voix off)"}`,
     "",
-    "Crédits photo :",
-    `- Candidat : ${etat.photos.creditCandidat}`,
-    `- Illustration : ${etat.photos.illustration ? etat.photos.creditIllustration ?? "CRÉDIT À COMPLÉTER (public/illustrations/credits.json)" : "aucune (panneau tramé dessiné par le code)"}`,
+    "Crédits photo (aussi dans credits.txt) :",
+    ...(etat.photos.creditsCandidats ?? [etat.photos.creditCandidat]).map((c) => `- ${c}`),
+    ...(etat.format === "mesure" || !etat.format ? [`- Image de thème : ${etat.photos.illustration ? etat.photos.creditIllustration ?? "CRÉDIT À COMPLÉTER (src/lib/illustrations.js)" : "aucune (panneau tramé dessiné par le code)"}`] : []),
     "",
     `Message : ${etat.message}`,
     "",
@@ -107,6 +120,7 @@ export function fichiersTexteStoryboard(etat, infos) {
     { nom: "storyboard.json", donnees: `${JSON.stringify(objetR(etat), null, 2)}\n` },
     { nom: "script.txt", donnees: etat.mode === "B" ? `${etat.script.trim()}\n` : scriptDit(etat.storyboard.scenes) },
     { nom: "infos.txt", donnees: infosStoryboard(etat, infos) },
+    { nom: "credits.txt", donnees: creditsTexte(etat) },
   ];
 }
 
@@ -137,8 +151,9 @@ export function donneesPageStoryboard(etat, { url, infos }) {
       planche: url(imagePlanche(i)),
       images: [1, 2, 3].map((k) => url(imageScene(i, k))),
     })),
+    couleurs: etat.couleurs ?? null,
     paquet: {
-      archive: nomArchiveStoryboard({ candidatNom: etat.candidatNom, theme: etat.theme }),
+      archive: nomArchiveStoryboard({ candidatNom: etat.candidatNom, theme: etat.theme, format: etat.format }),
       fichiersTexte: fichiersTexteStoryboard(etat, infos),
       medias: mediasStoryboard(scenes, url),
     },

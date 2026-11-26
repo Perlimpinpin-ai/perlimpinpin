@@ -16,6 +16,7 @@ import ReelPartage from "../ReelPartage";
 import ReelStoryboard from "../ReelStoryboard";
 import BoutonGenererReel from "../BoutonGenererReel";
 import DepotEquipe from "../DepotEquipe";
+import VerificationsReel from "../VerificationsReel";
 
 // Toujours recalculée à chaque visite (comme les autres pages /test).
 export const dynamic = "force-dynamic";
@@ -39,12 +40,6 @@ export const metadata = {
 //   ?brouillon=1 : le dernier brouillon.
 // Un Reel v3 (9 scènes fixes) déjà rangé reste affiché tel quel en bas de page.
 
-const ETATS = {
-  ok: { signe: "✓", classe: "bg-emerald-100 text-emerald-800" },
-  ko: { signe: "✗", classe: "bg-red-100 text-red-800" },
-  manuel: { signe: "?", classe: "bg-amber-100 text-amber-900" },
-};
-
 export default async function ReelPage({ params, searchParams }) {
   const { id } = await params;
   const propositionId = Number(id);
@@ -54,7 +49,7 @@ export default async function ReelPage({ params, searchParams }) {
   const { brouillon, simulation: simParam } = await searchParams;
   const simulation = ["A", "B"].includes(simParam) ? simParam : null;
 
-  const fiche = editeur ? await chargerFiche(propositionId, { brouillon: brouillon === "1" }) : null;
+  const fiche = editeur ? await chargerFiche(propositionId, { brouillon: brouillon === "1", simulation }) : null;
   if (editeur && !fiche) notFound();
   const proposition = fiche?.proposition;
   const analyse = fiche?.analyse;
@@ -162,36 +157,7 @@ export default async function ReelPage({ params, searchParams }) {
               </section>
             ) : null}
 
-            {donnees ? (
-              <section className="grid gap-4 lg:grid-cols-2">
-                <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-4 text-sm">
-                  <p className="font-semibold">Avant de livrer, vérifie</p>
-                  <ul className="flex flex-col gap-2">
-                    {donnees.checkList.map((item) => (
-                      <li key={item.texte} className="flex gap-2">
-                        <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded text-xs font-bold ${ETATS[item.etat].classe}`}>{ETATS[item.etat].signe}</span>
-                        <span>
-                          {item.texte} <span className="text-zinc-500">{item.detail}</span>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="text-xs text-zinc-400">✓ vérifié par le code · ✗ à corriger · ? à vérifier à l’œil</p>
-                </div>
-                <div className="flex flex-col gap-2 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-                  <p className="font-semibold">Points à valider ({donnees.avertissements.length + donnees.zones.length})</p>
-                  {donnees.avertissements.length + donnees.zones.length === 0 ? (
-                    <p>Aucun : contrôles passés, rien ne déborde des zones sûres.</p>
-                  ) : (
-                    <ul className="list-disc pl-5">
-                      {[...donnees.avertissements, ...donnees.zones].map((a) => (
-                        <li key={a}>{a}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </section>
-            ) : null}
+            {donnees ? <VerificationsReel checkList={donnees.checkList} avertissements={donnees.avertissements} zones={donnees.zones} couleurs={donnees.couleurs} /> : null}
 
             <section className="grid gap-4 md:grid-cols-2">
               <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4">

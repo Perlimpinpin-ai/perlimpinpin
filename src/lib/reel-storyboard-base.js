@@ -1,15 +1,23 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { prisma } from "./prisma.js";
-import { empreinte } from "./carte.js";
-import { etatStoryboard, grilleCarte, imagesPhotos } from "./reel-storyboard-serveur.js";
+import { empreinte, slugCandidat } from "./carte.js";
+import { resolveTheme } from "./themes.js";
+import { fichePourReel } from "./reel-generation.js";
+import { donneesSimulationFormat, etatStoryboard, etatStoryboardFormat, ficheSimulation, ressourcesRendu } from "./reel-storyboard-serveur.js";
 
-// Lecture en base du storyboard d'une fiche, pour la page /test/reels/<id> et
-// la route des images. Lecture seule.
+// Lecture du storyboard, pour les pages /test/reels/<id>,
+// /test/reseaux/programme/<slug>, /test/reseaux/thematique/<thème> et les
+// routes des images. Lecture seule. En simulation, rien n'est lu en base :
+// les fiches viennent de data/reel-demo/.
 
 // Analyse visée : avec brouillon, le dernier brouillon ; sinon la dernière
 // publiée, à défaut le dernier brouillon (même règle que la page v3).
-export async function chargerFiche(propositionId, { brouillon = false } = {}) {
+export async function chargerFiche(propositionId, { brouillon = false, simulation = null } = {}) {
+  if (simulation) {
+    const fiche = ficheSimulation(propositionId);
+    if (fiche) return fiche;
+  }
   const proposition = await prisma.proposition.findUnique({
     where: { id: propositionId },
     select: {
@@ -27,6 +35,48 @@ export async function chargerFiche(propositionId, { brouillon = false } = {}) {
   const analyses = proposition?.analyses ?? [];
   const analyse = analyses.find((a) => a.statut === "publie") ?? analyses.find((a) => a.statut === "brouillon");
   return analyse ? { proposition, analyse } : null;
+}
+
+// Fiches publiées au format de src/lib/reel-formats.js.
+function versFiche(p) {
+  const a = p.analyses[0];
+  return {
+    propositionId: p.id,
+    titre: p.titre,
+    theme: p.theme,
+    dateDeclaration: p.dateDeclaration?.toISOString?.() ?? p.dateDeclaration,
+    candidat: { nom: p.candidat.nom, photoUrl: p.candidat.photoUrl },
+    score: a.scoreFaisabilite,
+    fiche: fichePourReel(a.contenuComplet ?? {}),
+  };
+}
+
+const SELECT_FICHE = {
+  id: true,
+  titre: true,
+  theme: true,
+  dateDeclaration: true,
+  candidat: { select: { nom: true, photoUrl: true } },
+  analyses: { where: { statut: "publie" }, orderBy: { createdAt: "desc" }, take: 1, select: { scoreFaisabilite: true, contenuComplet: true } },
+};
+
+// Données des formats programme et thématique : { fiches, candidatsConnus }.
+// En simulation : data/reel-demo/<format>-<cible>/donnees.json.
+export async function chargerDonneesFormat(format, cible, { simulation = null } = {}) {
+  if (simulation) {
+    const donnees = donneesSimulationFormat(format, cible);
+    if (donnees) return donnees;
+  }
+  const candidatsConnus = await prisma.candidat.findMany({ select: { nom: true, photoUrl: true }, orderBy: { nom: "asc" } });
+  if (format === "programme") {
+    const candidat = candidatsConnus.find((c) => slugCandidat(c) === cible);
+    if (!candidat) return null;
+    const propositions = await prisma.proposition.findMany({ where: { candidat: { nom: candidat.nom }, analyses: { some: { statut: "publie" } } }, select: SELECT_FICHE });
+    return { fiches: propositions.filter((p) => p.analyses.length).map(versFiche), candidatsConnus, candidat };
+  }
+  const propositions = await prisma.proposition.findMany({ where: { analyses: { some: { statut: "publie" } } }, select: SELECT_FICHE });
+  const slug = resolveTheme(cible) ?? cible;
+  return { fiches: propositions.filter((p) => p.analyses.length && (resolveTheme(p.theme) ?? p.theme) === slug).map(versFiche), candidatsConnus };
 }
 
 // Version des images dans l'URL : le moindre changement du Reel ou du score
@@ -55,22 +105,4 @@ export function policesStoryboard() {
   return policesEnCache;
 }
 
-let fondsEnCache = null;
-async function fonds() {
-  fondsEnCache ??= Promise.all(
-    ["fond", "voile"].map(async (nom) => `data:image/png;base64,${(await readFile(join(process.cwd(), "public", "reel", "v4", `${nom}.png`))).toString("base64")}`),
-  ).then(([fond, voile]) => ({ fond, voile }));
-  return fondsEnCache;
-}
-
-// Ressources du rendu : fonds, photos tramées, grilles des cartes utilisées.
-export async function ressourcesRendu(etat, proposition) {
-  const cles = new Set(etat.storyboard.scenes.filter((s) => s.type === "pays").flatMap((s) => s.groupes.flatMap((g) => g.pays)));
-  return {
-    fonds: await fonds(),
-    photos: imagesPhotos(proposition.candidat, proposition.theme),
-    cartes: Object.fromEntries([...cles].map((cle) => [cle, grilleCarte(cle)])),
-  };
-}
-
-export { etatStoryboard };
+export { etatStoryboard, etatStoryboardFormat, ressourcesRendu };

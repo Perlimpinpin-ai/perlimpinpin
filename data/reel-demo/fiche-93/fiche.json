@@ -1,0 +1,39 @@
+{
+  "source": "Extrait de la fiche 93 publiée, lu en base (lecture seule) le 25/11/2026 pour les simulations : seuls les champs utiles au Reel sont gardés.",
+  "proposition": {
+    "id": 93,
+    "titre": "Retraites : répartition plus capitalisation",
+    "theme": "Retraites",
+    "candidat": { "nom": "Teddy Riner", "photoUrl": "/photos/teddy-riner.jpg" }
+  },
+  "analyse": {
+    "id": 93,
+    "statut": "publie",
+    "scoreFaisabilite": 56,
+    "contenuComplet": {
+      "titre_fiche": "Retraites : répartition plus capitalisation",
+      "resume_court": "Teddy Riner veut remanier les retraites en tenant compte de la démographie et de la pénibilité, garder la répartition, et « n'exclut pas une part de capitalisation ». Il répond à un vrai problème : un déficit attendu de 6,8 milliards d'euros en 2030, qui s'aggrave ensuite.\n\nL'orientation tient la route : une capitalisation ajoutée à la répartition, sans toucher aux cotisations actuelles, aide à affronter le vieillissement sans creuser les comptes dans l'immédiat. Mais le levier qui comblerait le déficit à court terme n'est pas nommé, et rien n'est chiffré : ni l'âge, ni la durée de cotisation, ni la taille de la capitalisation. La fiche sera revue à la publication de son programme.",
+      "verdict_conclusion": "Un diagnostic solide et une orientation raisonnable, mais sans le levier ni les chiffres qui permettraient d'en juger l'efficacité.",
+      "mesure_reformulee": {
+        "synthese": "Remanier les retraites face à la démographie, garder la répartition, ne pas exclure une part de capitalisation."
+      },
+      "contexte_national": {
+        "texte": "**Le système de retraite serait déficitaire de 5,1 milliards d'euros en 2025, puis de 6,8 milliards en 2030 et de 0,9 point de PIB en 2045**, à règles inchangées, selon le rapport annuel 2026 du Conseil d'orientation des retraites (COR). Le déficit atteindrait 2,4 points de PIB en 2070. Les dépenses resteraient stables autour de 14 % du PIB jusqu'en 2045. Le déficit viendrait surtout de ressources qui reculent, de 13,9 % du PIB en 2025 à 12,9 % en 2070.\n\nLa démographie pèse de plus en plus. **Il y avait 3,6 personnes de 20 à 64 ans pour une personne de 65 ans ou plus en 2009, 2,5 en 2025, et il n'y en aurait plus qu'environ 1,6 en 2070.**",
+        "synthese": "Le système est en déficit modéré mais durable, et la démographie se dégrade plus vite que prévu."
+      },
+      "contexte_international": {
+        "texte": "**Quand une partie des cotisations est détournée vers la capitalisation, la transition coûte cher.** Au Chili, le passage de 1981 a creusé un déficit public d'environ 3,25 % du PIB par an en moyenne, financé par des économies, des privatisations et de la dette. Plusieurs pays d'Europe centrale (Hongrie en 2011, Pologne, Tchéquie, Slovaquie) ont fait marche arrière. La Suède consacre 2,5 points de cotisation à des comptes capitalisés.\n\n**Quand la capitalisation s'ajoute à la répartition, sans la remplacer, elle prend la forme de régimes collectifs complémentaires** (Pays-Bas, Danemark, Australie), financés par des cotisations en plus.",
+        "synthese": "Basculer des cotisations vers la capitalisation a coûté cher ailleurs, et plusieurs pays ont reculé."
+      },
+      "analyse_longevites": {
+        "texte": "**La capitalisation agit sur un horizon de 30 à 40 ans**, le temps qu'une génération accumule son épargne. Le déficit de la répartition, lui, est attendu dès 2030 et s'aggrave jusqu'en 2070 (COR, 2026).",
+        "synthese": "Effets différés : la capitalisation ne paierait des pensions qu'après plusieurs décennies, le déficit se creuse avant."
+      },
+      "impact_temporel_et_sectoriel": {
+        "texte": "Court terme (0 à 2 ans) : une cotisation nouvelle réduirait le salaire net ou augmenterait le coût du travail, et donc un peu la consommation. Une capitalisation prise sur les cotisations actuelles creuserait immédiatement le déficit et la dette. Long terme (plus de 7 ans) : les pensions deviendraient en partie dépendantes des rendements financiers.",
+        "synthese": "À court terme, toute version pèse soit sur les salaires nets, soit sur la dette publique."
+      },
+      "notation_detaillee": { "score_total": 56, "appreciation": "plausible sous condition" }
+    }
+  }
+}

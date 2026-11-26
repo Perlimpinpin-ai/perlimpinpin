@@ -1,0 +1,17 @@
+{
+  "source": "Fiches publiées de Teddy Riner, lues en base (lecture seule) le 25/11/2026 : une seule fiche, le format « programme » est donc refusé (6 thèmes différents attendus).",
+  "fiches": [
+    {
+      "propositionId": 93,
+      "titre": "Retraites : répartition plus capitalisation",
+      "theme": "Retraites",
+      "dateDeclaration": "2026-11-16",
+      "candidat": { "nom": "Teddy Riner", "photoUrl": "/photos/teddy-riner.jpg" },
+      "score": 56,
+      "fiche": {
+        "titre_fiche": "Retraites : répartition plus capitalisation",
+        "mesure_reformulee": { "synthese": "Remanier les retraites face à la démographie, garder la répartition, ne pas exclure une part de capitalisation." }
+      }
+    }
+  ]
+}

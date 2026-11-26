@@ -1,0 +1,73 @@
+{
+  "source": "Fiches publiées du thème « Retraites », lues en base (lecture seule) le 25/11/2026 : extraits des champs utiles au Reel. Jean-Luc Mélenchon n'a pas de fiche sur ce thème (candidat sans proposition, montré pour la démonstration).",
+  "avec": ["Jean-Luc Mélenchon"],
+  "candidatsConnus": [{ "nom": "Jean-Luc Mélenchon", "photoUrl": "/photos/jean-luc-melenchon.jpg" }],
+  "fiches": [
+    {
+      "propositionId": 53,
+      "titre": "L'âge de la retraite décidé par les syndicats et le patronat",
+      "theme": "retraites",
+      "dateDeclaration": "2026-10-08",
+      "candidat": { "nom": "Dominique de Villepin", "photoUrl": "/photos/dominique-de-villepin.jpg" },
+      "score": 57,
+      "fiche": {
+        "mesure_reformulee": { "synthese": "Faire décider syndicats et patronat des paramètres des retraites, comme ils négocient déjà les règles de l'assurance-chômage." },
+        "verdict_conclusion": "Une délégation juridiquement solide mais dont le précédent le plus proche, le conclave de 2025, a échoué sur le point précis qu'elle voudrait déléguer.",
+        "ce_qui_est_etabli": { "synthese": "Les partenaires sociaux gèrent déjà un régime de retraite équilibré ; le conclave 2025 a échoué sur l'âge." }
+      }
+    },
+    {
+      "propositionId": 54,
+      "titre": "L'âge de retraite selon la pénibilité",
+      "theme": "retraites",
+      "dateDeclaration": "2026-10-08",
+      "candidat": { "nom": "Raphaël Glucksmann", "photoUrl": "/photos/raphael-glucksmann.jpg" },
+      "score": 61,
+      "fiche": {
+        "mesure_reformulee": { "synthese": "Moduler l'âge de départ selon la pénibilité et la santé, sans âge ni critère précis." },
+        "verdict_conclusion": "Une direction juridiquement cohérente mais techniquement et budgétairement non préparée.",
+        "ce_qui_est_etabli": { "synthese": "L'injustice visée est réelle : écart d'espérance de vie cadres-ouvriers d'environ 5 ans, inscrit comme critère d'équité dans la loi." }
+      }
+    },
+    {
+      "propositionId": 93,
+      "titre": "Retraites : répartition plus capitalisation",
+      "theme": "Retraites",
+      "dateDeclaration": "2026-11-16",
+      "candidat": { "nom": "Teddy Riner", "photoUrl": "/photos/teddy-riner.jpg" },
+      "score": 56,
+      "fiche": {
+        "mesure_reformulee": { "synthese": "Remanier les retraites face à la démographie, garder la répartition, ne pas exclure une part de capitalisation." },
+        "verdict_conclusion": "Un diagnostic solide et une orientation raisonnable, mais sans le levier ni les chiffres qui permettraient d'en juger l'efficacité.",
+        "contexte_national": {
+          "texte": "**Le système de retraite serait déficitaire de 5,1 milliards d'euros en 2025, puis de 6,8 milliards en 2030 et de 0,9 point de PIB en 2045**, à règles inchangées, selon le rapport annuel 2026 du Conseil d'orientation des retraites (COR).",
+          "synthese": "Le système est en déficit modéré mais durable, et la démographie se dégrade plus vite que prévu."
+        }
+      }
+    },
+    {
+      "propositionId": 98,
+      "titre": "La retraite entre 60 et 62 ans selon l'âge du premier emploi stable",
+      "theme": "Retraites",
+      "dateDeclaration": "2026-11-18",
+      "candidat": { "nom": "Marine Le Pen", "photoUrl": "/photos/marine-le-pen.jpg" },
+      "score": 43,
+      "fiche": {
+        "mesure_reformulee": { "synthese": "Abroger la réforme de 2023 et partir entre 60 et 62 ans selon l'âge du premier emploi stable." },
+        "verdict_conclusion": "Une réforme qui tient pour les carrières longues, mais dont l'équilibre budgétaire annoncé repose sur des recettes non confirmées par les données disponibles.",
+        "ce_qui_est_etabli": { "synthese": "Le système est déficitaire et revenir à 62 ans coûte environ 10 milliards par an en 2035." }
+      }
+    },
+    {
+      "propositionId": 99,
+      "titre": "Un compte retraite par capitalisation",
+      "theme": "Retraites",
+      "dateDeclaration": "2026-11-18",
+      "candidat": { "nom": "Marine Le Pen", "photoUrl": "/photos/marine-le-pen.jpg" },
+      "score": 53,
+      "fiche": {
+        "mesure_reformulee": { "synthese": "Chaque actif de 52 ans au plus aurait un compte de retraite par capitalisation, alimenté par des cotisations réorientées." }
+      }
+    }
+  ]
+}

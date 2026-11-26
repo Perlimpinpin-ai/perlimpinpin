@@ -1,0 +1,153 @@
+{
+  "scenes": [
+    {
+      "type": "medaillons",
+      "voix": [
+        "Retraites : ce que proposent **les candidats**.",
+        "Cinq candidats, **cinq façons** de voir le problème.",
+        "Qu’est-ce qui est **vraiment faisable** ?"
+      ],
+      "mouvement": [
+        "Le titre claque mot à mot sur le fond charbon.",
+        "Les premiers médaillons tombent et rebondissent, liseré jaune qui clignote.",
+        "Les derniers médaillons arrivent, les noms s’écrivent en police pixel."
+      ],
+      "son": { "nom": "whoosh", "moment": "image2" }
+    },
+    {
+      "type": "chiffres",
+      "etiquette": "le constat",
+      "titre": "Les retraites perdent",
+      "rouge": "de l’argent.",
+      "icone": "down",
+      "barres": [
+        { "label": "2025", "valeur": "5,1 Md€", "h": 220 },
+        { "label": "2030", "valeur": "6,8 Md€", "h": 300 }
+      ],
+      "voix": [
+        "Le constat : **le système perd de l’argent**.",
+        "**5,1 milliards** de déficit en 2025.",
+        "Et **6,8 milliards** en 2030."
+      ],
+      "mouvement": [
+        "Titre posé, la fin vire au rouille ; la flèche pixel descend par crans.",
+        "Les barres montent bloc par bloc, le compteur de la première défile.",
+        "La barre de 2030 finit de monter en rouille, sa valeur s’affiche."
+      ]
+    },
+    {
+      "type": "candidat",
+      "numero": 1,
+      "titre": "La pénibilité d’abord.",
+      "proposition": "Moduler l’âge de départ selon la pénibilité et la santé, sans âge ni critère précis.",
+      "regard": "Une direction cohérente, mais rien n’est encore préparé ni chiffré.",
+      "voix": [
+        "Glucksmann veut un âge de départ **selon la pénibilité**.",
+        "La direction est bonne, mais **rien n’est chiffré**.",
+        "**61 sur 100**, plausible sous condition."
+      ],
+      "mouvement": [
+        "Le bandeau ocre glisse du haut, le portrait se charge en mosaïque.",
+        "La carte « La proposition » tombe et rebondit.",
+        "« Notre regard » glisse dessous, la note défile jusqu’à 61, tampon avec secousse."
+      ]
+    },
+    {
+      "type": "candidat",
+      "numero": 2,
+      "titre": "Retour à 62 ans au plus.",
+      "proposition": "Abroger la réforme de 2023 et partir entre 60 et 62 ans selon le premier emploi stable.",
+      "regard": "Juste pour les carrières longues, mais le financement annoncé ne tient pas.",
+      "voix": [
+        "Le Pen veut partir **entre 60 et 62 ans**.",
+        "Mais le financement repose sur **des recettes non confirmées**.",
+        "**43 sur 100**, partiellement fondé."
+      ],
+      "mouvement": [
+        "Le bandeau pêche glisse du haut, le portrait se charge en mosaïque.",
+        "La carte « La proposition » tombe et rebondit.",
+        "« Notre regard » glisse dessous, la note défile jusqu’à 43, tampon avec secousse."
+      ]
+    },
+    {
+      "type": "candidat",
+      "numero": 3,
+      "titre": "Rien sur ce thème.",
+      "voix": [
+        "Mélenchon n’a **pas encore de proposition** publiée sur les retraites.",
+        "Pas de fiche, donc **pas de note**.",
+        "On l’ajoutera **dès sa prise de position**."
+      ],
+      "mouvement": [
+        "Le bandeau violet prune glisse du haut, le portrait se charge en mosaïque.",
+        "La carte « Pas de proposition publiée » tombe, sans note.",
+        "La carte reste seule, un curseur clignote à la fin du texte."
+      ]
+    },
+    {
+      "type": "candidat",
+      "numero": 4,
+      "titre": "La Bourse en complément.",
+      "proposition": "Garder la répartition et ajouter une part de capitalisation, sans toucher aux cotisations.",
+      "regard": "Un bon cap, mais ni le levier ni les chiffres ne sont donnés.",
+      "voix": [
+        "Riner garde la répartition et ajoute **une part de Bourse**.",
+        "Bon cap, mais **aucun chiffre** pour 2030.",
+        "**56 sur 100**, plausible sous condition."
+      ],
+      "mouvement": [
+        "Le bandeau bleu Eames glisse du haut, le portrait se charge en mosaïque.",
+        "La carte « La proposition » tombe et rebondit.",
+        "« Notre regard » glisse dessous, la note défile jusqu’à 56, tampon avec secousse."
+      ]
+    },
+    {
+      "type": "candidat",
+      "numero": 5,
+      "titre": "Les syndicats décident.",
+      "proposition": "Laisser syndicats et patronat fixer les paramètres des retraites, comme pour l’assurance-chômage.",
+      "regard": "Solide en droit, mais le conclave de 2025 a échoué sur ce point.",
+      "voix": [
+        "Villepin confie les retraites **aux syndicats et au patronat**.",
+        "Mais en 2025, ils ont **échoué sur l’âge**.",
+        "**57 sur 100**, plausible sous condition."
+      ],
+      "mouvement": [
+        "Le bandeau sable glisse du haut, le portrait se charge en mosaïque.",
+        "La carte « La proposition » tombe et rebondit.",
+        "« Notre regard » glisse dessous, la note défile jusqu’à 57, tampon avec secousse."
+      ]
+    },
+    {
+      "type": "classement",
+      "titre": "Le classement, cette fois par note.",
+      "voix": [
+        "Le classement : **Glucksmann** en tête, à 61.",
+        "**Le Pen** ferme la marche.",
+        "Moyenne des candidats notés : **54,3 sur 100**."
+      ],
+      "mouvement": [
+        "Le titre se pose, la liste est vide.",
+        "Les lignes arrivent de la dernière à la première, chaque barre monte bloc par bloc.",
+        "La moyenne s’affiche, « 54,3/100 » passe en moutarde ; Mélenchon reste en gris, sans note."
+      ],
+      "son": { "nom": "blip", "moment": "image3" }
+    },
+    {
+      "type": "fin",
+      "question": "Et vous, qu’en pensez-vous ?",
+      "url": "perlimpinpin.ai",
+      "mention": "analyse réalisée par l’IA Perlimpinpin · lien en bio",
+      "voix": [
+        "Une analyse réalisée par **l’IA Perlimpinpin**.",
+        "Vous voyez une erreur ? **Corrigez-la** sur notre site.",
+        "**Lien en bio.**"
+      ],
+      "mouvement": [
+        "Grosse bulle pixel au centre, les trois points « tapent ».",
+        "La bulle monte en haut à gauche, la question apparaît, l’adresse commence à se taper.",
+        "L’adresse finit de se taper lettre à lettre, curseur qui clignote, « Lien en bio » s’allume."
+      ]
+    }
+  ]
+}

@@ -48,6 +48,7 @@ function simuler({ proposition, analyse, depot }) {
     mode: "B",
     ficheFinale: fichePourReel(analyse.contenuComplet ?? {}),
     score: analyse.scoreFaisabilite,
+    candidatNom: proposition.candidat?.nom,
     script: depot.script,
     minutage: depot.minutage,
     cartesDisponibles: cartesDisponibles(),

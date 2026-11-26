@@ -1,0 +1,145 @@
+{
+  "scenes": [
+    {
+      "type": "accroche-programme",
+      "voix": [
+        "On a noté **6 mesures** de Marine Tondelier.",
+        "Loyers, SMIC, héritages, école… **tout y passe**.",
+        "Alors, lesquelles **tiennent la route** ?"
+      ],
+      "mouvement": [
+        "Le titre claque mot à mot, « 6 mesures » vire au moutarde ; le portrait se charge en grosse mosaïque.",
+        "Le portrait se précise ; trois cartes crème tombent une à une et rebondissent.",
+        "Les trois dernières cartes tombent, chaque « ?/100 » clignote une fois."
+      ],
+      "son": { "nom": "glitch", "moment": "entree" }
+    },
+    {
+      "type": "mesure",
+      "numero": 1,
+      "titre": "Loyers encadrés partout : ça peut tenir.",
+      "proposition": "Encadrer les loyers dans toutes les zones tendues, avec des amendes plus lourdes.",
+      "voix": [
+        "Un : **le logement**.",
+        "Encadrer les loyers partout, avec des **amendes plus lourdes**.",
+        "**64 sur 100**, plausible sous condition."
+      ],
+      "mouvement": [
+        "Le libellé s'allume, le titre claque mot à mot.",
+        "Le bloc crème glisse du bas, le picto maison tombe dedans.",
+        "Le compteur file jusqu'à 64, la jauge se remplit bloc par bloc, tampon avec secousse."
+      ]
+    },
+    {
+      "type": "mesure",
+      "numero": 2,
+      "titre": "SMIC à 2 000 € : un vrai risque.",
+      "proposition": "Porter le SMIC à 2 000 € brut dès 2027, au-delà de l'indexation automatique.",
+      "voix": [
+        "Deux : **le SMIC** à 2 000 euros brut.",
+        "Les experts mettent en garde contre **une trappe à bas salaires**.",
+        "**53 sur 100**, plausible sous condition."
+      ],
+      "mouvement": [
+        "Le libellé passe à 2/6, le titre claque.",
+        "Le bloc crème glisse, le picto usine tombe.",
+        "Compteur jusqu'à 53, jauge bloc par bloc, tampon."
+      ]
+    },
+    {
+      "type": "mesure",
+      "numero": 3,
+      "titre": "Contre le mensonge : rien de concret.",
+      "proposition": "Un arsenal de lois contre le mensonge en politique, sans mécanisme précisé.",
+      "voix": [
+        "Trois : **le mensonge en politique**.",
+        "Une loi est promise, mais **aucun mécanisme** n'est précisé.",
+        "**33 sur 100**, fragile."
+      ],
+      "mouvement": [
+        "Le libellé passe à 3/6, le titre claque.",
+        "Le bloc crème glisse, la bulle pixel tombe.",
+        "Compteur jusqu'à 33, la jauge s'arrête tôt, tampon rouille."
+      ]
+    },
+    {
+      "type": "mesure",
+      "numero": 4,
+      "titre": "Gros héritages taxés : sa meilleure note.",
+      "proposition": "Alourdir l'impôt sur les très gros héritages et réduire leurs niches, pour le climat.",
+      "voix": [
+        "Quatre : **les très gros héritages**.",
+        "Le constat fiscal tient, mais **les recettes sont surestimées**.",
+        "**69 sur 100**, solide et chiffré."
+      ],
+      "mouvement": [
+        "Le libellé passe à 4/6, le titre claque.",
+        "Le bloc crème glisse, le portefeuille pixel tombe.",
+        "Compteur jusqu'à 69, jauge presque pleine, tampon olive."
+      ]
+    },
+    {
+      "type": "mesure",
+      "numero": 5,
+      "titre": "Désescalade : une piste sérieuse.",
+      "proposition": "Revoir le maintien de l'ordre autour du dialogue, sans LBD ni nasses.",
+      "voix": [
+        "Cinq : **le maintien de l'ordre**.",
+        "Sa doctrine de désescalade est **sérieuse**, mais rien face aux groupes mobiles.",
+        "**62 sur 100**, plausible sous condition."
+      ],
+      "mouvement": [
+        "Le libellé passe à 5/6, le titre claque.",
+        "Le bloc crème glisse, le picto banque tombe.",
+        "Compteur jusqu'à 62, jauge bloc par bloc, tampon."
+      ]
+    },
+    {
+      "type": "mesure",
+      "numero": 6,
+      "titre": "19 élèves par classe : presque acquis.",
+      "proposition": "19 élèves par classe en primaire d'ici 2032, 12 en éducation prioritaire.",
+      "voix": [
+        "Six : **l'école**.",
+        "19 élèves par classe, c'est **presque acquis**, grâce à la baisse des naissances.",
+        "**65 sur 100**, solide et chiffré."
+      ],
+      "mouvement": [
+        "Le libellé passe à 6/6, le titre claque.",
+        "Le bloc crème glisse, le livre pixel tombe.",
+        "Compteur jusqu'à 65, jauge bloc par bloc, tampon olive."
+      ]
+    },
+    {
+      "type": "classement",
+      "titre": "Du plus solide au plus fragile.",
+      "voix": [
+        "Le classement : **les héritages** arrivent en tête.",
+        "Le mensonge en politique **ferme la marche**.",
+        "En moyenne : **57,7 sur 100**."
+      ],
+      "mouvement": [
+        "Le titre se pose, la liste est vide.",
+        "Les lignes arrivent de la dernière à la première, chaque barre monte bloc par bloc.",
+        "La moyenne s'affiche, « 57,7/100 » passe en moutarde."
+      ],
+      "son": { "nom": "blip", "moment": "image3" }
+    },
+    {
+      "type": "fin",
+      "question": "Et vous, qu’en pensez-vous ?",
+      "url": "perlimpinpin.ai",
+      "mention": "analyse réalisée par l’IA Perlimpinpin · lien en bio",
+      "voix": [
+        "Une analyse réalisée par **l’IA Perlimpinpin**.",
+        "Vous voyez une erreur ? **Corrigez-la** sur notre site.",
+        "**Lien en bio.**"
+      ],
+      "mouvement": [
+        "Grosse bulle pixel au centre, les trois points « tapent ».",
+        "La bulle monte en haut à gauche, la question apparaît, l'adresse commence à se taper.",
+        "L’adresse finit de se taper lettre à lettre, curseur qui clignote, « Lien en bio » s'allume."
+      ]
+    }
+  ]
+}

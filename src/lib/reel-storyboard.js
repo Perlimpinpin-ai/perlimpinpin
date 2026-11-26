@@ -1,35 +1,51 @@
 import { formatScore, getScoreBadge } from "./score.js";
 import { nombresHorsFiche, extraireNombres } from "./nombres-fiche.js";
 import { tournuresIA } from "./tournures-ia.js";
-import { NOMS_PIXEL } from "./reel-pixel.js";
+import { NOMS_PIXEL, nomPicto } from "./reel-pixel.js";
+import { nomDeFamille, prenom } from "./charte-rs.js";
 import { CLES_PAYS, paysCites, paysParCle } from "./reel-pays.js";
 import { QUESTIONS_COUVERTURE, SONS, VARIANTES, avertissementVariabilite, questionCouverture } from "./reel-montage.js";
 
-// Storyboard des Reels (v4, docs/prompt-reel.md) : 7 à 10 scènes typées, 3
-// images clés par scène, voix off découpée en 3 morceaux, mouvement décrit
-// en 3 phrases. L'objet `R` du prompt. Deux modes :
+// Storyboard des Reels (v5, docs/prompt-reel.md et docs/charte-rs.pdf) : des
+// scènes typées, 3 images clés par scène, voix off découpée en 3 morceaux,
+// mouvement décrit en 3 phrases. L'objet `R` du prompt. Trois formats :
+//   « mesure »     une proposition d'un candidat (≈ 1 min, 7 à 10 scènes) ;
+//   « programme »  6 mesures d'un candidat, notées, puis le classement ;
+//   « thematique » 4 à 8 candidats sur un thème, ordre alphabétique.
+// Deux modes :
 //   A « Script Claude » : Claude écrit le script et le storyboard ;
 //   B « Script et voix off de l'équipe » : Claude découpe le texte de
 //     l'équipe sans le réécrire (contrôle mot pour mot bloquant).
 // Fonctions PURES (ni Next, ni base, ni fichiers), testées par
-// scripts/reel-storyboard.test.js.
+// scripts/reel-storyboard.test.js et scripts/reel-formats.test.js.
 
+export const VERSION_STORYBOARD = 5;
 export const SCENES_MIN = 7;
 export const SCENES_MAX = 10;
 export const DUREE_SCENE_MIN = 5;
 export const DUREE_SCENE_MAX = 9;
 export const MOTS_ECRAN_MAX = 7;
+export const MOTS_PHRASE_MAX = 20;
+export const MOTS_LIGNE_SOUS_TITRE = 8;
 export const MOTS_PAR_SECONDE = 3;
+export const IMAGE_FIXE_MAX = 2; // secondes sans changement visible
+export const ECART_DUREE_CANDIDATS = 0.15;
 export const URL_REEL = "perlimpinpin.ai";
 export const SONS_MAX_STORYBOARD = 5;
+export const MESURES_PROGRAMME = 6;
+export const CANDIDATS_MIN = 4;
+export const CANDIDATS_MAX = 8;
 
 // --- Catalogue des scènes (section 4) ------------------------------------------
 // Spécification d'un champ : « texte », « nombre », « icone », « booleen »,
 // une liste ({ liste: spec, min, max }) ou un objet ({ objet: { champ: spec } }).
-// Suffixe « ? » ou { optionnel: true } : facultatif. `ecran: false` : champ
-// de mise en page, pas un texte affiché (pas de contrôle des mots).
+// { optionnel: true } : facultatif. `ecran: false` : champ de mise en page,
+// pas un texte affiché (pas de contrôle des mots). `phrase: true` : une
+// phrase entière (la proposition, notre regard), 20 mots au plus au lieu de 7.
 const t = "texte";
 const opt = (spec) => ({ ...(typeof spec === "string" ? { type: spec } : spec), optionnel: true });
+const phrase = { type: "texte", phrase: true };
+const numero = { type: "nombre", ecran: false };
 
 export const TYPES_SCENES = {
   accroche: { nom: "Accroche", champs: { titre: t, surligne: t, icone: opt("icone") } },
@@ -73,10 +89,36 @@ export const TYPES_SCENES = {
     },
   },
   avis: { nom: "Notre avis", champs: { debutTitre: t, finTitre: t, surligne: t, tient: t, coince: t } },
-  fin: { nom: "Fin", champs: { question: t, url: { type: "texte", ecran: false }, mention: t } },
+  fin: { nom: "Fin", champs: { question: t, url: { type: "texte", ecran: false }, mention: phrase } },
+  // Format « programme » : titre fixe du code (« On a noté 6 mesures de [Nom]. »).
+  "accroche-programme": { nom: "Accroche du programme", champs: {} },
+  // Une des 6 mesures : `numero` (1 à 6, ordre du code) ; note et verdict du code.
+  mesure: { nom: "Une mesure", champs: { numero, titre: t, proposition: phrase, icone: opt("icone") } },
+  // Classement par note, moyenne calculée par le code.
+  classement: { nom: "Le classement", champs: { titre: t } },
+  // Format « thématique » : titre fixe du code (« [Thème] : ce que proposent les candidats. »).
+  medaillons: { nom: "Les candidats", champs: {} },
+  // Un candidat (`numero` : rang alphabétique du code). Sans fiche sur le
+  // thème : ni proposition ni regard (le code affiche « Pas de proposition… »).
+  candidat: { nom: "Un candidat", champs: { numero, titre: t, proposition: opt(phrase), regard: opt(phrase) } },
 };
 
 export const TYPES = Object.keys(TYPES_SCENES);
+
+// Les trois formats : types permis, première scène, nombre de scènes.
+export const FORMATS = {
+  mesure: { nom: "Une mesure", types: ["accroche", "chiffres", "proposition", "note", "cartes", "compteur", "pays", "avis", "fin"], premiere: "accroche" },
+  programme: { nom: "Programme", types: ["accroche-programme", "mesure", "classement", "fin"], premiere: "accroche-programme" },
+  thematique: { nom: "Thématique", types: ["medaillons", "chiffres", "candidat", "classement", "fin"], premiere: "medaillons" },
+};
+
+// Types qui se suivent par nature : la règle « jamais deux fois le même
+// type d'affilée » ne s'applique pas à eux.
+export const SUITES_PERMISES = ["mesure", "candidat"];
+
+export function formatValide(format) {
+  return Object.hasOwn(FORMATS, format) ? format : "mesure";
+}
 const CHAMPS_COMMUNS = ["type", "voix", "mouvement", "son"];
 const MOMENTS_SON = ["entree", "image2", "image3"];
 
@@ -181,7 +223,7 @@ export function consignesFixes(variantes, { score }) {
 
 // --- Lecture stricte de la réponse ----------------------------------------------
 
-function lireValeur(spec, valeur, chemin, erreurs) {
+function lireValeur(spec, valeur, chemin, erreurs, options = {}) {
   const s = typeof spec === "string" ? { type: spec } : spec;
   if (valeur === undefined || valeur === null || valeur === "") {
     if (!s.optionnel) erreurs.push(`${chemin} : champ manquant.`);
@@ -195,7 +237,7 @@ function lireValeur(spec, valeur, chemin, erreurs) {
     if ((s.min !== undefined && valeur.length < s.min) || (s.max !== undefined && valeur.length > s.max)) {
       erreurs.push(`${chemin} : ${valeur.length} élément(s), ${s.min === s.max ? s.min : `${s.min} à ${s.max}`} attendu(s).`);
     }
-    return valeur.map((v, i) => lireValeur(s.liste, v, `${chemin}[${i + 1}]`, erreurs));
+    return valeur.map((v, i) => lireValeur(s.liste, v, `${chemin}[${i + 1}]`, erreurs, options));
   }
   if (s.objet) {
     if (typeof valeur !== "object" || Array.isArray(valeur)) {
@@ -207,7 +249,7 @@ function lireValeur(spec, valeur, chemin, erreurs) {
     }
     return Object.fromEntries(
       Object.entries(s.objet)
-        .map(([cle, sous]) => [cle, lireValeur(sous, valeur[cle], `${chemin}.${cle}`, erreurs)])
+        .map(([cle, sous]) => [cle, lireValeur(sous, valeur[cle], `${chemin}.${cle}`, erreurs, options)])
         .filter(([, v]) => v !== undefined),
     );
   }
@@ -230,12 +272,15 @@ function lireValeur(spec, valeur, chemin, erreurs) {
         return undefined;
       }
       return valeur;
-    case "icone":
-      if (!NOMS_PIXEL.includes(valeur)) {
-        erreurs.push(`${chemin} : objet pixel « ${valeur} » hors de la liste (${NOMS_PIXEL.join(", ")}).`);
+    case "icone": {
+      // Les storyboards v4 rangés en base gardent leurs anciens noms (convertis).
+      const nom = NOMS_PIXEL.includes(valeur) ? valeur : options.anciensPictos ? nomPicto(valeur) : null;
+      if (!nom) {
+        erreurs.push(`${chemin} : picto « ${valeur} » hors de la liste de la charte (${NOMS_PIXEL.join(", ")}).`);
         return undefined;
       }
-      return valeur;
+      return nom;
+    }
     case "pays":
       if (!CLES_PAYS.includes(valeur)) {
         erreurs.push(`${chemin} : pays « ${valeur} » inconnu (clés : ${CLES_PAYS.join(", ")}).`);
@@ -271,8 +316,11 @@ function lireSonScene(brut, chemin, erreurs) {
 // Réponse brute du modèle → { storyboard, erreurs }. Refus (JSON invalide) si
 // un type ou un champ est inconnu, si un champ attendu manque ou n'a pas la
 // bonne forme. storyboard = { couverture: { titre, question }, scenes }.
-export function lireStoryboard(raw) {
+// options : { format (la couverture n'est demandée qu'au format « mesure »),
+// anciensPictos (vrai pour un storyboard v4 rangé en base) }.
+export function lireStoryboard(raw, { format = "mesure", anciensPictos = false } = {}) {
   const erreurs = [];
+  const options = { anciensPictos };
   if (!raw || typeof raw !== "object" || !Array.isArray(raw.scenes)) {
     return { storyboard: null, erreurs: ['JSON invalide : un objet { "scenes": [ … ], "couverture": { … } } est attendu.'] };
   }
@@ -296,7 +344,7 @@ export function lireStoryboard(raw) {
     }
     const scene = { type };
     for (const [champ, spec] of Object.entries(def.champs)) {
-      const v = lireValeur(spec, brute[champ], `${chemin} (${type}).${champ}`, erreurs);
+      const v = lireValeur(spec, brute[champ], `${chemin} (${type}).${champ}`, erreurs, options);
       if (v !== undefined) scene[champ] = v;
     }
     scene.voix = lireTroisTextes(brute.voix, `${chemin} (${type}).voix`, erreurs);
@@ -307,7 +355,7 @@ export function lireStoryboard(raw) {
   });
   const c = raw.couverture && typeof raw.couverture === "object" ? raw.couverture : {};
   const couverture = { titre: texte(c.titre), question: texte(c.question) };
-  if (!couverture.titre) erreurs.push("Couverture : titre manquant.");
+  if (!couverture.titre && formatValide(format) === "mesure") erreurs.push("Couverture : titre manquant.");
   return { storyboard: erreurs.length ? null : { couverture, scenes }, erreurs };
 }
 
@@ -329,6 +377,12 @@ export function textesEcran(scene) {
   };
   Object.entries(def.champs).forEach(([champ, spec]) => parcourir(spec, scene[champ], champ));
   return sortie;
+}
+
+// Vrai si le champ est une phrase entière (20 mots au plus).
+function estPhrase(scene, champ) {
+  const spec = TYPES_SCENES[scene?.type]?.champs?.[champ];
+  return Boolean(spec && typeof spec === "object" && spec.phrase);
 }
 
 // Morceaux de voix réellement dits : un morceau répété à l'identique juste
@@ -474,6 +528,63 @@ function tempsSrt(s) {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")},${String(ms % 1000).padStart(3, "0")}`;
 }
 
+// Lignes de sous-titre d'un morceau de voix (charte p. 18) : 8 mots au plus
+// par ligne, coupées de préférence sur la ponctuation. Les mots clés gardent
+// leurs « ** » (refermés en bout de ligne s'ils sont coupés), pour passer en
+// moutarde à l'écran. Même découpage pour l'image et pour sous-titres.srt.
+export function lignesSousTitres(morceau) {
+  const mots = texte(morceau).split(" ").filter(Boolean);
+  const lignes = [];
+  // Ne compte que les vrais mots (« ? », « : » seuls ne comptent pas).
+  const compte = (liste) => liste.filter((m) => /[\p{L}\p{N}]/u.test(m)).length;
+  let reste = mots;
+  while (reste.length) {
+    if (compte(reste) <= MOTS_LIGNE_SOUS_TITRE) {
+      lignes.push(reste.join(" "));
+      break;
+    }
+    // Au plus 8 mots ; coupure après la dernière ponctuation de ces 8 mots
+    // (au moins 3 mots sur la ligne), sinon après le 8e mot.
+    let n = 0;
+    let fin = 0;
+    while (fin < reste.length && (compte(reste.slice(0, fin + 1)) <= MOTS_LIGNE_SOUS_TITRE)) fin++;
+    for (let k = fin; k >= 3; k--) {
+      if (/[.,;:?!…»]\**$/.test(reste[k - 1])) {
+        n = k;
+        break;
+      }
+    }
+    const coupe = n || fin;
+    lignes.push(reste.slice(0, coupe).join(" "));
+    reste = reste.slice(coupe);
+  }
+  // Un mot clé coupé entre deux lignes est refermé, puis rouvert.
+  for (let i = 0; i < lignes.length - 1; i++) {
+    if ((lignes[i].match(/\*\*/g) ?? []).length % 2 === 1) {
+      lignes[i] = `${lignes[i]}**`;
+      lignes[i + 1] = `**${lignes[i + 1]}`;
+    }
+  }
+  return lignes;
+}
+
+// Nombre de mots d'une ligne de sous-titre (« 6,8 » compte pour un mot).
+export function motsLigne(ligne) {
+  return sansGras(ligne).split(/\s+/).filter((m) => /[\p{L}\p{N}]/u.test(m)).length;
+}
+
+// Lignes de plus de 8 mots dans un SRT : [{ numero, ligne, mots }].
+export function lignesTropLongues(srt) {
+  return String(srt ?? "")
+    .replace(/\r\n/g, "\n")
+    .split(/\n\n+/)
+    .flatMap((bloc) => {
+      const [n, , ...lignes] = bloc.split("\n");
+      return lignes.filter(Boolean).map((ligne) => ({ numero: Number(n), ligne, mots: motsLigne(ligne) }));
+    })
+    .filter((l) => l.mots > MOTS_LIGNE_SOUS_TITRE);
+}
+
 // Sous-titres SRT : le texte exact du storyboard (sans « ** »), en lignes de
 // 8 mots au plus coupées à la ponctuation, calées sur les temps des mots.
 export function sousTitresSrt(scenes, temps) {
@@ -482,19 +593,13 @@ export function sousTitresSrt(scenes, temps) {
   const jet = temps.jetons;
   for (const scene of scenes ?? []) {
     for (const m of morceauxDits(scene)) {
-      const mots = sansGras(m).split(/\s+/).filter(Boolean);
-      let courant = [];
-      mots.forEach((mot, k) => {
-        courant.push(mot);
-        const fin = k === mots.length - 1 || courant.length >= 8 || (/[.,;:?!…]$/.test(mot) && courant.length >= 3);
-        if (!fin) return;
-        const n = courant.reduce((somme, x) => somme + jetons(x).length, 0);
+      for (const ligne of lignesSousTitres(sansGras(m))) {
+        const n = jetons(ligne).length;
         const premier = jet[i] ?? jet.at(-1) ?? { debut: 0, fin: 0 };
         const dernier = jet[i + Math.max(0, n - 1)] ?? premier;
         i += n;
-        blocs.push({ debut: premier.debut, fin: Math.max(dernier.fin, premier.debut + 0.3), texte: courant.join(" ") });
-        courant = [];
-      });
+        blocs.push({ debut: premier.debut, fin: Math.max(dernier.fin, premier.debut + 0.3), texte: ligne });
+      }
     }
   }
   return `${blocs.map((b, k) => `${k + 1}\n${tempsSrt(b.debut)} --> ${tempsSrt(b.fin)}\n${b.texte}\n`).join("\n")}`;
@@ -502,22 +607,88 @@ export function sousTitresSrt(scenes, temps) {
 
 // --- Contrôle ---------------------------------------------------------------------
 
+// Images clés où quelque chose bouge en continu (compteur, barres qui montent
+// bloc par bloc, cases qui s'allument, adresse tapée lettre à lettre, cartes
+// qui tombent) : elles ne comptent pas comme des images figées.
+const IMAGES_ANIMEES = {
+  note: [1, 2, 3],
+  chiffres: [2],
+  compteur: [2, 3],
+  pays: [1],
+  fin: [3],
+  "accroche-programme": [2, 3],
+  mesure: [3],
+  classement: [2, 3],
+  medaillons: [2],
+  candidat: [3],
+};
+
+// Structure attendue d'un format : renvoie la liste des erreurs.
+function controlerStructure(scenes, format, ctx) {
+  const erreurs = [];
+  const def = FORMATS[format];
+  const n = scenes.length;
+  for (const [i, s] of scenes.entries()) {
+    if (!def.types.includes(s.type)) erreurs.push(`Scène ${i + 1} : le type \`${s.type}\` n'existe pas au format « ${def.nom} » (types : ${def.types.join(", ")}).`);
+  }
+  if (scenes[0]?.type !== def.premiere) erreurs.push(`La première scène doit être \`${def.premiere}\` au format « ${def.nom} » (ici « ${scenes[0]?.type} »).`);
+  if (scenes.at(-1)?.type !== "fin") erreurs.push(`La dernière scène doit être une \`fin\` (ici « ${scenes.at(-1)?.type} »).`);
+  scenes.forEach((s, i) => {
+    if (i > 0 && s.type === scenes[i - 1].type && !SUITES_PERMISES.includes(s.type)) erreurs.push(`Scènes ${i} et ${i + 1} : deux \`${s.type}\` de suite.`);
+  });
+  if (format === "mesure") {
+    if (n < SCENES_MIN || n > SCENES_MAX) erreurs.push(`${n} scènes : ${SCENES_MIN} à ${SCENES_MAX} attendues.`);
+    return erreurs;
+  }
+  if (format === "programme") {
+    const attendu = ["accroche-programme", ...Array(MESURES_PROGRAMME).fill("mesure"), "classement", "fin"];
+    if (scenes.map((s) => s.type).join(",") !== attendu.join(",")) {
+      erreurs.push(`Format « Programme » : ${attendu.length} scènes attendues dans cet ordre : accroche-programme, 6 × mesure, classement, fin (ici ${scenes.map((s) => s.type).join(", ")}).`);
+    }
+    const numeros = scenes.filter((s) => s.type === "mesure").map((s) => s.numero);
+    if (numeros.join(",") !== [1, 2, 3, 4, 5, 6].join(",")) erreurs.push(`Scènes \`mesure\` : numéros ${numeros.join(", ")}, 1 à 6 dans l'ordre attendus (l'ordre où le candidat met ses mesures en avant).`);
+    if ((ctx.mesures ?? []).length !== MESURES_PROGRAMME) erreurs.push(`Programme : ${(ctx.mesures ?? []).length} mesure(s) notée(s) sur 6 thèmes différents, 6 attendues.`);
+    return erreurs;
+  }
+  // Thématique.
+  const candidats = ctx.candidats ?? [];
+  if (candidats.length < CANDIDATS_MIN || candidats.length > CANDIDATS_MAX) erreurs.push(`Thématique : ${candidats.length} candidat(s), ${CANDIDATS_MIN} à ${CANDIDATS_MAX} attendus.`);
+  const attendu = ["medaillons", "chiffres", ...Array(candidats.length).fill("candidat"), "classement", "fin"];
+  if (scenes.map((s) => s.type).join(",") !== attendu.join(",")) {
+    erreurs.push(`Format « Thématique » : ${attendu.length} scènes attendues dans cet ordre : medaillons, chiffres, ${candidats.length} × candidat, classement, fin (ici ${scenes.map((s) => s.type).join(", ")}).`);
+  }
+  const numeros = scenes.filter((s) => s.type === "candidat").map((s) => s.numero);
+  const ordre = candidats.map((_, i) => i + 1);
+  if (numeros.join(",") !== ordre.join(",")) erreurs.push(`Scènes \`candidat\` : numéros ${numeros.join(", ")} ; l'ordre alphabétique demande ${ordre.join(", ")} (${candidats.map((c) => nomDeFamille(c.nom)).join(", ")}).`);
+  return erreurs;
+}
+
 // Contrôle du storyboard. Refus (erreurs) :
-//   - JSON invalide (type ou champ inconnu, champ manquant) ;
-//   - moins de 7 ou plus de 10 scènes ;
-//   - deux scènes de suite du même type ; première autre que `accroche`,
-//     dernière autre que `fin` ;
-//   - scène `note` dont le score ou le verdict ne sont pas ceux du code ;
-//   - texte à l'écran contenant un chiffre absent du script et de la fiche ;
+//   - JSON invalide (type, champ ou picto inconnu, champ manquant) ;
+//   - structure du format : nombre et ordre des scènes, première scène
+//     (`accroche`, `accroche-programme` ou `medaillons`), dernière `fin`, deux
+//     scènes de suite du même type (sauf les suites `mesure` et `candidat`),
+//     mesures 1 à 6, candidats dans l'ordre alphabétique ;
+//   - note, score ou verdict qui ne sont pas ceux du code ;
+//   - texte à l'écran contenant un chiffre absent du script et des fiches ;
+//   - candidat sans fiche à qui l'on prête une proposition ;
+//   - ligne de sous-titre de plus de 8 mots ;
 //   - pays cité sans carte ; « ** » non refermés ;
 //   - mode A : phrases fixes absentes ; mode B : écart au texte de l'équipe.
-// Avertissements : texte à l'écran de plus de 7 mots, tournures « IA »,
-// morceau sans mot clé ou avec plus de 2, scène hors de 5 à 9 s, variabilité,
-// trop de sons.
-// ctx = { mode: "A"|"B", ficheFinale, score, script (mode B), minutage (mode B),
-//   variantes (mode A), cartesDisponibles (clés), precedent (texte du dernier Reel) }
+// Avertissements : texte à l'écran de plus de 7 mots (20 pour une phrase),
+// prénom du candidat à l'écran, tournures « IA », morceau sans mot clé ou
+// avec plus de 2, scène hors de 5 à 9 s, image clé figée plus de 2 s
+// (d'après minutage.json), écart de durée de plus de 15 % entre deux scènes
+// `candidat`, variabilité, trop de sons.
+// ctx = { format ("mesure" par défaut), mode: "A"|"B", ficheFinale, score,
+//   candidatNom, script (mode B), minutage (mode B), variantes (mode A),
+//   cartesDisponibles (clés), precedent (texte du dernier Reel),
+//   mesures (programme : [{ numero, theme, score, fiche }]),
+//   candidats (thématique : [{ nom, score|null, fiche|null }], ordre alphabétique),
+//   anciensPictos }
 export function controlerStoryboard(raw, ctx) {
-  const { storyboard, erreurs: erreursLecture } = lireStoryboard(raw);
+  const format = formatValide(ctx?.format);
+  const { storyboard, erreurs: erreursLecture } = lireStoryboard(raw, { format, anciensPictos: Boolean(ctx?.anciensPictos) });
   if (!storyboard) return { valide: false, erreurs: erreursLecture, avertissements: [], storyboard: null };
   const { mode = "A", ficheFinale = {}, score, script = "", minutage = null, variantes = null, precedent = null } = ctx ?? {};
   const cartesDisponibles = new Set(ctx?.cartesDisponibles ?? CLES_PAYS);
@@ -525,15 +696,13 @@ export function controlerStoryboard(raw, ctx) {
   const avertissements = [];
   const scenes = storyboard.scenes;
   const nom = (i) => `Scène ${i + 1} (${scenes[i].type})`;
+  const mesures = ctx?.mesures ?? [];
+  const candidats = ctx?.candidats ?? [];
+  // Toutes les fiches du Reel (une, six ou une par candidat), pour les chiffres.
+  const fiches = format === "mesure" ? [ficheFinale] : format === "programme" ? mesures.map((m) => m.fiche ?? {}) : candidats.map((c) => c.fiche ?? {});
+  const nomsCandidats = format === "thematique" ? candidats.map((c) => c.nom) : [ctx?.candidatNom].filter(Boolean);
 
-  if (scenes.length < SCENES_MIN || scenes.length > SCENES_MAX) {
-    erreurs.push(`${scenes.length} scènes : ${SCENES_MIN} à ${SCENES_MAX} attendues.`);
-  }
-  if (scenes[0]?.type !== "accroche") erreurs.push(`La première scène doit être une \`accroche\` (ici « ${scenes[0]?.type} »).`);
-  if (scenes.at(-1)?.type !== "fin") erreurs.push(`La dernière scène doit être une \`fin\` (ici « ${scenes.at(-1)?.type} »).`);
-  scenes.forEach((s, i) => {
-    if (i > 0 && s.type === scenes[i - 1].type) erreurs.push(`Scènes ${i} et ${i + 1} : deux \`${s.type}\` de suite.`);
-  });
+  erreurs.push(...controlerStructure(scenes, format, { mesures, candidats }));
 
   // La note : score et verdict du code.
   const verdict = verdictDuScore(score);
@@ -543,26 +712,46 @@ export function controlerStoryboard(raw, ctx) {
     if (texte(s.verdict).toLowerCase() !== verdict.toLowerCase()) erreurs.push(`${nom(i)} : verdict « ${s.verdict} », le code donne « ${verdict.toLowerCase()} ».`);
   });
 
-  // Voix : gras refermés, 1 ou 2 mots clés par morceau.
+  // Candidats : pas de proposition prêtée à qui n'a pas de fiche.
+  scenes.forEach((s, i) => {
+    if (s.type !== "candidat") return;
+    const c = candidats[s.numero - 1];
+    if (!c) return;
+    if (!c.fiche && (s.proposition || s.regard)) erreurs.push(`${nom(i)} : ${nomDeFamille(c.nom)} n'a pas de fiche sur ce thème ; ni proposition ni regard (le code affiche « Pas de proposition publiée sur ce thème à ce jour »).`);
+    if (c.fiche && (!s.proposition || !s.regard)) erreurs.push(`${nom(i)} : « proposition » et « regard » attendus pour ${nomDeFamille(c.nom)}.`);
+  });
+
+  // Voix : gras refermés, 1 ou 2 mots clés par morceau ; sous-titres de 8 mots par ligne.
   scenes.forEach((s, i) =>
     s.voix.forEach((m, k) => {
       if ((m.match(/\*\*/g) ?? []).length % 2 !== 0) erreurs.push(`${nom(i)}, morceau ${k + 1} : « ** » non refermé.`);
       const cles = (m.match(/\*\*(.+?)\*\*/g) ?? []).length;
       if (cles < 1 || cles > 2) avertissements.push(`${nom(i)}, morceau ${k + 1} : ${cles} mot(s) clé(s) en « ** », 1 ou 2 attendus.`);
+      for (const ligne of lignesSousTitres(m)) {
+        if (motsLigne(ligne) > MOTS_LIGNE_SOUS_TITRE) erreurs.push(`${nom(i)}, morceau ${k + 1} : ligne de sous-titre de ${motsLigne(ligne)} mots (« ${sansGras(ligne)} »), ${MOTS_LIGNE_SOUS_TITRE} au plus.`);
+      }
     }),
   );
 
   // Textes ajoutés à l'écran.
   const voixEntiere = texteVoixStoryboard(scenes);
   const nombresScript = new Set(extraireNombres(mode === "B" ? `${script}\n${voixEntiere}` : voixEntiere));
+  const prenoms = [...new Set(nomsCandidats.map(prenom).filter(Boolean))];
   scenes.forEach((s, i) => {
     for (const { champ, texte: t2 } of textesEcran(s)) {
       const mots = nombreDeMots(t2);
-      if (mots > MOTS_ECRAN_MAX) avertissements.push(`${nom(i)} : « ${champ} » fait ${mots} mots à l'écran (${MOTS_ECRAN_MAX} au plus).`);
-      for (const nombre of nombresHorsFiche([t2], ficheFinale)) {
+      const max = estPhrase(s, champ) ? MOTS_PHRASE_MAX : MOTS_ECRAN_MAX;
+      if (mots > max) avertissements.push(`${nom(i)} : « ${champ} » fait ${mots} mots à l'écran (${max} au plus).`);
+      const horsFiches = fiches.length ? fiches.map((f) => new Set(nombresHorsFiche([t2], f))).reduce((a, b) => new Set([...a].filter((x) => b.has(x)))) : new Set();
+      for (const nombre of horsFiches) {
         if (!nombresScript.has(nombre)) erreurs.push(`${nom(i)} : « ${champ} » affiche « ${nombre} », absent du script et de la fiche.`);
       }
       for (const tournure of tournuresIA(t2)) avertissements.push(`${nom(i)} : « ${champ} », tournure qui sonne « IA » (« ${tournure} »).`);
+      for (const p of prenoms) {
+        if (new RegExp(`(^|[^\\p{L}])${p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\p{L}]|$)`, "iu").test(sansGras(t2))) {
+          avertissements.push(`${nom(i)} : « ${champ} » écrit le prénom « ${p} » ; seulement le nom de famille à l'écran.`);
+        }
+      }
     }
     if (mode === "A") {
       for (const tournure of tournuresIA(s.voix.join(" "))) avertissements.push(`${nom(i)} : voix, tournure qui sonne « IA » (« ${tournure} »).`);
@@ -588,14 +777,21 @@ export function controlerStoryboard(raw, ctx) {
   if (mode === "A") {
     const f = textesFixes(variantes ?? {});
     const accroche = scenes[0];
-    if (accroche?.type === "accroche" && !jetons(accroche.voix[2]).join(" ").endsWith(jetons(f.signature).join(" "))) {
+    if (format === "mesure" && accroche?.type === "accroche" && !jetons(accroche.voix[2]).join(" ").endsWith(jetons(f.signature).join(" "))) {
       erreurs.push(`Scène 1 (accroche) : le 3e morceau doit finir par « ${f.signature} ».`);
     }
     scenes.forEach((s, i) => {
-      if (s.type !== "note") return;
-      if (!jetons(s.voix[0]).join(" ").includes(jetons(f.verdict).join(" "))) erreurs.push(`${nom(i)} : le 1er morceau doit contenir « ${f.verdict} ».`);
-      if (!jetons(s.voix.join(" ")).join(" ").includes(jetons(`${scoreTexte(score)} sur 100`).join(" "))) {
-        erreurs.push(`${nom(i)} : la voix doit dire « ${scoreTexte(score)} sur 100 ».`);
+      if (s.type === "note") {
+        if (!jetons(s.voix[0]).join(" ").includes(jetons(f.verdict).join(" "))) erreurs.push(`${nom(i)} : le 1er morceau doit contenir « ${f.verdict} ».`);
+        if (!jetons(s.voix.join(" ")).join(" ").includes(jetons(`${scoreTexte(score)} sur 100`).join(" "))) erreurs.push(`${nom(i)} : la voix doit dire « ${scoreTexte(score)} sur 100 ».`);
+      }
+      if (s.type === "mesure" && mesures[s.numero - 1]) {
+        const note = `${scoreTexte(mesures[s.numero - 1].score)} sur 100`;
+        if (!jetons(s.voix.join(" ")).join(" ").includes(jetons(note).join(" "))) erreurs.push(`${nom(i)} : la voix doit dire « ${note} » (note du code).`);
+      }
+      if (s.type === "candidat" && candidats[s.numero - 1]?.fiche) {
+        const note = `${scoreTexte(candidats[s.numero - 1].score)} sur 100`;
+        if (!jetons(s.voix.join(" ")).join(" ").includes(jetons(note).join(" "))) erreurs.push(`${nom(i)} : la voix doit dire « ${note} » (note du code).`);
       }
     });
     const fin = scenes.at(-1);
@@ -621,22 +817,96 @@ export function controlerStoryboard(raw, ctx) {
   if (mode === "B" && minutage && temps.estime) {
     avertissements.push("minutage.json ne suit pas le storyboard mot pour mot : durées estimées à 3 mots par seconde.");
   }
+  // Un changement visible toutes les 1 à 2 s : image clé figée trop longtemps.
+  if (!temps.estime) avertissements.push(...imagesFigees(scenes, temps));
+  // Thématique : même durée pour tous les candidats.
+  const ecart = ecartDureesCandidats(scenes, temps);
+  if (ecart) avertissements.push(ecart);
 
   const variabilite = avertissementVariabilite(voixEntiere, precedent);
   if (variabilite) avertissements.push(variabilite);
 
-  return { valide: erreurs.length === 0, erreurs, avertissements, storyboard, temps };
+  return { valide: erreurs.length === 0, erreurs, avertissements, storyboard, temps, format };
+}
+
+// Changements visibles décrits par la phrase de mouvement d'une image clé :
+// une action par membre de phrase (« La fenêtre s'ouvre en glitch, l'image
+// se charge, puis le titre claque » : 3).
+export function changementsDecrits(phrase) {
+  return Math.max(1, String(phrase ?? "").split(/[,;]| puis | et (?=l[ae'’]|les |un |une |le |la )/i).filter((m) => m.trim().length > 3).length);
+}
+
+// Images clés qui restent plus de 2 s sans changement visible : durée de
+// l'image (minutage.json) divisée par le nombre de changements décrits ; les
+// images où quelque chose bouge en continu (compteur, barres, cases, adresse
+// tapée) sont exclues.
+export function imagesFigees(scenes, temps) {
+  const sortie = [];
+  scenes.forEach((s, i) => {
+    const t = temps.scenes[i];
+    [1, 2, 3].forEach((k) => {
+      if ((IMAGES_ANIMEES[s.type] ?? []).includes(k)) return;
+      const debut = t.morceaux[k - 1]?.debut ?? t.debut;
+      const suivant = k < 3 ? t.morceaux[k]?.debut : t.fin;
+      const d = (suivant ?? t.fin) - debut;
+      const n = changementsDecrits(s.mouvement?.[k - 1]);
+      if (d / n > IMAGE_FIXE_MAX + 0.05) {
+        sortie.push(`Scène ${i + 1} (${s.type}), image ${k} : ${d.toFixed(1).replace(".", ",")} s pour ${n} changement${n > 1 ? "s" : ""} décrit${n > 1 ? "s" : ""}, plus de 2 s sans changement visible : ajouter un mouvement.`);
+      }
+    });
+  });
+  return sortie;
+}
+
+// Plus grand écart de durée entre deux scènes `candidat`, en avertissement
+// au-delà de 15 % (de la plus courte).
+export function ecartDureesCandidats(scenes, temps) {
+  const durees = scenes.map((s, i) => (s.type === "candidat" ? { i, d: temps.scenes[i].fin - temps.scenes[i].debut } : null)).filter(Boolean);
+  if (durees.length < 2) return null;
+  const min = durees.reduce((a, b) => (b.d < a.d ? b : a));
+  const max = durees.reduce((a, b) => (b.d > a.d ? b : a));
+  if (min.d <= 0 || (max.d - min.d) / min.d <= ECART_DUREE_CANDIDATS) return null;
+  const s = (x) => `${x.d.toFixed(1).replace(".", ",")} s`;
+  return `Même durée pour tous les candidats : scène ${max.i + 1} (${s(max)}) et scène ${min.i + 1} (${s(min)}), ${Math.round(((max.d - min.d) / min.d) * 100)} % d'écart (15 % au plus).`;
+}
+
+// --- Classement (programme, thématique) ------------------------------------------------
+
+// Lignes notées classées par note (la plus haute d'abord) et moyenne, calculées
+// par le code. entrees : [{ libelle, score|null }] ; sans note : hors classement.
+export function classement(entrees) {
+  const notees = (entrees ?? []).filter((e) => Number.isFinite(Number(e.score)) && e.score !== null);
+  const lignes = [...notees].sort((a, b) => Number(b.score) - Number(a.score) || String(a.libelle).localeCompare(String(b.libelle), "fr"));
+  const moyenne = notees.length ? Math.round((notees.reduce((somme, e) => somme + Number(e.score), 0) / notees.length) * 10) / 10 : null;
+  return { lignes, moyenne, sansNote: (entrees ?? []).filter((e) => !notees.includes(e)) };
 }
 
 // --- Couverture -------------------------------------------------------------------
 
-// Couverture finale : titre du modèle (sinon le titre de l'accroche), question
-// de la liste fermée, différente des Reels précédents. Pas de score.
+// Couverture finale (format « mesure ») : titre du modèle (sinon le titre de
+// l'accroche), question de la liste fermée, différente des Reels précédents.
+// Pas de score.
 export function couvertureStoryboard(storyboard, { exclues = [], alea = Math.random } = {}) {
   const accroche = storyboard.scenes.find((s) => s.type === "accroche");
   const titre = texte(storyboard.couverture?.titre) || texte(`${accroche?.titre ?? ""} ${accroche?.surligne ?? ""}`);
   const { question } = questionCouverture(storyboard.couverture?.question, { exclues: exclues.filter(Boolean), alea });
   return { titre, question, questionProposee: storyboard.couverture?.question ?? null, horsListe: Boolean(storyboard.couverture?.question) && !QUESTIONS_COUVERTURE.includes(storyboard.couverture.question) };
+}
+
+// Titres fixes des formats programme et thématique (charte p. 15 et 19), qui
+// servent aussi de couverture. Seulement le nom de famille.
+export function titreProgramme(candidatNom) {
+  return `On a noté **6 mesures** de ${nomDeFamille(candidatNom)}.`;
+}
+
+export function titreThematique(themeLibelle) {
+  return `${texte(themeLibelle)} : ce que proposent les candidats.`;
+}
+
+export function couvertureFormat(format, { candidatNom, themeLibelle } = {}) {
+  if (format === "programme") return { titre: titreProgramme(candidatNom), question: null, horsListe: false };
+  if (format === "thematique") return { titre: titreThematique(themeLibelle), question: null, horsListe: false };
+  return null;
 }
 
 // --- Message final et check-list -----------------------------------------------------
@@ -665,47 +935,109 @@ export function messageFinal({ scenes, temps, ecarts = [], pointsAValider = [], 
   return `${scenes.length} scènes, ${duree}, ${ecartsTexte}, ${points}.`;
 }
 
-// Check-list de la section 6. etat : "ok", "ko" ou "manuel" (à vérifier à l'œil).
-export function checkList({ mode, storyboard, temps, avertissements = [], avertissementsZones = [], photos = {}, minutage = null }) {
+// Restes de maquette à l'écran (charte p. 20) : badge « exemple »,
+// « Candidat A », texte de remplissage.
+const RESTES_MAQUETTE = [/\bexemple\b/i, /\bcandidat [A-H]\b/, /\blorem\b/i, /\bxxx+\b/i, /\bà compléter\b/i];
+
+export function restesMaquette(scenes, couverture = null) {
+  const textes = [
+    ...(scenes ?? []).flatMap((s, i) => textesEcran(s).map((x) => ({ ou: `Scène ${i + 1} (${s.type}) « ${x.champ} »`, t: x.texte }))),
+    ...(couverture ? [{ ou: "Couverture", t: `${couverture.titre ?? ""} ${couverture.question ?? ""}` }] : []),
+  ];
+  return textes.filter((x) => RESTES_MAQUETTE.some((r) => r.test(sansGras(x.t)))).map((x) => `${x.ou} : « ${sansGras(x.t)} »`);
+}
+
+// Check-list « Vérifications avant publication » (charte p. 20), en haut de
+// la page du Reel. etat : "ok" (vérifié par le code), "ko" (à corriger),
+// "manuel" (à vérifier à l'œil), "sans-objet".
+//   erreurs : erreurs du contrôle ; avertissements ; avertissementsZones ;
+//   couleurs : { horsPalette: [] } (src/lib/reel-disposition.js) ;
+//   grain : vrai si le fond granuleux est présent ; photos : etatPhotos ;
+//   format, mode, storyboard, couverture, temps, minutage, srt.
+export function checkList({
+  format = "mesure",
+  mode,
+  storyboard,
+  couverture = null,
+  temps,
+  erreurs = [],
+  avertissements = [],
+  avertissementsZones = [],
+  couleurs = { horsPalette: [] },
+  grain = false,
+  photos = {},
+  minutage = null,
+  srt = "",
+}) {
   const scenes = storyboard.scenes;
   const fin = scenes.at(-1);
-  const voixFin = jetons(fin?.voix?.join(" ") ?? "").join(" ");
-  const textesCourts = !avertissements.some((a) => /mots à l'écran|sonne « IA »/.test(a));
-  const zoneSousTitres = !avertissementsZones.some((a) => /sous-titres/.test(a));
+  const voixFin = jetons(`${fin?.voix?.join(" ") ?? ""} ${fin?.mention ?? ""}`).join(" ");
+  const tout = [...erreurs, ...avertissements];
+  const chiffresOk = !tout.some((a) => /absent du script et de la fiche/.test(a));
+  const textesCourts = !avertissements.some((a) => /mots à l'écran|sonne « IA »|prénom/.test(a));
+  const couvertureSansNote = !couverture || !/\/\s?100|\bsur 100\b/.test(`${couverture.titre ?? ""} ${couverture.question ?? ""}`);
+  const restes = restesMaquette(scenes, couverture);
+  const longues = lignesTropLongues(srt);
+  const ordreOk = !tout.some((a) => /ordre alphabétique|numéros/.test(a));
+  const finOk = fin?.type === "fin" && /corrig/.test(voixFin) && /\bbio\b/.test(voixFin) && /\bia perlimpinpin\b/.test(voixFin);
+  const voixCalee = minutage && !minutage.estime;
   return [
+    { texte: "Chaque chiffre vient de l’analyse ou d’une source citée.", etat: chiffresOk ? "ok" : "ko", detail: chiffresOk ? "Chaque nombre à l’écran est dans la fiche ou le script." : "Voir les erreurs." },
+    { texte: "La note n’est pas sur la couverture.", etat: couvertureSansNote ? "ok" : "ko", detail: couverture ? `Couverture : « ${sansGras(couverture.titre)}${couverture.question ? ` ${couverture.question}` : ""} »` : "" },
     {
-      texte: "Chaque mot de la voix off apparaît en sous-titre, dans l’ordre, sans reformulation.",
+      texte: "Chaque mot de la voix off est en sous-titre.",
       etat: mode === "B" ? "ok" : "manuel",
       detail: mode === "B" ? "Contrôle mot pour mot passé ; sous-titres tirés du texte de l’équipe." : "Sous-titres tirés du script ; à revérifier une fois la voix off enregistrée (mode B).",
     },
+    { texte: "Sous-titres : 8 mots par ligne au plus.", etat: longues.length ? "ko" : "ok", detail: longues.length ? `${longues.length} ligne(s) trop longue(s).` : "Toutes les lignes de sous-titres.srt contrôlées." },
+    { texte: "Les écarts entre script et voix off sont listés.", etat: voixCalee ? "ok" : "manuel", detail: voixCalee ? `${minutage.ecarts?.length ?? 0} écart(s) dans ecarts.txt.` : "Pas de voix off calée : lancer scripts/caler-voix.py." },
+    { texte: "Textes à l’écran : 2 à 7 mots, parlés, nom de famille seulement.", etat: textesCourts ? "ok" : "ko", detail: textesCourts ? "Longueur, tournures « IA » et prénoms contrôlés." : "Voir les avertissements." },
     {
-      texte: "Les écarts entre script et voix off sont listés.",
-      etat: minutage && !minutage.estime ? "ok" : "manuel",
-      detail: minutage && !minutage.estime ? `${minutage.ecarts?.length ?? 0} écart(s) dans ecarts.txt.` : "Pas de voix off calée : lancer scripts/caler-voix.py.",
-    },
-    { texte: "Les textes ajoutés à l’écran sont courts, parlés et sans chiffre inventé.", etat: textesCourts ? "ok" : "ko", detail: textesCourts ? "Chiffres contrôlés, 7 mots au plus, aucune tournure « IA »." : "Voir les avertissements." },
-    { texte: "Aucune scène n’empiète sur la zone des sous-titres (l’export le signale).", etat: zoneSousTitres ? "ok" : "ko", detail: zoneSousTitres ? "Boîtes calculées : rien entre 1 330 et 1 450 px." : "Voir les avertissements de zones." },
-    {
-      texte: "Les photos sont tramées, dans des fenêtres, et leurs crédits sont notés.",
-      etat: photos.candidat && photos.illustration && photos.credits ? "ok" : photos.candidat ? "manuel" : "ko",
-      detail: [photos.candidat ? "Candidat tramé." : "Photo du candidat tramée manquante.", photos.illustration ? "Illustration tramée." : "Pas d’illustration : panneau tramé à la place.", photos.credits ? "Crédits dans infos.txt." : "Crédits à compléter."].join(" "),
+      texte: "Rien dans les zones d’interface d’Instagram.",
+      etat: avertissementsZones.length ? "ko" : "ok",
+      detail: avertissementsZones.length ? "Voir les avertissements de zones." : "Boîtes calculées : rien au-dessus de 250 px, sous 1 300 px ni dans les 150 px de droite.",
     },
     { texte: "Chaque pays cité a sa carte.", etat: "ok", detail: "Contrôlé (refus sinon)." },
-    { texte: "Deux scènes qui se suivent n’ont jamais le même type.", etat: "ok", detail: "Contrôlé (refus sinon)." },
     {
-      texte: "Le Reel se termine par l’appel à corriger l’analyse sur le site et le lien en bio.",
-      etat: fin?.type === "fin" && /corrig/.test(voixFin) && /\bbio\b/.test(voixFin) ? "ok" : "ko",
+      texte: "Couleurs dans la palette (charbon, crème, moutarde, canard, rouille, olive, gris chaud, registre, jaune).",
+      etat: couleurs.horsPalette?.length ? "ko" : "ok",
+      detail: couleurs.horsPalette?.length ? `Hors palette : ${couleurs.horsPalette.join(", ")}.` : "Couleurs de chaque image listées et contrôlées.",
+    },
+    { texte: "Le grain est présent sur le fond.", etat: grain ? "ok" : "ko", detail: grain ? "Fond charbon granuleux (public/reel/v5/fond.png)." : "Fond granuleux absent : node scripts/reel-ressources.js." },
+    {
+      texte: "Photos créditées (couverture et credits.txt).",
+      etat: photos.credits ? "ok" : "ko",
+      detail: [
+        photos.candidat ? "Candidat tramé." : "Photo du candidat tramée manquante.",
+        photos.illustration ? "Illustration tramée." : "Pas d’illustration : panneau tramé à la place.",
+        photos.credits ? "Crédits dans credits.txt." : "Crédits à compléter.",
+      ].join(" "),
+    },
+    format === "mesure"
+      ? { texte: "Ordre alphabétique et moyenne exacte.", etat: "sans-objet", detail: "Formats programme et thématique seulement." }
+      : { texte: "Notes réelles, ordre alphabétique et moyenne exacte.", etat: ordreOk ? "ok" : "ko", detail: ordreOk ? "Notes, ordre et moyenne calculés par le code." : "Voir les erreurs." },
+    { texte: "Aucun reste de maquette (« exemple », « Candidat A »).", etat: restes.length ? "ko" : "ok", detail: restes.length ? restes.join(" ; ") : "Textes à l’écran et couverture relus par le code." },
+    {
+      texte: "La fin présente l’IA Perlimpinpin et invite à corriger l’analyse sur le site.",
+      etat: finOk ? "ok" : "ko",
       detail: fin?.type === "fin" ? `Dernière scène : « ${fin.voix.map(sansGras).join(" ")} »` : "Pas de scène de fin.",
+    },
+    { texte: "Même traitement que pour les autres candidats.", etat: "manuel", detail: "Structure, longueur, ton et visuel à comparer aux Reels des autres candidats." },
+    {
+      texte: "Photo conforme (fournie par l’équipe, jamais générée, visage non retouché).",
+      etat: "manuel",
+      detail: photos.bibliotheque ? "Photo de la bibliothèque validée." : "Pas encore de photo validée dans la bibliothèque : vignette du site tramée à la place.",
     },
   ].map((item) => ({ ...item, temps: temps?.estime }));
 }
 
 // --- Stockage ------------------------------------------------------------------------
 
-// Objet rangé dans contenuComplet.reel (version 4).
-export function storyboardPourStockage({ mode, storyboard, couverture, variantes, avertissements, script, minutage }, { candidatNom, score, date = new Date() }) {
+// Objet rangé dans contenuComplet.reel (version 5 ; format « mesure »).
+export function storyboardPourStockage({ mode, storyboard, couverture, variantes, avertissements, script, minutage, format = "mesure" }, { candidatNom, score, date = new Date() }) {
   return {
-    version: 4,
+    version: VERSION_STORYBOARD,
+    format,
     mode,
     storyboard,
     couverture,
@@ -719,6 +1051,7 @@ export function storyboardPourStockage({ mode, storyboard, couverture, variantes
   };
 }
 
+// Storyboard v4 (avant la charte) ou v5.
 export function estStoryboard(reel) {
-  return reel?.version === 4 && Array.isArray(reel?.storyboard?.scenes);
+  return (reel?.version === 4 || reel?.version === VERSION_STORYBOARD) && Array.isArray(reel?.storyboard?.scenes);
 }

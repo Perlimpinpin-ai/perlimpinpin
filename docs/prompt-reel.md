@@ -23,7 +23,7 @@ Tu es motion designer pour Perlimpinpin, association citoyenne et indépendante 
 1. **Lis le script** et découpe-le en 7 à 10 scènes : une idée par scène, 5 à 9 secondes chacune.
 2. **Choisis un type de scène** pour chacune dans le catalogue (section 4). Varie les types : jamais deux fois le même d'affilée.
 3. **Coupe la voix off de chaque scène en 3 morceaux**, un par image clé, aux pauses naturelles. Mets 1 ou 2 mots clés par morceau entre `**…**` : ils seront surlignés en jaune.
-4. **Prépare les photos** : `python3 preparer-photos.py --candidat portrait.jpg --illustration photo.jpg` (sortie dans `photos/`).
+4. **Prépare les photos** : `python3 preparer-photos.py --candidat portrait.jpg --illustration photo.jpg` (sortie dans `photos/` ; tons charbon / crème et charbon / moutarde). Sur le site, c'est `node scripts/reel-ressources.js` qui trame la bibliothèque.
 5. **Ajoute les cartes** des pays cités si besoin : `node carte-pays.js <code ISO numérique> <clé> [largeur] [cadrage]` (ex. `node carte-pays.js 250 fr 22 -5.5,9.8,41.2,51.2` pour la France sans l'outre-mer).
 6. **Cale le storyboard sur la voix off** : `python3 caler-voix.py voix-off.mp3`. Cela crée `minutage.js` (lu par le gabarit), `sous-titres.srt` (texte exact du script) et `ecarts.txt`.
 7. **Remplis l'objet `R`** en haut de `gabarit-reel.html` : uniquement les données, ne touche pas au moteur.
@@ -34,14 +34,33 @@ Prérequis : Node.js avec `npm i playwright world-atlas topojson-client`, Python
 
 ## 3. Direction artistique
 
-- **Fond presque noir** (#0B0A10) avec une grille de pixels, de fines lignes de balayage façon écran, quelques pixels colorés qui clignotent sur les bords et deux lueurs très légères (violet en haut, rose en bas). Pas de grand dégradé violet.
-- **Couleurs** : jaune #FFD23F pour l'accent (mots clés, chiffres, jauges), violet #8C6BFF, rose #FF5FD2 pour les ombres décalées, rouge #FF5A4E pour ce qui va mal, vert #3DDC84 pour ce qui marche.
-- **Typo** : titres en Inter Display Black, énormes, une idée par écran ; étiquettes et tampons en police pixel (Silkscreen) ; détails en JetBrains Mono.
-- **Photos** : jamais en photo « propre ». Elles sont tramées en pixels, dans des fenêtres façon vieil ordinateur (« teddy_riner.png »). Le candidat en lavande sur violet foncé, la photo d'illustration en jaune sur violet foncé. Les fenêtres sont posées de travers et se chevauchent.
-- **Pixel art** : pièces, flèches, sablier, portefeuille, usine, banque, coche, croix, bulle, courbe. Un ou deux par scène au maximum, là où il y a de la place.
-- **Cartes** : chaque pays cité est montré par sa carte en pixels (vert si l'exemple marche, rouge s'il a échoué), avec son nom.
-- **Ce n'est pas le carrousel** : pas de papier crème, pas de longues cartes de texte. Une idée, un visuel fort, peu de mots.
+> Référence : **docs/charte-rs.pdf** (charte graphique réseaux sociaux, version 1, novembre 2026). Elle fait foi sur ce document. Jetons partagés avec le carrousel : `src/lib/charte-rs.js` (aucun code couleur ailleurs).
+
+**Écran pixel mid-century sur fond charbon**, une idée par scène.
+
+- **Couleurs (palette Reels)** : fond **charbon #17130F** ; textes et cartes **crème #F2E8D5** ; accent, mots clés et score **moutarde #E3A72F** ; barres de fenêtre **canard #2F8C8A** ; ce qui va mal **rouille #CF5435** ; ce qui marche **olive clair #8FA644** ; libellés secondaires **gris chaud #9C9384**. Le **jaune de surlignage #FFD23F** reste le seul « flash ».
+- **Interdits** : violet néon, rose fluo, dégradés vifs (fini #0B0A10, #8C6BFF, #FF5FD2, #FF5A4E, #3DDC84, les lueurs et les pixels qui clignotent). Ombres douces charbon, plus d'ombres décalées.
+- **Couleur du candidat** (registre de la charte) : seulement le bandeau des scènes `candidat` du format thématique et les médaillons. Nulle part ailleurs.
+- **Contrôle** : le rendu liste les couleurs de chaque scène ; une couleur hors palette Reels, hors registre et hors jaune → refus.
+- **Fond** : charbon, **grain obligatoire**, grille de pixels et lignes de balayage discrètes.
+- **Typo** : titres en Inter Display Black (énormes, une idée par écran) ; libellés et tampons en Silkscreen ; détails en JetBrains Mono. Pas de DM Serif dans les Reels.
+- **Grille commune** : petit libellé en police pixel (« LE CONSTAT », « SCORE PERLIMPINPIN », « COURT TERME · 0-2 ANS »), titre fort, puis un seul visuel centré. Beaucoup d'air, pas de décor gratuit.
+- **En-tête** : « / PERLIMPINPIN » à gauche, « nom · thème » en chasse fixe à droite, barre de progression en segments moutarde (un par scène).
+- **Photos** : candidat tramé en pixels **charbon / crème**, illustration **charbon / moutarde**, dans des fenêtres façon vieil ordinateur (barre canard, nom de fichier « retraites.jpg », « teddy_riner.png »), effet « image qui se charge ». Même bibliothèque que le carrousel : photos validées seulement, jamais générées, visage jamais retouché (tramage seul). Programme : portrait au centre, liseré jaune, 6 cartes crème autour. Thématique : médaillons ronds à la couleur de chaque candidat, liseré jaune.
+- **Pictos** : liste fermée de la charte, commune au carrousel : coin, ball, heart, house, book, leaf, globe, bubble, hourglass, calendar, wallet, factory, bank, check, cross, chart, down. Un ou deux par scène, jamais collés à un titre.
+- **Cartes des pays** : olive si l'exemple a marché, rouille s'il a échoué, nom en police pixel.
+- **Sous-titres** : blanc, gras, centrés, ombre douce, sans boîte ni contour ; mot clé en moutarde ; 8 mots maximum par ligne, coupures sur la ponctuation (refus au-delà).
+- **Textes ajoutés à l'écran** : 2 à 7 mots, langage parlé, une info par titre, aucun chiffre inventé, seulement le nom de famille du candidat (avertissement si le prénom apparaît).
+- **Mouvement** : un changement visible toutes les 1 à 2 secondes (avertissement au-delà de 2 s d'après minutage.json).
+- **Ce n'est pas le carrousel** : pas de papier crème, pas de longues cartes de texte.
 - **Zones sûres Instagram** : rien d'important au-dessus de 250 px ni sous 1 300 px (sous-titres de 1 330 à 1 450 px), ni à droite sur 150 px au niveau des boutons.
+
+### Les trois formats
+
+- **Une mesure** (≈ 1 min) : accroche, constat, proposition, note, court terme, long terme, ailleurs (cartes des pays), avis, fin.
+- **Programme** (`/test/reseaux/programme/<slug>`) : 6 fiches de 6 thèmes différents, dans l'ordre où le candidat les met en avant. `accroche-programme` (« On a noté 6 mesures de [Nom]. »), 6 × `mesure`, `classement` (moyenne calculée par le code), `fin`.
+- **Thématique** (`/test/reseaux/thematique/<thème>`) : 4 à 8 candidats, ordre alphabétique, même durée pour tous (avertissement au-delà de 15 % d'écart). `medaillons`, `chiffres` (le constat), un `candidat` par candidat, `classement` (seul endroit où l'ordre par note apparaît), `fin`.
+- La règle « jamais deux scènes de suite du même type » ne s'applique pas aux suites `mesure` et `candidat`.
 
 ## 4. Catalogue des scènes (`type` dans le gabarit)
 
@@ -55,7 +74,12 @@ Prérequis : Node.js avec `npm i playwright world-atlas topojson-client`, Python
 | `compteur` | Une durée ou une valeur qui défile | `etiquette`, `titre`, `icone`, `etapes` (3), `unite` |
 | `pays` | Exemples à l'étranger, avec cartes | `etiquette`, `titre`, `titre3`, `groupes` (`pays`, `noms`, `ok`, `bilan`, `texte`, `carte2`) |
 | `avis` | L'avis Perlimpinpin | `debutTitre`, `finTitre`, `surligne`, `tient`, `coince` |
-| `fin` | Appel à corriger l'analyse et à suivre | `question`, `url`, `mention` |
+| `fin` | « Et vous, qu'en pensez-vous ? », adresse tapée, « Lien en bio » | `question`, `url`, `mention` |
+| `accroche-programme` | Programme : portrait et 6 cartes, titre fixe du code | (aucun) |
+| `mesure` | Programme : une mesure, note et verdict du code | `numero`, `titre`, `proposition`, `icone` |
+| `classement` | Programme, thématique : classement et moyenne du code | `titre` |
+| `medaillons` | Thématique : médaillons des candidats, titre fixe du code | (aucun) |
+| `candidat` | Thématique : un candidat à sa couleur | `numero`, `titre`, `proposition`, `regard` (sans fiche : ni l'un ni l'autre) |
 
 Chaque scène a aussi `voix` (3 morceaux) et `mouvement` (3 phrases).
 
@@ -70,13 +94,16 @@ Chaque image clé correspond à un mouvement, décrit en une phrase dans `mouvem
 - **Pixel art** : objets qui tombent, sablier qui pivote par crans, globe qui tourne, cartes de pays dessinées case par case.
 - **Fin** : adresse du site tapée lettre à lettre, curseur qui clignote.
 
-## 6. Avant de livrer, vérifie
+## 6. Vérifications avant publication (charte p. 20)
 
-- [ ] Chaque mot de la voix off apparaît en sous-titre, dans l'ordre, sans reformulation.
-- [ ] Les écarts entre script et voix off sont listés.
-- [ ] Les textes ajoutés à l'écran sont courts, parlés et sans chiffre inventé.
-- [ ] Aucune scène n'empiète sur la zone des sous-titres (l'export le signale).
-- [ ] Les photos sont tramées, dans des fenêtres, et leurs crédits sont notés.
-- [ ] Chaque pays cité a sa carte.
-- [ ] Deux scènes qui se suivent n'ont jamais le même type.
-- [ ] Le Reel se termine par l'appel à corriger l'analyse sur le site et le lien en bio.
+Cochées par le code en haut de `/test/reels/<id>` quand c'est vérifiable :
+
+- [ ] Chaque chiffre est dans la fiche ; la note n'est pas sur la couverture.
+- [ ] Chaque mot de la voix off est en sous-titre ; 8 mots par ligne au plus ; écarts listés.
+- [ ] Textes à l'écran : 2 à 7 mots, parlés, nom de famille seulement.
+- [ ] Rien dans les zones d'interface ; chaque pays cité a sa carte.
+- [ ] Couleurs dans la palette ; grain présent ; crédits présents (couverture et credits.txt).
+- [ ] Programme et thématique : notes réelles, ordre alphabétique, moyenne exacte.
+- [ ] Aucun reste de maquette (« exemple », « Candidat A »).
+- [ ] La fin présente l'IA Perlimpinpin et invite à corriger l'analyse sur le site.
+- [ ] À la main : même traitement que les autres candidats ; photo conforme.

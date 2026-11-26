@@ -6,9 +6,9 @@
   "scenes": [
     {
       "type": "accroche",
-      "titre": "Teddy Riner veut placer",
+      "titre": "Riner veut placer",
       "surligne": "vos retraites en Bourse ?",
-      "icone": "piece",
+      "icone": "coin",
       "voix": [
         "Teddy Riner veut mettre **vos retraites** en Bourse.",
         "Il garde la répartition, et ajoute **de la capitalisation**.",
@@ -29,7 +29,7 @@
       "etiquette": "le constat",
       "titre": "Nos retraites sont",
       "rouge": "dans le rouge.",
-      "icone": "fleche-bas",
+      "icone": "down",
       "barres": [
         {
           "label": "2025",
@@ -101,17 +101,17 @@
       "titre": "Son plan ne bouche pas le trou.",
       "cartes": [
         {
-          "icone": "portefeuille",
+          "icone": "wallet",
           "signe": "−",
           "texte": "Salaire net"
         },
         {
-          "icone": "usine",
+          "icone": "factory",
           "signe": "+",
           "texte": "Coût du travail"
         },
         {
-          "icone": "banque",
+          "icone": "bank",
           "signe": "+",
           "texte": "Dette"
         }
@@ -131,7 +131,7 @@
       "type": "compteur",
       "etiquette": "long terme",
       "titre": "Son pari peut payer… un jour.",
-      "icone": "sablier",
+      "icone": "hourglass",
       "etapes": [
         "0",
         "30",
@@ -218,7 +218,7 @@
       "type": "fin",
       "question": "Et vous, qu’en pensez-vous ?",
       "url": "perlimpinpin.ai",
-      "mention": "analyse de l’IA Perlimpinpin · lien en bio",
+      "mention": "analyse réalisée par l’IA Perlimpinpin · lien en bio",
       "voix": [
         "Analyse réalisée par **l’IA Perlimpinpin**.",
         "Une erreur ? **Corrigez-la** sur notre site.",

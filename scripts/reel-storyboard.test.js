@@ -9,7 +9,9 @@ import {
   controlerStoryboard,
   ecartMotPourMot,
   jetons,
+  lignesTropLongues,
   lireMinutage,
+  motsLigne,
   lireStoryboard,
   messageFinal,
   minutageEstime,
@@ -92,7 +94,7 @@ test("types : première scène accroche, dernière fin", () => {
   const r = copie(REPONSE_A);
   r.scenes.reverse();
   const c = controlerStoryboard(r, ctxA);
-  assert.ok(c.erreurs.some((e) => e.includes("première scène doit être une `accroche`")));
+  assert.ok(c.erreurs.some((e) => e.includes("première scène doit être `accroche`")));
   assert.ok(c.erreurs.some((e) => e.includes("dernière scène doit être une `fin`")));
 });
 
@@ -209,7 +211,9 @@ test("sous-titres SRT : texte exact, sans « ** », lignes de 8 mots au plus", (
   assert.ok(!srt.includes("**"));
   assert.match(srt, /^1\n00:00:00,\d{3} --> 00:00:\d\d,\d{3}\nTeddy Riner veut mettre vos retraites en Bourse\.\n/);
   const lignes = srt.split("\n\n").map((b) => b.split("\n")[2]);
-  assert.ok(lignes.every((l) => l.split(" ").length <= 8));
+  // « ? » ou « : » seuls ne sont pas des mots.
+  assert.ok(lignes.every((l) => motsLigne(l) <= 8));
+  assert.deepEqual(lignesTropLongues(srt), []);
   assert.equal(jetons(lignes.join(" ")).join(" "), jetons(SCRIPT_B).join(" "));
 });
 
@@ -217,9 +221,16 @@ test("message final et check-list", () => {
   const c = controlerStoryboard(REPONSE_B, ctxB);
   const msg = messageFinal({ scenes: c.storyboard.scenes, temps: c.temps, ecarts: MINUTAGE_B.ecarts, pointsAValider: ["a", "b"], mode: "B" });
   assert.match(msg, /^9 scènes, 1 min \d\d s, 2 écarts entre script et voix off, 2 points à valider\.$/);
-  const liste = checkList({ mode: "B", storyboard: c.storyboard, temps: c.temps, photos: { candidat: true }, minutage: lireMinutage(MINUTAGE_B) });
-  assert.equal(liste.length, 8);
-  assert.equal(liste.at(-1).etat, "ok");
+  const liste = checkList({ mode: "B", storyboard: c.storyboard, temps: c.temps, photos: { candidat: true }, minutage: lireMinutage(MINUTAGE_B), grain: true });
+  // Check-list de la charte (p. 20) : 14 points vérifiés par le code, 2 à la main.
+  assert.equal(liste.length, 16);
+  assert.deepEqual(
+    liste.filter((x) => x.etat === "manuel").map((x) => x.texte.slice(0, 20)),
+    ["Même traitement que ", "Photo conforme (four"],
+  );
+  assert.equal(liste.find((x) => /La fin présente/.test(x.texte)).etat, "ok");
+  assert.equal(liste.find((x) => /grain/.test(x.texte)).etat, "ok");
+  assert.equal(liste.find((x) => /alphabétique/.test(x.texte)).etat, "sans-objet");
 });
 
 // --- Zones sûres --------------------------------------------------------------------
@@ -308,7 +319,8 @@ test("génération : mode B, consignes sans réécriture, second essai après re
   });
   assert.equal(messages.length, 2);
   assert.match(messages[1], /le script dit « vos », le storyboard « nos »/);
-  assert.equal(res.reel.version, 4);
+  assert.equal(res.reel.version, 5);
+  assert.equal(res.reel.format, "mesure");
   assert.equal(res.reel.mode, "B");
   assert.equal(res.reel.script.trim(), SCRIPT_B.trim());
   assert.equal(res.usage.input_tokens, 20);

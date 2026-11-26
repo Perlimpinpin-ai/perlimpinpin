@@ -7,8 +7,8 @@
 //
 // Produit, pour chaque pays :
 //   public/reel/cartes/<cle>.json   la grille (« # » plein, « . » vide), lue
-//                                   par le rendu, qui la colore en vert ou en rouge ;
-//   public/reel/cartes/<cle>.png    aperçu en vert (pour vérifier d'un coup d'œil).
+//                                   par le rendu, qui la colore en olive ou en rouille ;
+//   public/reel/cartes/<cle>.png    aperçu en olive (pour vérifier d'un coup d'œil).
 // Méthode du kit Reel (carte-pays.js) : contour du pays (world-atlas, 1:50 m),
 // projection équirectangulaire corrigée de la latitude, case pleine si au moins
 // 3 de ses 9 points d'échantillonnage sont dans le pays.
@@ -83,7 +83,7 @@ export function grillePays(iso, largeur = LARGEUR_PAR_DEFAUT, cadrage = null) {
 async function ecrire(cle, grille) {
   mkdirSync(DOSSIER, { recursive: true });
   writeFileSync(join(DOSSIER, `${cle}.json`), `${JSON.stringify(grille)}\n`);
-  const svg = dataUriCarte(grille, COULEURS.vert, 12);
+  const svg = dataUriCarte(grille, COULEURS.olive, 12);
   const octets = Buffer.from(svg.src.split(",")[1], "base64");
   await sharp(octets).png({ compressionLevel: 9 }).toFile(join(DOSSIER, `${cle}.png`));
   console.log(`${cle} : ${grille[0].length} × ${grille.length} cases → ${join(DOSSIER, `${cle}.json`)} (+ .png)`);

@@ -1,0 +1,84 @@
+{
+  "source": "Fiches publiées de Marine Tondelier, lues en base (lecture seule) le 25/11/2026 pour les simulations : extraits des champs utiles au Reel.",
+  "fiches": [
+    {
+      "propositionId": 28,
+      "titre": "Encadrement des loyers étendu partout, amendes durcies",
+      "theme": "logement",
+      "dateDeclaration": "2026-09-02",
+      "candidat": { "nom": "Marine Tondelier", "photoUrl": "/photos/marine-tondelier.jpg" },
+      "score": 64,
+      "fiche": {
+        "titre_fiche": "Encadrement des loyers étendu partout, amendes durcies",
+        "mesure_reformulee": { "synthese": "Généraliser et pérenniser l'encadrement des loyers partout en zone tendue, avec des amendes plus lourdes en cas de dépassement." },
+        "ce_qui_est_etabli": { "synthese": "Le dispositif existe depuis 2019, couvre 54 % du parc locatif national, et le contournement du plafond est massivement documenté." },
+        "contexte_national": { "synthese": "Le zonage couvre 1 150 communes tendues, mais seul 54 % du parc locatif privé national dispose d'un observatoire agréé." }
+      }
+    },
+    {
+      "propositionId": 29,
+      "titre": "SMIC à 2 000 € : une hausse actée contre l'avis des experts",
+      "theme": "emploi",
+      "dateDeclaration": "2026-09-02",
+      "candidat": { "nom": "Marine Tondelier", "photoUrl": "/photos/marine-tondelier.jpg" },
+      "score": 53,
+      "fiche": {
+        "titre_fiche": "SMIC à 2 000 € : une hausse actée contre l'avis des experts",
+        "mesure_reformulee": { "synthese": "Porter le SMIC à 2 000 € brut dès 2027, environ 7 % au-delà de l'indexation automatique, en compensant TPE/PME et associations par une baisse ciblée d'impôts." },
+        "ce_qui_est_etabli": { "synthese": "Le SMIC est à 1 867,02 € depuis juin 2026 ; le rapport officiel déconseille d'aller au-delà de l'indexation et documente une trappe à bas salaires sévère." }
+      }
+    },
+    {
+      "propositionId": 37,
+      "titre": "Un arsenal contre le mensonge politique, sans mécanisme précisé",
+      "theme": "democratie-et-institutions",
+      "dateDeclaration": "2026-09-12",
+      "candidat": { "nom": "Marine Tondelier", "photoUrl": "/photos/marine-tondelier.jpg" },
+      "score": 33,
+      "fiche": {
+        "titre_fiche": "Un arsenal contre le mensonge politique, sans mécanisme précisé",
+        "mesure_reformulee": { "synthese": "Créer un « arsenal législatif » contre le mensonge en politique, inspiré du modèle gallois, sans « ministère de la vérité », mais sans mécanisme précisé." },
+        "ce_qui_est_etabli": { "synthese": "La loi de 2018 n'a été validée que sous encadrement strict ; l'irresponsabilité parlementaire protège les propos en séance ; le Pays de Galles a légiféré en 2024, mais de façon critiquée." }
+      }
+    },
+    {
+      "propositionId": 64,
+      "titre": "Surtaxer les très gros héritages",
+      "theme": "Perspectives économiques, pouvoir d'achat, inflation & fiscalité",
+      "dateDeclaration": "2026-10-25",
+      "candidat": { "nom": "Marine Tondelier", "photoUrl": "/photos/marine-tondelier.jpg" },
+      "score": 69,
+      "fiche": {
+        "titre_fiche": "Surtaxer les très gros héritages",
+        "mesure_reformulee": { "synthese": "Tondelier veut alourdir l'impôt sur les très gros héritages et réduire leurs niches, pour financer la transition écologique." },
+        "verdict_conclusion": "Un diagnostic fiscal solide, mais un chiffrage des recettes probablement deux fois trop optimiste."
+      }
+    },
+    {
+      "propositionId": 72,
+      "titre": "Revoir la doctrine du maintien de l'ordre",
+      "theme": "Sécurité & Justice",
+      "dateDeclaration": "2026-10-28",
+      "candidat": { "nom": "Marine Tondelier", "photoUrl": "/photos/marine-tondelier.jpg" },
+      "score": 62,
+      "fiche": {
+        "titre_fiche": "Revoir la doctrine du maintien de l'ordre",
+        "mesure_reformulee": { "synthese": "Réviser le maintien de l'ordre autour de la désescalade : dialogue, mise à distance, fin des LBD et des nasses." },
+        "ce_qui_est_etabli": { "synthese": "Le programme détaille une doctrine de désescalade inspirée de modèles européens étudiés, sans chiffrage ni volet contre les groupes mobiles." }
+      }
+    },
+    {
+      "propositionId": 95,
+      "titre": "19 élèves par classe en primaire",
+      "theme": "Éducation nationale",
+      "dateDeclaration": "2026-11-17",
+      "candidat": { "nom": "Marine Tondelier", "photoUrl": "/photos/marine-tondelier.jpg" },
+      "score": 65,
+      "fiche": {
+        "titre_fiche": "19 élèves par classe en primaire",
+        "mesure_reformulee": { "synthese": "Deux promesses : 19 élèves par classe en primaire d'ici 2032, et 12 à tous les niveaux en éducation prioritaire." },
+        "verdict_conclusion": "Un premier volet presque acquis grâce à la démographie, un second nettement plus coûteux et dont l'efficacité durable reste à démontrer."
+      }
+    }
+  ]
+}
