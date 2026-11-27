@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { lienIntentionX, longueurX } from "@/lib/reseaux";
-import { TWEET_LONG_MAX, TWEET_LONG_MIN, URL_INTENTION_MAX } from "@/lib/recit";
+import { URL_INTENTION_MAX } from "@/lib/recit";
+import { TWEET_LONG_MAX, TWEET_LONG_MIN } from "@/lib/tweet-long";
 
-// Tweet long « récit » de /test/reseaux/<id> : zone modifiable, compteur
-// (caractères comptés comme X), « Copier » et « Ouvrir dans X ». Le compte
-// est abonné : un tweet long passe en un seul message. Au-delà de
+// Tweet long de la section 5 de /test/reseaux/<id> : zone modifiable,
+// compteur (caractères comptés comme X), « Copier » et « Ouvrir dans X ». Le
+// compte est abonné : un tweet long passe en un seul message. Au-delà de
 // URL_INTENTION_MAX caractères d'URL, le lien peut être tronqué : il reste
-// actif, mais la page conseille « Copier ». Rien n'est écrit en base.
-export default function TweetLong({ texteInitial }) {
+// actif, mais la page conseille « Copier ». Les modifications à la main ne
+// sont jamais écrites en base.
+export default function TweetLong({ texteInitial, libelle = "Tweet long" }) {
   const [texte, setTexte] = useState(texteInitial);
   const [copie, setCopie] = useState(null);
   const longueur = longueurX(texte);
@@ -32,11 +34,11 @@ export default function TweetLong({ texteInitial }) {
     <div className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
         <span className="font-semibold uppercase tracking-wide">
-          Tweet long
-          {modifie ? <span className="ml-2 normal-case text-amber-700">modifié</span> : null}
+          {libelle}
+          {modifie ? <span className="ml-2 normal-case text-amber-700">modifié (non enregistré)</span> : null}
         </span>
         <span aria-live="polite" className={horsCible ? "font-semibold text-amber-700" : ""}>
-          {longueur.toLocaleString("fr-FR")} caractères ({TWEET_LONG_MIN.toLocaleString("fr-FR")} à {TWEET_LONG_MAX.toLocaleString("fr-FR")} visés)
+          {longueur.toLocaleString("fr-FR")} caractères (cible {TWEET_LONG_MIN.toLocaleString("fr-FR")} à {TWEET_LONG_MAX.toLocaleString("fr-FR")})
         </span>
       </div>
       <textarea

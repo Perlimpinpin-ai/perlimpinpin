@@ -1,4 +1,4 @@
-// Génère le carrousel détaillé (8 slides, docs/prompt-carrousel.md) et le tweet long d'une fiche DÉJÀ
+// Génère le carrousel détaillé (8 slides, docs/prompt-carrousel.md) d'une fiche DÉJÀ
 // PUBLIÉE (ou, avec --brouillon, de son dernier brouillon), en un seul appel
 // à Claude (data/prompt-recit.md, mêmes modèle et réglages que l'étape 3 ter),
 // et les ajoute à son contenuComplet, sous la clé reseaux_recit. Même logique
@@ -9,8 +9,8 @@
 //         message qui serait envoyé dans logs/recits/. AUCUN appel à Claude,
 //         rien n'est écrit.
 //   node scripts/recit.js <id>
-//       → appelle Claude (contrôle controlerRecit), affiche le récit et le
-//         tweet long, sauvegarde la ligne actuelle dans logs/sauvegardes/,
+//       → appelle Claude (contrôle controlerRecit), affiche le récit,
+//         sauvegarde la ligne actuelle dans logs/sauvegardes/,
 //         demande « oui », et écrit.
 //   … --brouillon
 //       → même chose sur le dernier brouillon de la fiche (pas encore publié).
@@ -158,8 +158,11 @@ function afficher(recit, { candidatNom, score, propositionId: id }) {
   console.log(`  7. Notre avis : ${nom(recit.avis.avis)}\n     Tient : ${recit.avis.tient.map(nom).join(" / ")}\n     Coince : ${recit.avis.coince.map(nom).join(" / ")}`);
   console.log("  8. Fin : (code)");
   console.log(`\nLégende : ${nom(recit.legende.question)} / ${nom(recit.legende.avis)} / ${nom(recit.legende.effet)}`);
-  const tweet = remplirTweet(recit.tweet_assemble, valeursReseaux({ candidatNom, score, propositionId: id }));
-  console.log(`\n=== Tweet long (${longueurX(tweet)} caractères) ===\n${tweet}`);
+  // Le tweet long a son propre script (scripts/tweet-long.js) ; seul un ancien récit en porte un.
+  if (recit.tweet_assemble) {
+    const tweet = remplirTweet(recit.tweet_assemble, valeursReseaux({ candidatNom, score, propositionId: id }));
+    console.log(`\n=== Ancien tweet long (${longueurX(tweet)} caractères) ===\n${tweet}`);
+  }
 }
 
 function sauvegarder({ host, analyse, contenu }) {

@@ -12,13 +12,18 @@ import ChoixImageTheme from "./reseaux/ChoixImageTheme";
 import { creditsPhoto } from "@/lib/photos-candidats";
 import { COULEURS_CARROUSEL_CANDIDATS } from "@/lib/couleurs-carrousel";
 import TweetLong from "./reseaux/TweetLong";
+import BoutonGenererTweetLong from "./reseaux/BoutonGenererTweetLong";
+import { tweetLongAffiche } from "@/lib/tweet-long";
 
 // Sections Instagram et tweet long de la page de partage (/test/reseaux/[id]) :
 //  - « Carrousel Instagram » : le carrousel 6 slides, assemblé par le code
 //    sans IA (src/lib/carrousel.js), et à côté le « Carrousel détaillé
 //    (8 slides) » (src/lib/carrousel-recit.js), écrit par Claude à la demande
 //    (bouton « Générer le carrousel détaillé »), avec sa barre de remarques ;
-//  - « Tweet long », issu du même appel.
+//  - « Tweet long » : son propre prompt et son propre appel (bouton
+//    « Générer le tweet long », src/lib/tweet-long.js), rangé dans
+//    contenuComplet.reseaux_tweet_long. L'ancien tweet long du carrousel
+//    détaillé reste affiché tant qu'il n'y a pas de nouveau.
 // Images : route /api/carrousel/[id]. La légende et le tweet modifiés ne
 // vivent que dans la page ; seuls les boutons écrivent en base
 // (contenuComplet.reseaux_recit). `demo` : démonstration locale
@@ -44,6 +49,13 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
   const precedent = recit ? recitDe(proposition, analyse, { precedent: true, photo }) : null;
   const candidatsCouleurs = Object.entries(COULEURS_CARROUSEL_CANDIDATS).map(([nom, c]) => ({ nom, fond: c.fond }));
   const stocke = analyse.contenuComplet?.reseaux_recit;
+  // Section 5 : le nouveau tweet long en priorité, sinon l'ancien (carrousel détaillé).
+  const tweetLong = tweetLongAffiche(analyse.contenuComplet, {
+    score: analyse.scoreFaisabilite,
+    propositionId: proposition.id,
+    publie: analyse.statut === "publie",
+    ancienTweet: recit?.tweet ?? "",
+  });
 
   return (
     <>
@@ -65,7 +77,7 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
               <h4 className="text-sm font-semibold text-zinc-900">Carrousel détaillé (8 slides)</h4>
               <p className="max-w-2xl text-xs text-zinc-600">
                 Selon docs/prompt-carrousel.md : le constat puis la proposition, la note, court et long terme, ailleurs ou avant, notre avis. Écrit par
-                Claude à la demande, avec le tweet long, en un seul appel (environ 0,05 $). La note, le verdict, la couleur, les crédits et la fin restent
+                Claude à la demande, en un seul appel (environ 0,05 $). La note, le verdict, la couleur, les crédits et la fin restent
                 écrits par le code.
               </p>
             </div>
@@ -129,10 +141,33 @@ export default function CarrouselInstagram({ proposition, analyse, brouillon = f
         <h3 className="text-base font-semibold text-zinc-900">
           {numero + 1}. Tweet long <span className="font-normal text-zinc-500">(jour J, image conseillée : la carte score)</span>
         </h3>
-        {recit?.tweet ? (
-          <TweetLong texteInitial={recit.tweet} />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <p className="max-w-2xl text-xs text-zinc-600">
+            Selon data/prompt-tweet-long.md : Claude écrit le texte (accroche, promesse, analyse, conclusion), un appel dédié d’environ 0,02 $. La
+            ligne de score et la signature avec le lien restent écrites par le code.
+          </p>
+          <BoutonGenererTweetLong
+            propositionId={demo ? "demo" : proposition.id}
+            brouillon={brouillon}
+            aDejaUnTweetLong={tweetLong?.source === "tweet-long"}
+            demo={demo}
+          />
+        </div>
+        {tweetLong ? (
+          <>
+            <EncadreARelire avertissements={tweetLong.avertissements.map((message) => ({ cle: "tweet long", message }))} />
+            {tweetLong.source === "carrousel" ? (
+              <p className="text-xs text-zinc-500">Ancien tweet long, généré avec le carrousel détaillé. « Générer le tweet long » le remplace par la nouvelle version.</p>
+            ) : (
+              <p className="text-xs text-zinc-500">
+                {tweetLong.date ? `Généré le ${new Date(tweetLong.date).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" })}` : "Généré"}
+                {typeof tweetLong.cout === "number" ? ` · coût ${tweetLong.cout.toLocaleString("fr-FR", { maximumFractionDigits: 4 })} $` : ""}
+              </p>
+            )}
+            <TweetLong key={tweetLong.texte} texteInitial={tweetLong.texte} />
+          </>
         ) : (
-          <p className="text-sm text-zinc-600">Généré avec le carrousel détaillé : utilisez le bouton « Générer le carrousel détaillé » ci-dessus.</p>
+          <p className="text-sm text-zinc-600">Pas encore de tweet long pour cette fiche.</p>
         )}
       </section>
     </>

@@ -44,6 +44,8 @@ const nextConfig = {
     // l'exécution ; la page vérifie aussi la présence des images du candidat.
     "/test/reseaux/[id]": [
       "./data/prompt-recit.md",
+      // Bouton « Générer le tweet long » (section 5).
+      "./data/prompt-tweet-long.md",
       "./public/photos/*.jpg",
       "./public/portraits-bleus/*.png",
       "./public/portraits-nb/*.png",

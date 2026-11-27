@@ -324,24 +324,38 @@ test("bibliothèque : candidates Pexels (20 au plus, sans doublon), entrées et 
 
 // --- Remarques et régénération ciblée -------------------------------------------------
 
+test("carrousel sans tweet long (nouveau format) : accepté ; l'ancien tweet est reporté sur la nouvelle version", () => {
+  const { tweet: _t, ...sansTweet } = reponse();
+  const controle = controlerRecit(sansTweet, CONTEXTE);
+  assert.equal(controle.valide, true, controle.erreurs.join(" | "));
+  assert.equal(controle.recit.tweet, undefined);
+  assert.equal(controle.recit.tweet_assemble, undefined);
+  assert.ok(!controle.avertissements.some((a) => a.startsWith("tweet long")));
+  const ancien = controlerRecit(reponse(), CONTEXTE).recit;
+  const contenu = contenuAvecRecit({ reseaux_recit: ancien }, controle.recit);
+  assert.equal(contenu.reseaux_recit.tweet_assemble, ancien.tweet_assemble);
+  assert.equal(contenu.reseaux_recit.precedent.couverture.question, ancien.couverture.question);
+});
+
 test("remarques : seule la slide visée change, le reste est repris tel quel", () => {
   const { recit: precedent } = controlerRecit(reponse(), CONTEXTE);
   const nouveau = { ...reponse(), constat: { ...reponse().constat, explication: "Plus court." }, note: { ...reponse().note, titre: "Changé sans qu'on le demande." } };
   const fusion = fusionnerRecit(precedent, nouveau, "constat");
   assert.equal(fusion.constat.explication, "Plus court.");
   assert.equal(fusion.note.titre, precedent.note.titre);
-  assert.deepEqual(fusion.tweet, precedent.tweet);
+  // Le tweet long n'est plus renvoyé au modèle (son propre prompt, src/lib/tweet-long.js).
+  assert.equal(fusion.tweet, undefined);
   assert.equal(fusionnerRecit(precedent, nouveau, "toutes").note.titre, "Changé sans qu'on le demande.");
   assert.equal(fusionnerRecit(precedent, { ...reponse(), ailleurs: null }, "ailleurs").ailleurs, null);
   const consigne = consigneRemarques({ precedent, remarque: "la slide 2 est trop chargée", cible: "constat", libelleCible: "la slide 2 (« Le constat »)" });
   assert.match(consigne, /ne passent JAMAIS avant les règles/);
   assert.match(consigne, /Ne réécris que la slide 2 \(« Le constat »\) \(clé\(s\) JSON : constat\)/);
-  assert.ok(cibleValide("tweet") && cibleValide("legende") && cibleValide("toutes") && !cibleValide("fin"));
+  assert.ok(!cibleValide("tweet") && cibleValide("legende") && cibleValide("toutes") && !cibleValide("fin"));
 });
 
 test("remarques : menu des slides (sans la fin), slide visée selon la présence d'une mesure comparable", () => {
   const { recit } = controlerRecit(reponse(), CONTEXTE);
-  assert.deepEqual(ciblesRemarques(recit).map((c) => c.valeur), ["toutes", "couverture", "constat", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "avis", "legende", "tweet"]);
+  assert.deepEqual(ciblesRemarques(recit).map((c) => c.valeur), ["toutes", "couverture", "constat", "noteRecit", "effetsCourt", "effetsLong", "ailleurs", "avis", "legende"]);
   assert.deepEqual(slideDeCible(recit, "avis"), { numero: 7, libelle: "Notre avis" });
   assert.deepEqual(slideDeCible({ ...recit, ailleurs: null }, "avis"), { numero: 6, libelle: "Notre avis" });
   assert.equal(slideDeCible(recit, "tweet"), null);
