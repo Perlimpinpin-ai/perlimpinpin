@@ -1276,7 +1276,6 @@ export default async function DeclarationDetailPage({ params, preview = false, p
                 versionMethodologie={analyse.versionMethodologie}
                 generationDateLabel={declaration.generationDateLabel}
                 numeroVersion={preview ? null : numeroVersionFiche}
-                contact={preview ? null : "fiche"}
               />
             </div>
 
@@ -1661,7 +1660,6 @@ export default async function DeclarationDetailPage({ params, preview = false, p
                   generationDateLabel={declaration.generationDateLabel}
                   numeroVersion={preview ? null : numeroVersionFiche}
                   enBrefNotation={isNouveauBaremeV5 ? notation : null}
-                  contact={preview ? null : "fiche"}
                 />
               </div>
             </div>
