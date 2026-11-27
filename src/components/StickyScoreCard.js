@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useVueAnalyse } from "@/components/VueAnalyseProvider";
 import ScoreEnBref from "@/components/ScoreEnBref";
+import BoutonContact from "@/components/BoutonContact";
 
 // Carte sticky de la colonne latérale : affiche le score en permanence, et
 // bascule son contenu secondaire (commentaire + bouton -> mini sommaire de
@@ -29,6 +30,8 @@ export default function StickyScoreCard({
   enBrefNotation,
   // Numéro de version de la fiche (V1, V2…), visible de tous (Club ouvert, lot 5)
   numeroVersion = null,
+  // Emplacement du bouton « Nous contacter » (suivi Vercel) ; null = pas de bloc.
+  contact = null,
 }) {
   const [scrolledPast, setScrolledPast] = useState(false);
   const vueAnalyse = useVueAnalyse();
@@ -78,6 +81,15 @@ export default function StickyScoreCard({
       >
         {badge.label}
       </div>
+
+      {/* Bloc « Nous contacter », discret sous le score (masqué en aperçu :
+          la page ne passe alors pas `contact`). */}
+      {contact ? (
+        <div className="mt-4 print:hidden">
+          <p className="text-sm text-zinc-600">Une question, un projet ?</p>
+          <BoutonContact emplacement={contact} className="mt-2" />
+        </div>
+      ) : null}
 
       {/* Récap "En bref" des 5 critères : seulement si la page le fournit
           (barème 2026, carte de l'aside lg+). */}
