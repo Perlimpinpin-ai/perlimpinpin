@@ -31,10 +31,10 @@ export async function GET(_request, { params }) {
   if (!/^[1-9]\d{0,9}$/.test(id)) return Response.json({ error: "Fiche invalide." }, { status: 400 });
   const propositionId = Number(id);
 
-  const [versions, decisions, annotations] = await Promise.all([
+  const [lignesVersions, decisions, annotations] = await Promise.all([
     prisma.analyse.findMany({
       where: { propositionId, statut: { in: STATUTS_VERSION } },
-      select: { id: true, statut: true, createdAt: true },
+      select: { id: true, statut: true, createdAt: true, contenuComplet: true },
     }),
     prisma.decisionRevision.findMany({
       where: { decision: "publiee", revision: { propositionId } },
@@ -54,7 +54,12 @@ export async function GET(_request, { params }) {
       },
     }),
   ]);
-  if (versions.length === 0) return Response.json({ error: "Fiche introuvable." }, { status: 404 });
+  if (lignesVersions.length === 0) return Response.json({ error: "Fiche introuvable." }, { status: 404 });
+  // Seul le bloc « mesure modifiée par le candidat » est gardé du contenu.
+  const versions = lignesVersions.map(({ contenuComplet, ...v }) => ({
+    ...v,
+    changementVersion: contenuComplet?.changement_version ?? null,
+  }));
 
   const historique = construireHistorique({
     versions,

@@ -142,21 +142,47 @@ export function prenomSeul(nom) {
   return /\p{L}/u.test(prenom) ? prenom : null;
 }
 
-// versions   : [{ id, statut, createdAt }] (publie / remplacee) de la fiche
+// Résumé (même forme que RevisionProposee.resume) d'une version créée parce que
+// le candidat a modifié sa mesure (contenuComplet.changement_version, voir
+// src/lib/nouvelle-version-core.js), ou null.
+function resumeChangement(cv) {
+  if (!cv || typeof cv !== "object") return null;
+  return {
+    scoreAvant: cv.score_avant ?? null,
+    scoreApres: cv.score_apres ?? null,
+    raison: typeof cv.raison === "string" ? cv.raison : null,
+    criteresModifies: Array.isArray(cv.criteres_modifies) ? cv.criteres_modifies : [],
+  };
+}
+
+// versions   : [{ id, statut, createdAt, changementVersion? }] (publie / remplacee) de la fiche
+//              (changementVersion : contenuComplet.changement_version, ou absent)
 // decisions  : [{ id, createdAt, analysePublieeId, revision: { resume, commentIds } }] (« publiee »)
 // annotations: [{ id, creditAccord, adherent: { nom } | null, authorName, sectionLabel,
 //                 quotedText, body, traitements }]
 // libelles   : { cle de note → libellé lisible }
-// → [{ numero, analyseId, date, scoreAvant, scoreApres, raison, criteresModifies, credits, annotations }]
+// → [{ numero, analyseId, date, scoreAvant, scoreApres, raison, criteresModifies, mesure, credits, annotations }]
+//   mesure : mesure analysée par cette version, renseignée seulement quand le
+//   candidat l'a modifiée ensuite (ou que cette version porte la modification).
 export function construireHistorique({ versions, decisions, annotations, libelles = {}, nomAffiche = (a) => a.authorName }) {
   const ordonnees = (versions ?? [])
     .filter((v) => STATUTS_VERSION.includes(v.statut))
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt) || a.id - b.id);
   const decisionDe = new Map((decisions ?? []).map((d) => [d.analysePublieeId, d]));
   const parId = new Map((annotations ?? []).map((a) => [a.id, a]));
+  // Mesure de chaque version : la sienne si elle a changé la mesure, sinon
+  // celle qu'une version suivante a remplacée (mesure_avant), en remontant.
+  const mesures = new Array(ordonnees.length).fill(null);
+  let mesureCourante = null;
+  for (let i = ordonnees.length - 1; i >= 0; i -= 1) {
+    const cv = ordonnees[i].changementVersion;
+    mesures[i] = typeof cv?.mesure_initiale === "string" ? cv.mesure_initiale : mesureCourante;
+    if (typeof cv?.mesure_avant === "string") mesureCourante = cv.mesure_avant;
+    else if (cv) mesureCourante = null;
+  }
   return ordonnees.map((v, i) => {
     const d = decisionDe.get(v.id);
-    const resume = d?.revision?.resume ?? null;
+    const resume = d?.revision?.resume ?? resumeChangement(v.changementVersion);
     const retenues = new Set((resume?.reponses ?? []).filter((r) => r.retenu === true).map((r) => r.commentaire_id));
     const credits = [];
     for (const id of retenues) {
@@ -194,6 +220,7 @@ export function construireHistorique({ versions, decisions, annotations, libelle
         ancienneNote: c.ancienneNote,
         nouvelleNote: c.nouvelleNote,
       })),
+      mesure: mesures[i],
       credits,
       annotations: archivees,
     };

@@ -25,6 +25,7 @@
 
 import { dateEtHeure } from "./date-publication.js";
 import { attribuerSlug, slugPrevu } from "./slug-db.js";
+import { lireChangementVersion } from "./nouvelle-version-core.js";
 
 const NON_AUTORISE = "Non autorisé.";
 
@@ -103,19 +104,30 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
     );
   }
 
-  // 4. Pas de doublon publié pour la même mesure (cas non géré volontairement).
-  const dejaPubliee = await prisma.analyse.findFirst({
-    where: {
-      propositionId: analyse.propositionId,
-      statut: "publie",
-      id: { not: analyse.id },
-    },
-    select: { id: true },
-  });
-  if (dejaPubliee) {
-    return refus(
-      "Une version publiée existe déjà pour cette mesure : dépublie-la d'abord (scripts/unpublish.js).",
-    );
+  // 4. Pas de doublon publié pour la même mesure, SAUF nouvelle version d'une
+  // mesure modifiée par le candidat (contenuComplet.changement_version, voir
+  // src/lib/nouvelle-version-core.js) : elle remplace exactement la version
+  // publiée qu'elle désigne, et aucune autre.
+  const autresPubliees = {
+    propositionId: analyse.propositionId,
+    statut: "publie",
+    id: { not: analyse.id },
+  };
+  const changement = lireChangementVersion(analyse.contenuComplet);
+  if (changement) {
+    const enLigne = await prisma.analyse.findMany({ where: autresPubliees, select: { id: true } });
+    if (enLigne.length !== 1 || enLigne[0].id !== changement.analyse_precedente_id) {
+      return refus(
+        `Cette nouvelle version remplace l'analyse #${changement.analyse_precedente_id}, qui n'est plus la version en ligne de la mesure : rien n'a été publié.`,
+      );
+    }
+  } else {
+    const dejaPubliee = await prisma.analyse.findFirst({ where: autresPubliees, select: { id: true } });
+    if (dejaPubliee) {
+      return refus(
+        "Une version publiée existe déjà pour cette mesure : dépublie-la d'abord (scripts/unpublish.js).",
+      );
+    }
   }
 
   const { candidatId, candidat } = analyse.proposition;
@@ -139,12 +151,20 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
 
   // 6. Simulation : on calcule la future moyenne, on n'écrit RIEN.
   if (dryRun) {
+    // La version remplacée (nouvelle version) ne compte plus dans la moyenne.
     const publiees = await prisma.analyse.findMany({
-      where: { statut: "publie", proposition: { candidatId } },
+      where: {
+        statut: "publie",
+        proposition: { candidatId },
+        ...(changement ? { id: { not: changement.analyse_precedente_id } } : {}),
+      },
       select: { scoreFaisabilite: true },
     });
     const somme = publiees.reduce((total, a) => total + a.scoreFaisabilite, 0);
     const moyenne = (somme + analyse.scoreFaisabilite) / (publiees.length + 1);
+    const remplacement = changement
+      ? ` L'analyse #${changement.analyse_precedente_id} passerait en « remplacée » (elle reste dans l'historique), et la mesure initiale et le titre de la fiche deviendraient ceux de cette version (« ${changement.titre} »).`
+      : "";
     const fusion = !pr
       ? ""
       : pr.dejaFusionnee
@@ -160,7 +180,7 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
     return {
       ok: true,
       simulation: true,
-      message: `[Simulation] Cette analyse serait publiée le ${dateEtHeure(publieLe)} (heure de Paris) et la moyenne de ${candidat.nom} deviendrait ${Number(moyenne.toFixed(1))}/100.${adresse}${fusion}`,
+      message: `[Simulation] Cette analyse serait publiée le ${dateEtHeure(publieLe)} (heure de Paris) et la moyenne de ${candidat.nom} deviendrait ${Number(moyenne.toFixed(1))}/100.${remplacement}${adresse}${fusion}`,
       publieLe: publieLe.toISOString(),
       slugAdresse: prevu?.slug ?? null,
       ...(pr ? { lienPR: pr.lien } : {}),
@@ -185,6 +205,26 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
         );
       }
 
+      // Nouvelle version : l'ancienne passe en « remplacee » (seuls statut et
+      // updatedAt changent, comme pour la revue du dimanche), puis la mesure
+      // initiale et le titre de la fiche deviennent ceux de la nouvelle version.
+      // Le slug n'est jamais recalculé (attribuerSlug ne l'écrase pas).
+      if (changement) {
+        const remplacee = await tx.analyse.updateMany({
+          where: { id: changement.analyse_precedente_id, propositionId: analyse.propositionId, statut: "publie" },
+          data: { statut: "remplacee" },
+        });
+        if (remplacee.count !== 1) {
+          throw new PublicationRefusee(
+            "La version en ligne a changé entre-temps : rien n'a été publié. Recharge la page.",
+          );
+        }
+        await tx.proposition.update({
+          where: { id: analyse.propositionId },
+          data: { texteOriginal: changement.mesure_initiale, titre: changement.titre },
+        });
+      }
+
       ({ slug: slugAdresse } = await attribuerSlug(tx, analyse.propositionId));
 
       const { _avg } = await tx.analyse.aggregate({
@@ -207,6 +247,7 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
       candidatNom: candidatMisAJour.nom,
       publieLe: publieLe.toISOString(),
       slugAdresse,
+      ...(changement ? { remplace: changement.analyse_precedente_id } : {}),
     };
     if (!pr) return publie;
     if (pr.dejaFusionnee) return { ...publie, revision: { slug, fusionnee: true, dejaFusionnee: true, lienPR: pr.lien } };

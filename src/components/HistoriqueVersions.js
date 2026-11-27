@@ -72,6 +72,12 @@ export default function HistoriqueVersions({ propositionId, numeroVersion, retou
                 ) : null}
               </p>
               {v.raison ? <p className="mt-1 text-zinc-700">{v.raison}</p> : null}
+              {v.mesure ? (
+                <p className="mt-2 text-zinc-600">
+                  <span className="font-semibold text-zinc-700">Mesure analysée :</span>{" "}
+                  <span className="italic">&ldquo;{v.mesure}&rdquo;</span>
+                </p>
+              ) : null}
               {v.criteresModifies.length > 0 ? (
                 <ul className="mt-2 list-disc pl-5 text-zinc-700">
                   {v.criteresModifies.map((c) => (
