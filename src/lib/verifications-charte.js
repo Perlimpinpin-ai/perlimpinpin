@@ -17,7 +17,7 @@ export function listeVerifications({ controles = {}, debordements = [], format =
     { cle: "lecture", libelle: "Le texte se comprend en une lecture, sans jargon.", auto: null },
     { cle: "debordement", libelle: "Aucun texte ne déborde, aucun titre mal coupé, nombres insécables.", auto: debordements.length === 0 && ok("insecables") },
     { cle: "couleur", libelle: "La couleur est celle du registre ; le grain est visible sur tous les fonds.", auto: ok("couleurRegistre") && ok("grain") ? "couleur" : false },
-    { cle: "credits", libelle: "Photos créditées sur la couverture et dans credits.txt.", auto: ok("creditsPresents"), alerte: controles.creditPhotoACompleter ? "Crédit photo à compléter" : null },
+    { cle: "credits", libelle: "Photos créditées sur la slide de fin, dans la légende et dans credits.txt.", auto: ok("creditsPresents"), alerte: controles.creditPhotoACompleter ? "Crédit photo à compléter" : null },
     { cle: "photo", libelle: "Photo conforme : fournie par l’équipe, en N&B, liseré conforme au format.", auto: null },
     { cle: "traitement", libelle: "Même traitement que pour les autres candidats.", auto: null },
     ...(groupe ? [{ cle: "notes", libelle: "Notes réelles, moyenne exacte, ordre alphabétique.", auto: ok("notesReelles") && (format === "programme" ? ok("moyenneExacte") : ok("ordreAlphabetique")) }] : []),

@@ -68,10 +68,11 @@ export function legendeRecit({ legende, candidatNom, theme, mention, credits }) 
 }
 
 // Crédits photo.
-//  - courts : en tout petit en bas de la couverture : la photo Commons du
-//    candidat, plus l'image de thème si sa licence exige un crédit visible
-//    (CC BY, CC BY-SA) ; jamais pour CC0, domaine public ou Pexels ;
-//  - fin : les mêmes lignes sur la slide de fin ;
+//  - courts : la photo du candidat, plus l'image de thème si sa licence
+//    exige un crédit visible (CC BY, CC BY-SA) ; jamais pour CC0, domaine
+//    public ou Pexels ;
+//  - fin : ces lignes, en petit sur la slide de fin (plus rien sur la
+//    couverture) ;
 //  - complets : tous les crédits avec leurs liens (credits.txt, fin de la
 //    légende Instagram).
 // `photo` : photo Commons du candidat (src/lib/photos-candidats.js) ou null.
@@ -196,7 +197,7 @@ export function carrouselRecit(donnees) {
   const [avisTexte, ...pointsAvis] = limiterMotsGras([recit.avis.avis, ...tientCoince].map(nom));
   const nbTient = Math.min(3, recit.avis.tient.length);
   const brutes = [
-    { type: "couverture", photo: photo ? { n: photo.n, fichier: fichierPhoto(photo, "mesure") } : null, theme: resolveTheme(theme), question: remplirTweet(recit.couverture.question, { NOM: nomInsecable(candidatNom), CANDIDAT: nomInsecable(candidatNom) }), sousTitre: SOUS_TITRE_COUVERTURE, illustration, credits: credits.courts },
+    { type: "couverture", photo: photo ? { n: photo.n, fichier: fichierPhoto(photo, "mesure") } : null, theme: resolveTheme(theme), question: remplirTweet(recit.couverture.question, { NOM: nomInsecable(candidatNom), CANDIDAT: nomInsecable(candidatNom) }), sousTitre: SOUS_TITRE_COUVERTURE, illustration },
     {
       type: "constat",
       titre: constatTitre,

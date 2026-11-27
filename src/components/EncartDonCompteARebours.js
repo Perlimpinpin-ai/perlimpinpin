@@ -43,6 +43,7 @@ export default function EncartDonCompteARebours({ className = "" }) {
       texte="Chaque don, c’est une promesse de plus vérifiée."
       emplacement="accueil"
       pleineLargeur
+      contact
       className={`justify-between ${className}`}
     />
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
+import BoutonContact from "@/components/BoutonContact";
 
 // Encart « Soutenez-nous » : lien vers le formulaire de don HelloAsso.
 //
@@ -21,6 +22,8 @@ import { track } from "@vercel/analytics";
 //   d'être plafonnée à 320px à partir de md).
 // - apparition : l'encart n'apparaît (en fondu) qu'une fois arrivé à l'écran,
 //   quand le lecteur a déroulé la page jusqu'à lui.
+// - contact : (format « carte » seulement) ajoute le bouton « Nous contacter »
+//   à droite de « Je soutiens », même `emplacement` pour le suivi.
 // - className : classes en plus sur l'élément racine.
 const LIEN_DON =
   "https://www.helloasso.com/associations/perlimpinpin-ai/formulaires/2";
@@ -86,6 +89,7 @@ export default function EncartDon({
   format = "carte",
   pleineLargeur = false,
   apparition = false,
+  contact = false,
   className = "",
 }) {
   const [ref, visible] = useApparition(apparition);
@@ -144,7 +148,14 @@ export default function EncartDon({
         </div>
         <CoeurRayonnant />
       </div>
-      <div className="mt-4">{lien}</div>
+      {contact ? (
+        <div className="mt-4 flex flex-wrap gap-3">
+          {lien}
+          <BoutonContact emplacement={emplacement} />
+        </div>
+      ) : (
+        <div className="mt-4">{lien}</div>
+      )}
     </aside>
   );
 }
