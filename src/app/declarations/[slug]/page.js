@@ -14,7 +14,8 @@ import SupportBanner from "@/components/SupportBanner";
 import EncartDon from "@/components/EncartDon";
 import Editable from "@/app/test/Editable";
 import { CRITERES_ANALYSE } from "@/lib/test-edition";
-import { getDeclarationDetail, getNumeroVersion, resoudreFiche } from "@/lib/queries";
+import { getDeclarationDetail, getNumeroVersion, getNumeroVersionBrouillon, resoudreFiche } from "@/lib/queries";
+import { lireChangementVersion, texteAvisVersion } from "@/lib/nouvelle-version-core";
 import { cheminFiche, urlFiche } from "@/lib/slug";
 import { datePublication } from "@/lib/date-publication";
 import HistoriqueVersions from "@/components/HistoriqueVersions";
@@ -1021,6 +1022,20 @@ export default async function DeclarationDetailPage({ params, preview = false, p
   // Numéro de version (V1, V2…) visible de tous : rang de la version affichée
   // parmi les versions publiées de la fiche (Club ouvert, lot 5).
   const numeroVersionFiche = preview ? null : await getNumeroVersion(propositionId, analyse.id);
+  // Mesure modifiée par le candidat (contenuComplet.changement_version) :
+  // mention visible de TOUS en haut de la fiche, aperçu /test compris (le
+  // numéro est alors celui qu'aura le brouillon une fois publié).
+  const changementVersion = lireChangementVersion(contenu);
+  const avisVersion = changementVersion
+    ? texteAvisVersion({
+        numero:
+          analyse.statut === "brouillon"
+            ? await getNumeroVersionBrouillon(propositionId)
+            : numeroVersionFiche ?? (await getNumeroVersion(propositionId, analyse.id)),
+        dateLabel: analyse.statut === "brouillon" ? null : declaration.generationDateLabel,
+        motif: changementVersion.motif_public,
+      })
+    : null;
 
   // Étapes du « raisonnement complet », dans l'ordre d'affichage. Seules les
   // étapes réellement présentes sont gardées, puis numérotées sans trou au
@@ -1231,6 +1246,20 @@ export default async function DeclarationDetailPage({ params, preview = false, p
                   </span>
                 </div>
               </div>
+
+              {avisVersion ? (
+                <p
+                  role="note"
+                  className="mt-5 rounded-xl border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm leading-relaxed text-zinc-800"
+                >
+                  {avisVersion}{" "}
+                  {annotable ? (
+                    <a href="#historique" className="font-semibold text-zinc-900 underline decoration-yellow-400 underline-offset-2 print:hidden">
+                      Historique des versions
+                    </a>
+                  ) : null}
+                </p>
+              ) : null}
             </div>
 
             {/* Sur mobile, il n'y a pas de sidebar : la carte de score

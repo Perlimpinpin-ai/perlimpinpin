@@ -7,6 +7,7 @@ import EditorBar from "../EditorBar";
 import PublishBox from "../PublishBox";
 import ReponsesRevision from "../ReponsesRevision";
 import PublicationsX from "../PublicationsX";
+import { lireChangementVersion } from "@/lib/nouvelle-version-core";
 
 // Toujours recalculée à chaque visite (même choix que la liste /test).
 export const dynamic = "force-dynamic";
@@ -60,6 +61,12 @@ export default async function TestDetailPage({ params }) {
   // proposition, partagée) n'est alors pas modifiable (voir test-enregistrer.js).
   const mesurePubliee =
     editeur && (await prisma.analyse.count({ where: { propositionId, statut: "publie" } })) > 0;
+  // Nouvelle version d'une mesure modifiée par le candidat : titre et mesure de
+  // cette version (la Proposition n'est mise à jour qu'au clic « Publier »).
+  const changement = lireChangementVersion(derniere.contenuComplet);
+  const propositionAffichee = changement
+    ? { ...derniere.proposition, titre: changement.titre, texteOriginal: changement.mesure_initiale }
+    : derniere.proposition;
 
   return (
     <>
@@ -77,6 +84,14 @@ export default async function TestDetailPage({ params }) {
               ← Tous les brouillons
             </Link>
           </div>
+
+          {changement ? (
+            <p>
+              Nouvelle version (mesure modifiée par le candidat) : au clic « Publier », elle remplacera
+              l&rsquo;analyse n° {changement.analyse_precedente_id} ({changement.score_avant}/100), qui reste en ligne
+              d&rsquo;ici là et passera ensuite dans l&rsquo;historique.
+            </p>
+          ) : null}
 
           {/* Mode édition : n'apparaît que si le code d'édition est configuré. */}
           {configuree ? (
@@ -103,7 +118,7 @@ export default async function TestDetailPage({ params }) {
         <details className="border-b border-amber-300 bg-amber-50 px-6 py-4 text-zinc-900 sm:px-8">
           <summary className="mx-auto w-full max-w-6xl cursor-pointer text-lg font-semibold">Publications X</summary>
           <div className="mx-auto mt-4 w-full max-w-6xl">
-            <PublicationsX proposition={derniere.proposition} analyse={derniere} brouillon />
+            <PublicationsX proposition={propositionAffichee} analyse={derniere} brouillon />
           </div>
         </details>
       ) : null}

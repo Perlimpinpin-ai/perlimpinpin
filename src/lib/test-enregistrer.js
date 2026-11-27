@@ -1,4 +1,5 @@
 import { CHAMPS_EDITABLES, appliquerModification, blocPresent, lireChamp, validerTexte } from "./test-edition.js";
+import { CLE_CHANGEMENT, lireChangementVersion } from "./nouvelle-version-core.js";
 
 // Logique de « Enregistrer » d'un texte modifié depuis /test/[id], SANS
 // dépendance à Next ni à la vraie base : contrôle d'accès, client Prisma et mode
@@ -104,7 +105,16 @@ export async function enregistrerTexteCore(entree, { isEditor, prisma, dryRun })
     console.error("[test] modification refusée par le garde-fou :", error);
     return refus("Ce brouillon ne peut pas être modifié : son contenu n'a pas la forme attendue.");
   }
-  const { contenu, derives } = modification;
+  let { contenu, derives } = modification;
+  // Nouvelle version d'une mesure modifiée par le candidat : la version
+  // publiée est encore en ligne, son titre (Proposition.titre) ne doit pas
+  // changer avant le clic « Publier ». Le nouveau titre va dans
+  // changement_version, écrit sur la Proposition à la publication.
+  const changement = lireChangementVersion(analyse.contenuComplet);
+  if (changement && contenu && derives.titreProposition !== undefined) {
+    contenu = { ...contenu, [CLE_CHANGEMENT]: { ...changement, titre: derives.titreProposition } };
+    derives = { ...derives, titreProposition: undefined };
+  }
   const avant = colonneProposition
     ? analyse.proposition?.[colonneProposition]
     : lireChamp(analyse.contenuComplet, champ);

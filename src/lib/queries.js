@@ -4,6 +4,7 @@ import { TAG_DECLARATIONS } from "@/lib/rafraichir-public";
 import { creerMoteur, motsDuCorps } from "@/lib/recherche";
 import { resolveTheme, themeLabel } from "@/lib/themes";
 import { STATUTS_VERSION, numeroVersion } from "@/lib/versions-core";
+import { titreEtMesureAffiches } from "@/lib/nouvelle-version-core";
 import { ORDRE_DERNIERES_PUBLICATIONS, dateChiffres, datePublication } from "@/lib/date-publication";
 import { resoudreParametreFiche } from "@/lib/slug";
 
@@ -16,6 +17,13 @@ export async function getNumeroVersion(propositionId, analyseId) {
     select: { id: true, statut: true, createdAt: true },
   });
   return numeroVersion(versions, analyseId);
+}
+
+// Numéro qu'aura un brouillon une fois publié (aperçu /test d'une nouvelle
+// version) : nombre de versions publiées de la fiche + 1.
+export async function getNumeroVersionBrouillon(propositionId) {
+  const nombre = await prisma.analyse.count({ where: { propositionId, statut: { in: STATUTS_VERSION } } });
+  return nombre + 1;
 }
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
@@ -966,12 +974,16 @@ export async function getDeclarationDetail(propositionId, inclureBrouillons = fa
   ]);
   const voteMesureCounts = { accord, desaccord };
 
+  // Nouvelle version d'une mesure modifiée par le candidat (brouillon relu sur
+  // /test) : son titre et sa mesure, pas encore écrits sur la Proposition.
+  const affiches = titreEtMesureAffiches(proposition, analyse?.contenuComplet);
+
   return {
     id: proposition.id,
     // Adresse publique (/declarations/<slug>) : canonical, partage, PDF, retours du Club.
     slug: proposition.slug ?? null,
-    titre: displayTitle(proposition),
-    texteOriginal: proposition.texteOriginal,
+    titre: affiches.titre ?? displayTitle(proposition),
+    texteOriginal: affiches.texteOriginal,
     theme: themeLabel(proposition.theme),
     dateLabel: dateFormatter.format(proposition.dateDeclaration),
     // Date brute (ISO via Date), pour le JSON-LD ClaimReview de la fiche —

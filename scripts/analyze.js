@@ -126,7 +126,7 @@ function loadMethodologieSections() {
 // pouvoir repérer après coup une analyse produite après un changement de
 // prompt dont versionMethodologie n'aurait pas été remonté à la main — voir
 // Analyse.promptFileModifiedAt (prisma/schema.prisma).
-function getPromptFileModifiedAt() {
+export function getPromptFileModifiedAt() {
   return statSync(PROMPT_METHODOLOGIE_PATH).mtime;
 }
 
@@ -1659,7 +1659,7 @@ const TITRE_MAX_LENGTH = 80;
 
 // Coupe au dernier espace avant la limite pour éviter de tronquer en plein
 // milieu d'un mot.
-function truncateTitre(text) {
+export function truncateTitre(text) {
   if (text.length <= TITRE_MAX_LENGTH) return text;
   const truncated = text.slice(0, TITRE_MAX_LENGTH);
   const lastSpace = truncated.lastIndexOf(" ");
@@ -1717,7 +1717,7 @@ function truncateResumeAccueil(text) {
 
 // Résumé journalistique pour la carte "Prix de la semaine" de l'accueil,
 // produit à l'étape 3 (teaser_accueil).
-function buildResumeAccueil(parsed) {
+export function buildResumeAccueil(parsed) {
   if (typeof parsed.teaser_accueil === "string" && parsed.teaser_accueil.trim().length > 0) {
     return truncateResumeAccueil(parsed.teaser_accueil.trim());
   }
@@ -1743,7 +1743,7 @@ function truncateTeaser(text) {
 
 // Teaser pour la section "Le résumé de Perlimpinpin IA" de la fiche
 // déclaration, dérivé de resume_court.
-function buildTeaser(parsed) {
+export function buildTeaser(parsed) {
   if (typeof parsed.resume_court === "string" && parsed.resume_court.trim().length > 0) {
     return truncateTeaser(parsed.resume_court.trim());
   }
