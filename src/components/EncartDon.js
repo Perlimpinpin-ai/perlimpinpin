@@ -27,6 +27,7 @@ import BoutonContact from "@/components/BoutonContact";
 // - className : classes en plus sur l'élément racine.
 const LIEN_DON =
   "https://www.helloasso.com/associations/perlimpinpin-ai/formulaires/2";
+const TAILLE_AVEC_CONTACT = "px-4 py-2.5 text-sm";
 
 // Cœur orange entouré de petits traits (effet « rayonnant »).
 function CoeurRayonnant() {
@@ -100,13 +101,16 @@ export default function EncartDon({
       }`
     : "";
 
+  // Avec le bouton contact, les deux pilules sont un peu resserrées pour
+  // tenir côte à côte dans la carte de 320 px.
+  const tailleBouton = contact ? TAILLE_AVEC_CONTACT : "px-5 py-2.5 text-sm";
   const lien = (
     <a
       href={LIEN_DON}
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => track("don_clic", { emplacement })}
-      className="inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
+      className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#111827] font-semibold text-white transition-colors hover:bg-zinc-700 ${tailleBouton}`}
     >
       {bouton}
     </a>
@@ -149,9 +153,9 @@ export default function EncartDon({
         <CoeurRayonnant />
       </div>
       {contact ? (
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 flex flex-nowrap items-center gap-2">
           {lien}
-          <BoutonContact emplacement={emplacement} />
+          <BoutonContact emplacement={emplacement} taille={TAILLE_AVEC_CONTACT} />
         </div>
       ) : (
         <div className="mt-4">{lien}</div>
