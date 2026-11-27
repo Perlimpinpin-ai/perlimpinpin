@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import nodemailer from "nodemailer";
+import { avecMention, copierDansEnvoyes } from "./copie-envoyes.js";
 import { EXPEDITEUR, configSmtpClub } from "./mail-bienvenue.js";
 import { envoiMailAutorise } from "./envoi-mail-autorise.js";
 import { isAdmin } from "./relecture-admin.js";
@@ -13,8 +14,11 @@ import { SLUG_PATTERN } from "./relecture-revision.js";
 // (body { sujet, corps }, vérifié par lirePersonnalisation), même boîte SMTP que le mail de
 // bienvenue (CLUB_SMTP_*, expéditeur club@perlimpinpin.ai).
 // Règles : un mail = un destinataire, seul dans « À » ; ni les réglages SMTP
-// ni les adresses ne sont journalisés. Prisma, le transport et la pause sont
-// passés en paramètres (tests : scripts/relecture-annonce-envoi.test.js).
+// ni les adresses ne sont journalisés. Après un envoi réel, une seule copie
+// (« Bonjour, » sans prénom) est déposée dans le dossier Envoyés du Club, avec
+// la liste des adresses servies (copie-envoyes.js) ; son échec ne change rien
+// au résultat. Prisma, le transport, la copie et la pause sont passés en
+// paramètres (tests : scripts/relecture-annonce-envoi.test.js).
 
 // Adhérents qui reçoivent l'annonce : ceux qui ne se sont pas désinscrits.
 export const ADHERENTS_ELIGIBLES = { desinscritMailsRelectureAt: null };
@@ -50,6 +54,7 @@ export async function traiterEnvoi({
   lireFiche = lireFicheRelecture,
   env = process.env,
   creerTransport = (config) => nodemailer.createTransport(config),
+  copierEnvoyes = copierDansEnvoyes,
   attendre = (ms) => new Promise((r) => setTimeout(r, ms)),
   horloge = () => Date.now(),
   log = console,
@@ -88,7 +93,7 @@ export async function traiterEnvoi({
 
   const debut = horloge();
   const transport = creerTransport(config);
-  let envoyes = 0;
+  const servis = [];
   const echecs = [];
   let i = 0;
   for (; i < destinataires.length; i++) {
@@ -107,7 +112,7 @@ export async function traiterEnvoi({
         text: mail.texte,
         html: mail.html,
       });
-      envoyes += 1;
+      servis.push(email);
     } catch (e) {
       echecs.push(email);
       // Jamais le message complet : il peut contenir l'adresse du destinataire.
@@ -115,7 +120,13 @@ export async function traiterEnvoi({
     }
   }
   transport.close?.();
+  const envoyes = servis.length;
   const restants = destinataires.length - i;
+  if (mode === "reel" && envoyes > 0) {
+    const mail = redigerAnnonce({ fiches, prenom: null, perso });
+    const copie = { from: EXPEDITEUR, to: REPONDRE_A, replyTo: REPONDRE_A, subject: mail.sujet, text: mail.texte, html: mail.html };
+    await copierEnvoyes(avecMention(copie, servis), { env, log, prefixe: "[annonce]" });
+  }
   log.log(`[annonce] mode ${mode} : ${envoyes} envoyé(s), ${echecs.length} échec(s), ${restants} non tenté(s)`);
   return { status: 200, body: { envoyes, echecs, restants } };
 }

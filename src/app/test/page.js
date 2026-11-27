@@ -142,7 +142,7 @@ export default async function TestPage() {
                   return (
                     <li key={analyse.id} className="relative">
                       {/* L'identifiant du lien est celui de la PROPOSITION,
-                          comme pour /declarations/[id]. */}
+                          comme pour /declarations/[slug]. */}
                       <Link
                         href={`/test/${proposition.id}`}
                         className={`flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white/70 p-5 transition-opacity hover:opacity-70 sm:flex-row sm:items-center sm:justify-between ${editeur ? "pb-10" : ""}`}

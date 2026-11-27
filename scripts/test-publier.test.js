@@ -25,6 +25,8 @@ function fausseBase({
   moyenne = 63.5,
   ecrituresAutorisees = false,
   echecTransaction = null,
+  // Mesure 70 : sans adresse (slug) par défaut, la publication la fixe.
+  ficheAdresse = { id: 70, slug: null, titre: "Suspendre les CEE", candidat: { nom: "David Lisnard" } },
 } = {}) {
   const journal = [];
   const ecriture = (nom, valeur) => async (args) => {
@@ -45,6 +47,12 @@ function fausseBase({
     candidat: {
       update: ecriture("tx.candidat.update", (args) => ({ nom: "David Lisnard", scoreMoyen: args.data.scoreMoyen })),
     },
+    // Adresse de la fiche (src/lib/slug-db.js) : fixée si elle n'existe pas encore.
+    proposition: {
+      findUnique: lecture("tx.proposition.findUnique", ficheAdresse),
+      findMany: lecture("tx.proposition.findMany", []),
+      updateMany: ecriture("tx.proposition.updateMany", { count: 1 }),
+    },
   };
 
   const prisma = {
@@ -59,6 +67,12 @@ function fausseBase({
       updateMany: ecriture("analyse.updateMany", {}),
     },
     candidat: { update: ecriture("candidat.update", {}) },
+    // Lecture seule hors transaction : slug prévu en simulation.
+    proposition: {
+      findUnique: lecture("proposition.findUnique", ficheAdresse),
+      findMany: lecture("proposition.findMany", []),
+      updateMany: ecriture("proposition.updateMany", { count: 1 }),
+    },
     $transaction: async (fn) => {
       journal.push("$transaction");
       if (echecTransaction) throw echecTransaction;
@@ -154,7 +168,7 @@ test("simulation : annonce la nouvelle moyenne et n'écrit RIEN", async () => {
   // La simulation annonce la date qui AURAIT été enregistrée (heure de Paris).
   assert.equal(
     resultat.message,
-    "[Simulation] Cette analyse serait publiée le 19/11/2026 à 14:32 (heure de Paris) et la moyenne de David Lisnard deviendrait 63.7/100.",
+    "[Simulation] Cette analyse serait publiée le 19/11/2026 à 14:32 (heure de Paris) et la moyenne de David Lisnard deviendrait 63.7/100. Adresse qui serait enregistrée : /declarations/suspendre-les-cee.",
   );
   assert.equal(resultat.publieLe, CLIC.toISOString());
   assert.ok(!journal.includes("$transaction"));
@@ -185,11 +199,13 @@ test("publication réelle : une transaction, mêmes étapes et même ordre que s
     candidatId: 3,
     candidatNom: "David Lisnard",
     publieLe: CLIC.toISOString(),
+    slugAdresse: "suspendre-les-cee",
   });
   // Aucune écriture hors transaction.
   assert.deepEqual(journal.filter((a) => /update|aggregate|\$transaction/.test(a)), [
     "$transaction",
     "tx.analyse.updateMany",
+    "tx.proposition.updateMany",
     "tx.analyse.aggregate",
     "tx.candidat.update",
   ]);
@@ -221,9 +237,34 @@ test("date de publication : seuls le statut et publieLe sont écrits sur l'analy
   // Exactement deux champs : ni le score, ni createdAt, ni aucune date de la déclaration.
   assert.deepEqual(Object.keys(donnees).sort(), ["publieLe", "statut"]);
   assert.equal(donnees.publieLe, CLIC);
-  // Aucune écriture sur la Proposition (dateDeclaration) : seules les écritures
-  // attendues apparaissent dans le journal.
-  assert.ok(journal.every((appel) => !/proposition/i.test(appel)));
+  // Sur la Proposition, une seule écriture : son adresse (slug), si elle est
+  // encore vide. Ni dateDeclaration, ni titre, ni rien d'autre.
+  assert.deepEqual(journal.filter((appel) => /proposition\.(update|create|delete)/i.test(appel)), ["tx.proposition.updateMany"]);
+});
+
+test("adresse : fixée au premier « Publier », jamais réécrite si la fiche en a déjà une", async () => {
+  const nouvelle = fausseBase({ ecrituresAutorisees: true });
+  let ecrit = null;
+  const updateMany = nouvelle.tx.proposition.updateMany;
+  nouvelle.tx.proposition.updateMany = async (args) => ((ecrit = args), updateMany(args));
+  const r1 = await publierBrouillonCore(7, { isEditor: editeur, prisma: nouvelle.prisma, dryRun: false, maintenant });
+  assert.equal(r1.slugAdresse, "suspendre-les-cee");
+  assert.deepEqual(ecrit, { where: { id: 70, slug: null }, data: { slug: "suspendre-les-cee" } });
+
+  // Nouvelle version d'une fiche déjà en ligne, titre corrigé entre-temps : l'adresse ne bouge pas.
+  const ficheAdresse = { id: 70, slug: "suspendre-les-cee", titre: "Suspendre les CEE dès 2027", candidat: { nom: "David Lisnard" } };
+  const existante = fausseBase({ ecrituresAutorisees: true, ficheAdresse });
+  const r2 = await publierBrouillonCore(7, { isEditor: editeur, prisma: existante.prisma, dryRun: false, maintenant });
+  assert.equal(r2.slugAdresse, "suspendre-les-cee");
+  assert.ok(!existante.journal.includes("tx.proposition.updateMany"));
+});
+
+test("adresse en simulation (TEST_DRY_RUN=1) : affichée, jamais enregistrée", async () => {
+  const { prisma, journal } = fausseBase({ ecrituresAutorisees: false });
+  const resultat = await publierBrouillonCore(7, { isEditor: editeur, prisma, dryRun: true, maintenant });
+  assert.equal(resultat.slugAdresse, "suspendre-les-cee");
+  assert.match(resultat.message, /Adresse qui serait enregistrée : \/declarations\/suspendre-les-cee\./);
+  assert.ok(!journal.some((appel) => /updateMany|\$transaction/.test(appel)));
 });
 
 test("date de publication : prise au moment du clic, côté serveur, à chaque publication", async () => {
@@ -338,6 +379,7 @@ test("révision : publication sans champ revision, GitHub n'est jamais appelé (
     candidatId: 3,
     candidatNom: "David Lisnard",
     publieLe: CLIC.toISOString(),
+    slugAdresse: "suspendre-les-cee",
   });
 });
 

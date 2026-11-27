@@ -1,0 +1,108 @@
+# Étapes 2 et 3 des fiches de la file d'attente (table FicheEtape1).
+# Déclenché par les boutons « Lancer les étapes 2 et 3 » et « Traiter toute la
+# file » de perlimpinpin.ai/test/depot (src/lib/file-attente-lancer.js), ou à
+# la main : Actions → Traitement de la file d'attente → Run workflow.
+#
+# Lance scripts/traiter-file-attente.js (npm run file-attente) : une fiche à la
+# fois, les plus anciennes d'abord, brouillon sur /test. Le score est calculé
+# par le code (analyze.js), jamais par le modèle. Ni commit ni pull request.
+#
+# Secrets (Settings → Secrets and variables → Actions) : DATABASE_URL,
+# ANTHROPIC_API_KEY, MISTRAL_API_KEY (les mêmes que le robot de révision).
+
+name: Traitement de la file d'attente
+# Titre fixe : sert à POST de /test/depot pour repérer un traitement déjà lancé.
+run-name: File d'attente
+
+on:
+  workflow_dispatch:
+    inputs:
+      fiches:
+        description: "Slugs séparés par des virgules (vide = toute la file, les plus anciennes d'abord)"
+        required: false
+        type: string
+        default: ""
+      max:
+        description: "Nombre maximal de fiches traitées (garde-fou de coût)"
+        required: false
+        type: string
+        default: "5"
+
+# Un seul traitement à la fois : un double clic ne lance jamais deux fois la même fiche.
+concurrency:
+  group: file-attente
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  traitement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      FICHES: ${{ inputs.fiches }}
+      MAX: ${{ inputs.max }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Récupération de main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Le postinstall lance « prisma generate » (client utilisé par les scripts).
+      - name: Installation des modules
+        run: npm ci
+
+      # Avant tout appel payant. Les entrées passent par des variables
+      # d'environnement, jamais directement dans le script shell.
+      - name: Vérifications
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          if [ -n "$FICHES" ] && ! echo "$FICHES" | grep -Eq '^[a-z0-9-]{1,120}(,[a-z0-9-]{1,120})*$'; then echo "✗ Liste de fiches invalide."; exit 1; fi
+          if ! echo "$MAX" | grep -Eq '^[1-9][0-9]?$'; then echo "✗ max doit être un entier entre 1 et 99."; exit 1; fi
+          for s in DATABASE_URL ANTHROPIC_API_KEY; do
+            if [ -z "${!s}" ]; then echo "✗ Secret manquant ($s, voir l'en-tête du workflow)."; exit 1; fi
+          done
+          if [ -z "$MISTRAL_API_KEY" ]; then echo "⚠ MISTRAL_API_KEY absent : étape 2 sautée (mode dégradé)."; fi
+
+      # Le résumé final (OK / erreur, score, lien /test/<id>, coût) est écrit
+      # par le script dans l'onglet Summary du run.
+      - name: Étapes 2 et 3
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          args=(--oui --max "$MAX")
+          if [ -n "$FICHES" ]; then args+=(--fiches "$FICHES"); fi
+          npm run file-attente -- "${args[@]}"
+
+      # Sorties brutes de Claude sauvegardées par analyze.js quand le JSON a dû
+      # être récupéré ou réparé : seul moyen de comprendre un échec d'étape 3.
+      - name: Sorties brutes de Claude
+        if: ${{ failure() && (hashFiles('recovered-analysis-*.txt') != '' || hashFiles('failed-analysis-*.txt') != '') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sorties-brutes-file-attente-${{ github.run_id }}
+          path: |
+            recovered-analysis-*.txt
+            failed-analysis-*.txt
+          retention-days: 30
+
+      # logs/ n'est pas conservé sur le serveur GitHub : le journal des
+      # insertions (analyses créées en brouillon) est gardé ici 90 jours.
+      - name: Journal des insertions
+        if: ${{ always() && hashFiles('logs/*.jsonl') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: journal-file-attente-${{ github.run_id }}
+          path: logs/*.jsonl
+          retention-days: 90

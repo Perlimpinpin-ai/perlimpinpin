@@ -1,4 +1,4 @@
-// Briques de rendu partagées par la fiche (src/app/declarations/[id]/page.js)
+// Briques de rendu partagées par la fiche (src/app/declarations/[slug]/page.js)
 // et sa version basique (src/components/VueBasique.js). Déplacées telles
 // quelles depuis la page, sans changement de code.
 

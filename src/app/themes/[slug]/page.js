@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
@@ -7,10 +8,11 @@ import { getScoreBadge } from "@/lib/score";
 import { vignettePhoto } from "@/lib/photo-vignette";
 
 // ISR : chaque page est calculée à sa première visite, puis servie depuis le
-// cache du CDN et recalculée au plus toutes les 5 minutes. generateStaticParams
+// cache du CDN et recalculée au plus tard une fois par jour (et aussitôt après
+// chaque publication, src/lib/rafraichir-public.js). generateStaticParams
 // renvoie [] : le build ne lit pas Neon, et dynamicParams = true laisse
 // générer n'importe quelle adresse à la demande.
-export const revalidate = 300;
+export const revalidate = 86400;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -66,7 +68,7 @@ export default async function ThemeDetailPage({ params }) {
                 return (
                   <Link
                     key={proposition.propositionId}
-                    href={`/declarations/${proposition.propositionId}`}
+                    href={cheminFiche(proposition)}
                     className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-6 transition-colors hover:border-zinc-300 hover:bg-zinc-50 sm:flex-row sm:items-center"
                   >
                     <img

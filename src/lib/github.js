@@ -5,6 +5,8 @@
 //
 // - declencherRevision : bouton « Envoyer en révision » (/relectures), lance
 //   le workflow revision-relecture.yml ;
+// - traitementFileEnCours / declencherFileAttente : boutons « Lancer les
+//   étapes 2 et 3 » de /test/depot, workflow traiter-file-attente.yml ;
 // - verifierRevisionFusionnable / fusionnerRevision : bouton « Publier » de
 //   /test/[id] pour une fiche issue d'une révision, qui fusionne la PR
 //   « Révision <slug> » (branche revision/<slug>).
@@ -110,6 +112,42 @@ export async function declencherRevue({ propositionId, token, fetchImpl = fetch,
   if (!r.ok) throw new Error(erreurGitHub("le lancement de la revue", r.status));
   const res = r.status === 200 ? await r.json().catch(() => ({})) : {};
   return { lien: res.html_url || LIEN_WORKFLOW_REVUE, dejaLance: false };
+}
+
+// ---------- « Lancer les étapes 2 et 3 » (page /test/depot) ----------
+
+export const WORKFLOW_FILE = "traiter-file-attente.yml";
+const API_WORKFLOW_FILE = `${API_DEPOT}/actions/workflows/${WORKFLOW_FILE}`;
+export const LIEN_WORKFLOW_FILE = `https://github.com/${DEPOT}/actions/workflows/${WORKFLOW_FILE}`;
+
+// Run du traitement de la file en attente ou en cours (le workflow n'en admet
+// qu'un à la fois) : { lien } ou null. Couvre la minute entre le clic et le
+// passage de la première fiche en « en_cours ».
+export async function traitementFileEnCours({ token, fetchImpl = fetch }) {
+  if (!token) throw new Error("GITHUB_DISPATCH_TOKEN absent : lancement impossible.");
+  for (const status of ["queued", "in_progress", "waiting", "pending"]) {
+    const r = await fetchImpl(`${API_WORKFLOW_FILE}/runs?status=${status}&per_page=20`, { headers: entetes(token) });
+    if (!r.ok) throw new Error(erreurGitHub("la liste des traitements en cours", r.status));
+    const { workflow_runs: runs = [] } = await r.json();
+    if (runs.length) return { lien: runs[0].html_url || LIEN_WORKFLOW_FILE };
+  }
+  return null;
+}
+
+// Lance le workflow traiter-file-attente.yml. fiches : tableau de slugs (vide =
+// toute la file) ; max : garde-fou de coût. Renvoie { lien }.
+export async function declencherFileAttente({ fiches = [], max, token, fetchImpl = fetch }) {
+  if (!token) throw new Error("GITHUB_DISPATCH_TOKEN absent : lancement impossible.");
+  if (!fiches.every((s) => SLUG_PATTERN.test(s))) throw new Error("Nom de fiche invalide.");
+  if (!Number.isInteger(max) || max < 1 || max > 99) throw new Error("Nombre maximal de fiches invalide.");
+  const r = await fetchImpl(`${API_WORKFLOW_FILE}/dispatches`, {
+    method: "POST",
+    headers: { ...entetes(token), "Content-Type": "application/json" },
+    body: JSON.stringify({ ref: "main", inputs: { fiches: fiches.join(","), max: String(max) }, return_run_details: true }),
+  });
+  if (!r.ok) throw new Error(erreurGitHub("le lancement du traitement", r.status));
+  const res = r.status === 200 ? await r.json().catch(() => ({})) : {};
+  return { lien: res.html_url || LIEN_WORKFLOW_FILE };
 }
 
 // ---------- PR de révision (bouton « Publier » de /test) ----------

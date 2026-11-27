@@ -79,14 +79,14 @@ export default function PublicationsX({ proposition, analyse, brouillon = false,
   };
   const tweets = tweetsReseaux(
     reseaux,
-    valeursReseaux({ candidatNom, score: analyse.scoreFaisabilite, propositionId: proposition.id }),
+    valeursReseaux({ candidatNom, score: analyse.scoreFaisabilite, propositionId: proposition.id, slug: proposition.slug }),
   );
 
   // Points à relire (jamais bloquants) : tweet trop long (avertissement fort,
   // en premier), candidat non nommé, titre écrit par le modèle, point retiré
   // du tweet, version courte sans sujet, nombres côte à côte…
   const avertissements = avertissementsReseaux(reseaux, {
-    valeurs: valeursReseaux({ candidatNom, score: analyse.scoreFaisabilite, propositionId: proposition.id }),
+    valeurs: valeursReseaux({ candidatNom, score: analyse.scoreFaisabilite, propositionId: proposition.id, slug: proposition.slug }),
   });
 
   return (

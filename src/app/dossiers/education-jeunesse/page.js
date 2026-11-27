@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import { getScoreBadge } from "@/lib/score";
 import { getFichesPubliees } from "@/lib/queries";
+import { cheminFiche } from "@/lib/slug";
 import DOSSIER from "../../../../data/hors-series/education-jeunesse.json" with { type: "json" };
 import { inter, variablesCharte } from "../mouvement-social/charte";
 import { Etiquette, ListeSources, OMBRE_CARTE, TitreNumerote, TuileChiffre } from "../mouvement-social/elements";
@@ -24,7 +25,9 @@ export const metadata = {
   ...(DOSSIER.visible ? {} : { robots: { index: false, follow: false } }),
 };
 
-export const revalidate = 3600;
+// Fiches publiées lues en base : cache d'un jour, vidé à chaque publication
+// (src/lib/rafraichir-public.js).
+export const revalidate = 86400;
 
 const SECTION = "w-full scroll-mt-20 px-6 pb-16 sm:px-8 sm:pb-20";
 const CONTENEUR = "mx-auto w-full max-w-[1280px]";
@@ -55,7 +58,7 @@ function vueFiche(fiche) {
   if (!fiche) return null;
   const badge = getScoreBadge(fiche.score);
   return {
-    url: `/declarations/${fiche.propositionId}`,
+    url: cheminFiche(fiche),
     score: fiche.score,
     appreciation: badge.label,
     classeScore: badge.scoreClass,

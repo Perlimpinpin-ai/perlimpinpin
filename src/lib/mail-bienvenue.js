@@ -1,4 +1,6 @@
+import { randomUUID } from "node:crypto";
 import nodemailer from "nodemailer";
+import { copierDansEnvoyes } from "./copie-envoyes.js";
 import { MODELE_HTML_BIENVENUE } from "./mail-bienvenue-modele.js";
 import { STATUT_BLOQUE, envoiMailAutorise } from "./envoi-mail-autorise.js";
 import { creerJetonActivation, lienActivation } from "./club-activation-core.js";
@@ -16,6 +18,8 @@ import { creerJetonActivation, lienActivation } from "./club-activation-core.js"
 //
 // Règles : un mail = un destinataire ; le mot de passe SMTP et les adresses
 // e-mail ne sont jamais journalisés (seulement le numéro d'adhérent).
+// Chaque mail envoyé est aussi copié dans le dossier Envoyés du Club
+// (copie-envoyes.js) ; un échec de la copie ne change pas le statut.
 
 export const EXPEDITEUR = '"Club Perlimpinpin" <club@perlimpinpin.ai>';
 export const OBJET_BIENVENUE = "Bienvenue dans l’aventure Perlimpinpin !";
@@ -138,10 +142,16 @@ export function configSmtpClub(env = process.env) {
 
 // Envoie le mail de bienvenue à un adhérent.
 // Renvoie { statut: "envoye" | "non-configure" | "echec" | "ignore", erreur? }
-// et ne lève jamais d'exception. `creerTransport` est remplaçable en test.
+// et ne lève jamais d'exception. `creerTransport` et `copier` (copie dans
+// Envoyés) sont remplaçables en test.
 export async function envoyerMailBienvenue(
   { email, nom, adherentId = null },
-  { env = process.env, creerTransport = (c) => nodemailer.createTransport(c), log = console } = {},
+  {
+    env = process.env,
+    creerTransport = (c) => nodemailer.createTransport(c),
+    copier = copierDansEnvoyes,
+    log = console,
+  } = {},
 ) {
   const ref = adherentId != null ? `adhérent n°${adherentId}` : "adhérent";
   if (typeof email !== "string" || !email.includes("@")) {
@@ -162,24 +172,34 @@ export async function envoyerMailBienvenue(
   const lien = adherentId != null ? lienActivationPour({ adherentId, email }, env) : null;
   if (!lien) log.warn(`[club] mail de bienvenue (${ref}) : sans lien personnel, page d'inscription à la place`);
   const mail = composerMailBienvenue({ prenom: prenomDepuisNom(nom), lienActivation: lien });
+  // Le même objet sert à l'envoi et à la copie dans Envoyés (même Message-ID).
+  const message = {
+    from: EXPEDITEUR,
+    to: email,
+    replyTo: "club@perlimpinpin.ai",
+    subject: mail.objet,
+    text: mail.texte,
+    html: mail.html,
+    messageId: `<${randomUUID()}@perlimpinpin.ai>`,
+  };
   try {
     const transport = creerTransport(config);
-    await transport.sendMail({
-      from: EXPEDITEUR,
-      to: email,
-      replyTo: "club@perlimpinpin.ai",
-      subject: mail.objet,
-      text: mail.texte,
-      html: mail.html,
-    });
-    log.log(`[club] mail de bienvenue envoyé (${ref})`);
-    return { statut: "envoye" };
+    await transport.sendMail(message);
   } catch (e) {
     // Jamais le message complet : il peut contenir l'adresse du destinataire
     const erreur = `${e?.code ?? "erreur"}${e?.responseCode ? ` ${e.responseCode}` : ""}`;
     log.error(`[club] mail de bienvenue en échec (${ref}) : ${erreur}`);
     return { statut: "echec", erreur };
   }
+  log.log(`[club] mail de bienvenue envoyé (${ref})`);
+  // Copie dans Envoyés : ne change jamais le statut, même si elle lève.
+  try {
+    const { statut } = await copier(message, { env, log, ref, prefixe: "[club]" });
+    if (statut === "copie") log.log(`[club] mail de bienvenue copié dans Envoyés (${ref})`);
+  } catch (e) {
+    log.error(`[club] copie dans Envoyés en échec (${ref}) : ${e?.code ?? "erreur"}`);
+  }
+  return { statut: "envoye" };
 }
 
 // Résultats de enregistrerAdhesion (helloasso-core.js) → mails à envoyer :

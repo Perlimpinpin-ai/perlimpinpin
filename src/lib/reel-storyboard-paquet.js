@@ -1,3 +1,4 @@
+import { urlFiche } from "./slug.js";
 import { URL_SITE } from "./reseaux.js";
 import { slugTexte } from "./reel-paquet.js";
 import { fichiersSons } from "./reel-paquet.js";
@@ -68,8 +69,8 @@ export function ecartsTexte(etat) {
   return etat.ecarts.length ? `${etat.ecarts.join("\n")}\n` : "Aucun écart : la voix off suit le script.\n";
 }
 
-export function infosStoryboard(etat, { titre, propositionId, brouillon, palier, simulation = null }) {
-  const lien = brouillon ? `${URL_SITE}/test/${propositionId} (brouillon, non publié)` : `${URL_SITE}/declarations/${propositionId}`;
+export function infosStoryboard(etat, { titre, propositionId, slug = null, brouillon, palier, simulation = null }) {
+  const lien = brouillon ? `${URL_SITE}/test/${propositionId} (brouillon, non publié)` : urlFiche({ id: propositionId, slug });
   const date = etat.genereLe
     ? new Date(etat.genereLe).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" })
     : simulation

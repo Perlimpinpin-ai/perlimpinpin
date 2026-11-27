@@ -5,6 +5,7 @@ import { MESSAGE_DON_DOSSIER } from "@/lib/message-don-dossier";
 import { getScoreBadge, getScoreBands } from "@/lib/score";
 import { criteresPrincipaux, OPERATIONNALITE } from "@/lib/criteresScore";
 import { getFichesPubliees } from "@/lib/queries";
+import { cheminFiche } from "@/lib/slug";
 import { compterParCandidat, mesuresParCandidat, partsLeviers } from "@/lib/releve-securite";
 import DOSSIER_MS from "../../../../data/hors-series/mouvement-social.json" with { type: "json" };
 import INVENTAIRE from "../../../../data/hors-series/inventaire-prises-de-parole.json" with { type: "json" };
@@ -38,9 +39,9 @@ export const metadata = {
   ...(DOSSIER_MS.visible ? {} : { robots: { index: false, follow: false } }),
 };
 
-// Page régénérée toutes les heures : fiches publiées entre-temps et dates
-// « à venir » passées.
-export const revalidate = 3600;
+// Page régénérée au plus tard une fois par jour, et aussitôt après chaque
+// publication (src/lib/rafraichir-public.js) : fiches publiées entre-temps.
+export const revalidate = 86400;
 
 // Ordre des sections si le JSON n'en donne pas.
 const ORDRE_PAR_DEFAUT = [
@@ -170,7 +171,7 @@ function vueFiche(fiche) {
           .map(({ label, note, max }) => ({ label, note, max }))
       : [];
   return {
-    url: `/declarations/${fiche.propositionId}`,
+    url: cheminFiche(fiche),
     score: fiche.score,
     appreciation: badge.label,
     classeScore: badge.scoreClass,

@@ -26,6 +26,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^3.0.3",
+    "imapflow": "^2.9.1",
     "linkedom": "^0.18.13",
     "mammoth": "^1.12.3",
     "minisearch": "^7.2.0",

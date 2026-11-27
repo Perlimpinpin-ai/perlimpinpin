@@ -20,15 +20,22 @@ const ENV = {
 };
 const silencieux = { log() {}, warn() {}, error() {} };
 
-function faux(echec = null) {
+// Transport et copie dans le dossier Envoyés simulés.
+function faux(echec = null, copieReussie = true) {
   const envoyes = [];
+  const copies = [];
   const creerTransport = () => ({
     async sendMail(m) {
       if (echec) throw Object.assign(new Error(`refusé pour ${m.to}`), echec);
       envoyes.push(m);
     },
   });
-  return { envoyes, creerTransport };
+  const copier = async (message, options) => {
+    copies.push({ message, options });
+    if (!copieReussie) options.log.error(`${options.prefixe} copie dans Envoyés en échec (${options.ref}) : ECONNREFUSED`);
+    return { statut: copieReussie ? "copie" : "echec" };
+  };
+  return { envoyes, copies, creerTransport, copier };
 }
 
 test("prénom tiré du nom affiché « Prénom I. »", () => {
@@ -79,10 +86,10 @@ test("seuls les comptes qui viennent d'être créés reçoivent le mail", () => 
 });
 
 test("envoi : un destinataire, expéditeur du Club, prénom dans le mail", async () => {
-  const { envoyes, creerTransport } = faux();
+  const { envoyes, creerTransport, copier } = faux();
   const r = await envoyerMailBienvenue(
     { email: "camille@exemple.fr", nom: "Camille D.", adherentId: 3 },
-    { env: ENV, creerTransport, log: silencieux },
+    { env: ENV, creerTransport, copier, log: silencieux },
   );
   assert.deepEqual(r, { statut: "envoye" });
   assert.equal(envoyes.length, 1);
@@ -92,15 +99,15 @@ test("envoi : un destinataire, expéditeur du Club, prénom dans le mail", async
 });
 
 test("envoi : rien sans configuration, et un échec ne lève pas d'exception", async () => {
-  const { envoyes, creerTransport } = faux();
-  const sansConfig = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A" }, { env: {}, creerTransport, log: silencieux });
+  const { envoyes, creerTransport, copier } = faux();
+  const sansConfig = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A" }, { env: {}, creerTransport, copier, log: silencieux });
   assert.equal(sansConfig.statut, "non-configure");
   assert.equal(envoyes.length, 0);
 
   const journal = [];
   const log = { log() {}, warn() {}, error: (m) => journal.push(m) };
   const enPanne = faux({ code: "EAUTH", responseCode: 535 });
-  const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 9 }, { env: ENV, creerTransport: enPanne.creerTransport, log });
+  const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 9 }, { env: ENV, creerTransport: enPanne.creerTransport, copier: enPanne.copier, log });
   assert.deepEqual(r, { statut: "echec", erreur: "EAUTH 535" });
   // Jamais l'adresse du destinataire dans les journaux
   assert.ok(journal.every((m) => !m.includes("a@x.fr")));
@@ -108,47 +115,96 @@ test("envoi : rien sans configuration, et un échec ne lève pas d'exception", a
 });
 
 test("envois en série : bilan et pause entre deux mails", async () => {
-  const { envoyes, creerTransport } = faux();
+  const { envoyes, creerTransport, copier } = faux();
   const pauses = [];
   const bilan = await envoyerBienvenues(
     [{ email: "a@x.fr", nom: "A" }, { email: "b@x.fr", nom: "B" }, { email: "", nom: "C" }],
-    { env: ENV, creerTransport, log: silencieux, attendre: async (ms) => pauses.push(ms) },
+    { env: ENV, creerTransport, copier, log: silencieux, attendre: async (ms) => pauses.push(ms) },
   );
   assert.deepEqual(bilan, { envoyes: 2, echecs: 1 });
   assert.equal(envoyes.length, 2);
   assert.deepEqual(pauses, [2000, 2000]);
 });
 
+test("copie dans Envoyés : après un envoi réussi, le même message (même objet, même destinataire)", async () => {
+  const { envoyes, copies, creerTransport, copier } = faux();
+  const journal = [];
+  const log = { log: (m) => journal.push(m), warn() {}, error: (m) => journal.push(m) };
+  const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "Camille D.", adherentId: 5 }, { env: ENV, creerTransport, copier, log });
+  assert.deepEqual(r, { statut: "envoye" });
+  assert.equal(copies.length, 1);
+  // Exactement l'objet envoyé : même destinataire, même objet, même lien, même Message-ID
+  assert.equal(copies[0].message, envoyes[0]);
+  assert.equal(copies[0].message.to, "a@x.fr");
+  assert.equal(copies[0].message.subject, envoyes[0].subject);
+  assert.match(copies[0].message.messageId, /^<[\w-]+@perlimpinpin\.ai>$/);
+  assert.equal(copies[0].options.env, ENV);
+  assert.equal(copies[0].options.ref, "adhérent n°5");
+  assert.ok(journal.includes("[club] mail de bienvenue copié dans Envoyés (adhérent n°5)"));
+});
+
+test("copie dans Envoyés : aucune si l'envoi échoue", async () => {
+  const enPanne = faux({ code: "EAUTH", responseCode: 535 });
+  const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 2 }, { env: ENV, creerTransport: enPanne.creerTransport, copier: enPanne.copier, log: silencieux });
+  assert.equal(r.statut, "echec");
+  assert.equal(enPanne.copies.length, 0);
+});
+
+test("copie dans Envoyés en échec (ou qui lève) : le mail de bienvenue reste « envoye »", async () => {
+  const { envoyes, creerTransport, copier } = faux(null, false);
+  const journal = [];
+  const log = { log: (m) => journal.push(m), warn() {}, error: (m) => journal.push(m) };
+  const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 4 }, { env: ENV, creerTransport, copier, log });
+  assert.deepEqual(r, { statut: "envoye" });
+  assert.equal(envoyes.length, 1);
+  assert.ok(journal.includes("[club] copie dans Envoyés en échec (adhérent n°4) : ECONNREFUSED"));
+  assert.ok(!journal.some((m) => m.includes("copié dans Envoyés")));
+
+  const quiLeve = async () => { throw Object.assign(new Error("boum a@x.fr"), { code: "EBOUM" }); };
+  const journal2 = [];
+  const log2 = { log() {}, warn() {}, error: (m) => journal2.push(m) };
+  const r2 = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 6 }, { env: ENV, creerTransport, copier: quiLeve, log: log2 });
+  assert.deepEqual(r2, { statut: "envoye" });
+  assert.deepEqual(journal2, ["[club] copie dans Envoyés en échec (adhérent n°6) : EBOUM"]);
+});
+
+test("envoi bloqué hors production : ni mail ni copie", async () => {
+  const { envoyes, copies, creerTransport, copier } = faux();
+  await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 1 }, { env: { ...ENV, VERCEL: "1", VERCEL_ENV: "preview" }, creerTransport, copier, log: silencieux });
+  assert.equal(envoyes.length, 0);
+  assert.equal(copies.length, 0);
+});
+
 // --- Club ouvert (nov. 2026) : garde-fou preview, lien personnel, accent jaune ---
 
 test("envoi : bloqué sur une preview Vercel, même avec CLUB_SMTP_* complètes", async () => {
-  const { envoyes, creerTransport } = faux();
+  const { envoyes, creerTransport, copier } = faux();
   for (const env of [
     { ...ENV, VERCEL: "1", VERCEL_ENV: "preview" },
     { ...ENV, VERCEL: "1", VERCEL_ENV: "development" },
     { ...ENV, VERCEL: "1" },
     { ...ENV, NODE_ENV: "development" },
   ]) {
-    const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 1 }, { env, creerTransport, log: silencieux });
+    const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 1 }, { env, creerTransport, copier, log: silencieux });
     assert.equal(r.statut, "bloque-hors-production");
   }
   assert.equal(envoyes.length, 0);
 });
 
 test("envoi : autorisé en production Vercel, avec le lien personnel", async () => {
-  const { envoyes, creerTransport } = faux();
+  const { envoyes, creerTransport, copier } = faux();
   const env = { ...ENV, VERCEL: "1", VERCEL_ENV: "production", AUTH_SECRET: "s".repeat(40) };
-  const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "Camille D.", adherentId: 12 }, { env, creerTransport, log: silencieux });
+  const r = await envoyerMailBienvenue({ email: "a@x.fr", nom: "Camille D.", adherentId: 12 }, { env, creerTransport, copier, log: silencieux });
   assert.equal(r.statut, "envoye");
   assert.match(envoyes[0].html, /href="https:\/\/perlimpinpin\.ai\/relectures\/activer\?jeton=12\.\d+\.[A-Za-z0-9_-]+"/);
   assert.match(envoyes[0].text, /https:\/\/perlimpinpin\.ai\/relectures\/activer\?jeton=12\./);
 });
 
 test("envoi : sans AUTH_SECRET, repli sur la page d'inscription (jamais de lien cassé)", async () => {
-  const { envoyes, creerTransport } = faux();
+  const { envoyes, creerTransport, copier } = faux();
   const journal = [];
   const log = { log() {}, error() {}, warn: (m) => journal.push(m) };
-  await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 4 }, { env: ENV, creerTransport, log });
+  await envoyerMailBienvenue({ email: "a@x.fr", nom: "A", adherentId: 4 }, { env: ENV, creerTransport, copier, log });
   assert.doesNotMatch(envoyes[0].html, /__LIEN_ACTIVATION__|relectures\/activer/);
   assert.match(envoyes[0].html, /href="https:\/\/perlimpinpin\.ai\/relectures\/inscription"/);
   assert.ok(journal.every((m) => !m.includes("a@x.fr") && !m.includes("jeton")));

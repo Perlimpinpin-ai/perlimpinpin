@@ -423,7 +423,7 @@ export function normaliserTexte(valeur) {
   return valeur.replace(/\r\n?/g, "\n").trim();
 }
 
-// Même motif que renderRichText (src/app/declarations/[id]/page.js) : un mot en
+// Même motif que renderRichText (src/app/declarations/[slug]/page.js) : un mot en
 // gras s'écrit **mot**, sans étoile à l'intérieur.
 const GRAS = /\*\*[^*]+\*\*/g;
 

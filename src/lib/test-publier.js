@@ -24,6 +24,7 @@
 // pas à la date (la fiche est déjà publiée).
 
 import { dateEtHeure } from "./date-publication.js";
+import { attribuerSlug, slugPrevu } from "./slug-db.js";
 
 const NON_AUTORISE = "Non autorisé.";
 
@@ -149,17 +150,28 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
       : pr.dejaFusionnee
         ? ` La pull request #${pr.numero} (révision « ${slug} ») est déjà fusionnée : rien d'autre à faire.`
         : ` Puis la pull request #${pr.numero} (révision « ${slug} ») serait fusionnée (squash) : réponses publiées sur /relectures.`;
+    // Adresse publique : calculée, jamais enregistrée en simulation.
+    const prevu = await slugPrevu(prisma, analyse.propositionId);
+    const adresse = !prevu
+      ? ""
+      : prevu.existant
+        ? ` Adresse (déjà enregistrée, inchangée) : /declarations/${prevu.slug}.`
+        : ` Adresse qui serait enregistrée : /declarations/${prevu.slug}.`;
     return {
       ok: true,
       simulation: true,
-      message: `[Simulation] Cette analyse serait publiée le ${dateEtHeure(publieLe)} (heure de Paris) et la moyenne de ${candidat.nom} deviendrait ${Number(moyenne.toFixed(1))}/100.${fusion}`,
+      message: `[Simulation] Cette analyse serait publiée le ${dateEtHeure(publieLe)} (heure de Paris) et la moyenne de ${candidat.nom} deviendrait ${Number(moyenne.toFixed(1))}/100.${adresse}${fusion}`,
       publieLe: publieLe.toISOString(),
+      slugAdresse: prevu?.slug ?? null,
       ...(pr ? { lienPR: pr.lien } : {}),
     };
   }
 
-  // 7. Vraie publication : les deux écritures dans une seule transaction, dans
-  // le même ordre que scripts/publish.js. Si l'une échoue, aucune n'est gardée.
+  // 7. Vraie publication : les écritures dans une seule transaction, dans
+  // le même ordre que scripts/publish.js, plus l'adresse (slug) de la fiche si
+  // elle n'en a pas encore — jamais écrasée ensuite (src/lib/slug-db.js). Si
+  // l'une échoue, aucune n'est gardée.
+  let slugAdresse = null;
   try {
     const candidatMisAJour = await prisma.$transaction(async (tx) => {
       const { count } = await tx.analyse.updateMany({
@@ -172,6 +184,8 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
           "Ce brouillon vient d'être modifié par quelqu'un d'autre : rien n'a été publié. Recharge la page.",
         );
       }
+
+      ({ slug: slugAdresse } = await attribuerSlug(tx, analyse.propositionId));
 
       const { _avg } = await tx.analyse.aggregate({
         where: { statut: "publie", proposition: { candidatId } },
@@ -192,6 +206,7 @@ export async function publierBrouillonCore(analyseId, { isEditor, prisma, dryRun
       candidatId,
       candidatNom: candidatMisAJour.nom,
       publieLe: publieLe.toISOString(),
+      slugAdresse,
     };
     if (!pr) return publie;
     if (pr.dejaFusionnee) return { ...publie, revision: { slug, fusionnee: true, dejaFusionnee: true, lienPR: pr.lien } };

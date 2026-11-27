@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import Header from "@/components/Header";
 import MonoTag from "@/components/MonoTag";
@@ -6,8 +7,10 @@ import { getScoreExtremes, getVoteMesureLeaderboard } from "@/lib/queries";
 import { getScoreBadge } from "@/lib/score";
 import { vignettePhoto } from "@/lib/photo-vignette";
 
-// ISR : servie depuis le cache du CDN, recalculée au plus toutes les 5 minutes.
-export const revalidate = 300;
+// ISR : servie depuis le cache du CDN, recalculée au plus tard une fois par jour,
+// aussitôt après chaque publication (src/lib/rafraichir-public.js) et après
+// chaque vote sur une mesure (/api/vote-mesure).
+export const revalidate = 86400;
 
 const ICON_FLAG = (
   <path
@@ -84,7 +87,7 @@ function ExtremeCardContent({ card, border }) {
       </div>
 
       <Link
-        href={`/declarations/${card.propositionId}`}
+        href={cheminFiche(card)}
         className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 underline decoration-blue-200 underline-offset-2 transition-colors hover:text-blue-800"
       >
         Voir l&apos;analyse →
@@ -110,7 +113,7 @@ function VoteColumn({ title, cards, countLabel, pctLabel, direction }) {
         {cards.map((card, index) => (
           <li key={card.propositionId}>
             <Link
-              href={`/declarations/${card.propositionId}`}
+              href={cheminFiche(card)}
               className="-m-2 flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-zinc-50"
             >
               <span className="w-5 shrink-0 text-sm font-bold text-zinc-400">

@@ -1,4 +1,6 @@
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { cheminFiche } from "@/lib/slug";
 
 const VALID_TYPES = new Set(["accord", "desaccord"]);
 
@@ -22,7 +24,7 @@ export async function POST(request) {
 
   const proposition = await prisma.proposition.findUnique({
     where: { id: propositionId },
-    select: { id: true },
+    select: { id: true, slug: true },
   });
 
   if (!proposition) {
@@ -34,6 +36,12 @@ export async function POST(request) {
   });
 
   const counts = await getCounts(propositionId);
+
+  // Compteurs rendus côté serveur (fiche) et classement « Le choix des
+  // visiteurs » : pages en cache un jour, recalculées à leur prochaine visite.
+  revalidatePath(`/declarations/${propositionId}`);
+  if (proposition.slug) revalidatePath(cheminFiche(proposition));
+  revalidatePath("/prix-perlimpinpin");
 
   return Response.json(counts, { status: 201 });
 }

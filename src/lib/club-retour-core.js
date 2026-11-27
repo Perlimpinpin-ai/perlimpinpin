@@ -8,7 +8,8 @@
 // (/relectures/activer), il est renvoyé vers la fiche mémorisée. Le cookie ne
 // contient qu'un chemin du site, jamais de donnée personnelle.
 //
-// Seuls les chemins de fiche publiés sont acceptés (/declarations/<nombre>,
+// Seuls les chemins de fiche publiés sont acceptés (/declarations/<nombre> ou
+// /declarations/<slug> : minuscules, chiffres et tirets, au moins une lettre,
 // éventuellement ?vue=expert) : jamais d'adresse externe ni de chemin
 // arbitraire, pour que le lien ne puisse pas servir à rediriger ailleurs.
 
@@ -23,11 +24,11 @@ const HOTES_HELLOASSO = new Set(["www.helloasso.com", "www.helloasso-sandbox.com
 
 // « #commenter » : ancre de retour historique (ancien panneau « Commenter
 // cette analyse ») ; acceptée, sans effet particulier.
-const CHEMIN_FICHE = /^\/declarations\/[1-9]\d{0,9}(?:\?vue=expert)?(?:#commenter)?$/;
+const CHEMIN_FICHE = /^\/declarations\/(?:[1-9]\d{0,9}|(?=[a-z0-9-]*[a-z])[a-z0-9]+(?:-[a-z0-9]+)*)(?:\?vue=expert)?(?:#commenter)?$/;
 
 // Le chemin s'il est une fiche du site, sinon null.
 export function retourValide(chemin) {
-  if (typeof chemin !== "string" || chemin.length > 60) return null;
+  if (typeof chemin !== "string" || chemin.length > 220) return null;
   return CHEMIN_FICHE.test(chemin) ? chemin : null;
 }
 

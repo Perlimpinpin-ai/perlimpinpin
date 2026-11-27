@@ -72,7 +72,7 @@ test("date affichée : « Analyse réalisée le » et datePublished viennent de 
   assert.match(queries, /generationDateLabel: analyse \? dateChiffres\(datePublication\(analyse\)\) : null/);
   // Les cartes et l'en-tête de la fiche gardent la date de la déclaration.
   assert.match(queries, /dateLabel: dateFormatter\.format\(proposition\.dateDeclaration\)/);
-  const fiche = lire("src/app/declarations/[id]/page.js");
+  const fiche = lire("src/app/declarations/[slug]/page.js");
   assert.match(fiche, /datePublished: datePublication\(analyse\)\.toISOString\(\)/);
   assert.match(fiche, /datePublished: declaration\.dateDeclaration\.toISOString\(\)/);
 });
@@ -94,11 +94,12 @@ test("brouillon jamais public : chaque lecture d'analyses du site public filtre 
   assert.match(queries, /where: inclureBrouillons \? \{ statut: \{ not: "corbeille" \} \} : \{ statut: "publie" \}/);
 });
 
-test("cache : la publication vide l'accueil, /declarations, la fiche et la page du candidat", () => {
+test("cache : la publication vide tout le site public (accueil, /declarations, fiche, candidat…)", () => {
   const actions = lire("src/app/test/actions.js");
-  for (const chemin of ['"/"', '"/declarations"', "`/declarations/${resultat.propositionId}`", "`/candidats/${resultat.candidatId}`"]) {
-    assert.ok(actions.includes(chemin), chemin);
-  }
+  const debut = actions.indexOf("export async function publierBrouillon");
+  assert.ok(debut >= 0);
+  assert.match(actions.slice(debut, actions.indexOf("\nexport ", debut + 1)), /rafraichirSitePublic\(\)/);
+  assert.match(lire("src/lib/rafraichir-public.js"), /revalidatePath\("\/", "layout"\)/);
 });
 
 test("migration : uniquement additive, rattrapage sur la date actuelle des fiches en ligne", () => {

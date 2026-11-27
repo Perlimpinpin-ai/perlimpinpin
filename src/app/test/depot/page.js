@@ -4,11 +4,15 @@ import MonoTag from "@/components/MonoTag";
 import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/test-auth";
 import { lireFile } from "@/lib/file-attente";
+import { MAX_PAR_LANCEMENT, coutEstimeParFiche } from "@/lib/file-attente-lancer";
 import ZoneDepot from "./ZoneDepot";
 import RetirerBouton from "./RetirerBouton";
+import LancerBouton from "./LancerBouton";
+import RafraichissementAuto from "./RafraichissementAuto";
 
 // Dépôt des fiches d'étape 1 dans la file d'attente (table FicheEtape1), puis
-// traitement par `npm run file-attente` (étapes 2 et 3, brouillon sur /test).
+// traitement par `npm run file-attente` (étapes 2 et 3, brouillon sur /test),
+// lancé depuis cette page via le workflow GitHub traiter-file-attente.yml.
 // Réservée aux personnes qui ont déverrouillé le mode édition de /test.
 
 export const dynamic = "force-dynamic";
@@ -65,6 +69,19 @@ export default async function DepotPage() {
     else throw e;
   }
 
+  // Lecture seule : score des brouillons créés et coût estimé d'une fiche.
+  const idsTraitees = file.filter((f) => f.statut === "traitee" && f.analyseId).map((f) => f.analyseId);
+  const [analyses, coutEstime] = await Promise.all([
+    idsTraitees.length
+      ? prisma.analyse.findMany({ where: { id: { in: idsTraitees } }, select: { id: true, scoreFaisabilite: true } })
+      : [],
+    file.length ? coutEstimeParFiche(prisma) : null,
+  ]);
+  const scores = new Map(analyses.map((a) => [a.id, a.scoreFaisabilite]));
+  const enCours = file.find((f) => f.statut === "en_cours");
+  const enAttente = file.filter((f) => f.statut === "en_attente").length;
+  const bloque = enCours ? `Un traitement est déjà en cours (fiche « ${enCours.slug} »).` : null;
+
   return (
     <div className="flex min-h-screen flex-col bg-page-gradient font-sans">
       <Header />
@@ -78,8 +95,9 @@ export default async function DepotPage() {
             <p className="mt-2 max-w-2xl text-base text-zinc-600">
               Déposez ici le JSON d&rsquo;une analyse d&rsquo;étape 1 faite dans Claude, bloc « relecture » compris.
               Chaque fichier est contrôlé : s&rsquo;il est conforme, il entre dans la file d&rsquo;attente ; sinon, les
-              erreurs s&rsquo;affichent et rien n&rsquo;est enregistré. Les étapes 2 et 3 sont lancées plus tard
-              (commande <code>npm run file-attente</code>) ; la fiche finale arrive alors en brouillon sur{" "}
+              erreurs s&rsquo;affichent et rien n&rsquo;est enregistré. Les étapes 2 et 3 se lancent ensuite depuis
+              « La file » ci-dessous (elles tournent sur GitHub, plusieurs minutes par fiche) ; la fiche finale arrive
+              alors en brouillon sur{" "}
               <Link href="/test" className="underline">
                 /test
               </Link>
@@ -97,6 +115,22 @@ export default async function DepotPage() {
 
           <section>
             <h2 className="text-2xl font-bold text-zinc-900">La file</h2>
+            {enAttente > 0 || enCours ? (
+              <div className="mt-3 flex flex-col gap-2">
+                <LancerBouton
+                  toute
+                  enAttente={enAttente}
+                  max={MAX_PAR_LANCEMENT}
+                  coutEstime={coutEstime}
+                  bloque={bloque ?? (enAttente === 0 ? "Aucune fiche en attente." : null)}
+                  libelle={`Traiter toute la file (${enAttente} fiche${enAttente > 1 ? "s" : ""})`}
+                />
+                {bloque ? <p className="text-sm text-zinc-600">{bloque}</p> : null}
+              </div>
+            ) : null}
+            <div className="mt-2">
+              <RafraichissementAuto enCours={Boolean(enCours)} />
+            </div>
             {file.length === 0 ? (
               <p className="mt-3 text-sm text-zinc-500">Aucune fiche dans la file.</p>
             ) : (
@@ -121,6 +155,7 @@ export default async function DepotPage() {
                           <Link href={`/test/${f.analyseId}`} className="font-semibold underline">
                             /test/{f.analyseId}
                           </Link>
+                          {scores.has(f.analyseId) ? ` · score ${scores.get(f.analyseId)}/100` : ""}
                           {cout(f.coutPipeline) ? ` · coût ${cout(f.coutPipeline)}` : ""}
                           {f.traiteeAt ? ` · traitée le ${dateFr(f.traiteeAt)}` : ""}
                         </p>
@@ -135,8 +170,16 @@ export default async function DepotPage() {
                         </ul>
                       ) : null}
                       {f.statut === "en_attente" || f.statut === "erreur" ? (
-                        <div className="mt-2">
-                          <RetirerBouton id={f.id} slug={f.slug} />
+                        <div className="mt-3 flex flex-wrap items-start gap-x-4 gap-y-2">
+                          <LancerBouton
+                            slug={f.slug}
+                            coutEstime={coutEstime}
+                            bloque={bloque}
+                            libelle={f.statut === "erreur" ? "Relancer les étapes 2 et 3" : "Lancer les étapes 2 et 3"}
+                          />
+                          <span className="pt-2">
+                            <RetirerBouton id={f.id} slug={f.slug} />
+                          </span>
                         </div>
                       ) : null}
                     </li>

@@ -20,9 +20,11 @@ import {
 import { getHorsSeriesAccueil } from "@/lib/hors-series";
 
 // La page dépend de données Neon qui changent (analyses publiées, scores) :
-// ISR, recalculée au plus toutes les 5 minutes et servie depuis le cache du
-// CDN entre-temps (rendu reproductible, voir getFeaturedRotation).
-export const revalidate = 300;
+// ISR, servie depuis le cache du CDN (rendu reproductible, voir
+// getFeaturedRotation), recalculée aussitôt après chaque publication
+// (src/lib/rafraichir-public.js) et au plus tard une fois par jour (filet de
+// sécurité). Un délai court réveillait la base Neon en permanence.
+export const revalidate = 86400;
 
 export default async function Home() {
   const [featuredRotation, topDeclarations, classement, t, indexRecherche] =

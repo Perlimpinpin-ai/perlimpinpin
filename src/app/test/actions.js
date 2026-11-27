@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { cheminFiche } from "@/lib/slug";
 import { isEditor } from "@/lib/test-auth";
 import {
   EDIT_COOKIE_NAME,
@@ -14,8 +15,8 @@ import {
   secretUtilisable,
 } from "@/lib/test-auth-core";
 import { enregistrerTexteCore } from "@/lib/test-enregistrer";
-import { corrigerCoquilleCore, dossiersDeLaFiche } from "@/lib/test-corriger";
-import { getHorsSeries } from "@/lib/hors-series";
+import { corrigerCoquilleCore } from "@/lib/test-corriger";
+import { rafraichirSitePublic } from "@/lib/rafraichir-public";
 import { fusionnerRevisionCore, publierBrouillonCore } from "@/lib/test-publier";
 import { mettreALaCorbeilleCore, restaurerDepuisCorbeilleCore } from "@/lib/test-corbeille";
 import { fusionnerRevision, verifierRevisionFusionnable } from "@/lib/github";
@@ -88,23 +89,15 @@ export async function publierBrouillon(analyseId) {
 
   // Ligne d'audit pour les logs Vercel.
   console.log(
-    `[test] analyse #${resultat.analyseId} publiée (mesure #${resultat.propositionId}, ${resultat.candidatNom}) le ${resultat.publieLe}` +
+    `[test] analyse #${resultat.analyseId} publiée (mesure #${resultat.propositionId}, ${resultat.candidatNom}) le ${resultat.publieLe}, adresse /declarations/${resultat.slugAdresse}` +
       (resultat.revision ? ` ; révision « ${resultat.revision.slug} » ${resultat.revision.fusionnee ? "fusionnée" : "NON fusionnée"}` : ""),
   );
 
-  // Les pages publiques mises en cache (ISR, 5 min) doivent voir la nouvelle
-  // analyse tout de suite, en tête des dernières publications : accueil, listes,
-  // page de la fiche et page du candidat.
-  for (const chemin of [
-    "/",
-    "/declarations",
-    `/declarations/${resultat.propositionId}`,
-    "/candidats",
-    `/candidats/${resultat.candidatId}`,
-    "/themes",
-  ]) {
-    revalidatePath(chemin);
-  }
+  // Les pages publiques mises en cache (ISR, 1 jour) doivent voir la nouvelle
+  // analyse tout de suite, en tête des dernières publications : tout le site
+  // public est vidé (accueil, /declarations, fiche, candidat, thèmes, dossiers,
+  // prix…), pour ne rien oublier.
+  rafraichirSitePublic();
 
   // Page de partage des publications X de la fiche (message de succès et lien
   // vers la fiche publique, voir /test/reseaux/[id]).
@@ -129,7 +122,8 @@ export async function reessayerFusion(analyseId) {
   if (!resultat.ok || resultat.simulation) return resultat;
 
   console.log(`[test] révision « ${resultat.revision.slug} » fusionnée (analyse #${resultat.analyseId}) le ${new Date().toISOString()}`);
-  redirect(`/declarations/${resultat.propositionId}`);
+  const fiche = await prisma.proposition.findUnique({ where: { id: resultat.propositionId }, select: { id: true, slug: true } });
+  redirect(cheminFiche(fiche ?? { id: resultat.propositionId }));
 }
 
 // Enregistre le nouveau texte d'un champ d'un brouillon (titre, résumé…). Les
@@ -202,19 +196,9 @@ export async function corrigerCoquille(entree) {
     }),
   );
 
-  // La correction est en ligne : les pages publiques en cache doivent la voir.
-  const chemins = [
-    `/declarations/${resultat.propositionId}`,
-    "/",
-    "/declarations",
-    "/test/publiees",
-    `/test/publiees/${resultat.propositionId}`,
-  ];
-  if (resultat.candidatId) chemins.push(`/candidats/${resultat.candidatId}`);
-  for (const slug of dossiersDeLaFiche(getHorsSeries(), resultat.propositionId)) {
-    chemins.push(`/dossiers/${slug}`);
-  }
-  for (const chemin of chemins) revalidatePath(chemin);
+  // La correction est en ligne : les pages publiques en cache doivent la voir
+  // (tout le site public, dont /test/publiees, sous le même layout racine).
+  rafraichirSitePublic();
 
   return { ok: true, versionSuivante: resultat.versionSuivante };
 }

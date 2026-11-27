@@ -3,6 +3,8 @@ import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig } from "@neondatabase/serverless";
 import ws from "ws";
+import { rafraichirSite } from "./rafraichir-site.js";
+import { attribuerSlug } from "../src/lib/slug-db.js";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -63,6 +65,10 @@ async function main() {
     data: { statut: "publie", publieLe: new Date() },
   });
 
+  // Adresse publique /declarations/<slug> : fixée à la première publication,
+  // jamais écrasée ensuite (src/lib/slug-db.js).
+  const { slug } = await attribuerSlug(prisma, analyse.propositionId);
+
   const { _avg } = await prisma.analyse.aggregate({
     where: {
       statut: "publie",
@@ -77,11 +83,14 @@ async function main() {
   });
 
   console.log("");
-  console.log(`Analyse #${analyseId} publiée.`);
+  console.log(`Analyse #${analyseId} publiée : https://perlimpinpin.ai/declarations/${slug}`);
   console.log(
     `Candidat : ${candidat.nom} — nouveau scoreMoyen : ${candidat.scoreMoyen}`,
   );
   console.log("");
+
+  // Les pages publiques sont en cache un jour : on les fait recalculer.
+  await rafraichirSite();
 }
 
 main()

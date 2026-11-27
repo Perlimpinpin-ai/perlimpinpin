@@ -11,9 +11,9 @@ export const metadata = {
   description: "Qui est derrière Perlimpinpin et pourquoi ce projet existe.",
 };
 
-// Page en cache, recalculée au plus tard toutes les heures et immédiatement
+// Page en cache, recalculée au plus tard une fois par jour et immédiatement
 // après une modification depuis /test/textes/a-propos.
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const CLASSE_LIEN = "text-blue-600 transition-colors hover:text-blue-800";
 const CLASSE_LIEN_AUTEURS =

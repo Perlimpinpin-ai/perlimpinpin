@@ -1,3 +1,4 @@
+import { cheminFiche } from "@/lib/slug";
 import Link from "next/link";
 import Header from "@/components/Header";
 import MonoTag from "@/components/MonoTag";
@@ -42,7 +43,7 @@ const CHAMPS = {
   statut: true,
   scoreFaisabilite: true,
   createdAt: true,
-  proposition: { select: { id: true, titre: true, texteOriginal: true, candidat: { select: { nom: true } } } },
+  proposition: { select: { id: true, titre: true, slug: true, texteOriginal: true, candidat: { select: { nom: true } } } },
 };
 
 // Analyses publiées : la dernière de chaque mesure. Brouillons : tous, comme
@@ -80,7 +81,7 @@ function Ligne({ analyse, aDesTweets }) {
           {proposition.candidat.nom} · analyse du {formatDate(analyse.createdAt)} · Mesure #{proposition.id}
         </p>
         <Link
-          href={brouillon ? `/test/${proposition.id}` : `/declarations/${proposition.id}`}
+          href={brouillon ? `/test/${proposition.id}` : cheminFiche(proposition)}
           className="mt-0.5 block text-sm font-semibold text-zinc-900 hover:underline"
         >
           {displayTitle(proposition)}

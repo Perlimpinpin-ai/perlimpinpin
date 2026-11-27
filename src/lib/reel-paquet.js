@@ -1,3 +1,4 @@
+import { urlFiche } from "./slug.js";
 import { URL_SITE } from "./reseaux.js";
 import { formatDuree } from "./reel.js";
 import { SONS, elementsScene, montageScene } from "./reel-montage.js";
@@ -124,8 +125,8 @@ export function planDeMontage(scenes, { nbMots, dureeEstimee, couverture = null,
 }
 
 // infos.txt : de quoi retrouver la fiche.
-export function infosReel({ candidatNom, titre, score, palier, propositionId, brouillon, genereLe }) {
-  const lien = brouillon ? `${URL_SITE}/test/${propositionId} (brouillon, non publié)` : `${URL_SITE}/declarations/${propositionId}`;
+export function infosReel({ candidatNom, titre, score, palier, propositionId, slug = null, brouillon, genereLe }) {
+  const lien = brouillon ? `${URL_SITE}/test/${propositionId} (brouillon, non publié)` : urlFiche({ id: propositionId, slug });
   const date = genereLe
     ? new Date(genereLe).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" })
     : "inconnue";

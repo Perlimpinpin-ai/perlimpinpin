@@ -76,7 +76,8 @@ export function liensAdhesion(retour) {
 // première connexion ou adhésion. Hors d'une fiche : `defaut` (souvent null).
 // `lieu` est remplaçable en test.
 export function retourCourant(defaut = null, lieu = typeof window !== "undefined" ? window.location : null) {
-  const m = lieu ? /^\/declarations\/([1-9]\d{0,9})\/?$/.exec(lieu.pathname) : null;
+  // Adresse numérique (ancienne) ou slug (titre de la fiche, src/lib/slug.js).
+  const m = lieu ? /^\/declarations\/([1-9]\d{0,9}|(?=[a-z0-9-]*[a-z])[a-z0-9]+(?:-[a-z0-9]+)*)\/?$/.exec(lieu.pathname) : null;
   if (!m) return defaut;
   const vue = new URLSearchParams(lieu.search).get("vue");
   return `/declarations/${m[1]}${vue === "expert" ? "?vue=expert" : ""}`;

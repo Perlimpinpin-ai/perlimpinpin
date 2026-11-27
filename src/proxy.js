@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { LIVE_COOKIE_NAME } from "@/lib/live-auth-config";
 import { loginUrl } from "@/lib/live-redirect";
+import { redirectionAncienneAdresse } from "@/lib/slug";
 import {
   RELECTURE_COOKIE_NAME,
   cheminRelectureProtege,
@@ -13,10 +14,36 @@ import {
 // Deux espaces protégés, avec deux sessions indépendantes :
 //   - /live (équipe éditoriale, Auth.js) ;
 //   - /relectures (adhérents, cookie signé relecture_auth).
+// Et une redirection : anciennes adresses des fiches /declarations/<numéro>.
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
+  if (pathname.startsWith("/declarations/")) return proxyAncienneAdresse(request);
   if (pathname.toLowerCase().startsWith("/relectures")) return proxyRelectures(request);
   return proxyLive(request);
+}
+
+// /declarations/103 → 301 vers /declarations/<slug> (paramètres ?vue=… et
+// ancre conservés). Des liens numériques circulent (tweets, lettre, presse,
+// carrousels) : aucun ne doit casser. Fiche sans slug, inconnue ou base
+// injoignable : on laisse passer, la page affiche la fiche ou sa 404 (et
+// redirige elle-même, en 308, si besoin). Prisma n'est chargé que pour ces
+// adresses, jamais pour /live ni /relectures.
+async function proxyAncienneAdresse(request) {
+  try {
+    const redirection = await redirectionAncienneAdresse(request.nextUrl, {
+      // Navigation interne de Next (requête RSC) : la page s'en charge elle-même.
+      rsc: Boolean(request.headers.get("rsc")),
+      lireSlug: async (id) => {
+        const { prisma } = await import("@/lib/prisma");
+        const fiche = await prisma.proposition.findUnique({ where: { id }, select: { slug: true } });
+        return fiche?.slug ?? null;
+      },
+    });
+    return redirection ? NextResponse.redirect(redirection.url, redirection.statut) : NextResponse.next();
+  } catch (error) {
+    console.error("[declarations] redirection de l'ancienne adresse impossible :", error);
+    return NextResponse.next();
+  }
 }
 
 // Protège tout /relectures (y compris /relectures/index.html, fichier de public/ :
@@ -89,6 +116,7 @@ async function proxyLive(request) {
 // illisible, et le proxy s'appliquerait alors à TOUTES les pages).
 export const config = {
   matcher: [
+    "/declarations/:numero(\\d+)",
     "/live",
     "/live/:path*",
     "/([Rr][Ee][Ll][Ee][Cc][Tt][Uu][Rr][Ee][Ss])",
