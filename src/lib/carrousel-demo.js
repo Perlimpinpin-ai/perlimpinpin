@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { genererRecitCore } from "./recit-generation.js";
+import { genererTweetLongCore } from "./tweet-long.js";
 import { PARTIES_PAR_CIBLE, reponseDepuisRecit } from "./recit.js";
 
 // Démonstration locale du carrousel détaillé sur une fiche locale, sans base
@@ -81,6 +82,28 @@ export async function genererDemo(contenu, { candidatNom, score, propositionId, 
       return { texte: JSON.stringify(reponse), usage: { input_tokens: Math.ceil(message.length / 3.5), output_tokens: 1800 } };
     },
     analyser: (reponse) => JSON.parse(reponse.texte),
+    journal: { error: () => {} },
+  });
+}
+
+// Tweet long simulé (section 5) : même contrôle que la vraie génération,
+// texte lu dans demo.simulation.tweet_long, usage estimé d'après la longueur
+// du message. Sans texte préparé, la génération échoue avec un message clair.
+export async function genererTweetLongDemo(contenu, { candidatNom, score, propositionId, publie, introPrecedente = "" }) {
+  const demo = await lireDemo();
+  const texte = demo?.simulation?.tweet_long;
+  return genererTweetLongCore({
+    contenu,
+    candidatNom,
+    score,
+    propositionId,
+    publie,
+    introPrecedente,
+    prompt: await readFile(join(process.cwd(), "data", "prompt-tweet-long.md"), "utf-8"),
+    appeler: async (message) => {
+      if (typeof texte !== "string") throw new Error("Pas de tweet long simulé dans data/demo-carrousel/demo.json (simulation.tweet_long).");
+      return { texte, usage: { input_tokens: Math.ceil(message.length / 3.5), output_tokens: 600 } };
+    },
     journal: { error: () => {} },
   });
 }

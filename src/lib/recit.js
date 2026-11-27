@@ -5,7 +5,7 @@ import { grasDesequilibre, MOTS_GRAS_MAX_PAR_SLIDE, nombreGras, nombreMotsGras, 
 import { motCleNormalise } from "./illustrations.js";
 import { contientChiffre, contientPrenom, estRubrique, FORMULES, restesDeMaquette } from "./ecriture-charte.js";
 
-// Carrousel détaillé (8 slides) et tweet long d'une fiche, écrits par Claude
+// Carrousel détaillé (8 slides) d'une fiche, écrit par Claude
 // à la demande (bouton « Générer le carrousel détaillé » de
 // /test/reseaux/<id>, ou scripts/recit.js) avec le prompt
 // data/prompt-recit.md (sections 1, 2 et 5 de docs/prompt-carrousel.md, qui
@@ -304,8 +304,11 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     illustration_mots_cles: (Array.isArray(raw.illustration_mots_cles) ? raw.illustration_mots_cles : []).map(motCleNormalise).filter(Boolean),
     illustration_sujet: motCleNormalise(raw.illustration_sujet ?? ""),
     legende: Object.fromEntries(PARTIES_LEGENDE.map((partie) => [partie, texte(raw.legende?.[partie])])),
-    tweet: Object.fromEntries(PARTIES_TWEET.map((partie) => [partie, texte(raw.tweet?.[partie])])),
   };
+  // Tweet long : plus demandé au modèle (il a son propre prompt,
+  // src/lib/tweet-long.js). Celui d'un ancien carrousel stocké reste lu.
+  const avecTweet = Boolean(raw.tweet && typeof raw.tweet === "object");
+  if (avecTweet) recit.tweet = Object.fromEntries(PARTIES_TWEET.map((partie) => [partie, texte(raw.tweet?.[partie])]));
   const mesuresBrutes = Array.isArray(raw.ailleurs?.mesures) ? raw.ailleurs.mesures : [];
   if (raw.ailleurs && typeof raw.ailleurs === "object" && mesuresBrutes.length > 0) {
     if (mesuresBrutes.length > 2) avertissements.push(`ailleurs ou avant : ${mesuresBrutes.length} mesures, seules les 2 premières sont gardées.`);
@@ -346,7 +349,7 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     ["avis.tient", recit.avis.tient.length ? "ok" : ""],
     ["avis.coince", recit.avis.coince.length ? "ok" : ""],
     ...PARTIES_LEGENDE.map((partie) => [`legende.${partie}`, recit.legende[partie]]),
-    ...PARTIES_TWEET.map((partie) => [`tweet.${partie}`, recit.tweet[partie]]),
+    ...(avecTweet ? PARTIES_TWEET.map((partie) => [`tweet.${partie}`, recit.tweet[partie]]) : []),
     ...(recit.ailleurs?.mesures ?? []).flatMap((m, i) => [
       [`ailleurs.mesures.${i}.lieu`, m.lieu],
       [`ailleurs.mesures.${i}.fait`, m.fait],
@@ -357,7 +360,7 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
   if (manquants.length > 0) {
     return { valide: false, erreurs: [`JSON invalide : champ(s) manquant(s) ou vide(s) : ${manquants.join(", ")}.`], avertissements, recit: null };
   }
-  recit.tweet_assemble = assemblerTweetRecit(recit.tweet);
+  if (avecTweet) recit.tweet_assemble = assemblerTweetRecit(recit.tweet);
 
   // Tous les textes écrits par le modèle : [libellé, texte, slide, phrases à contrôler ?].
   const textes = [
@@ -397,7 +400,7 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
     ...recit.avis.tient.map((point, i) => [`ce qui tient ${i + 1}`, point, "avis", true]),
     ...recit.avis.coince.map((point, i) => [`ce qui coince ${i + 1}`, point, "avis", true]),
     ...PARTIES_LEGENDE.map((partie) => [`légende (${partie})`, recit.legende[partie], "legende", true]),
-    ...PARTIES_TWEET.map((partie) => [`tweet long (${partie})`, recit.tweet[partie], "tweet", false]),
+    ...(avecTweet ? PARTIES_TWEET.map((partie) => [`tweet long (${partie})`, recit.tweet[partie], "tweet", false]) : []),
   ];
 
   // --- Refus ---
@@ -533,12 +536,12 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
       avertissements.push(`${slide} : ${nombre} mots en gras (${MOTS_GRAS_MAX_PAR_SLIDE} au plus par slide), les passages en trop seront en texte normal.`);
     }
   }
-  if (!mentionneCandidat(recit.tweet.promesse, candidatNom)) avertissements.push("tweet long (promesse) : le candidat n’est pas nommé.");
+  if (avecTweet && !mentionneCandidat(recit.tweet.promesse, candidatNom)) avertissements.push("tweet long (promesse) : le candidat n’est pas nommé.");
   for (const [libelle, t2] of textes) {
     if (/(^|\s)@\w/.test(t2)) avertissements.push(`${libelle} : compte écrit à la main (@…) au lieu de {CANDIDAT}.`);
     if (libelle.startsWith("légende") && /(^|\s)#\w/.test(t2)) avertissements.push(`${libelle} : hashtag écrit par le modèle (le code les ajoute).`);
   }
-  if (valeurs) {
+  if (valeurs && avecTweet) {
     const longueur = longueurX(remplirTweet(recit.tweet_assemble, valeurs));
     if (longueur < TWEET_LONG_MIN || longueur > TWEET_LONG_MAX) {
       avertissements.push(`tweet long : ${longueur} caractères (${TWEET_LONG_MIN} à ${TWEET_LONG_MAX} visés).`);
@@ -551,7 +554,8 @@ export function controlerRecit(raw, { ficheFinale, candidatNom, valeurs, score =
 // --- Remarques et régénération ciblée -------------------------------------------------
 
 // Parties de la réponse du modèle visées par une remarque : une slide (par
-// son type, src/lib/carrousel-recit.js), le tweet long, ou « toutes ».
+// son type, src/lib/carrousel-recit.js), la légende, ou « toutes ». Le tweet
+// long n'en fait plus partie (son propre bouton, src/lib/tweet-long.js).
 // La slide de fin est écrite par le code : elle ne se régénère pas.
 export const PARTIES_PAR_CIBLE = {
   couverture: ["couverture", "illustration_mots_cles", "illustration_sujet"],
@@ -562,9 +566,8 @@ export const PARTIES_PAR_CIBLE = {
   ailleurs: ["ailleurs"],
   avis: ["avis"],
   legende: ["legende"],
-  tweet: ["tweet"],
 };
-const PARTIES_REPONSE = ["couverture", "constat", "note", "court_terme", "long_terme", "ailleurs", "avis", "illustration_mots_cles", "illustration_sujet", "legende", "tweet"];
+const PARTIES_REPONSE = ["couverture", "constat", "note", "court_terme", "long_terme", "ailleurs", "avis", "illustration_mots_cles", "illustration_sujet", "legende"];
 
 export function cibleValide(cible) {
   return cible === "toutes" || Object.hasOwn(PARTIES_PAR_CIBLE, cible);
@@ -654,11 +657,14 @@ function versionArchivee(recit) {
 // contenuComplet après écriture : seule la clé reseaux_recit change ; l'ancien
 // récit (s'il y en avait un) y est gardé sous `precedent`, sans remonter plus
 // loin ; le journal des remarques (`retours`) est conservé.
+// Un ancien tweet long (généré avec le carrousel) est reporté sur la nouvelle
+// version, pour rester lisible en section 5.
 export function contenuAvecRecit(contenu, recit, retour = null) {
   const base = contenu ?? {};
   const ancien = versionArchivee(base.reseaux_recit);
   const retours = [...(base.reseaux_recit?.retours ?? []), ...(retour ? [retour] : [])];
-  return { ...base, reseaux_recit: { ...recit, ...(ancien ? { precedent: ancien } : {}), ...(retours.length ? { retours } : {}) } };
+  const ancienTweet = !recit.tweet_assemble && ancien?.tweet_assemble ? { tweet: ancien.tweet, tweet_assemble: ancien.tweet_assemble } : {};
+  return { ...base, reseaux_recit: { ...recit, ...ancienTweet, ...(ancien ? { precedent: ancien } : {}), ...(retours.length ? { retours } : {}) } };
 }
 
 // contenuComplet avec une entrée de plus au journal des remarques (régénération

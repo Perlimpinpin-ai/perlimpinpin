@@ -266,7 +266,7 @@ export function slidesDuRecit(recit) {
 }
 
 // Slide visée par une remarque ({ numero, libelle }), ou null pour « toutes »,
-// la légende et le tweet long.
+// la légende.
 export function slideDeCible(recit, cible) {
   const slide = slidesDuRecit(recit).find((s) => s.type === cible);
   return slide ? { numero: slide.numero, libelle: slide.libelle } : null;
@@ -281,7 +281,6 @@ export function ciblesRemarques(recit) {
       .filter((s) => s.type !== "fin")
       .map((s) => ({ valeur: s.type, libelle: `Slide ${s.numero} · ${s.libelle}` })),
     { valeur: "legende", libelle: "La légende" },
-    { valeur: "tweet", libelle: "Le tweet long" },
   ];
 }
 

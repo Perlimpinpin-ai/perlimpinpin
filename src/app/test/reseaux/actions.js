@@ -1,6 +1,6 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { prisma } from "@/lib/prisma";
 import { isEditor } from "@/lib/test-auth";
@@ -11,7 +11,9 @@ import { genererRecitCore, requeteRecit } from "@/lib/recit-generation";
 import { changerPhotoCore, estimerRecitCore, genererRecitPourFicheCore, regenererAvecRemarquesCore, revenirAuPrecedentCore } from "@/lib/recit-action-core";
 import { photosTirage } from "@/lib/photos-candidats-serveur";
 import { historiqueImages } from "@/lib/banque-images";
-import { DEMO_ACTIVE, genererDemo, ID_DEMO, prismaDemo } from "@/lib/carrousel-demo";
+import { DEMO_ACTIVE, genererDemo, genererTweetLongDemo, ID_DEMO, prismaDemo } from "@/lib/carrousel-demo";
+import { genererTweetLongCore, introDe, requeteTweetLong } from "@/lib/tweet-long";
+import { estimerTweetLongCore, genererTweetLongPourFicheCore } from "@/lib/tweet-long-action-core";
 import { debordementsDuRecit } from "@/lib/carrousel-serveur";
 
 // Actions du carrousel détaillé de /test/reseaux/[id] : « Générer le
@@ -26,11 +28,11 @@ import { debordementsDuRecit } from "@/lib/carrousel-serveur";
 // Sauvegarde de la ligne actuelle dans logs/sauvegardes/, comme
 // scripts/reseaux.js. Sur un serveur sans disque inscriptible (Vercel), elle
 // échoue : l'action le signale et l'ancienne version reste gardée sous `precedent`.
-async function sauvegarder({ analyse, contenu }) {
+async function sauvegarder({ analyse, contenu }, quoi = "carrousel-detaille") {
   const dossier = join(process.cwd(), "logs", "sauvegardes");
   await mkdir(dossier, { recursive: true });
   const horodatage = new Date().toISOString().replace(/[:.]/g, "-");
-  const cible = join(dossier, `analyse-${analyse.id}-avant-carrousel-detaille-${horodatage}.json`);
+  const cible = join(dossier, `analyse-${analyse.id}-avant-${quoi}-${horodatage}.json`);
   await writeFile(cible, `${JSON.stringify({ analyseId: analyse.id, statut: analyse.statut, contenuComplet: contenu }, null, 2)}\n`, "utf-8");
   return cible;
 }
@@ -129,4 +131,56 @@ export async function revenirAuPrecedentAction(propositionId, brouillon = false)
   const d = dependances(propositionId, brouillon);
   if (!d) return INTROUVABLE;
   return protege(() => revenirAuPrecedentCore(d.id, { ...d, isEditor }));
+}
+
+// --- Tweet long (section 5) : son propre prompt, son propre appel ---------------------
+
+async function lirePromptTweetLong() {
+  return readFile(join(process.cwd(), "data", "prompt-tweet-long.md"), "utf-8");
+}
+
+// Phrase d'introduction de l'analyse du dernier tweet long généré (toutes
+// fiches confondues), pour varier d'une publication à l'autre. Lecture seule.
+async function introPrecedente() {
+  const lignes = await prisma.$queryRaw`
+    SELECT a."contenuComplet"->'reseaux_tweet_long'->>'corps_modele' AS corps
+    FROM "Analyse" a
+    WHERE jsonb_exists(a."contenuComplet", 'reseaux_tweet_long')
+    ORDER BY a."contenuComplet"->'reseaux_tweet_long'->>'date' DESC NULLS LAST
+    LIMIT 1
+  `;
+  return introDe(lignes[0]?.corps ?? "");
+}
+
+function genererTweetLongReel(contenu, options) {
+  return lirePromptTweetLong().then((prompt) => genererTweetLongCore({ ...options, contenu, prompt, appeler: (message) => appelerClaude(requeteTweetLong(message)) }));
+}
+
+function dependancesTweetLong(propositionId, brouillon) {
+  if (propositionId === ID_DEMO) {
+    if (!DEMO_ACTIVE) return null;
+    return { id: 1, brouillon: true, prisma: prismaDemo(), dryRun: false, cleConfiguree: true, generer: genererTweetLongDemo, sauvegarder: async () => null, introPrecedente: async () => "" };
+  }
+  return {
+    id: Number(propositionId),
+    brouillon: Boolean(brouillon),
+    prisma,
+    dryRun: process.env.TEST_DRY_RUN === "1",
+    cleConfiguree: cleApiConfiguree(),
+    generer: genererTweetLongReel,
+    sauvegarder: (ligne) => sauvegarder(ligne, "tweet-long"),
+    introPrecedente,
+  };
+}
+
+export async function estimerTweetLongAction(propositionId, brouillon = false) {
+  const d = dependancesTweetLong(propositionId, brouillon);
+  if (!d) return INTROUVABLE;
+  return protege(() => estimerTweetLongCore(d.id, { brouillon: d.brouillon, isEditor, prisma: d.prisma, lirePrompt: lirePromptTweetLong }));
+}
+
+export async function genererTweetLongAction(propositionId, brouillon = false) {
+  const d = dependancesTweetLong(propositionId, brouillon);
+  if (!d) return INTROUVABLE;
+  return protege(() => genererTweetLongPourFicheCore(d.id, { ...d, isEditor }));
 }
